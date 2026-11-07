@@ -196,3 +196,4 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
     );
   }
 }
+

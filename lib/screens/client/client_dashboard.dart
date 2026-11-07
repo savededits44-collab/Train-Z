@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../widgets/app_widgets.dart';
+import '../../widgets/logout_dialog.dart';
 
 class ClientDashboard extends StatefulWidget {
   const ClientDashboard({super.key});
@@ -26,16 +27,20 @@ class _ClientDashboardState extends State<ClientDashboard> {
     );
   }
 
+  void _onLogout() {
+    showLogoutDialog(context, isTrainer: false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final sf = scaleFactor(context);
     final w  = MediaQuery.of(context).size.width;
 
     final pages = [
-      _HomeTab(sf: sf, w: w),
-      _PlaceholderTab(icon: Iconsax.search_normal, label: 'Find Trainers'),
-      _PlaceholderTab(icon: Iconsax.calendar_1, label: 'Sessions'),
-      _PlaceholderTab(icon: Iconsax.profile_circle, label: 'Profile'),
+      _HomeTab(sf: sf, w: w, onLogout: _onLogout),
+      const _PlaceholderTab(icon: Iconsax.search_normal, label: 'Find Trainers'),
+      const _PlaceholderTab(icon: Iconsax.calendar_1, label: 'Sessions'),
+      _ClientProfileTab(sf: sf, onLogout: _onLogout),
     ];
 
     return Scaffold(
@@ -54,7 +59,13 @@ class _ClientDashboardState extends State<ClientDashboard> {
 class _HomeTab extends StatelessWidget {
   final double sf;
   final double w;
-  const _HomeTab({required this.sf, required this.w});
+  final VoidCallback onLogout;
+
+  const _HomeTab({
+    required this.sf,
+    required this.w,
+    required this.onLogout,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -69,23 +80,46 @@ class _HomeTab extends StatelessWidget {
           children: [
             SizedBox(height: (h * 0.03).clamp(16, 28)),
 
-            // Header row
+            // Header row with logo, notifications, and logout button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 AppLogo(fontSize: (14.0 * sf).clamp(12, 18)),
-                Container(
-                  width: (36.0 * sf).clamp(30, 44),
-                  height: (36.0 * sf).clamp(30, 44),
-                  decoration: const BoxDecoration(
-                    color: kField,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Iconsax.notification,
-                    size: (18.0 * sf).clamp(14, 22),
-                    color: kDark,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      width: (36.0 * sf).clamp(30, 44),
+                      height: (36.0 * sf).clamp(30, 44),
+                      decoration: const BoxDecoration(
+                        color: kField,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Iconsax.notification,
+                        size: (18.0 * sf).clamp(14, 22),
+                        color: kDark,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Log out quick action button
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: onLogout,
+                      child: Container(
+                        width: (36.0 * sf).clamp(30, 44),
+                        height: (36.0 * sf).clamp(30, 44),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFEBEE),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Iconsax.logout,
+                          size: (17.0 * sf).clamp(14, 20),
+                          color: const Color(0xFFE53935),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -365,6 +399,206 @@ class _StatCard extends StatelessWidget {
   }
 }
 
+// ── Client Profile Tab with Log Out ───────────────────────────────────────────
+class _ClientProfileTab extends StatelessWidget {
+  final double sf;
+  final VoidCallback onLogout;
+
+  const _ClientProfileTab({
+    required this.sf,
+    required this.onLogout,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final hPad = (w * 0.072).clamp(18.0, 32.0);
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: hPad),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Profile',
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: (24.0 * sf).clamp(20.0, 30.0),
+                    fontWeight: FontWeight.w800,
+                    color: kDark,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: kField,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Athlete',
+                    style: TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: kDark,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // User Card
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: kField,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: const BoxDecoration(
+                      color: kDark,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Iconsax.user, color: kLime, size: 26),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Alex Hunter',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: kDark,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'alex.hunter@example.com',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                            color: kGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 28),
+            Text(
+              'Account',
+              style: TextStyle(
+                fontFamily: 'Syne',
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: kDark,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _ProfileTile(icon: Iconsax.user_edit, label: 'Edit Profile', sf: sf),
+            _ProfileTile(icon: Iconsax.notification, label: 'Notifications', sf: sf),
+            _ProfileTile(icon: Iconsax.shield_tick, label: 'Privacy & Security', sf: sf),
+            _ProfileTile(icon: Iconsax.message_question, label: 'Help & Support', sf: sf),
+
+            const SizedBox(height: 32),
+
+            // Prominent Log Out Button
+            SizedBox(
+              width: double.infinity,
+              height: (50.0 * sf).clamp(44.0, 56.0),
+              child: ElevatedButton.icon(
+                onPressed: onLogout,
+                icon: const Icon(Iconsax.logout, size: 18, color: Color(0xFFE53935)),
+                label: const Text(
+                  'Log Out',
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFE53935),
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFEBEE),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final double sf;
+
+  const _ProfileTile({
+    required this.icon,
+    required this.label,
+    required this.sf,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {},
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: kBorder),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: kDark),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: (13.0 * sf).clamp(11.0, 14.0),
+                    fontWeight: FontWeight.w500,
+                    color: kDark,
+                  ),
+                ),
+              ),
+              const Icon(Icons.chevron_right, size: 18, color: Color(0xFFBBBBBB)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ── Bottom Nav ────────────────────────────────────────────────────────────────
 class _BottomNav extends StatelessWidget {
   final int current;
@@ -486,4 +720,3 @@ class _PlaceholderTab extends StatelessWidget {
     );
   }
 }
-
