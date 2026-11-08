@@ -1,0 +1,31 @@
+{
+  "name": "train-x-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TRAIN X — Premium Fitness Trainer-Booking Platform Monorepo",
+  "workspaces": [
+    "backend",
+    "admin"
+  ],
+  "scripts": {
+    "backend:dev": "npm run start:dev --workspace=backend",
+    "backend:build": "npm run build --workspace=backend",
+    "admin:dev": "npm run dev --workspace=admin",
+    "admin:build": "npm run build --workspace=admin",
+    "mobile:run": "cd mobile && flutter run",
+    "mobile:analyze": "cd mobile && flutter analyze",
+    "prisma:generate": "npm run prisma:generate --workspace=backend",
+    "prisma:migrate": "npm run prisma:migrate --workspace=backend",
+    "prisma:studio": "npm run prisma:studio --workspace=backend"
+  },
+  "keywords": [
+    "train-x",
+    "fitness",
+    "trainer-booking",
+    "nestjs",
+    "nextjs",
+    "flutter"
+  ],
+  "author": "TRAIN X Engineering Team",
+  "license": "UNLICENSED"
+}

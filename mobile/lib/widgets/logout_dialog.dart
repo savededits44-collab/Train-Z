@@ -131,3 +131,4 @@ Future<void> showLogoutDialog(BuildContext context, {required bool isTrainer}) a
     );
   }
 }
+
