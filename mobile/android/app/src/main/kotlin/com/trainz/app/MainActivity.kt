@@ -1,4 +1,4 @@
-package com.example.trainuspro
+package com.trainz.app
 
 import io.flutter.embedding.android.FlutterActivity
 
