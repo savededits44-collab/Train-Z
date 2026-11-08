@@ -4,7 +4,7 @@ import '../screens/login_screen.dart';
 import '../services/auth_service.dart';
 import 'app_widgets.dart';
 
-Future<void> showLogoutDialog(BuildContext context, {required bool isTrainer}) async {
+Future<void> showLogoutDialog(BuildContext context, {bool isTrainer = false}) async {
   final sf = scaleFactor(context);
 
   final bool? confirm = await showModalBottomSheet<bool>(
@@ -128,7 +128,7 @@ Future<void> showLogoutDialog(BuildContext context, {required bool isTrainer}) a
     if (!context.mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
-        builder: (_) => LoginScreen(initialIsTrainer: isTrainer),
+        builder: (_) => const LoginScreen(),
       ),
       (route) => false,
     );

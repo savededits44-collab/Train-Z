@@ -19,7 +19,6 @@ class AuthService {
     required String name,
     required String email,
     required String password,
-    required bool isTrainer,
   }) async {
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email.trim(),
@@ -30,12 +29,12 @@ class AuthService {
     if (user != null) {
       await user.updateDisplayName(name.trim());
 
-      // Save initial profile in Firestore
+      // Save initial profile in Firestore without setting role yet
       await _firestore.collection('users').doc(user.uid).set({
         'uid': user.uid,
         'name': name.trim(),
         'email': email.trim(),
-        'role': isTrainer ? 'trainer' : 'client',
+        'role': null,
         'createdAt': FieldValue.serverTimestamp(),
         'onboarded': false,
       }, SetOptions(merge: true));
@@ -56,7 +55,7 @@ class AuthService {
   }
 
   /// Continue / Sign in with Google
-  Future<UserCredential?> signInWithGoogle({required bool isTrainer}) async {
+  Future<UserCredential?> signInWithGoogle() async {
     // Trigger Google Authentication flow
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
     if (googleUser == null) return null; // User cancelled
@@ -83,7 +82,7 @@ class AuthService {
           'name': user.displayName ?? googleUser.displayName ?? '',
           'email': user.email ?? googleUser.email,
           'photoUrl': user.photoURL,
-          'role': isTrainer ? 'trainer' : 'client',
+          'role': null,
           'createdAt': FieldValue.serverTimestamp(),
           'onboarded': false,
         });
@@ -108,6 +107,7 @@ class AuthService {
     if (uid == null) return;
 
     await _firestore.collection('users').doc(uid).set({
+      'role': 'client',
       'goal': goal,
       'fitnessLevel': fitnessLevel,
       'onboarded': true,
@@ -125,6 +125,7 @@ class AuthService {
     if (uid == null) return;
 
     await _firestore.collection('users').doc(uid).set({
+      'role': 'trainer',
       'specialties': specialties,
       'experience': experience,
       'bio': bio,
@@ -141,3 +142,4 @@ class AuthService {
     ]);
   }
 }
+

@@ -4,14 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../services/auth_service.dart';
 import '../widgets/app_widgets.dart';
+import 'client/client_dashboard.dart';
 import 'login_screen.dart';
-import 'onboarding/client_onboarding.dart';
-import 'onboarding/trainer_onboarding.dart';
+import 'onboarding/role_selection_screen.dart';
+import 'trainer/trainer_dashboard.dart';
 
 class SignupScreen extends StatefulWidget {
-  final bool initialIsTrainer;
-
-  const SignupScreen({super.key, this.initialIsTrainer = false});
+  const SignupScreen({super.key});
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
@@ -22,7 +21,6 @@ class _SignupScreenState extends State<SignupScreen>
   late AnimationController _controller;
   late Animation<double> _fadeSlide;
 
-  late bool _isTrainer;
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -32,7 +30,6 @@ class _SignupScreenState extends State<SignupScreen>
   @override
   void initState() {
     super.initState();
-    _isTrainer = widget.initialIsTrainer;
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -58,6 +55,28 @@ class _SignupScreenState extends State<SignupScreen>
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _navigateAfterAuth({
+    String? role,
+    required bool isOnboarded,
+  }) {
+    if (!mounted) return;
+    if (isOnboarded && role != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => role == 'trainer'
+              ? const TrainerDashboard()
+              : const ClientDashboard(),
+        ),
+      );
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => const RoleSelectionScreen(),
+        ),
+      );
+    }
   }
 
   void _handleSignup() async {
@@ -91,21 +110,17 @@ class _SignupScreenState extends State<SignupScreen>
         name: name,
         email: email,
         password: password,
-        isTrainer: _isTrainer,
       );
 
       if (!mounted) return;
       setState(() => _loading = false);
 
-      if (_isTrainer) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const TrainerOnboardingScreen()),
-        );
-      } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const ClientOnboardingScreen()),
-        );
-      }
+      // New email signup goes directly to role selection onboarding
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => const RoleSelectionScreen(),
+        ),
+      );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -140,21 +155,29 @@ class _SignupScreenState extends State<SignupScreen>
   void _handleGoogleSignup() async {
     setState(() => _loading = true);
     try {
-      final credential = await AuthService().signInWithGoogle(isTrainer: _isTrainer);
+      final credential = await AuthService().signInWithGoogle();
       if (!mounted) return;
       setState(() => _loading = false);
 
       if (credential == null) return; // User cancelled
 
-      if (_isTrainer) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const TrainerOnboardingScreen()),
-        );
-      } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const ClientOnboardingScreen()),
-        );
+      final user = credential.user;
+      String? role;
+      bool isOnboarded = false;
+
+      if (user != null) {
+        final profile = await AuthService().getUserProfile(user.uid);
+        if (profile != null) {
+          role = profile['role'] as String?;
+          isOnboarded = profile['onboarded'] == true;
+        }
       }
+
+      if (!mounted) return;
+      _navigateAfterAuth(
+        role: role,
+        isOnboarded: isOnboarded,
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -194,93 +217,10 @@ class _SignupScreenState extends State<SignupScreen>
               children: [
                 SizedBox(height: (h * 0.045 * sf).clamp(24.0, 48.0)),
                 const AppLogo(fontSize: 16),
-                SizedBox(height: (h * 0.035 * sf).clamp(16.0, 36.0)),
-
-                // Role selector toggle
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: kField,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _isTrainer = false),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                              color: !_isTrainer ? kDark : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Iconsax.user,
-                                  size: 16,
-                                  color: !_isTrainer ? kLime : const Color(0xFF999999),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Client / Athlete',
-                                  style: TextStyle(
-                                    fontFamily: 'Syne',
-                                    fontSize: (12.0 * sf).clamp(11.0, 13.0),
-                                    fontWeight: FontWeight.w700,
-                                    color: !_isTrainer ? Colors.white : const Color(0xFF888888),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _isTrainer = true),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                              color: _isTrainer ? kDark : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Iconsax.teacher,
-                                  size: 16,
-                                  color: _isTrainer ? kLime : const Color(0xFF999999),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Coach / Trainer',
-                                  style: TextStyle(
-                                    fontFamily: 'Syne',
-                                    fontSize: (12.0 * sf).clamp(11.0, 13.0),
-                                    fontWeight: FontWeight.w700,
-                                    color: _isTrainer ? Colors.white : const Color(0xFF888888),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: (h * 0.03 * sf).clamp(14.0, 28.0)),
+                SizedBox(height: (h * 0.04 * sf).clamp(20.0, 40.0)),
 
                 Text(
-                  _isTrainer ? 'Join as a\nTrainer.' : 'Create an\naccount.',
+                  'Create an\naccount.',
                   style: TextStyle(
                     fontFamily: 'Syne',
                     fontSize: (30.0 * sf).clamp(24.0, 38.0),
@@ -291,9 +231,7 @@ class _SignupScreenState extends State<SignupScreen>
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  _isTrainer
-                      ? 'Reach clients and grow your fitness career.'
-                      : 'Find top trainers and achieve peak performance.',
+                  'Join Trainuspro to connect with trainers and track your progress.',
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: (13.0 * sf).clamp(11.0, 14.0),
@@ -301,7 +239,7 @@ class _SignupScreenState extends State<SignupScreen>
                   ),
                 ),
 
-                SizedBox(height: (h * 0.03 * sf).clamp(16.0, 32.0)),
+                SizedBox(height: (h * 0.035 * sf).clamp(20.0, 36.0)),
 
                 AppTextField(
                   controller: _nameController,
@@ -398,4 +336,3 @@ class _SignupScreenState extends State<SignupScreen>
     );
   }
 }
-

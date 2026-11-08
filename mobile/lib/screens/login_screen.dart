@@ -5,13 +5,12 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../services/auth_service.dart';
 import '../widgets/app_widgets.dart';
 import 'client/client_dashboard.dart';
+import 'onboarding/role_selection_screen.dart';
 import 'signup_screen.dart';
 import 'trainer/trainer_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
-  final bool initialIsTrainer;
-
-  const LoginScreen({super.key, this.initialIsTrainer = false});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -22,7 +21,6 @@ class _LoginScreenState extends State<LoginScreen>
   late AnimationController _controller;
   late Animation<double> _fadeSlide;
 
-  late bool _isTrainer;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
@@ -31,7 +29,6 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
-    _isTrainer = widget.initialIsTrainer;
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -58,6 +55,29 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+  void _navigateAfterAuth({
+    String? role,
+    required bool isOnboarded,
+  }) {
+    if (!mounted) return;
+    if (isOnboarded && role != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => role == 'trainer'
+              ? const TrainerDashboard()
+              : const ClientDashboard(),
+        ),
+      );
+    } else {
+      // Role selection and onboarding needed
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => const RoleSelectionScreen(),
+        ),
+      );
+    }
+  }
+
   void _handleLogin() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -80,28 +100,24 @@ class _LoginScreenState extends State<LoginScreen>
       );
 
       final user = credential.user;
-      bool targetIsTrainer = _isTrainer;
+      String? role;
+      bool isOnboarded = false;
 
       if (user != null) {
         final profile = await AuthService().getUserProfile(user.uid);
-        if (profile != null && profile['role'] != null) {
-          targetIsTrainer = profile['role'] == 'trainer';
+        if (profile != null) {
+          role = profile['role'] as String?;
+          isOnboarded = profile['onboarded'] == true;
         }
       }
 
       if (!mounted) return;
       setState(() => _loading = false);
 
-      if (!mounted) return;
-      if (targetIsTrainer) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const TrainerDashboard()),
-        );
-      } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const ClientDashboard()),
-        );
-      }
+      _navigateAfterAuth(
+        role: role,
+        isOnboarded: isOnboarded,
+      );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -138,32 +154,29 @@ class _LoginScreenState extends State<LoginScreen>
   void _handleGoogleLogin() async {
     setState(() => _loading = true);
     try {
-      final credential = await AuthService().signInWithGoogle(isTrainer: _isTrainer);
+      final credential = await AuthService().signInWithGoogle();
       if (!mounted) return;
       setState(() => _loading = false);
 
       if (credential == null) return; // User cancelled
 
       final user = credential.user;
-      bool targetIsTrainer = _isTrainer;
+      String? role;
+      bool isOnboarded = false;
 
       if (user != null) {
         final profile = await AuthService().getUserProfile(user.uid);
-        if (profile != null && profile['role'] != null) {
-          targetIsTrainer = profile['role'] == 'trainer';
+        if (profile != null) {
+          role = profile['role'] as String?;
+          isOnboarded = profile['onboarded'] == true;
         }
       }
 
       if (!mounted) return;
-      if (targetIsTrainer) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const TrainerDashboard()),
-        );
-      } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const ClientDashboard()),
-        );
-      }
+      _navigateAfterAuth(
+        role: role,
+        isOnboarded: isOnboarded,
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -185,8 +198,8 @@ class _LoginScreenState extends State<LoginScreen>
 
     final double hPad = (w * 0.072).clamp(18.0, 32.0);
     final double topGap = (h * 0.045 * sf).clamp(24.0, 48.0);
-    final double headingTop = (h * 0.03 * sf).clamp(14.0, 28.0);
-    final double afterSub = (h * 0.035 * sf).clamp(16.0, 32.0);
+    final double headingTop = (h * 0.04 * sf).clamp(20.0, 40.0);
+    final double afterSub = (h * 0.04 * sf).clamp(20.0, 38.0);
     final double fieldGap = (h * 0.016 * sf).clamp(10.0, 16.0);
     final double btnTop = (h * 0.030 * sf).clamp(16.0, 30.0);
     final double divGap = (h * 0.018 * sf).clamp(10.0, 18.0);
@@ -215,93 +228,10 @@ class _LoginScreenState extends State<LoginScreen>
 
                 const AppLogo(fontSize: 16),
 
-                SizedBox(height: (h * 0.03 * sf).clamp(14.0, 26.0)),
-
-                // Role selector pill
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: kField,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _isTrainer = false),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                              color: !_isTrainer ? kDark : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Iconsax.user,
-                                  size: 16,
-                                  color: !_isTrainer ? kLime : const Color(0xFF999999),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Client / Athlete',
-                                  style: TextStyle(
-                                    fontFamily: 'Syne',
-                                    fontSize: (12.0 * sf).clamp(11.0, 13.0),
-                                    fontWeight: FontWeight.w700,
-                                    color: !_isTrainer ? Colors.white : const Color(0xFF888888),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _isTrainer = true),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                              color: _isTrainer ? kDark : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Iconsax.teacher,
-                                  size: 16,
-                                  color: _isTrainer ? kLime : const Color(0xFF999999),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Coach / Trainer',
-                                  style: TextStyle(
-                                    fontFamily: 'Syne',
-                                    fontSize: (12.0 * sf).clamp(11.0, 13.0),
-                                    fontWeight: FontWeight.w700,
-                                    color: _isTrainer ? Colors.white : const Color(0xFF888888),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
                 SizedBox(height: headingTop),
 
                 Text(
-                  _isTrainer ? 'Trainer\nPortal.' : 'Welcome\nback.',
+                  'Welcome\nback.',
                   style: TextStyle(
                     fontFamily: 'Syne',
                     fontSize: headingSize,
@@ -314,9 +244,7 @@ class _LoginScreenState extends State<LoginScreen>
                 const SizedBox(height: 6),
 
                 Text(
-                  _isTrainer
-                      ? 'Sign in to manage your athletes & sessions.'
-                      : 'Sign in to access your workout plan & trainers.',
+                  'Sign in to access your workouts & sessions.',
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: subSize,
@@ -409,9 +337,7 @@ class _LoginScreenState extends State<LoginScreen>
                         onTap: () {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                              builder: (_) => SignupScreen(
-                                initialIsTrainer: _isTrainer,
-                              ),
+                              builder: (_) => const SignupScreen(),
                             ),
                           );
                         },
