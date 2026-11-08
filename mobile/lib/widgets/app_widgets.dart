@@ -24,23 +24,23 @@ class AppLogo extends StatelessWidget {
       text: TextSpan(
         children: [
           TextSpan(
-            text: 'trainus',
+            text: 'Train',
             style: TextStyle(
               fontFamily: 'Syne',
               fontSize: fontSize,
               fontWeight: FontWeight.w800,
               color: kDark,
-              letterSpacing: fontSize * 0.06,
+              letterSpacing: fontSize * 0.04,
             ),
           ),
           TextSpan(
-            text: 'pro',
+            text: 'Z',
             style: TextStyle(
               fontFamily: 'Syne',
               fontSize: fontSize,
               fontWeight: FontWeight.w800,
               color: kLime,
-              letterSpacing: fontSize * 0.06,
+              letterSpacing: fontSize * 0.04,
             ),
           ),
         ],
