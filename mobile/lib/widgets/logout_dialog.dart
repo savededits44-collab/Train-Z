@@ -57,7 +57,7 @@ Future<void> showLogoutDialog(BuildContext context, {bool isTrainer = false}) as
               ),
               const SizedBox(height: 6),
               Text(
-                'Are you sure you want to log out of Trainuspro?',
+                'Are you sure you want to log out of Trainz?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Poppins',

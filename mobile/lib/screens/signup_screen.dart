@@ -231,7 +231,7 @@ class _SignupScreenState extends State<SignupScreen>
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Join Trainuspro to connect with trainers and track your progress.',
+                  'Join Trainzto connect with trainers and track your progress.',
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: (13.0 * sf).clamp(11.0, 14.0),

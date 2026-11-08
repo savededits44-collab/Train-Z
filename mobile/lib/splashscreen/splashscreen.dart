@@ -94,7 +94,7 @@ class _SplashScreenState extends State<SplashScreen>
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: 'trainus',
+                  text: 'train',
                   style: TextStyle(
                     fontFamily: 'Syne',
                     fontSize: fontSize,
@@ -104,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 TextSpan(
-                  text: 'pro',
+                  text: 'z',
                   style: TextStyle(
                     fontFamily: 'Syne',
                     fontSize: fontSize,
