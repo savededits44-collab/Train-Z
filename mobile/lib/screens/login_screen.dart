@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../services/auth_service.dart';
 import '../widgets/app_widgets.dart';
 import 'client/client_dashboard.dart';
 import 'signup_screen.dart';
@@ -57,18 +59,119 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _handleLogin() async {
-    setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (!mounted) return;
-    setState(() => _loading = false);
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
-    if (_isTrainer) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const TrainerDashboard()),
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter both email and password.'),
+          backgroundColor: Color(0xFF111111),
+        ),
       );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const ClientDashboard()),
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      final credential = await AuthService().signInWithEmail(
+        email: email,
+        password: password,
+      );
+
+      final user = credential.user;
+      bool targetIsTrainer = _isTrainer;
+
+      if (user != null) {
+        final profile = await AuthService().getUserProfile(user.uid);
+        if (profile != null && profile['role'] != null) {
+          targetIsTrainer = profile['role'] == 'trainer';
+        }
+      }
+
+      if (!mounted) return;
+      setState(() => _loading = false);
+
+      if (!mounted) return;
+      if (targetIsTrainer) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const TrainerDashboard()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const ClientDashboard()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      String msg = 'Authentication failed. Please check your credentials.';
+      if (e.code == 'user-not-found') {
+        msg = 'No user found for that email.';
+      } else if (e.code == 'wrong-password') {
+        msg = 'Incorrect password.';
+      } else if (e.code == 'invalid-email') {
+        msg = 'The email address is badly formatted.';
+      } else if (e.code == 'invalid-credential') {
+        msg = 'Invalid email or password.';
+      } else if (e.message != null) {
+        msg = e.message!;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(msg),
+          backgroundColor: const Color(0xFFE53935),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sign-in error: $e'),
+          backgroundColor: const Color(0xFFE53935),
+        ),
+      );
+    }
+  }
+
+  void _handleGoogleLogin() async {
+    setState(() => _loading = true);
+    try {
+      final credential = await AuthService().signInWithGoogle(isTrainer: _isTrainer);
+      if (!mounted) return;
+      setState(() => _loading = false);
+
+      if (credential == null) return; // User cancelled
+
+      final user = credential.user;
+      bool targetIsTrainer = _isTrainer;
+
+      if (user != null) {
+        final profile = await AuthService().getUserProfile(user.uid);
+        if (profile != null && profile['role'] != null) {
+          targetIsTrainer = profile['role'] == 'trainer';
+        }
+      }
+
+      if (!mounted) return;
+      if (targetIsTrainer) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const TrainerDashboard()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const ClientDashboard()),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google Sign-In: $e'),
+          backgroundColor: const Color(0xFFE53935),
+        ),
       );
     }
   }
@@ -285,7 +388,7 @@ class _LoginScreenState extends State<LoginScreen>
                 SizedBox(height: divGap),
 
                 GoogleSignInButton(
-                  onTap: _handleLogin,
+                  onTap: _handleGoogleLogin,
                 ),
 
                 SizedBox(height: (h * 0.045 * sf).clamp(20.0, 38.0)),

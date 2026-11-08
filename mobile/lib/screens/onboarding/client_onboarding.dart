@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../services/auth_service.dart';
 import '../../widgets/app_widgets.dart';
 import '../client/client_dashboard.dart';
 
@@ -13,6 +14,7 @@ class ClientOnboardingScreen extends StatefulWidget {
 class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
   int _selectedGoal = 0;
   int _selectedLevel = 1;
+  bool _loading = false;
 
   final List<String> _goals = [
     'Build Muscle & Strength',
@@ -171,8 +173,21 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
               SizedBox(height: (h * 0.045 * sf).clamp(24.0, 48.0)),
               AppPrimaryButton(
                 label: 'Get Started',
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
+                loading: _loading,
+                onTap: () async {
+                  final nav = Navigator.of(context);
+                  setState(() => _loading = true);
+                  try {
+                    await AuthService().saveClientOnboarding(
+                      goal: _goals[_selectedGoal],
+                      fitnessLevel: _levels[_selectedLevel],
+                    );
+                  } catch (e) {
+                    debugPrint('Error saving onboarding: $e');
+                  }
+                  if (!mounted) return;
+                  setState(() => _loading = false);
+                  nav.pushReplacement(
                     MaterialPageRoute(
                       builder: (_) => const ClientDashboard(),
                     ),

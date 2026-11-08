@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../services/auth_service.dart';
 import '../../widgets/app_widgets.dart';
 import '../trainer/trainer_dashboard.dart';
 
@@ -15,6 +16,7 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
   final Set<String> _selectedSpecialties = {'Strength & Conditioning'};
   final _bioController = TextEditingController();
   final _experienceController = TextEditingController();
+  bool _loading = false;
 
   final List<String> _specialties = [
     'Strength & Conditioning',
@@ -180,8 +182,22 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
               SizedBox(height: (h * 0.045 * sf).clamp(24.0, 48.0)),
               AppPrimaryButton(
                 label: 'Complete Setup',
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
+                loading: _loading,
+                onTap: () async {
+                  final nav = Navigator.of(context);
+                  setState(() => _loading = true);
+                  try {
+                    await AuthService().saveTrainerOnboarding(
+                      specialties: _selectedSpecialties.toList(),
+                      experience: _experienceController.text.trim(),
+                      bio: _bioController.text.trim(),
+                    );
+                  } catch (e) {
+                    debugPrint('Error saving trainer onboarding: $e');
+                  }
+                  if (!mounted) return;
+                  setState(() => _loading = false);
+                  nav.pushReplacement(
                     MaterialPageRoute(
                       builder: (_) => const TrainerDashboard(),
                     ),

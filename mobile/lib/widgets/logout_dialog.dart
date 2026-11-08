@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../screens/login_screen.dart';
+import '../services/auth_service.dart';
 import 'app_widgets.dart';
 
 Future<void> showLogoutDialog(BuildContext context, {required bool isTrainer}) async {
@@ -123,6 +124,8 @@ Future<void> showLogoutDialog(BuildContext context, {required bool isTrainer}) a
   );
 
   if (confirm == true && context.mounted) {
+    await AuthService().signOut();
+    if (!context.mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
         builder: (_) => LoginScreen(initialIsTrainer: isTrainer),

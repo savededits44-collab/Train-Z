@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../services/auth_service.dart';
 import '../widgets/app_widgets.dart';
 import 'login_screen.dart';
 import 'onboarding/client_onboarding.dart';
@@ -59,18 +61,108 @@ class _SignupScreenState extends State<SignupScreen>
   }
 
   void _handleSignup() async {
-    setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 900));
-    if (!mounted) return;
-    setState(() => _loading = false);
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
-    if (_isTrainer) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const TrainerOnboardingScreen()),
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all fields.'),
+          backgroundColor: Color(0xFF111111),
+        ),
       );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const ClientOnboardingScreen()),
+      return;
+    }
+
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password should be at least 6 characters.'),
+          backgroundColor: Color(0xFFE53935),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      await AuthService().signUpWithEmail(
+        name: name,
+        email: email,
+        password: password,
+        isTrainer: _isTrainer,
+      );
+
+      if (!mounted) return;
+      setState(() => _loading = false);
+
+      if (_isTrainer) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const TrainerOnboardingScreen()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const ClientOnboardingScreen()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      String msg = 'Signup failed. Please try again.';
+      if (e.code == 'email-already-in-use') {
+        msg = 'An account already exists for this email.';
+      } else if (e.code == 'invalid-email') {
+        msg = 'The email address is badly formatted.';
+      } else if (e.code == 'weak-password') {
+        msg = 'The password is too weak.';
+      } else if (e.message != null) {
+        msg = e.message!;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(msg),
+          backgroundColor: const Color(0xFFE53935),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: const Color(0xFFE53935),
+        ),
+      );
+    }
+  }
+
+  void _handleGoogleSignup() async {
+    setState(() => _loading = true);
+    try {
+      final credential = await AuthService().signInWithGoogle(isTrainer: _isTrainer);
+      if (!mounted) return;
+      setState(() => _loading = false);
+
+      if (credential == null) return; // User cancelled
+
+      if (_isTrainer) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const TrainerOnboardingScreen()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const ClientOnboardingScreen()),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google Sign-In: $e'),
+          backgroundColor: const Color(0xFFE53935),
+        ),
       );
     }
   }
@@ -257,7 +349,7 @@ class _SignupScreenState extends State<SignupScreen>
                 SizedBox(height: (14.0 * sf).clamp(10.0, 18.0)),
 
                 GoogleSignInButton(
-                  onTap: _handleSignup,
+                  onTap: _handleGoogleSignup,
                 ),
 
                 SizedBox(height: (h * 0.04 * sf).clamp(20.0, 36.0)),
