@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../screens/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,8 +14,6 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
@@ -29,45 +28,28 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // Continuous loop for playful bounce, blinking and floating stars
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2600),
-    );
-
-    _scaleAnimation = Tween<double>(begin: 0.65, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animController,
-        curve: const Interval(0.0, 0.45, curve: Curves.easeOutBack),
-      ),
-    );
-
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animController,
-        curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
-      ),
-    );
-
-    _animController.forward();
-
-    // Auto-navigate to login screen after splash animation
-    Future.delayed(const Duration(milliseconds: 2800), () {
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, anim, secondaryAnim) => const LoginScreen(),
-          transitionsBuilder: (context, anim, secondaryAnim, child) =>
-              FadeTransition(opacity: anim, child: child),
-          transitionDuration: const Duration(milliseconds: 550),
-        ),
-      );
-    });
+      duration: const Duration(milliseconds: 3200),
+    )..repeat();
   }
 
   @override
   void dispose() {
     _animController.dispose();
     super.dispose();
+  }
+
+  void _onStartTransformation() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, anim, secondaryAnim) => const LoginScreen(),
+        transitionsBuilder: (context, anim, secondaryAnim, child) =>
+            FadeTransition(opacity: anim, child: child),
+        transitionDuration: const Duration(milliseconds: 450),
+      ),
+    );
   }
 
   @override
@@ -77,89 +59,119 @@ class _SplashScreenState extends State<SplashScreen>
     final double h = mq.size.height;
     final double sf = (w / 360).clamp(0.75, 1.3);
 
-    final double graphicSize = (190.0 * sf).clamp(150.0, 240.0);
-    final double brandFontSize = (34.0 * sf).clamp(28.0, 42.0);
+    final double hPad = (w * 0.075).clamp(20.0, 32.0);
+    final double graphicSize = (h * 0.32).clamp(190.0, 280.0);
+    final double brandFontSize = (38.0 * sf).clamp(32.0, 46.0);
+    final double btnHeight = (56.0 * sf).clamp(50.0, 62.0);
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Center(
-          child: AnimatedBuilder(
-            animation: _animController,
-            builder: (context, child) {
-              final double t = _animController.value;
-              // Smooth 3D rotation parameters
-              final double rotY = 0.4 + t * (math.pi * 1.3);
-              final double rotX = 0.35 + math.sin(t * math.pi * 2) * 0.08;
-              final double rotZ = -0.12;
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: hPad),
+          child: Column(
+            children: [
+              const Spacer(flex: 2),
 
-              return Opacity(
-                opacity: _opacityAnimation.value,
-                child: Transform.scale(
-                  scale: _scaleAnimation.value,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+              // ── Playful Animated Fitness Mascot ──
+              AnimatedBuilder(
+                animation: _animController,
+                builder: (context, _) {
+                  return SizedBox(
+                    width: graphicSize,
+                    height: graphicSize,
+                    child: CustomPaint(
+                      painter: _PlayfulFitnessMascotPainter(
+                        progress: _animController.value,
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              SizedBox(height: (h * 0.02 * sf).clamp(16.0, 28.0)),
+
+              // ── Brand Name: TrainZ ──
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Train',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: brandFontSize,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF111111),
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'Z',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: brandFontSize,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFFB2FF59),
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(flex: 3),
+
+              // ── Start Transformation Button ──
+              SizedBox(
+                width: double.infinity,
+                height: btnHeight,
+                child: ElevatedButton(
+                  onPressed: _onStartTransformation,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF111111),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: (18.0 * sf).clamp(14.0, 22.0),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // ─── 3D Gym Dumbbell Graphic ───
-                      SizedBox(
-                        width: graphicSize,
-                        height: graphicSize,
-                        child: CustomPaint(
-                          painter: _ThreeDDumbbellPainter(
-                            angleX: rotX,
-                            angleY: rotY,
-                            angleZ: rotZ,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: (h * 0.02 * sf).clamp(12.0, 22.0)),
-
-                      // ─── Brand: TrainZ ───
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Train',
-                              style: TextStyle(
-                                fontFamily: 'Syne',
-                                fontSize: brandFontSize,
-                                fontWeight: FontWeight.w800,
-                                color: const Color(0xFF111111),
-                                letterSpacing: brandFontSize * 0.04,
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'Z',
-                              style: TextStyle(
-                                fontFamily: 'Syne',
-                                fontSize: brandFontSize,
-                                fontWeight: FontWeight.w800,
-                                color: const Color(0xFFB2FF59),
-                                letterSpacing: brandFontSize * 0.04,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: (6.0 * sf).clamp(4.0, 8.0)),
-
                       Text(
-                        'PEAK PERFORMANCE',
+                        'Start Transformation',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: (10.0 * sf).clamp(9.0, 12.0),
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: (3.0 * sf).clamp(2.0, 4.0),
-                          color: const Color(0xFF9E9E9E),
+                          fontFamily: 'Syne',
+                          fontSize: (14.5 * sf).clamp(13.0, 16.5),
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.4,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        width: (28.0 * sf).clamp(24.0, 32.0),
+                        height: (28.0 * sf).clamp(24.0, 32.0),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFB2FF59),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Iconsax.arrow_right_1,
+                          size: (15.0 * sf).clamp(13.0, 17.0),
+                          color: const Color(0xFF111111),
                         ),
                       ),
                     ],
                   ),
                 ),
-              );
-            },
+              ),
+
+              SizedBox(height: (h * 0.03 * sf).clamp(18.0, 32.0)),
+            ],
           ),
         ),
       ),
@@ -168,294 +180,315 @@ class _SplashScreenState extends State<SplashScreen>
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 3D Gym Hex-Dumbbell CustomPainter
+// Playful Animated Fitness Mascot Painter (Pure Canvas, 60/120fps)
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _ThreeDDumbbellPainter extends CustomPainter {
-  final double angleX;
-  final double angleY;
-  final double angleZ;
+class _PlayfulFitnessMascotPainter extends CustomPainter {
+  final double progress;
 
-  _ThreeDDumbbellPainter({
-    required this.angleX,
-    required this.angleY,
-    required this.angleZ,
-  });
+  _PlayfulFitnessMascotPainter({required this.progress});
 
   @override
   void paint(Canvas canvas, Size size) {
     final double cx = size.width / 2;
-    final double cy = size.height / 2 - 8;
+    final double cy = size.height / 2 - 6;
+    final double baseR = size.width * 0.28;
 
-    // ── Floor Drop Shadow ──
-    final double shadowScale = 1.0 + math.sin(angleY * 2) * 0.07;
+    final double t = progress * 2 * math.pi;
+
+    // Bounce and squash & stretch physics
+    final double bounceY = math.sin(t) * 14.0;
+    final double squashX = 1.0 + math.cos(t * 2) * 0.04;
+    final double squashY = 1.0 - math.cos(t * 2) * 0.04;
+    final double tilt = math.sin(t * 0.8) * 0.05;
+
+    // ── 1. Floor Drop Shadow ──
+    final double shadowScale = (1.0 - bounceY / 45.0) * squashX;
+    final double shadowAlpha = (0.08 + (1.0 - bounceY / 35.0) * 0.06).clamp(0.04, 0.16);
     final Rect shadowRect = Rect.fromCenter(
-      center: Offset(cx, cy + size.height * 0.42),
-      width: size.width * 0.72 * shadowScale,
-      height: size.height * 0.18 * shadowScale,
+      center: Offset(cx, cy + baseR * 1.5),
+      width: baseR * 2.1 * shadowScale,
+      height: baseR * 0.44 * shadowScale,
     );
-
     final Paint shadowPaint = Paint()
       ..shader = RadialGradient(
         colors: [
-          Colors.black.withValues(alpha: 0.12),
-          Colors.black.withValues(alpha: 0.04),
-          Colors.black.withValues(alpha: 0.0),
+          Color.fromRGBO(17, 17, 17, shadowAlpha),
+          Color.fromRGBO(17, 17, 17, shadowAlpha * 0.35),
+          Colors.transparent,
         ],
-        stops: const [0.0, 0.5, 1.0],
+        stops: const [0.0, 0.55, 1.0],
       ).createShader(shadowRect);
-
     canvas.drawOval(shadowRect, shadowPaint);
 
-    // ── 3D Projection Engine ──
-    const double fov = 500.0;
-    final double cosY = math.cos(angleY), sinY = math.sin(angleY);
-    final double cosX = math.cos(angleX), sinX = math.sin(angleX);
-    final double cosZ = math.cos(angleZ), sinZ = math.sin(angleZ);
+    // ── 2. Floating Playful Energy Sparks & Stars ──
+    _drawStar(
+      canvas,
+      cx - baseR * 1.35 + math.sin(t * 0.9) * 6,
+      cy - baseR * 0.7 + math.cos(t * 0.8) * 7,
+      baseR * 0.14,
+      const Color(0xFFB2FF59),
+      t * 0.4,
+    );
 
-    Offset3D project(double x, double y, double z) {
-      // Y-axis rotation
-      final double x1 = x * cosY + z * sinY;
-      final double y1 = y;
-      final double z1 = -x * sinY + z * cosY;
+    _drawStar(
+      canvas,
+      cx + baseR * 1.3 + math.cos(t * 0.7) * 7,
+      cy - baseR * 0.85 + math.sin(t * 0.9) * 8,
+      baseR * 0.16,
+      const Color(0xFF111111),
+      -t * 0.3,
+    );
 
-      // X-axis rotation
-      final double x2 = x1;
-      final double y2 = y1 * cosX - z1 * sinX;
-      final double z2 = y1 * sinX + z1 * cosX;
+    _drawStar(
+      canvas,
+      cx + baseR * 1.2 + math.sin(t) * 5,
+      cy + baseR * 0.8 + math.cos(t * 0.6) * 6,
+      baseR * 0.12,
+      const Color(0xFFB2FF59),
+      t * 0.7,
+    );
 
-      // Z-axis rotation
-      final double x3 = x2 * cosZ - y2 * sinZ;
-      final double y3 = x2 * sinZ + y2 * cosZ;
-      final double z3 = z2;
+    _drawSparkleDot(
+      canvas,
+      cx - baseR * 1.15,
+      cy + baseR * 0.7 + math.sin(t * 1.1) * 5,
+      baseR * 0.05,
+      const Color(0xFFB2FF59),
+    );
 
-      final double scale = fov / (fov + z3);
-      return Offset3D(
-        cx + x3 * scale,
-        cy + y3 * scale,
-        z3,
-      );
-    }
+    _drawSparkleDot(
+      canvas,
+      cx + baseR * 1.45,
+      cy + baseR * 0.2 + math.cos(t * 1.2) * 5,
+      baseR * 0.045,
+      const Color(0xFFCCCCCC),
+    );
 
-    // Normalized Light Vector (Top-left-front)
-    const double lx = -0.4, ly = -0.7, lz = 0.6;
-    final double lLen = math.sqrt(lx * lx + ly * ly + lz * lz);
-    final double nlx = lx / lLen, nly = ly / lLen, nlz = lz / lLen;
+    // ── 3. Main Character (Kettlebell Hero) ──
+    canvas.save();
+    canvas.translate(cx, cy + bounceY);
+    canvas.rotate(tilt);
+    canvas.scale(squashX, squashY);
 
-    final List<_PolygonFace> faces = [];
+    // A. Handle (Curved loop on top)
+    final handlePaint = Paint()
+      ..color = const Color(0xFF191922)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = baseR * 0.28
+      ..strokeCap = StrokeCap.round;
 
-    // 1. Central Bar Cylinders (Steel Knurling)
-    const double barRadius = 6.5;
-    const double barLength = 80.0;
-    const int barSteps = 10;
-
-    for (int i = 0; i < barSteps; i++) {
-      final double a1 = (i * 2 * math.pi) / barSteps;
-      final double a2 = ((i + 1) * 2 * math.pi) / barSteps;
-      final double by1 = math.cos(a1) * barRadius, bz1 = math.sin(a1) * barRadius;
-      final double by2 = math.cos(a2) * barRadius, bz2 = math.sin(a2) * barRadius;
-
-      faces.add(
-        _PolygonFace(
-          vertices: [
-            Vector3D(-barLength / 2, by1, bz1),
-            Vector3D(barLength / 2, by1, bz1),
-            Vector3D(barLength / 2, by2, bz2),
-            Vector3D(-barLength / 2, by2, bz2),
-          ],
-          type: _FaceType.bar,
-          hasLimeAccent: false,
+    final Path handlePath = Path()
+      ..arcTo(
+        Rect.fromCenter(
+          center: Offset(0, -baseR * 0.68),
+          width: baseR * 1.15,
+          height: baseR * 1.1,
         ),
+        math.pi * 1.12,
+        math.pi * 0.76,
+        false,
       );
-    }
+    canvas.drawPath(handlePath, handlePaint);
 
-    // Helper: Build Hexagonal Weight Plate
-    void addHexPlate(double centerOffset, double radius, double thickness, bool hasLimeRing) {
-      final List<Vector3D> frontHex = [];
-      final List<Vector3D> backHex = [];
+    // Handle inner metallic highlight
+    final handleHighlight = Paint()
+      ..color = const Color(0xFF333342)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = baseR * 0.07
+      ..strokeCap = StrokeCap.round;
 
-      for (int i = 0; i < 6; i++) {
-        final double a = (i * math.pi) / 3;
-        final double hy = math.cos(a) * radius;
-        final double hz = math.sin(a) * radius;
-        frontHex.add(Vector3D(centerOffset - thickness / 2, hy, hz));
-        backHex.add(Vector3D(centerOffset + thickness / 2, hy, hz));
-      }
-
-      // Outer & Inner Hex Faces
-      faces.add(_PolygonFace(vertices: frontHex, type: _FaceType.hexCap, hasLimeAccent: hasLimeRing));
-      faces.add(_PolygonFace(vertices: backHex.reversed.toList(), type: _FaceType.hexCap, hasLimeAccent: false));
-
-      // 6 Lateral Facets
-      for (int i = 0; i < 6; i++) {
-        final int next = (i + 1) % 6;
-        faces.add(
-          _PolygonFace(
-            vertices: [
-              frontHex[i],
-              backHex[i],
-              backHex[next],
-              frontHex[next],
-            ],
-            type: _FaceType.hexSide,
-            hasLimeAccent: false,
-          ),
-        );
-      }
-    }
-
-    // Outer primary hex plates (with energetic lime ring)
-    addHexPlate(-62.0, 52.0, 24.0, true);
-    addHexPlate(62.0, 52.0, 24.0, true);
-
-    // Inner secondary hex plates
-    addHexPlate(-44.0, 42.0, 16.0, false);
-    addHexPlate(44.0, 42.0, 16.0, false);
-
-    // ── Project, Calculate Normals & Lighting ──
-    final List<_ProjectedFace> projectedList = [];
-
-    for (final face in faces) {
-      final List<Offset3D> projectedPts = [];
-      double sumZ = 0;
-
-      for (final v in face.vertices) {
-        final p = project(v.x, v.y, v.z);
-        projectedPts.add(p);
-        sumZ += p.z;
-      }
-      final double avgZ = sumZ / face.vertices.length;
-
-      // Surface Normal Vector
-      final v0 = face.vertices[0];
-      final v1 = face.vertices[1];
-      final v2 = face.vertices[2];
-
-      final double ux = v1.x - v0.x, uy = v1.y - v0.y, uz = v1.z - v0.z;
-      final double vx = v2.x - v0.x, vy = v2.y - v0.y, vz = v2.z - v0.z;
-
-      final double nx = uy * vz - uz * vy;
-      final double ny = uz * vx - ux * vz;
-      final double nz = ux * vy - uy * vx;
-
-      final double nLen = math.sqrt(nx * nx + ny * ny + nz * nz);
-      final double normX = nLen > 0 ? nx / nLen : 0;
-      final double normY = nLen > 0 ? ny / nLen : 0;
-      final double normZ = nLen > 0 ? nz / nLen : 1;
-
-      final double dot = math.max(0.0, normX * nlx + normY * nly + normZ * nlz);
-
-      projectedList.add(
-        _ProjectedFace(
-          points: projectedPts,
-          avgZ: avgZ,
-          intensity: dot,
-          type: face.type,
-          hasLimeAccent: face.hasLimeAccent,
+    final Path highlightPath = Path()
+      ..arcTo(
+        Rect.fromCenter(
+          center: Offset(0, -baseR * 0.7),
+          width: baseR * 1.1,
+          height: baseR * 1.05,
         ),
+        math.pi * 1.22,
+        math.pi * 0.56,
+        false,
+      );
+    canvas.drawPath(highlightPath, handleHighlight);
+
+    // B. Body (Kettlebell ball with soft gradient)
+    final Rect bodyRect = Rect.fromCircle(
+      center: Offset(0, baseR * 0.25),
+      radius: baseR,
+    );
+
+    final Paint bodyPaint = Paint()
+      ..shader = RadialGradient(
+        center: const Alignment(-0.25, -0.2),
+        radius: 0.9,
+        colors: const [
+          Color(0xFF2C2C38),
+          Color(0xFF1A1A22),
+          Color(0xFF101016),
+        ],
+        stops: const [0.0, 0.65, 1.0],
+      ).createShader(bodyRect);
+
+    canvas.drawCircle(Offset(0, baseR * 0.25), baseR, bodyPaint);
+
+    // C. Neon Lime Athletic Sweatband
+    canvas.save();
+    final Rect clipRect = Rect.fromLTWH(
+      -baseR * 1.1,
+      -baseR * 0.32,
+      baseR * 2.2,
+      baseR * 0.38,
+    );
+    canvas.clipRect(clipRect);
+
+    // Headband base
+    final Paint bandPaint = Paint()..color = const Color(0xFFB2FF59);
+    canvas.drawCircle(Offset(0, baseR * 0.25), baseR, bandPaint);
+
+    // Headband athletic stripe
+    final Paint bandStripe = Paint()..color = const Color(0xFF98E640);
+    canvas.drawRect(
+      Rect.fromLTWH(-baseR * 1.1, -baseR * 0.16, baseR * 2.2, baseR * 0.06),
+      bandStripe,
+    );
+
+    // Athletic Bolt Emblem in center of sweatband
+    final Paint boltPaint = Paint()
+      ..color = const Color(0xFF111111)
+      ..style = PaintingStyle.fill;
+    final Path boltPath = Path()
+      ..moveTo(baseR * 0.03, -baseR * 0.26)
+      ..lineTo(-baseR * 0.09, -baseR * 0.1)
+      ..lineTo(-baseR * 0.02, -baseR * 0.1)
+      ..lineTo(-baseR * 0.06, baseR * 0.04)
+      ..lineTo(baseR * 0.09, -baseR * 0.14)
+      ..lineTo(baseR * 0.01, -baseR * 0.14)
+      ..close();
+    canvas.drawPath(boltPath, boltPaint);
+    canvas.restore();
+
+    // D. Playful Animated Eyes (with dynamic blinking)
+    final double blinkCycle = math.sin(t * 0.55);
+    final bool isBlinking = blinkCycle > 0.94;
+    final double eyeR = baseR * 0.125;
+    final double eyeH = isBlinking ? baseR * 0.025 : eyeR * 1.45;
+    final double eyeSpacing = baseR * 0.34;
+    final double eyeY = baseR * 0.30;
+
+    // Pupil look offset
+    final double pupilLookX = math.sin(t * 0.7) * (baseR * 0.03);
+
+    final Paint whitePaint = Paint()..color = Colors.white;
+    final Paint pupilPaint = Paint()..color = const Color(0xFF111111);
+    final Paint catchLightPaint = Paint()..color = Colors.white;
+
+    // Left Eye
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(-eyeSpacing, eyeY), width: eyeR * 1.8, height: eyeH * 1.8),
+      whitePaint,
+    );
+
+    if (!isBlinking) {
+      canvas.drawCircle(
+        Offset(-eyeSpacing + pupilLookX, eyeY),
+        eyeR * 0.72,
+        pupilPaint,
+      );
+      canvas.drawCircle(
+        Offset(-eyeSpacing + pupilLookX - eyeR * 0.22, eyeY - eyeR * 0.22),
+        eyeR * 0.28,
+        catchLightPaint,
       );
     }
 
-    // Painter's Algorithm: Sort Back to Front
-    projectedList.sort((a, b) => b.avgZ.compareTo(a.avgZ));
+    // Right Eye
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(eyeSpacing, eyeY), width: eyeR * 1.8, height: eyeH * 1.8),
+      whitePaint,
+    );
 
-    // ── Render Faces ──
-    final Paint fillPaint = Paint()..style = PaintingStyle.fill;
-    final Paint strokePaint = Paint()..style = PaintingStyle.stroke;
+    if (!isBlinking) {
+      canvas.drawCircle(
+        Offset(eyeSpacing + pupilLookX, eyeY),
+        eyeR * 0.72,
+        pupilPaint,
+      );
+      canvas.drawCircle(
+        Offset(eyeSpacing + pupilLookX - eyeR * 0.22, eyeY - eyeR * 0.22),
+        eyeR * 0.28,
+        catchLightPaint,
+      );
+    }
 
-    for (final pf in projectedList) {
-      final Path path = Path()..moveTo(pf.points[0].x, pf.points[0].y);
-      for (int i = 1; i < pf.points.length; i++) {
-        path.lineTo(pf.points[i].x, pf.points[i].y);
-      }
-      path.close();
+    // E. Confident Smile
+    final smilePaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = baseR * 0.04
+      ..strokeCap = StrokeCap.round;
 
-      if (pf.type == _FaceType.bar) {
-        // Metallic Steel Bar
-        final int bVal = (150 + pf.intensity * 95).toInt().clamp(0, 255);
-        fillPaint.color = Color.fromARGB(255, bVal, bVal, bVal + 5);
-        canvas.drawPath(path, fillPaint);
+    final Path smilePath = Path()
+      ..arcTo(
+        Rect.fromCenter(
+          center: Offset(0, baseR * 0.54),
+          width: baseR * 0.32,
+          height: baseR * 0.25,
+        ),
+        math.pi * 0.18,
+        math.pi * 0.64,
+        false,
+      );
+    canvas.drawPath(smilePath, smilePaint);
 
-        strokePaint.color = Color.fromARGB(255, (bVal - 25).clamp(0, 255), (bVal - 25).clamp(0, 255), (bVal - 20).clamp(0, 255));
-        strokePaint.strokeWidth = 0.6;
-        canvas.drawPath(path, strokePaint);
-      } else if (pf.type == _FaceType.hexCap) {
-        // Matte Obsidian Hex Face
-        final int darkBase = (28 + pf.intensity * 46).toInt().clamp(0, 255);
-        fillPaint.color = Color.fromARGB(255, darkBase, darkBase + 2, darkBase + 5);
-        canvas.drawPath(path, fillPaint);
+    // F. Energetic Cheeks (Soft Lime Glow)
+    final Paint cheekPaint = Paint()
+      ..color = const Color(0xFFB2FF59).withValues(alpha: 0.32);
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(-baseR * 0.56, baseR * 0.44), width: baseR * 0.19, height: baseR * 0.12),
+      cheekPaint,
+    );
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(baseR * 0.56, baseR * 0.44), width: baseR * 0.19, height: baseR * 0.12),
+      cheekPaint,
+    );
 
-        strokePaint.color = const Color(0xFF141418);
-        strokePaint.strokeWidth = 1.0;
-        canvas.drawPath(path, strokePaint);
+    canvas.restore();
+  }
 
-        // Lime Accent Ring on the Outer Plate Face
-        if (pf.hasLimeAccent) {
-          strokePaint.color = const Color(0xFFB2FF59);
-          strokePaint.strokeWidth = 2.2;
-          canvas.drawPath(path, strokePaint);
-        }
+  void _drawStar(Canvas canvas, double x, double y, double r, Color color, double rot) {
+    canvas.save();
+    canvas.translate(x, y);
+    canvas.rotate(rot);
+
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    for (int i = 0; i < 4; i++) {
+      final double a1 = (i * math.pi) / 2;
+      final double a2 = a1 + math.pi / 4;
+      if (i == 0) {
+        path.moveTo(math.cos(a1) * r, math.sin(a1) * r);
       } else {
-        // Hex Plate Side Bevel Facets
-        final int facetBase = (20 + pf.intensity * 65).toInt().clamp(0, 255);
-        fillPaint.color = Color.fromARGB(255, facetBase, facetBase + 1, facetBase + 3);
-        canvas.drawPath(path, fillPaint);
-
-        strokePaint.color = const Color(0xFF111116);
-        strokePaint.strokeWidth = 0.8;
-        canvas.drawPath(path, strokePaint);
+        path.lineTo(math.cos(a1) * r, math.sin(a1) * r);
       }
+      path.lineTo(math.cos(a2) * (r * 0.36), math.sin(a2) * (r * 0.36));
     }
+    path.close();
+    canvas.drawPath(path, paint);
+    canvas.restore();
+  }
+
+  void _drawSparkleDot(Canvas canvas, double x, double y, double r, Color color) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(x, y), r, paint);
   }
 
   @override
-  bool shouldRepaint(covariant _ThreeDDumbbellPainter oldDelegate) {
-    return oldDelegate.angleX != angleX ||
-        oldDelegate.angleY != angleY ||
-        oldDelegate.angleZ != angleZ;
+  bool shouldRepaint(covariant _PlayfulFitnessMascotPainter oldDelegate) {
+    return oldDelegate.progress != progress;
   }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Geometry & Projection Data Structures
-// ─────────────────────────────────────────────────────────────────────────────
-
-enum _FaceType { bar, hexCap, hexSide }
-
-class Vector3D {
-  final double x, y, z;
-  const Vector3D(this.x, this.y, this.z);
-}
-
-class Offset3D {
-  final double x, y, z;
-  const Offset3D(this.x, this.y, this.z);
-}
-
-class _PolygonFace {
-  final List<Vector3D> vertices;
-  final _FaceType type;
-  final bool hasLimeAccent;
-
-  const _PolygonFace({
-    required this.vertices,
-    required this.type,
-    required this.hasLimeAccent,
-  });
-}
-
-class _ProjectedFace {
-  final List<Offset3D> points;
-  final double avgZ;
-  final double intensity;
-  final _FaceType type;
-  final bool hasLimeAccent;
-
-  const _ProjectedFace({
-    required this.points,
-    required this.avgZ,
-    required this.intensity,
-    required this.type,
-    required this.hasLimeAccent,
-  });
 }
