@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'routing/app_router.dart';
 import 'splashscreen/splashscreen.dart';
 import 'theme/app_theme.dart';
 
@@ -37,6 +38,7 @@ class TrainusproApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       home: const SplashScreen(),
+      onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }
 }

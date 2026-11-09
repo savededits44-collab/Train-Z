@@ -1,0 +1,64 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        (request.auth.token != null && request.auth.token.role == 'ADMIN') ||
+        (request.auth.token != null && request.auth.token.admin == true)
+      );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 1. Profile Pictures
+    // ─────────────────────────────────────────────────────────────────────────
+    match /profile_pictures/{userId}/{fileName} {
+      // Authenticated users can view profile pictures
+      allow read: if isAuthenticated();
+
+      // Only the user themselves can upload or update their avatar
+      allow write: if isOwner(userId)
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 2. Trainer Certifications (Private)
+    // ─────────────────────────────────────────────────────────────────────────
+    match /trainer_documents/{trainerId}/certifications/{fileName} {
+      // Section 9: Private trainer documents must not be publicly accessible
+      allow read: if isOwner(trainerId) || isAdmin();
+
+      allow write: if isOwner(trainerId)
+                   && request.resource.size < 15 * 1024 * 1024
+                   && (request.resource.contentType.matches('image/.*') || request.resource.contentType == 'application/pdf');
+
+      allow delete: if isOwner(trainerId) || isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 3. Trainer Verification Documents (Govt ID, CPR, Degrees) (Private)
+    // ─────────────────────────────────────────────────────────────────────────
+    match /trainer_documents/{trainerId}/verifications/{fileName} {
+      // Section 9: Private trainer documents must not be publicly accessible
+      allow read: if isOwner(trainerId) || isAdmin();
+
+      allow write: if isOwner(trainerId)
+                   && request.resource.size < 15 * 1024 * 1024
+                   && (request.resource.contentType.matches('image/.*') || request.resource.contentType == 'application/pdf');
+
+      allow delete: if isOwner(trainerId) || isAdmin();
+    }
+  }
+}
+

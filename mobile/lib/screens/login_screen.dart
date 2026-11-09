@@ -2,11 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../features/client/client_feature.dart';
 import '../services/auth_service.dart';
 import '../widgets/app_widgets.dart';
-import 'client/client_dashboard.dart';
 import 'onboarding/role_selection_screen.dart';
-import 'signup_screen.dart';
 import 'trainer/trainer_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -63,9 +62,15 @@ class _LoginScreenState extends State<LoginScreen>
     if (isOnboarded && role != null) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => role == 'trainer'
+          builder: (_) => role.toLowerCase() == 'trainer'
               ? const TrainerDashboard()
-              : const ClientDashboard(),
+              : const ClientHomeScreen(),
+        ),
+      );
+    } else if (role?.toLowerCase() == 'client') {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => const ClientProfileCompletionScreen(),
         ),
       );
     } else {
@@ -285,7 +290,15 @@ class _LoginScreenState extends State<LoginScreen>
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ClientForgotPasswordScreen(
+                            initialEmail: _emailController.text.trim(),
+                          ),
+                        ),
+                      );
+                    },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: Size.zero,
@@ -335,9 +348,9 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pushReplacement(
+                          Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => const SignupScreen(),
+                              builder: (_) => const ClientRegisterScreen(),
                             ),
                           );
                         },

@@ -1,0 +1,220 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Helper Functions
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserDoc(userId) {
+      return get(/databases/$(database)/documents/users/$(userId));
+    }
+
+    function getUserRole() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          ? getUserDoc(request.auth.uid).data.role
+          : null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        (request.auth.token != null && request.auth.token.role == 'ADMIN') ||
+        getUserRole() == 'ADMIN'
+      );
+    }
+
+    function isClient() {
+      return isAuthenticated() && getUserRole() == 'CLIENT';
+    }
+
+    function isTrainer() {
+      return isAuthenticated() && getUserRole() == 'TRAINER';
+    }
+
+    function isUserActive(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId)) &&
+             getUserDoc(userId).data.status != 'SUSPENDED';
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 1. users Collection
+    // ─────────────────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+
+      // Section 2 & 4: Public users cannot self-assign ADMIN role
+      allow create: if isOwner(userId) && (
+        !('role' in request.resource.data) ||
+        request.resource.data.role == 'CLIENT' ||
+        request.resource.data.role == 'TRAINER'
+      );
+
+      // Section 4: Users cannot modify their own role or status
+      allow update: if isAdmin() || (
+        isOwner(userId) &&
+        (!('role' in request.resource.data) || request.resource.data.role == resource.data.role) &&
+        (!('status' in request.resource.data) || request.resource.data.status == resource.data.status)
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 2. client_profiles Collection
+    // ─────────────────────────────────────────────────────────────────────────
+    match /client_profiles/{clientId} {
+      allow read: if isOwner(clientId) || isTrainer() || isAdmin();
+      allow write: if isOwner(clientId) || isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 3. trainer_profiles Collection
+    // ─────────────────────────────────────────────────────────────────────────
+    match /trainer_profiles/{trainerId} {
+      // Section 6: Public/clients can only view APPROVED and active trainers
+      allow read: if isAdmin() || isOwner(trainerId) || (
+        resource.data.verificationStatus == 'APPROVED' &&
+        resource.data.isActive == true
+      );
+
+      // Trainers start with PENDING verification status
+      allow create: if isOwner(trainerId) && (
+        !('verificationStatus' in request.resource.data) ||
+        request.resource.data.verificationStatus == 'PENDING'
+      );
+
+      // Section 4 & 6: Only admins can approve or modify verification fields
+      allow update: if isAdmin() || (
+        isOwner(trainerId) &&
+        (!('verificationStatus' in request.resource.data) || request.resource.data.verificationStatus == resource.data.verificationStatus) &&
+        (!('approvedAt' in request.resource.data) || request.resource.data.approvedAt == resource.data.approvedAt) &&
+        (!('approvedBy' in request.resource.data) || request.resource.data.approvedBy == resource.data.approvedBy) &&
+        (!('adminReviewNotes' in request.resource.data) || request.resource.data.adminReviewNotes == resource.data.adminReviewNotes)
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 4. cities Collection
+    // ─────────────────────────────────────────────────────────────────────────
+    match /cities/{cityId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 5. training_plans Collection (Section 7: Fixed platform packages)
+    // ─────────────────────────────────────────────────────────────────────────
+    match /training_plans/{planId} {
+      allow read: if isAuthenticated();
+      // Prices and session counts can only be managed by platform administrators
+      allow write: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 6. bookings Collection
+    // ─────────────────────────────────────────────────────────────────────────
+    match /bookings/{bookingId} {
+      allow read: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid ||
+        resource.data.trainerId == request.auth.uid ||
+        isAdmin()
+      );
+
+      // Section 5: Gender Matching Enforcement & Section 6: Approved Trainer
+      allow create: if isAuthenticated() &&
+        request.resource.data.clientId == request.auth.uid &&
+        request.resource.data.clientGender == request.resource.data.trainerGender &&
+        exists(/databases/$(database)/documents/trainer_profiles/$(request.resource.data.trainerId)) &&
+        get(/databases/$(database)/documents/trainer_profiles/$(request.resource.data.trainerId)).data.verificationStatus == 'APPROVED' &&
+        get(/databases/$(database)/documents/trainer_profiles/$(request.resource.data.trainerId)).data.isActive == true;
+
+      allow update: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid ||
+        resource.data.trainerId == request.auth.uid ||
+        isAdmin()
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 7. payments Collection
+    // ─────────────────────────────────────────────────────────────────────────
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid ||
+        isAdmin()
+      );
+      // Payments ledger written by trusted backend or administrator
+      allow write: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 8. session_credits Collection (Section 8: Double-entry credit ledger)
+    // ─────────────────────────────────────────────────────────────────────────
+    match /session_credits/{clientId} {
+      allow read: if isOwner(clientId) || isAdmin();
+      // Session credit modifications must be performed by admin or trusted backend
+      allow write: if isAdmin();
+
+      match /transactions/{txId} {
+        allow read: if isOwner(clientId) || isAdmin();
+        allow write: if isAdmin();
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 9. trainer_availability Collection
+    // ─────────────────────────────────────────────────────────────────────────
+    match /trainer_availability/{availId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || (
+        isAuthenticated() && (
+          (resource != null && resource.data.trainerId == request.auth.uid) ||
+          (request.resource != null && request.resource.data.trainerId == request.auth.uid)
+        )
+      );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 10. reviews Collection
+    // ─────────────────────────────────────────────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read: if resource.data.isPublic == true ||
+                     isOwner(resource.data.clientId) ||
+                     isOwner(resource.data.trainerId) ||
+                     isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
+      allow update, delete: if isOwner(resource.data.clientId) || isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 11. notifications Collection
+    // ─────────────────────────────────────────────────────────────────────────
+    match /notifications/{notifId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow update: if isOwner(resource.data.userId) &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+      allow write: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 12. platform_settings Collection
+    // ─────────────────────────────────────────────────────────────────────────
+    match /platform_settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}
+
