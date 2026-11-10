@@ -64,6 +64,7 @@ class BookingService extends ChangeNotifier {
   void _initializeSeedData() {
     final now = DateTime.now();
     _bookings.addAll([
+      // Client 1 (Today 07:00 AM, Monthly Package, 15/30 Days Left - Green)
       BookingModel(
         id: 'book_seed_01',
         clientId: 'client_rohan',
@@ -72,32 +73,50 @@ class BookingService extends ChangeNotifier {
         trainerGender: Gender.male,
         clientName: 'Rohan Sharma',
         clientPhone: '+91 98201 54321',
+        clientAge: 28,
+        fitnessGoal: 'Strength & Hypertrophy',
         workoutType: 'Strength & Hypertrophy',
+        packageName: 'Monthly Pro (30 Days)',
+        totalPackageDays: 30,
+        packageStartDate: now.subtract(const Duration(days: 15)),
+        packageExpiryDate: now.add(const Duration(days: 15)),
+        totalSessions: 26,
+        sessionsCompleted: 13,
         sessionDate: now,
         startTime: '07:00 AM',
         endTime: '08:00 AM',
         meetingLocation: "Gold's Gym Bandra (Floor 2)",
         notes: 'Focusing on barbell deadlift form and progressive core overload.',
-        status: BookingStatus.pending,
-        createdAt: now.subtract(const Duration(minutes: 15)),
+        status: BookingStatus.confirmed,
+        createdAt: now.subtract(const Duration(days: 15)),
       ),
+      // Client 2 (Today 10:30 AM, 3 Months Package, 7/90 Days Left - Orange / Nearing Expiry)
       BookingModel(
         id: 'book_seed_02',
-        clientId: 'client_priya',
+        clientId: 'client_ananya',
         trainerId: 'trainer_active',
         clientGender: Gender.female,
         trainerGender: Gender.female,
         clientName: 'Ananya Verma',
         clientPhone: '+91 98765 11223',
+        clientAge: 25,
+        fitnessGoal: 'HIIT Conditioning & Fat Loss',
         workoutType: 'HIIT Conditioning & Fat Loss',
-        sessionDate: now.add(const Duration(days: 1)),
-        startTime: '06:00 PM',
-        endTime: '07:00 PM',
+        packageName: '3 Months Transformation',
+        totalPackageDays: 90,
+        packageStartDate: now.subtract(const Duration(days: 83)),
+        packageExpiryDate: now.add(const Duration(days: 7)),
+        totalSessions: 78,
+        sessionsCompleted: 71,
+        sessionDate: now,
+        startTime: '10:30 AM',
+        endTime: '11:30 AM',
         meetingLocation: 'Cult.fit Studio, Khar West',
         notes: 'High intensity cardio and kettlebell circuits.',
-        status: BookingStatus.pending,
-        createdAt: now.subtract(const Duration(hours: 1)),
+        status: BookingStatus.confirmed,
+        createdAt: now.subtract(const Duration(days: 83)),
       ),
+      // Client 3 (Today 05:30 PM, Monthly Package, 3/30 Days Left - Red / Expiring Soon)
       BookingModel(
         id: 'book_seed_03',
         clientId: 'client_sameer',
@@ -106,14 +125,100 @@ class BookingService extends ChangeNotifier {
         trainerGender: Gender.male,
         clientName: 'Sameer Kapoor',
         clientPhone: '+91 91234 56789',
+        clientAge: 32,
+        fitnessGoal: 'Athletic Agility & Mobility',
         workoutType: 'Athletic Agility & Mobility',
-        sessionDate: now.add(const Duration(days: 2)),
-        startTime: '08:30 AM',
-        endTime: '09:30 AM',
+        packageName: 'Monthly Pro (30 Days)',
+        totalPackageDays: 30,
+        packageStartDate: now.subtract(const Duration(days: 27)),
+        packageExpiryDate: now.add(const Duration(days: 3)),
+        totalSessions: 26,
+        sessionsCompleted: 23,
+        sessionDate: now,
+        startTime: '05:30 PM',
+        endTime: '06:30 PM',
         meetingLocation: 'Personal Training Zone, Mumbai',
         notes: 'Rotator cuff warmups and explosive plyometrics.',
+        status: BookingStatus.confirmed,
+        createdAt: now.subtract(const Duration(days: 27)),
+      ),
+      // Client 4 (Tomorrow 08:00 AM, 6 Months Package, 142/180 Days Left - Green)
+      BookingModel(
+        id: 'book_seed_04',
+        clientId: 'client_vikram',
+        trainerId: 'trainer_active',
+        clientGender: Gender.male,
+        trainerGender: Gender.male,
+        clientName: 'Vikram Malhotra',
+        clientPhone: '+91 99887 66554',
+        clientAge: 29,
+        fitnessGoal: 'Hypertrophy & Powerlifting',
+        workoutType: 'Chest & Tricep Hypertrophy',
+        packageName: '6-Month Transformation',
+        totalPackageDays: 180,
+        packageStartDate: now.subtract(const Duration(days: 38)),
+        packageExpiryDate: now.add(const Duration(days: 142)),
+        totalSessions: 150,
+        sessionsCompleted: 32,
+        sessionDate: now.add(const Duration(days: 1)),
+        startTime: '08:00 AM',
+        endTime: '09:00 AM',
+        meetingLocation: 'Nitro Gym BKC',
+        notes: 'Bench press overload (3 sets x 5 reps).',
+        status: BookingStatus.confirmed,
+        createdAt: now.subtract(const Duration(days: 38)),
+      ),
+      // Client 5 (In 2 days 06:00 PM, Monthly Package, 5/30 Days Left - Orange)
+      BookingModel(
+        id: 'book_seed_05',
+        clientId: 'client_neha',
+        trainerId: 'trainer_active',
+        clientGender: Gender.female,
+        trainerGender: Gender.female,
+        clientName: 'Neha Deshmukh',
+        clientPhone: '+91 97654 32109',
+        clientAge: 31,
+        fitnessGoal: 'Posture & Core Stability',
+        workoutType: 'Pilates & Core Rehab',
+        packageName: 'Monthly Pro (30 Days)',
+        totalPackageDays: 30,
+        packageStartDate: now.subtract(const Duration(days: 25)),
+        packageExpiryDate: now.add(const Duration(days: 5)),
+        totalSessions: 26,
+        sessionsCompleted: 21,
+        sessionDate: now.add(const Duration(days: 2)),
+        startTime: '06:00 PM',
+        endTime: '07:00 PM',
+        meetingLocation: 'The Pilates Studio, Juhu',
+        notes: 'Spine decompression and posterior chain strengthening.',
+        status: BookingStatus.confirmed,
+        createdAt: now.subtract(const Duration(days: 25)),
+      ),
+      // Client 6 (Pending Live Request, 3 Months Package, 45/90 Days Left - Green)
+      BookingModel(
+        id: 'book_seed_06',
+        clientId: 'client_aryan',
+        trainerId: 'trainer_active',
+        clientGender: Gender.male,
+        trainerGender: Gender.male,
+        clientName: 'Aryan Joshi',
+        clientPhone: '+91 98112 33445',
+        clientAge: 27,
+        fitnessGoal: 'Marathon Stamina & Legs',
+        workoutType: 'Endurance & VO2 Max Interval',
+        packageName: '3 Months Transformation',
+        totalPackageDays: 90,
+        packageStartDate: now.subtract(const Duration(days: 45)),
+        packageExpiryDate: now.add(const Duration(days: 45)),
+        totalSessions: 78,
+        sessionsCompleted: 39,
+        sessionDate: now.add(const Duration(days: 3)),
+        startTime: '06:30 AM',
+        endTime: '07:30 AM',
+        meetingLocation: 'Shivaji Park Running Track',
+        notes: 'Heart-rate zone 4 tempo intervals + quad conditioning.',
         status: BookingStatus.pending,
-        createdAt: now.subtract(const Duration(days: 1)),
+        createdAt: now.subtract(const Duration(hours: 2)),
       ),
     ]);
     _notify();
@@ -262,6 +367,34 @@ class BookingService extends ChangeNotifier {
       }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('Notice: Booking reject updated in local state: $e');
+    }
+  }
+
+  /// Trainer marks a session as completed / records attendance
+  Future<void> markSessionCompleted(String bookingId) async {
+    final index = _bookings.indexWhere((b) => b.id == bookingId);
+    if (index >= 0) {
+      final current = _bookings[index];
+      final currentCompleted = current.sessionsCompleted ?? current.resolvedSessionsCompleted;
+      final updated = current.copyWith(
+        status: BookingStatus.completed,
+        sessionsCompleted: currentCompleted + 1,
+        updatedAt: DateTime.now(),
+      );
+      _bookings[index] = updated;
+      _notify();
+    }
+
+    try {
+      await _firestore
+          .collection(FirestoreCollections.bookings)
+          .doc(bookingId)
+          .set({
+        'status': 'COMPLETED',
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('Notice: Booking complete updated in local state: $e');
     }
   }
 
