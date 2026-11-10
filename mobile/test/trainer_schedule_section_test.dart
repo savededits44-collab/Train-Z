@@ -23,6 +23,7 @@ void main() {
       );
       expect(booking1.remainingDaysFraction, '15/30 Sessions Left');
       expect(booking1.remainingSessionsFraction, '15/30 Sessions Left');
+      expect(booking1.remainingFractionNumbers, '15/30');
       expect(booking1.resolvedDaysRemaining, 15);
       expect(booking1.resolvedDaysCompleted, 15);
       expect(booking1.packageProgress, closeTo(0.5, 0.05));
@@ -44,6 +45,7 @@ void main() {
       );
       expect(booking2.remainingDaysFraction, '7/90 Sessions Left');
       expect(booking2.remainingSessionsFraction, '7/90 Sessions Left');
+      expect(booking2.remainingFractionNumbers, '7/90');
       expect(booking2.resolvedDaysRemaining, 7);
       expect(booking2.resolvedDaysCompleted, 83);
       expect(booking2.packageHealthStatus, 'orange');
@@ -64,6 +66,7 @@ void main() {
       );
       expect(booking3.remainingDaysFraction, '3/30 Sessions Left');
       expect(booking3.remainingSessionsFraction, '3/30 Sessions Left');
+      expect(booking3.remainingFractionNumbers, '3/30');
       expect(booking3.resolvedDaysRemaining, 3);
       expect(booking3.resolvedDaysCompleted, 27);
       expect(booking3.packageHealthStatus, 'red');

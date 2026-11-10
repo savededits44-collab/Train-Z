@@ -1221,21 +1221,14 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                   color: kGrey,
                 ),
               ),
-              // High-Contrast Fraction
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: badgeColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  b.remainingDaysFraction,
-                  style: TextStyle(
-                    fontFamily: 'Syne',
-                    fontSize: (12.5 * sf).clamp(11.0, 14.0),
-                    fontWeight: FontWeight.w800,
-                    color: badgeColor,
-                  ),
+              // Numbers only without color
+              Text(
+                b.remainingFractionNumbers,
+                style: TextStyle(
+                  fontFamily: 'Syne',
+                  fontSize: (13.5 * sf).clamp(12.0, 15.0),
+                  fontWeight: FontWeight.w800,
+                  color: kDark,
                 ),
               ),
             ],
@@ -1604,20 +1597,21 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                             ),
                           ],
                         ),
-                        // Fraction Highlight
+                        // Number fraction without color
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: badgeColor,
+                            color: kField,
                             borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: kBorder),
                           ),
                           child: Text(
-                            b.remainingDaysFraction,
-                            style: const TextStyle(
+                            b.remainingFractionNumbers,
+                            style: TextStyle(
                               fontFamily: 'Syne',
-                              fontSize: 12,
+                              fontSize: (13.0 * sf).clamp(11.5, 14.5),
                               fontWeight: FontWeight.w800,
-                              color: Colors.white,
+                              color: kDark,
                             ),
                           ),
                         ),
@@ -1647,7 +1641,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         Expanded(
                           child: _MetricDetailBox(
                             label: 'Total Sessions',
-                            value: '${b.resolvedTotalDays} Sessions',
+                            value: '${b.resolvedTotalDays}',
                             icon: Iconsax.calendar_tick,
                             sf: sf,
                           ),
@@ -1656,7 +1650,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         Expanded(
                           child: _MetricDetailBox(
                             label: 'Sessions Done',
-                            value: '${b.resolvedDaysCompleted} Sessions',
+                            value: '${b.resolvedDaysCompleted}',
                             icon: Iconsax.tick_circle,
                             sf: sf,
                           ),
@@ -1665,9 +1659,9 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         Expanded(
                           child: _MetricDetailBox(
                             label: 'Remaining',
-                            value: '${b.resolvedDaysRemaining} Sessions',
+                            value: '${b.resolvedDaysRemaining}',
                             icon: Iconsax.timer_1,
-                            valueColor: badgeColor,
+                            valueColor: kDark,
                             sf: sf,
                           ),
                         ),

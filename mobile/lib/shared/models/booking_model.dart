@@ -168,6 +168,9 @@ class BookingModel {
   String get remainingDaysFraction => '$resolvedDaysRemaining/$resolvedTotalDays Sessions Left';
   String get remainingSessionsFraction => '$resolvedDaysRemaining/$resolvedTotalDays Sessions Left';
 
+  /// Number-only fraction: e.g. "15/30", "7/90", "3/30"
+  String get remainingFractionNumbers => '$resolvedDaysRemaining/$resolvedTotalDays';
+
   /// Visual progress fraction (0.0 to 1.0) of remaining duration
   double get packageProgress {
     if (resolvedTotalDays <= 0) return 0.0;
