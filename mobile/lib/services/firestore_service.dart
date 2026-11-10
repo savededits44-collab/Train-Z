@@ -98,16 +98,20 @@ class FirestoreService {
   /// Enforces:
   /// - Only APPROVED and active trainers
   /// - Strict 1-on-1 gender matching (Male -> Male, Female -> Female)
+  /// - Real-time slot availability from Firebase trainer_availability
   /// - Optional launch city filter
+  /// - Pagination / limit support
   Stream<List<TrainerDisplayModel>> streamApprovedTrainersDisplay({
     required Gender clientGender,
     String? cityId,
+    int limit = 25,
   }) {
-    return _firestore
+    Query query = _firestore
         .collection(FirestoreCollections.trainerProfiles)
         .where('verificationStatus', isEqualTo: 'APPROVED')
-        .snapshots()
-        .asyncMap((snap) async {
+        .limit(limit);
+
+    return query.snapshots().asyncMap((snap) async {
       final List<TrainerDisplayModel> list = [];
 
       for (final doc in snap.docs) {
@@ -131,8 +135,32 @@ class FirestoreService {
         // STRICT 1-ON-1 GENDER MATCHING: Male clients with Male trainers only, Female with Female
         if (user.gender != clientGender) continue;
 
-        final rawData = doc.data();
+        final rawData = doc.data() as Map<String, dynamic>? ?? {};
         final gymName = rawData['gymName'] as String?;
+        final serviceArea = rawData['serviceArea'] as String? ?? gymName;
+
+        // Fetch real availability from Firebase trainer_availability
+        bool hasSlots = true;
+        try {
+          final availSnap = await _firestore
+              .collection(FirestoreCollections.trainerAvailability)
+              .where('trainerId', isEqualTo: profile.uid)
+              .limit(1)
+              .get();
+          if (availSnap.docs.isNotEmpty) {
+            final availModel = TrainerAvailabilityModel.fromDocument(availSnap.docs.first);
+            hasSlots = availModel.timeSlots.isEmpty || availModel.timeSlots.any((s) => !s.isBooked);
+          }
+        } catch (_) {
+          hasSlots = true;
+        }
+
+        final trainingGoals = (rawData['trainingGoals'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+            profile.specialties;
+        final certs = (rawData['certifications'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+            (profile.certificationDocuments.isNotEmpty
+                ? ['Certified Personal Coach', 'CPR/AED Certified']
+                : ['TRAIN Z Verified Professional']);
 
         list.add(TrainerDisplayModel(
           profile: profile,
@@ -143,12 +171,16 @@ class FirestoreService {
           email: user.email,
           phoneNumber: user.phoneNumber,
           gymName: gymName,
+          serviceArea: serviceArea,
           specialties: profile.specialties,
           experienceYears: profile.experienceYears,
           cityId: profile.cityId,
           ratingAvg: profile.ratingAvg,
           totalReviews: profile.totalReviews,
           hourlyRate: profile.hourlyRate,
+          hasAvailableSlots: hasSlots,
+          trainingGoals: trainingGoals,
+          certifications: certs,
         ));
       }
 

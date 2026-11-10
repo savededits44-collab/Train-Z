@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/app_widgets.dart';
-import '../client/client_dashboard.dart';
+import '../../features/client/client_feature.dart';
 
 class ClientOnboardingScreen extends StatefulWidget {
   const ClientOnboardingScreen({super.key});
@@ -189,7 +189,7 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
                   setState(() => _loading = false);
                   nav.pushReplacement(
                     MaterialPageRoute(
-                      builder: (_) => const ClientDashboard(),
+                      builder: (_) => const ClientHomeScreen(),
                     ),
                   );
                 },

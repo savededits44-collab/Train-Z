@@ -5,19 +5,37 @@ import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../shared/models/user_model.dart';
 import '../../../../widgets/app_widgets.dart';
 import '../../../../widgets/book_session_sheet.dart';
+import '../screens/trainer_detail_screen.dart';
 
 /// Premium card displaying an approved, gender-matched personal trainer.
 class ClientTrainerCard extends StatelessWidget {
   final TrainerDisplayModel trainer;
   final Gender clientGender;
+  final String? clientId;
   final VoidCallback? onBooked;
 
   const ClientTrainerCard({
     super.key,
     required this.trainer,
     required this.clientGender,
+    this.clientId,
     this.onBooked,
   });
+
+  void _openDetail(BuildContext context) {
+    HapticFeedback.lightImpact();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainerDetailScreen(
+          trainer: trainer,
+          clientGender: clientGender,
+          clientId: clientId ?? '',
+          onBooked: onBooked,
+        ),
+      ),
+    );
+  }
 
   void _openBookingSheet(BuildContext context) async {
     HapticFeedback.lightImpact();
@@ -57,7 +75,7 @@ class ClientTrainerCard extends StatelessWidget {
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
-          onTap: () => _openBookingSheet(context),
+          onTap: () => _openDetail(context),
           borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -116,52 +134,110 @@ class ClientTrainerCard extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            trainer.gymName ?? 'TRAIN Z Certified Coach',
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                              color: kGrey,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          // Service area / Location
+                          Row(
+                            children: [
+                              const Icon(Iconsax.location, size: 12, color: Color(0xFF888888)),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  trainer.displayLocation,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                                    color: kGrey,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                    // Rating Chip
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFFBEB),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFFFDE68A)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.star_rounded, size: 14, color: Color(0xFFD97706)),
-                          const SizedBox(width: 4),
-                          Text(
-                            trainer.ratingText,
-                            style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFF92400E),
+                    const SizedBox(width: 8),
+                    // Rating Chip & Slot indicator column
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFBEB),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFFDE68A)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.star_rounded, size: 14, color: Color(0xFFD97706)),
+                              const SizedBox(width: 4),
+                              Text(
+                                trainer.ratingText,
+                                style: TextStyle(
+                                  fontFamily: 'Syne',
+                                  fontSize: (11.5 * sf).clamp(10.5, 13.0),
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFF92400E),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                '(${trainer.totalReviews})',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: (9.5 * sf).clamp(8.5, 11.0),
+                                  color: const Color(0xFFB45309),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        // Live Slot status badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: trainer.hasAvailableSlots
+                                ? const Color(0xFFECFDF5)
+                                : const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: trainer.hasAvailableSlots
+                                  ? const Color(0xFFA7F3D0)
+                                  : const Color(0xFFE5E7EB),
                             ),
                           ),
-                          const SizedBox(width: 2),
-                          Text(
-                            '(${trainer.totalReviews})',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: (9.5 * sf).clamp(8.5, 11.0),
-                              color: const Color(0xFFB45309),
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 5,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  color: trainer.hasAvailableSlots
+                                      ? const Color(0xFF10B981)
+                                      : const Color(0xFF9CA3AF),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                trainer.availabilityText,
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 8.5 * sf,
+                                  fontWeight: FontWeight.w600,
+                                  color: trainer.hasAvailableSlots
+                                      ? const Color(0xFF047857)
+                                      : const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -227,9 +303,8 @@ class ClientTrainerCard extends StatelessWidget {
 
                 const SizedBox(height: 14),
 
-                // ── Bottom Action Row: Pricing & Book CTA ──
+                // ── Bottom Action Row: Pricing & Buttons ──
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,14 +328,37 @@ class ClientTrainerCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    ElevatedButton.icon(
-                      onPressed: () => _openBookingSheet(context),
-                      icon: const Icon(Iconsax.calendar_add, size: 16, color: kDark),
-                      label: const Text(
-                        'Book Session',
+                    const Spacer(),
+                    // View Profile Button
+                    OutlinedButton(
+                      onPressed: () => _openDetail(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        side: const BorderSide(color: Color(0xFFD4D4D8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'View Profile',
                         style: TextStyle(
                           fontFamily: 'Syne',
-                          fontSize: 12,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: kDark,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Book Session Button
+                    ElevatedButton.icon(
+                      onPressed: () => _openBookingSheet(context),
+                      icon: const Icon(Iconsax.calendar_add, size: 15, color: kDark),
+                      label: const Text(
+                        'Book',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: 11.5,
                           fontWeight: FontWeight.w800,
                           color: kDark,
                         ),
@@ -268,7 +366,7 @@ class ClientTrainerCard extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: kLime,
                         elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),

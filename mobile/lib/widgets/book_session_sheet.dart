@@ -210,28 +210,35 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Book a Session',
-                      style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontSize: (20.0 * sf).clamp(18.0, 24.0),
-                        fontWeight: FontWeight.w800,
-                        color: kDark,
+                    Expanded(
+                      child: Text(
+                        'Book a Session',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: (20.0 * sf).clamp(18.0, 24.0),
+                          fontWeight: FontWeight.w800,
+                          color: kDark,
+                        ),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: kLime,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        trainerName,
-                        style: const TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: kDark,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: kLime,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          trainerName,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: kDark,
+                          ),
                         ),
                       ),
                     ),

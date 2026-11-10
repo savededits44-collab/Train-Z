@@ -71,6 +71,8 @@ class SeedService {
     final batch = _firestore.batch();
     final usersCol = _firestore.collection(FirestoreCollections.users);
     final trainersCol = _firestore.collection(FirestoreCollections.trainerProfiles);
+    final availCol = _firestore.collection(FirestoreCollections.trainerAvailability);
+    final reviewsCol = _firestore.collection(FirestoreCollections.reviews);
 
     final trainers = [
       {
@@ -184,10 +186,42 @@ class SeedService {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+
+      // 3. Seed real availability slots
+      final availDocRef = availCol.doc('${t['uid']}_schedule');
+      batch.set(availDocRef, {
+        'id': '${t['uid']}_schedule',
+        'trainerId': t['uid'],
+        'dayOfWeek': 1, // Monday
+        'timeSlots': [
+          {'start': '06:00', 'end': '07:00', 'isBooked': false},
+          {'start': '07:00', 'end': '08:00', 'isBooked': false},
+          {'start': '08:30', 'end': '09:30', 'isBooked': true},
+          {'start': '17:00', 'end': '18:00', 'isBooked': false},
+          {'start': '18:30', 'end': '19:30', 'isBooked': false},
+        ],
+        'specificDateOverrides': [],
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // 4. Seed sample real client reviews
+      final reviewDocRef = reviewsCol.doc('${t['uid']}_review1');
+      batch.set(reviewDocRef, {
+        'id': '${t['uid']}_review1',
+        'bookingId': 'book_seed_${t['uid']}',
+        'clientId': 'client_verified_sample',
+        'trainerId': t['uid'],
+        'rating': (t['ratingAvg'] as num?)?.toDouble() ?? 5.0,
+        'comment': 'Phenomenal coach! Super punctual, paid meticulous attention to my lifting form and progressive overload. Highly recommend!',
+        'isPublic': true,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     }
 
     await batch.commit();
-    debugPrint('✅ Seeded approved trainers for male and female clients.');
+    debugPrint('✅ Seeded approved trainers for male and female clients with schedules & reviews.');
   }
 
   /// Runs full foundation seed

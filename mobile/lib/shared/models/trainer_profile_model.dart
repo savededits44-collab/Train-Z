@@ -130,9 +130,13 @@ class TrainerDisplayModel {
   final List<String> specialties;
   final int experienceYears;
   final String? cityId;
+  final String? serviceArea;
   final double ratingAvg;
   final int totalReviews;
   final int hourlyRate;
+  final bool hasAvailableSlots;
+  final List<String> trainingGoals;
+  final List<String> certifications;
 
   const TrainerDisplayModel({
     required this.profile,
@@ -146,13 +150,62 @@ class TrainerDisplayModel {
     required this.specialties,
     required this.experienceYears,
     this.cityId,
+    this.serviceArea,
     required this.ratingAvg,
     required this.totalReviews,
     required this.hourlyRate,
+    this.hasAvailableSlots = true,
+    this.trainingGoals = const [],
+    this.certifications = const [],
   });
 
   String get experienceText => '$experienceYears+ ${experienceYears == 1 ? 'Year' : 'Years'} Exp';
+  double get rating => ratingAvg;
   String get ratingText => ratingAvg.toStringAsFixed(1);
   String get primarySpecialty => specialties.isNotEmpty ? specialties.first : 'Personal Trainer';
+  String get displayLocation => serviceArea ?? (gymName != null && gymName!.isNotEmpty ? gymName! : (cityId ?? 'All Cities'));
+  String get availabilityText => hasAvailableSlots ? 'Slots Available' : 'Fully Booked';
+
+  TrainerDisplayModel copyWith({
+    TrainerProfileModel? profile,
+    String? uid,
+    String? displayName,
+    String? photoUrl,
+    Gender? gender,
+    String? email,
+    String? phoneNumber,
+    String? gymName,
+    List<String>? specialties,
+    int? experienceYears,
+    String? cityId,
+    String? serviceArea,
+    double? ratingAvg,
+    int? totalReviews,
+    int? hourlyRate,
+    bool? hasAvailableSlots,
+    List<String>? trainingGoals,
+    List<String>? certifications,
+  }) {
+    return TrainerDisplayModel(
+      profile: profile ?? this.profile,
+      uid: uid ?? this.uid,
+      displayName: displayName ?? this.displayName,
+      photoUrl: photoUrl ?? this.photoUrl,
+      gender: gender ?? this.gender,
+      email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      gymName: gymName ?? this.gymName,
+      specialties: specialties ?? this.specialties,
+      experienceYears: experienceYears ?? this.experienceYears,
+      cityId: cityId ?? this.cityId,
+      serviceArea: serviceArea ?? this.serviceArea,
+      ratingAvg: ratingAvg ?? this.ratingAvg,
+      totalReviews: totalReviews ?? this.totalReviews,
+      hourlyRate: hourlyRate ?? this.hourlyRate,
+      hasAvailableSlots: hasAvailableSlots ?? this.hasAvailableSlots,
+      trainingGoals: trainingGoals ?? this.trainingGoals,
+      certifications: certifications ?? this.certifications,
+    );
+  }
 }
 
