@@ -25,8 +25,29 @@ class TrainingPlanModel {
     this.createdAt,
   });
 
+  /// Single session base rate in INR
+  static const int singleSessionRate = 500;
+
   /// Price per individual session
   double get pricePerSession => sessionsCount > 0 ? price / sessionsCount : 0.0;
+
+  /// Total standard cost if booked as single sessions
+  int get standardTotalCost => sessionsCount * singleSessionRate;
+
+  /// Total savings compared to booking single sessions
+  int get totalSavings => (standardTotalCost - price).clamp(0, 100000);
+
+  /// Percentage saved vs single session rate
+  int get savingsPercent {
+    if (sessionsCount <= 1 || standardTotalCost <= 0) return 0;
+    return (((standardTotalCost - price) / standardTotalCost) * 100).round().clamp(0, 100);
+  }
+
+  /// Whether this is the flagship 6-Month Transformation package
+  bool get isTransformationPackage =>
+      id == 'plan_6_months' ||
+      title.toLowerCase().contains('6-month') ||
+      sessionsCount >= 150;
 
   Map<String, dynamic> toMap() {
     return {
@@ -62,6 +83,32 @@ class TrainingPlanModel {
       popular: map['popular'] as bool? ?? false,
       isActive: map['isActive'] as bool? ?? true,
       createdAt: parseTimestamp(map['createdAt']),
+    );
+  }
+
+  TrainingPlanModel copyWith({
+    String? id,
+    String? title,
+    int? price,
+    int? sessionsCount,
+    int? validityDays,
+    int? sessionDurationMinutes,
+    String? description,
+    bool? popular,
+    bool? isActive,
+    DateTime? createdAt,
+  }) {
+    return TrainingPlanModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      price: price ?? this.price,
+      sessionsCount: sessionsCount ?? this.sessionsCount,
+      validityDays: validityDays ?? this.validityDays,
+      sessionDurationMinutes: sessionDurationMinutes ?? this.sessionDurationMinutes,
+      description: description ?? this.description,
+      popular: popular ?? this.popular,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 

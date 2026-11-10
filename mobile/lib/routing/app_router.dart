@@ -36,6 +36,8 @@ class AppRouter {
   static const String clientHome = '/client/home';
   static const String clientTrainerDetail = '/client/trainer-detail';
   static const String clientPackageSelection = '/client/package-selection';
+  static const String clientBookingSchedule = '/client/booking-schedule';
+  static const String clientBookingConfirmation = '/client/booking-confirmation';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -96,6 +98,25 @@ class AppRouter {
             trainer: args['trainer'],
             clientGender: args['clientGender'],
             clientId: args['clientId'] ?? '',
+          ),
+        );
+      case clientBookingSchedule:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientBookingScheduleScreen(
+            trainer: args['trainer'],
+            plan: args['plan'],
+            clientGender: args['clientGender'],
+            clientId: args['clientId'] ?? '',
+          ),
+        );
+      case clientBookingConfirmation:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientBookingConfirmationScreen(
+            booking: args['booking'],
+            trainer: args['trainer'],
+            plan: args['plan'],
           ),
         );
 

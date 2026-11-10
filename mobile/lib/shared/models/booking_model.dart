@@ -3,18 +3,22 @@ import 'user_model.dart';
 
 enum BookingStatus {
   pending,
+  reserved,             // Temporary slot reservation (hold) during checkout
   confirmed,
   completed,
   cancelledClientEarly, // >= 12h, credit returned
   cancelledClientLate,  // < 12h, credit forfeited
   cancelledTrainer,     // credit returned
   cancelledAdmin,       // credit returned
-  rejected;             // Trainer rejected request
+  rejected,             // Trainer rejected request
+  expired;              // Temporary slot reservation expired
 
   String toFirestore() {
     switch (this) {
       case BookingStatus.pending:
         return 'PENDING';
+      case BookingStatus.reserved:
+        return 'RESERVED';
       case BookingStatus.confirmed:
         return 'CONFIRMED';
       case BookingStatus.completed:
@@ -29,6 +33,8 @@ enum BookingStatus {
         return 'CANCELLED_ADMIN';
       case BookingStatus.rejected:
         return 'REJECTED';
+      case BookingStatus.expired:
+        return 'EXPIRED';
     }
   }
 
@@ -42,6 +48,35 @@ enum BookingStatus {
   }
 }
 
+enum PaymentStatus {
+  pending,
+  completed,
+  failed,
+  refunded;
+
+  String toFirestore() {
+    switch (this) {
+      case PaymentStatus.pending:
+        return 'PENDING';
+      case PaymentStatus.completed:
+        return 'COMPLETED';
+      case PaymentStatus.failed:
+        return 'FAILED';
+      case PaymentStatus.refunded:
+        return 'REFUNDED';
+    }
+  }
+
+  static PaymentStatus fromFirestore(dynamic val) {
+    if (val == null) return PaymentStatus.pending;
+    final str = val.toString().trim().toUpperCase();
+    for (final s in PaymentStatus.values) {
+      if (s.toFirestore() == str) return s;
+    }
+    return PaymentStatus.pending;
+  }
+}
+
 class BookingModel {
   final String id;
   final String clientId;
@@ -49,11 +84,17 @@ class BookingModel {
   final Gender clientGender;
   final Gender trainerGender;
   final String? planId;
+  final String? packageId;
+  final int? packagePrice;
+  final int? sessionsCount;
+  final int? validityDays;
   final DateTime sessionDate;
   final String startTime; // e.g. "07:00"
   final String endTime;   // e.g. "08:00"
   final BookingStatus status;
+  final PaymentStatus paymentStatus;
   final String? creditTransactionId;
+  final String? paymentTransactionId;
   final String? clientName;
   final String? clientPhone;
   final String? clientPhotoUrl;
@@ -69,7 +110,11 @@ class BookingModel {
   final String? trainerPhotoUrl;
   final String? workoutType;
   final String? meetingLocation;
+  final String? locationReference;
   final String? notes;
+  final DateTime? reservedAt;
+  final DateTime? expiresAt;
+  final DateTime? confirmedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -80,10 +125,15 @@ class BookingModel {
     required this.clientGender,
     required this.trainerGender,
     this.planId,
+    this.packageId,
+    this.packagePrice,
+    this.sessionsCount,
+    this.validityDays,
     required this.sessionDate,
     required this.startTime,
     required this.endTime,
     this.status = BookingStatus.confirmed,
+    this.paymentStatus = PaymentStatus.pending,
     this.clientName,
     this.clientPhone,
     this.clientPhotoUrl,
@@ -99,8 +149,13 @@ class BookingModel {
     this.trainerPhotoUrl,
     this.workoutType,
     this.creditTransactionId,
+    this.paymentTransactionId,
     this.meetingLocation,
+    this.locationReference,
     this.notes,
+    this.reservedAt,
+    this.expiresAt,
+    this.confirmedAt,
     this.createdAt,
     this.updatedAt,
   });
@@ -111,7 +166,38 @@ class BookingModel {
   String get displayTrainerName =>
       (trainerName != null && trainerName!.trim().isNotEmpty) ? trainerName! : 'Coach #$trainerId';
   String get displayWorkoutType =>
-      (workoutType != null && workoutType!.trim().isNotEmpty) ? workoutType! : (planId ?? 'Personal Training');
+      (workoutType != null && workoutType!.trim().isNotEmpty)
+          ? workoutType!
+          : (planId ?? packageId ?? 'Personal Training');
+
+  /// Safe package ID getter
+  String get resolvedPackageId => packageId ?? planId ?? 'plan_1_month';
+
+  /// Temporary reservation check
+  bool get isTemporaryReservation =>
+      status == BookingStatus.reserved && paymentStatus == PaymentStatus.pending;
+
+  /// Reservation expiry check
+  bool get isReservationExpired =>
+      expiresAt != null && expiresAt!.isBefore(DateTime.now()) && status == BookingStatus.reserved;
+
+  /// Verified confirmed check
+  bool get isConfirmed =>
+      status == BookingStatus.confirmed && paymentStatus == PaymentStatus.completed;
+
+  /// Minutes remaining until reservation expires
+  int get minutesRemaining {
+    if (expiresAt == null) return 0;
+    final diff = expiresAt!.difference(DateTime.now()).inMinutes;
+    return diff > 0 ? diff : 0;
+  }
+
+  /// Seconds remaining until reservation expires
+  int get secondsRemaining {
+    if (expiresAt == null) return 0;
+    final diff = expiresAt!.difference(DateTime.now()).inSeconds;
+    return diff > 0 ? diff : 0;
+  }
 
   /// ── Package & Schedule Resolved Metrics ──────────────────────────────────
   String get resolvedPackageName {
@@ -217,10 +303,15 @@ class BookingModel {
     Gender? clientGender,
     Gender? trainerGender,
     String? planId,
+    String? packageId,
+    int? packagePrice,
+    int? sessionsCount,
+    int? validityDays,
     DateTime? sessionDate,
     String? startTime,
     String? endTime,
     BookingStatus? status,
+    PaymentStatus? paymentStatus,
     String? clientName,
     String? clientPhone,
     String? clientPhotoUrl,
@@ -236,8 +327,13 @@ class BookingModel {
     String? trainerPhotoUrl,
     String? workoutType,
     String? creditTransactionId,
+    String? paymentTransactionId,
     String? meetingLocation,
+    String? locationReference,
     String? notes,
+    DateTime? reservedAt,
+    DateTime? expiresAt,
+    DateTime? confirmedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -248,10 +344,15 @@ class BookingModel {
       clientGender: clientGender ?? this.clientGender,
       trainerGender: trainerGender ?? this.trainerGender,
       planId: planId ?? this.planId,
+      packageId: packageId ?? this.packageId,
+      packagePrice: packagePrice ?? this.packagePrice,
+      sessionsCount: sessionsCount ?? this.sessionsCount,
+      validityDays: validityDays ?? this.validityDays,
       sessionDate: sessionDate ?? this.sessionDate,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
       status: status ?? this.status,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
       clientName: clientName ?? this.clientName,
       clientPhone: clientPhone ?? this.clientPhone,
       clientPhotoUrl: clientPhotoUrl ?? this.clientPhotoUrl,
@@ -267,8 +368,13 @@ class BookingModel {
       trainerPhotoUrl: trainerPhotoUrl ?? this.trainerPhotoUrl,
       workoutType: workoutType ?? this.workoutType,
       creditTransactionId: creditTransactionId ?? this.creditTransactionId,
+      paymentTransactionId: paymentTransactionId ?? this.paymentTransactionId,
       meetingLocation: meetingLocation ?? this.meetingLocation,
+      locationReference: locationReference ?? this.locationReference,
       notes: notes ?? this.notes,
+      reservedAt: reservedAt ?? this.reservedAt,
+      expiresAt: expiresAt ?? this.expiresAt,
+      confirmedAt: confirmedAt ?? this.confirmedAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -284,11 +390,16 @@ class BookingModel {
       'trainerId': trainerId,
       'clientGender': clientGender.toFirestore(),
       'trainerGender': trainerGender.toFirestore(),
-      'planId': planId,
+      'planId': planId ?? packageId,
+      'packageId': packageId ?? planId,
+      'packagePrice': packagePrice,
+      'sessionsCount': sessionsCount,
+      'validityDays': validityDays,
       'sessionDate': Timestamp.fromDate(sessionDate),
       'startTime': startTime,
       'endTime': endTime,
       'status': status.toFirestore(),
+      'paymentStatus': paymentStatus.toFirestore(),
       'clientName': clientName,
       'clientPhone': clientPhone,
       'clientPhotoUrl': clientPhotoUrl,
@@ -304,8 +415,13 @@ class BookingModel {
       'trainerPhotoUrl': trainerPhotoUrl,
       'workoutType': workoutType,
       'creditTransactionId': creditTransactionId,
+      'paymentTransactionId': paymentTransactionId,
       'meetingLocation': meetingLocation,
+      'locationReference': locationReference ?? meetingLocation,
       'notes': notes,
+      'reservedAt': reservedAt != null ? Timestamp.fromDate(reservedAt!) : null,
+      'expiresAt': expiresAt != null ? Timestamp.fromDate(expiresAt!) : null,
+      'confirmedAt': confirmedAt != null ? Timestamp.fromDate(confirmedAt!) : null,
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -324,11 +440,16 @@ class BookingModel {
       trainerId: map['trainerId'] as String? ?? '',
       clientGender: Gender.fromFirestore(map['clientGender']) ?? Gender.male,
       trainerGender: Gender.fromFirestore(map['trainerGender']) ?? Gender.male,
-      planId: map['planId'] as String?,
+      planId: map['planId'] as String? ?? map['packageId'] as String?,
+      packageId: map['packageId'] as String? ?? map['planId'] as String?,
+      packagePrice: (map['packagePrice'] as num?)?.toInt(),
+      sessionsCount: (map['sessionsCount'] as num?)?.toInt() ?? (map['sessions'] as num?)?.toInt(),
+      validityDays: (map['validityDays'] as num?)?.toInt(),
       sessionDate: parseTimestamp(map['sessionDate']) ?? DateTime.now(),
       startTime: map['startTime'] as String? ?? '06:00',
       endTime: map['endTime'] as String? ?? '07:00',
       status: BookingStatus.fromFirestore(map['status']),
+      paymentStatus: PaymentStatus.fromFirestore(map['paymentStatus']),
       clientName: map['clientName'] as String?,
       clientPhone: map['clientPhone'] as String?,
       clientPhotoUrl: map['clientPhotoUrl'] as String?,
@@ -344,8 +465,13 @@ class BookingModel {
       trainerPhotoUrl: map['trainerPhotoUrl'] as String?,
       workoutType: map['workoutType'] as String?,
       creditTransactionId: map['creditTransactionId'] as String?,
+      paymentTransactionId: map['paymentTransactionId'] as String?,
       meetingLocation: map['meetingLocation'] as String?,
+      locationReference: map['locationReference'] as String? ?? map['meetingLocation'] as String?,
       notes: map['notes'] as String?,
+      reservedAt: parseTimestamp(map['reservedAt']),
+      expiresAt: parseTimestamp(map['expiresAt']),
+      confirmedAt: parseTimestamp(map['confirmedAt']),
       createdAt: parseTimestamp(map['createdAt']),
       updatedAt: parseTimestamp(map['updatedAt']),
     );
@@ -356,4 +482,3 @@ class BookingModel {
     return BookingModel.fromMap(data, id: doc.id);
   }
 }
-

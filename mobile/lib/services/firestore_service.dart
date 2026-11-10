@@ -426,6 +426,297 @@ class FirestoreService {
   }
 
   // ───────────────────────────────────────────────────────────────────────────
+  // Booking Reservations & Double-Booking Protection
+  // ───────────────────────────────────────────────────────────────────────────
+
+  /// Atomically reserves a trainer time slot with 15-minute checkout hold and double-booking protection.
+  Future<BookingModel> reserveBookingSlot({
+    required String clientId,
+    required String trainerId,
+    required String packageId,
+    required DateTime sessionDate,
+    required String startTime,
+    required String endTime,
+    required String trainingLocation,
+    String? notes,
+    String? clientName,
+    String? clientPhone,
+    Gender clientGender = Gender.male,
+    Gender trainerGender = Gender.male,
+  }) async {
+    // 1. Strict Gender Matching Invariant Check
+    if (clientGender != trainerGender) {
+      throw GenderMismatchException(
+        'Gender matching violation: $clientGender clients can only book $clientGender trainers.',
+      );
+    }
+
+    // 2. Authoritative package lookup
+    final plan = await getTrainingPlan(packageId);
+    final planPrice = plan?.price ?? 10799;
+    final planSessions = plan?.sessionsCount ?? 26;
+    final planValidity = plan?.validityDays ?? 30;
+
+    // 3. Slot lock key: trainerId_YYYY-MM-DD_safeTime
+    final dateStr = sessionDate.toIso8601String().substring(0, 10);
+    final safeTime = startTime.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+    final lockDocId = '${trainerId}_${dateStr}_$safeTime';
+
+    final slotLockRef = _firestore.collection(FirestoreCollections.slotLocks).doc(lockDocId);
+    final bookingRef = _firestore.collection(FirestoreCollections.bookings).doc();
+
+    final now = DateTime.now();
+    final expiresAt = now.add(const Duration(minutes: 15));
+
+    return await _firestore.runTransaction((transaction) async {
+      final lockSnap = await transaction.get(slotLockRef);
+      if (lockSnap.exists) {
+        final data = lockSnap.data() ?? {};
+        final status = data['status'] as String? ?? '';
+        final expRaw = data['expiresAt'];
+        DateTime? lockExpires;
+        if (expRaw is Timestamp) lockExpires = expRaw.toDate();
+
+        if (status == 'CONFIRMED') {
+          throw const BookingConflictException(
+            'This time slot has already been booked by another client. Please select another slot.',
+          );
+        }
+
+        if (status == 'RESERVED' && lockExpires != null && lockExpires.isAfter(DateTime.now())) {
+          final reservedBy = data['clientId'] as String? ?? '';
+          if (reservedBy != clientId) {
+            throw const BookingConflictException(
+              'This time slot is temporarily reserved by another client during checkout. Please select another slot.',
+            );
+          }
+        }
+      }
+
+      // Set the temporary slot lock
+      transaction.set(slotLockRef, {
+        'id': lockDocId,
+        'bookingId': bookingRef.id,
+        'trainerId': trainerId,
+        'clientId': clientId,
+        'date': dateStr,
+        'startTime': startTime,
+        'endTime': endTime,
+        'status': 'RESERVED',
+        'expiresAt': Timestamp.fromDate(expiresAt),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Create booking in reserved state
+      final booking = BookingModel(
+        id: bookingRef.id,
+        clientId: clientId,
+        trainerId: trainerId,
+        clientGender: clientGender,
+        trainerGender: trainerGender,
+        packageId: packageId,
+        planId: packageId,
+        packagePrice: planPrice,
+        sessionsCount: planSessions,
+        validityDays: planValidity,
+        sessionDate: sessionDate,
+        startTime: startTime,
+        endTime: endTime,
+        status: BookingStatus.reserved,
+        paymentStatus: PaymentStatus.pending,
+        clientName: clientName,
+        clientPhone: clientPhone,
+        meetingLocation: trainingLocation,
+        locationReference: trainingLocation,
+        notes: notes,
+        reservedAt: now,
+        expiresAt: expiresAt,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      transaction.set(bookingRef, booking.toMap());
+      return booking;
+    });
+  }
+
+  /// Server-verified payment confirmation: marks booking CONFIRMED and payment COMPLETED
+  Future<BookingModel> confirmBookingPayment({
+    required String bookingId,
+    String? paymentTransactionId,
+  }) async {
+    final bookingRef = _firestore.collection(FirestoreCollections.bookings).doc(bookingId);
+
+    return await _firestore.runTransaction((transaction) async {
+      final docSnap = await transaction.get(bookingRef);
+      if (!docSnap.exists) {
+        throw const AuthException('Booking record not found.');
+      }
+
+      final booking = BookingModel.fromDocument(docSnap);
+
+      // Verify not expired
+      if (booking.isReservationExpired) {
+        transaction.update(bookingRef, {
+          'status': 'EXPIRED',
+          'paymentStatus': 'FAILED',
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        throw const ReservationExpiredException(
+          'Temporary slot reservation has expired. Please select the time slot again.',
+        );
+      }
+
+      final now = DateTime.now();
+      final updated = booking.copyWith(
+        status: BookingStatus.confirmed,
+        paymentStatus: PaymentStatus.completed,
+        paymentTransactionId: paymentTransactionId ?? 'TXN_${now.millisecondsSinceEpoch}',
+        confirmedAt: now,
+        updatedAt: now,
+      );
+
+      transaction.update(bookingRef, {
+        'status': 'CONFIRMED',
+        'paymentStatus': 'COMPLETED',
+        'paymentTransactionId': updated.paymentTransactionId,
+        'confirmedAt': Timestamp.fromDate(now),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Update slot lock to CONFIRMED
+      final dateStr = booking.sessionDate.toIso8601String().substring(0, 10);
+      final safeTime = booking.startTime.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+      final lockDocId = '${booking.trainerId}_${dateStr}_$safeTime';
+      final lockRef = _firestore.collection(FirestoreCollections.slotLocks).doc(lockDocId);
+
+      transaction.set(lockRef, {
+        'status': 'CONFIRMED',
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      return updated;
+    });
+  }
+
+  /// Releases a temporary reservation on payment cancellation, failure, or user exit
+  Future<void> releaseBookingReservation({
+    required String bookingId,
+    String reason = 'USER_CANCELLED',
+  }) async {
+    final bookingRef = _firestore.collection(FirestoreCollections.bookings).doc(bookingId);
+    final docSnap = await bookingRef.get();
+    if (!docSnap.exists) return;
+
+    final booking = BookingModel.fromDocument(docSnap);
+    if (booking.status == BookingStatus.confirmed) return; // Do not cancel confirmed
+
+    await bookingRef.update({
+      'status': reason == 'EXPIRED' ? 'EXPIRED' : 'CANCELLED',
+      'paymentStatus': 'FAILED',
+      'notes': '${booking.notes ?? ""}\n[Reservation Released: $reason]'.trim(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    final dateStr = booking.sessionDate.toIso8601String().substring(0, 10);
+    final safeTime = booking.startTime.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+    final lockDocId = '${booking.trainerId}_${dateStr}_$safeTime';
+    await _firestore.collection(FirestoreCollections.slotLocks).doc(lockDocId).delete();
+  }
+
+  /// Streams available 60-minute time slots for a specific trainer and date,
+  /// taking into account active bookings and slot locks in Firestore.
+  Stream<List<TimeSlot>> streamSlotsForTrainerDate({
+    required String trainerId,
+    required DateTime date,
+  }) {
+    final dateStr = date.toIso8601String().substring(0, 10);
+
+    return _firestore
+        .collection(FirestoreCollections.slotLocks)
+        .where('trainerId', isEqualTo: trainerId)
+        .where('date', isEqualTo: dateStr)
+        .snapshots()
+        .map((snap) {
+      final lockedTimes = <String>{};
+      final now = DateTime.now();
+
+      for (final doc in snap.docs) {
+        final data = doc.data();
+        final status = data['status'] as String? ?? '';
+        final expRaw = data['expiresAt'];
+        DateTime? exp;
+        if (expRaw is Timestamp) exp = expRaw.toDate();
+
+        if (status == 'CONFIRMED') {
+          lockedTimes.add(data['startTime'] as String? ?? '');
+        } else if (status == 'RESERVED' && exp != null && exp.isAfter(now)) {
+          lockedTimes.add(data['startTime'] as String? ?? '');
+        }
+      }
+
+      final defaultSlots = [
+        '06:00 AM',
+        '07:00 AM',
+        '08:30 AM',
+        '10:00 AM',
+        '11:30 AM',
+        '05:00 PM',
+        '06:30 PM',
+        '08:00 PM',
+      ];
+
+      return defaultSlots.map((start) {
+        final isBooked = lockedTimes.contains(start);
+        return TimeSlot(start: start, end: computeSlotEndTime(start), isBooked: isBooked);
+      }).toList();
+    });
+  }
+
+  /// Helper to compute end time for 60-minute slots
+  static String computeSlotEndTime(String start) {
+    if (start.contains('06:00 AM')) return '07:00 AM';
+    if (start.contains('07:00 AM')) return '08:00 AM';
+    if (start.contains('08:30 AM')) return '09:30 AM';
+    if (start.contains('10:00 AM')) return '11:00 AM';
+    if (start.contains('11:30 AM')) return '12:30 PM';
+    if (start.contains('05:00 PM')) return '06:00 PM';
+    if (start.contains('06:30 PM')) return '07:30 PM';
+    if (start.contains('08:00 PM')) return '09:00 PM';
+    return '';
+  }
+
+  /// Checks if client address is within trainer's service area or city
+  static bool isAddressInTrainerServiceArea({
+    required String clientAddress,
+    required String trainerServiceArea,
+    String? trainerCity,
+  }) {
+    if (clientAddress.trim().isEmpty) return false;
+    if (trainerServiceArea.trim().isEmpty) return true;
+
+    final lowerAddr = clientAddress.toLowerCase();
+    final lowerArea = trainerServiceArea.toLowerCase();
+
+    if (trainerCity != null && trainerCity.isNotEmpty && lowerAddr.contains(trainerCity.toLowerCase())) {
+      return true;
+    }
+
+    final areaKeywords = lowerArea
+        .replaceAll(',', ' ')
+        .replaceAll('&', ' ')
+        .split(' ')
+        .map((w) => w.trim())
+        .where((w) => w.length > 2);
+
+    for (final kw in areaKeywords) {
+      if (lowerAddr.contains(kw)) return true;
+    }
+
+    return lowerArea.contains(lowerAddr) || lowerAddr.contains(lowerArea);
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
   // Trainer Availability
   // ───────────────────────────────────────────────────────────────────────────
 

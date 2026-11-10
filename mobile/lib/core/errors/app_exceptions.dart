@@ -61,6 +61,24 @@ class CancellationPolicyException extends TrainZException {
   });
 }
 
+/// Double-booking collision or slot already reserved
+class BookingConflictException extends TrainZException {
+  const BookingConflictException(
+    super.message, {
+    super.code = 'SLOT_ALREADY_RESERVED',
+    super.details,
+  });
+}
+
+/// Temporary slot reservation expired
+class ReservationExpiredException extends TrainZException {
+  const ReservationExpiredException(
+    super.message, {
+    super.code = 'RESERVATION_EXPIRED',
+    super.details,
+  });
+}
+
 /// Firebase storage and document upload errors
 class StorageException extends TrainZException {
   const StorageException(super.message, {super.code, super.details});

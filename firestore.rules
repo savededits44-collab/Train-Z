@@ -215,6 +215,14 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 13. slot_locks Collection (Double-booking protection & temporary reservations)
+    // ─────────────────────────────────────────────────────────────────────────
+    match /slot_locks/{lockId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
   }
 }
 
