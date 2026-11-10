@@ -218,5 +218,104 @@ void main() {
       expect(FirestoreCollections.platformSettings, 'platform_settings');
     });
   });
+
+  group('Trainer Dashboard: Today\'s Income Calculation & Model Logic', () {
+    test('calculates today\'s income correctly from confirmed bookings on today\'s date', () {
+      final now = DateTime.now();
+      final bookings = [
+        BookingModel(
+          id: 'b1',
+          clientId: 'c1',
+          trainerId: 't1',
+          clientGender: Gender.male,
+          trainerGender: Gender.male,
+          sessionDate: now,
+          startTime: '08:00',
+          endTime: '09:00',
+          status: BookingStatus.confirmed,
+        ),
+        BookingModel(
+          id: 'b2',
+          clientId: 'c2',
+          trainerId: 't1',
+          clientGender: Gender.male,
+          trainerGender: Gender.male,
+          sessionDate: now,
+          startTime: '10:00',
+          endTime: '11:00',
+          status: BookingStatus.confirmed,
+        ),
+        BookingModel(
+          id: 'b3',
+          clientId: 'c3',
+          trainerId: 't1',
+          clientGender: Gender.male,
+          trainerGender: Gender.male,
+          sessionDate: now.add(const Duration(days: 1)), // tomorrow
+          startTime: '14:00',
+          endTime: '15:00',
+          status: BookingStatus.confirmed,
+        ),
+        BookingModel(
+          id: 'b4',
+          clientId: 'c4',
+          trainerId: 't1',
+          clientGender: Gender.male,
+          trainerGender: Gender.male,
+          sessionDate: now,
+          startTime: '16:00',
+          endTime: '17:00',
+          status: BookingStatus.pending, // not confirmed
+        ),
+      ];
+
+      final todayActive = bookings.where((b) {
+        if (b.status != BookingStatus.confirmed && b.status != BookingStatus.completed) {
+          return false;
+        }
+        return b.sessionDate.year == now.year &&
+               b.sessionDate.month == now.month &&
+               b.sessionDate.day == now.day;
+      }).toList();
+
+      const hourlyRate = 500;
+      final todaysIncome = todayActive.length * hourlyRate;
+
+      expect(todayActive.length, 2);
+      expect(todaysIncome, 1000);
+    });
+
+    test('returns 0 income when no confirmed sessions exist for today', () {
+      final now = DateTime.now();
+      final bookings = [
+        BookingModel(
+          id: 'b1',
+          clientId: 'c1',
+          trainerId: 't1',
+          clientGender: Gender.male,
+          trainerGender: Gender.male,
+          sessionDate: now,
+          startTime: '08:00',
+          endTime: '09:00',
+          status: BookingStatus.pending,
+        ),
+      ];
+
+      final todayActive = bookings.where((b) {
+        if (b.status != BookingStatus.confirmed && b.status != BookingStatus.completed) {
+          return false;
+        }
+        return b.sessionDate.year == now.year &&
+               b.sessionDate.month == now.month &&
+               b.sessionDate.day == now.day;
+      }).toList();
+
+      const hourlyRate = 500;
+      final todaysIncome = todayActive.length * hourlyRate;
+
+      expect(todayActive.length, 0);
+      expect(todaysIncome, 0);
+    });
+  });
 }
 

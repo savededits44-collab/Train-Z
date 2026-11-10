@@ -222,7 +222,15 @@ class _TrainerHomeTab extends StatelessWidget {
               },
             ),
 
-            SizedBox(height: (h * 0.025).clamp(14, 24)),
+            SizedBox(height: (h * 0.02).clamp(12, 20)),
+
+            // Today's Income Box Column (Live Real-Time Daily Revenue)
+            _TrainerTodaysIncomeCard(
+              sf: sf,
+              onGoToSchedule: onGoToSchedule,
+            ),
+
+            SizedBox(height: (h * 0.02).clamp(12, 20)),
 
             // Dynamic Trainer Status Card (Profile Setup, Application In Process, or Approved)
             ListenableBuilder(
@@ -720,6 +728,287 @@ class _TStatCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ── Trainer Today's Income Card (Box-Type Column Container) ─────────────────
+class _TrainerTodaysIncomeCard extends StatelessWidget {
+  final double sf;
+  final VoidCallback onGoToSchedule;
+
+  const _TrainerTodaysIncomeCard({
+    required this.sf,
+    required this.onGoToSchedule,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        BookingService.instance,
+        TrainerProfileService.instance,
+      ]),
+      builder: (context, _) {
+        final bService = BookingService.instance;
+        final pService = TrainerProfileService.instance;
+        final income = bService.todaysIncome;
+        final todayConfirmed = bService.todayConfirmedBookings;
+        final todayCount = todayConfirmed.length;
+        final rate = pService.hourlyRate;
+
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.all((18.0 * sf).clamp(14.0, 22.0)),
+          decoration: BoxDecoration(
+            color: const Color(0xFF141416),
+            borderRadius: BorderRadius.circular((18.0 * sf).clamp(14.0, 22.0)),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.08),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.16),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Bar: Icon + Title + Real-Time Badge
+              Row(
+                children: [
+                  Container(
+                    width: (34.0 * sf).clamp(28.0, 40.0),
+                    height: (34.0 * sf).clamp(28.0, 40.0),
+                    decoration: BoxDecoration(
+                      color: kLime,
+                      borderRadius: BorderRadius.circular((10.0 * sf).clamp(8.0, 12.0)),
+                    ),
+                    child: Icon(
+                      Iconsax.wallet_3,
+                      size: (18.0 * sf).clamp(14.0, 22.0),
+                      color: kDark,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "TODAY'S INCOME",
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (11.0 * sf).clamp(9.5, 12.5),
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.2,
+                            color: kLime,
+                          ),
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          'Estimated Daily Earnings',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (11.0 * sf).clamp(9.5, 12.0),
+                            color: Colors.white.withValues(alpha: 0.65),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.07),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.12),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF4CAF50),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        const Text(
+                          'Live',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: (16.0 * sf).clamp(12.0, 20.0)),
+
+              // Big Revenue Display + Rate Badge
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    '₹',
+                    style: TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: (22.0 * sf).clamp(18.0, 26.0),
+                      fontWeight: FontWeight.w800,
+                      color: kLime,
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  Text(
+                    income.toString(),
+                    style: TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: (34.0 * sf).clamp(28.0, 40.0),
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      height: 1.0,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: kLime.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: kLime.withValues(alpha: 0.28),
+                      ),
+                    ),
+                    child: Text(
+                      '₹$rate / Session',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: (11.0 * sf).clamp(9.5, 12.5),
+                        fontWeight: FontWeight.w700,
+                        color: kLime,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: (14.0 * sf).clamp(10.0, 18.0)),
+
+              // Subtle Divider
+              Container(
+                height: 1,
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
+
+              SizedBox(height: (12.0 * sf).clamp(8.0, 14.0)),
+
+              // Footer Status & Quick Action
+              if (income > 0)
+                Row(
+                  children: [
+                    const Icon(
+                      Iconsax.tick_circle,
+                      size: 14,
+                      color: Color(0xFF4CAF50),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        '$todayCount session${todayCount == 1 ? '' : 's'} accepted for today',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: (11.5 * sf).clamp(10.0, 12.5),
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withValues(alpha: 0.85),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(6),
+                      onTap: onGoToSchedule,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'View Schedule',
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontSize: (11.0 * sf).clamp(9.5, 12.0),
+                              fontWeight: FontWeight.w700,
+                              color: kLime,
+                            ),
+                          ),
+                          const SizedBox(width: 3),
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 10,
+                            color: kLime,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              else
+                Row(
+                  children: [
+                    Icon(
+                      Iconsax.info_circle,
+                      size: 14,
+                      color: Colors.white.withValues(alpha: 0.45),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        '0 sessions accepted today',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: (11.0 * sf).clamp(9.5, 12.0),
+                          color: Colors.white.withValues(alpha: 0.55),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(6),
+                      onTap: onGoToSchedule,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: kLime,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'View Requests',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (10.5 * sf).clamp(9.0, 11.5),
+                            fontWeight: FontWeight.w700,
+                            color: kDark,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

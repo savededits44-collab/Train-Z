@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../core/constants/firestore_collections.dart';
 import '../shared/models/booking_model.dart';
 import '../shared/models/user_model.dart';
+import 'trainer_profile_service.dart';
 
 /// Singleton service providing real-time, live booking synchronization
 /// between Clients and Trainers.
@@ -31,6 +32,25 @@ class BookingService extends ChangeNotifier {
 
   List<BookingModel> get confirmedBookings =>
       _bookings.where((b) => b.status == BookingStatus.confirmed).toList();
+
+  /// Confirmed or completed sessions scheduled for today
+  List<BookingModel> get todayConfirmedBookings {
+    final now = DateTime.now();
+    return _bookings.where((b) {
+      if (b.status != BookingStatus.confirmed && b.status != BookingStatus.completed) {
+        return false;
+      }
+      return b.sessionDate.year == now.year &&
+             b.sessionDate.month == now.month &&
+             b.sessionDate.day == now.day;
+    }).toList();
+  }
+
+  /// Real-time today's income earned from today's confirmed/completed sessions
+  int get todaysIncome {
+    final rate = TrainerProfileService.instance.hourlyRate;
+    return todayConfirmedBookings.length * rate;
+  }
 
   List<BookingModel> get historyBookings => _bookings
       .where((b) =>

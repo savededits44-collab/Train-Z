@@ -24,6 +24,7 @@ class TrainerProfileService extends ChangeNotifier {
   String? _mobileNumber;
   String? _photoPath; // local file path to live selfie / captured photo
   String? _certificatePath; // local file path to coaching certificate (optional)
+  int _hourlyRate = 500; // in INR per session
   bool _isProfileCompleted = false;
 
   // Admin verification state
@@ -44,7 +45,13 @@ class TrainerProfileService extends ChangeNotifier {
   String? get mobileNumber => _mobileNumber;
   String? get photoPath => _photoPath;
   String? get certificatePath => _certificatePath;
+  int get hourlyRate => _hourlyRate;
   bool get isProfileCompleted => _isProfileCompleted;
+
+  void updateHourlyRate(int rate) {
+    _hourlyRate = rate;
+    notifyListeners();
+  }
 
   TrainerVerificationStatus get verificationStatus => _verificationStatus;
   bool get isPendingApproval => _isProfileCompleted && _verificationStatus == TrainerVerificationStatus.pending;
