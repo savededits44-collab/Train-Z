@@ -19,6 +19,7 @@ import '../widgets/client_location_sheet.dart';
 import '../widgets/client_package_card.dart';
 import '../widgets/client_trainer_card.dart';
 import '../widgets/client_upcoming_session_card.dart';
+import '../widgets/trainer_filter_sheet.dart';
 import 'client_profile_setup_screen.dart';
 
 /// Comprehensive Client Home Dashboard for TRAIN Z.
@@ -35,16 +36,39 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   final TextEditingController _homeSearchController = TextEditingController();
   final TextEditingController _findTrainerSearchController = TextEditingController();
   final ScrollController _homeScrollController = ScrollController();
+  final ScrollController _findTrainerScrollController = ScrollController();
   final GlobalKey _packagesKey = GlobalKey();
 
   String _searchFilter = '';
   String _selectedSpecialty = 'All';
+  String _sortBy = 'rating'; // 'rating', 'experience', 'relevance'
+  int _trainerLimit = 10;
+  TrainerFilterState _filterState = const TrainerFilterState();
+
+  @override
+  void initState() {
+    super.initState();
+    _findTrainerScrollController.addListener(_onFindTrainerScroll);
+  }
+
+  void _onFindTrainerScroll() {
+    if (_findTrainerScrollController.hasClients &&
+        _findTrainerScrollController.position.pixels >=
+            _findTrainerScrollController.position.maxScrollExtent - 200) {
+      if (mounted) {
+        setState(() {
+          _trainerLimit += 10;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
     _homeSearchController.dispose();
     _findTrainerSearchController.dispose();
     _homeScrollController.dispose();
+    _findTrainerScrollController.dispose();
     super.dispose();
   }
 
@@ -832,6 +856,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   return ClientTrainerCard(
                     trainer: trainer,
                     clientGender: clientGender,
+                    clientId: uid,
                     onBooked: () => setState(() {}),
                   );
                 }).toList(),
@@ -916,7 +941,13 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     required String cityName,
   }) {
     final genderStr = clientGender == Gender.female ? 'Female' : 'Male';
-    final specialties = [
+    final effectiveCityId = _filterState.cityId ?? selectedCityId;
+    final effectiveCityName = AppConstants.initialLaunchCities.firstWhere(
+      (c) => c['id'] == effectiveCityId,
+      orElse: () => {'name': cityName},
+    )['name'] as String;
+
+    final quickSpecialties = [
       'All',
       'Hypertrophy & Strength',
       'Calisthenics',
@@ -931,28 +962,42 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Find Your Coach',
-            style: TextStyle(
-              fontFamily: 'Syne',
-              fontSize: (22.0 * sf).clamp(18.0, 26.0),
-              fontWeight: FontWeight.w800,
-              color: kDark,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Approved $genderStr personal trainers in $cityName.',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: (11.5 * sf).clamp(10.5, 13.0),
-              color: kGrey,
-            ),
+          // ── Title & Matching Banner ──
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Find Your Coach',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: (22.0 * sf).clamp(18.0, 26.0),
+                        fontWeight: FontWeight.w800,
+                        color: kDark,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Approved $genderStr trainers in $effectiveCityName • Strict 1-on-1 verified.',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: (11.5 * sf).clamp(10.5, 13.0),
+                        color: kGrey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
 
-          // Search Field
+          // ── Search Bar ──
           Container(
             decoration: BoxDecoration(
               color: const Color(0xFFF7F7F7),
@@ -963,7 +1008,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               controller: _findTrainerSearchController,
               onChanged: (val) => setState(() => _searchFilter = val.trim().toLowerCase()),
               decoration: InputDecoration(
-                hintText: 'Search by coach name, gym or workout style...',
+                hintText: 'Search by coach name, specialty, goal or gym...',
                 hintStyle: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: (12.0 * sf).clamp(11.0, 13.5),
@@ -985,14 +1030,202 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // Specialty Filter Chips
+          // ── Action Row: Sort Dropdown & Filter Sheet Trigger ──
+          Row(
+            children: [
+              // Sort Menu Button
+              PopupMenuButton<String>(
+                initialValue: _sortBy,
+                onSelected: (val) {
+                  HapticFeedback.selectionClick();
+                  setState(() => _sortBy = val);
+                },
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'rating',
+                    child: Row(
+                      children: [
+                        Icon(Icons.star_rounded, size: 18, color: Color(0xFFD97706)),
+                        SizedBox(width: 8),
+                        Text('Highest Rating', style: TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'experience',
+                    child: Row(
+                      children: [
+                        Icon(Iconsax.award, size: 18, color: kDark),
+                        SizedBox(width: 8),
+                        Text('Most Experience', style: TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'relevance',
+                    child: Row(
+                      children: [
+                        Icon(Iconsax.magicpen, size: 18, color: kDark),
+                        SizedBox(width: 8),
+                        Text('Relevance', style: TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ],
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF7F7F7),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE5E5E5)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _sortBy == 'rating'
+                            ? Icons.star_rounded
+                            : _sortBy == 'experience'
+                                ? Iconsax.award
+                                : Iconsax.magicpen,
+                        size: 14,
+                        color: _sortBy == 'rating' ? const Color(0xFFD97706) : kDark,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _sortBy == 'rating'
+                            ? 'Top Rated'
+                            : _sortBy == 'experience'
+                                ? 'Experience'
+                                : 'Relevance',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                          fontWeight: FontWeight.w700,
+                          color: kDark,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.arrow_drop_down, size: 16, color: kDark),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              // Filter Sheet Trigger Button
+              InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  TrainerFilterSheet.show(
+                    context,
+                    initialFilter: _filterState,
+                    onApply: (applied) {
+                      setState(() {
+                        _filterState = applied;
+                        if (applied.specializations.isNotEmpty) {
+                          _selectedSpecialty = applied.specializations.first;
+                        }
+                      });
+                    },
+                  );
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: _filterState.hasActiveFilters ? kDark : const Color(0xFFF7F7F7),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: _filterState.hasActiveFilters ? kDark : const Color(0xFFE5E5E5),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Iconsax.filter_search,
+                        size: 14,
+                        color: _filterState.hasActiveFilters ? kLime : kDark,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Filters',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                          fontWeight: FontWeight.w700,
+                          color: _filterState.hasActiveFilters ? Colors.white : kDark,
+                        ),
+                      ),
+                      if (_filterState.activeFilterCount > 0) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: kLime,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${_filterState.activeFilterCount}',
+                            style: const TextStyle(
+                              fontFamily: 'Syne',
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              color: kDark,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+
+              // Reset All shortcut if active
+              if (_filterState.hasActiveFilters || _searchFilter.isNotEmpty || _selectedSpecialty != 'All')
+                TextButton(
+                  onPressed: () {
+                    HapticFeedback.selectionClick();
+                    _findTrainerSearchController.clear();
+                    setState(() {
+                      _searchFilter = '';
+                      _selectedSpecialty = 'All';
+                      _filterState = const TrainerFilterState();
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text(
+                    'Reset',
+                    style: TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFEF4444),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // ── Quick Specialty Chips ──
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             child: Row(
-              children: specialties.map((spec) {
+              children: quickSpecialties.map((spec) {
                 final isSelected = _selectedSpecialty == spec;
                 return Padding(
                   padding: const EdgeInsets.only(right: 6),
@@ -1017,7 +1250,14 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     onSelected: (selected) {
                       if (selected) {
                         HapticFeedback.selectionClick();
-                        setState(() => _selectedSpecialty = spec);
+                        setState(() {
+                          _selectedSpecialty = spec;
+                          if (spec != 'All') {
+                            _filterState = _filterState.copyWith(specializations: {spec});
+                          } else {
+                            _filterState = _filterState.copyWith(specializations: {});
+                          }
+                        });
                       }
                     },
                   ),
@@ -1026,47 +1266,31 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             ),
           ),
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
 
-          // Live Trainer Stream List
+          // ── Live Trainer Stream List ──
           Expanded(
             child: StreamBuilder<List<TrainerDisplayModel>>(
               stream: FirestoreService().streamApprovedTrainersDisplay(
                 clientGender: clientGender,
-                cityId: selectedCityId,
+                cityId: effectiveCityId,
               ),
               builder: (context, trainerSnap) {
                 if (trainerSnap.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator(color: kDark));
                 }
 
-                var list = trainerSnap.data ?? [];
-
-                // In-memory filter for search input & specialty chips
-                if (_searchFilter.isNotEmpty) {
-                  list = list.where((t) {
-                    final nameMatch = t.displayName.toLowerCase().contains(_searchFilter);
-                    final gymMatch = (t.gymName ?? '').toLowerCase().contains(_searchFilter);
-                    final specMatch = t.specialties.any((s) => s.toLowerCase().contains(_searchFilter));
-                    return nameMatch || gymMatch || specMatch;
-                  }).toList();
-                }
-
-                if (_selectedSpecialty != 'All') {
-                  list = list.where((t) => t.specialties.contains(_selectedSpecialty)).toList();
-                }
-
-                if (list.isEmpty) {
+                if (trainerSnap.hasError) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Iconsax.user_search, size: 40, color: Color(0xFFB0B0B0)),
+                          const Icon(Icons.error_outline, size: 40, color: Color(0xFFEF4444)),
                           const SizedBox(height: 12),
                           Text(
-                            'No matching coaches found',
+                            'Unable to load trainers',
                             style: TextStyle(
                               fontFamily: 'Syne',
                               fontSize: (14.0 * sf).clamp(13.0, 16.0),
@@ -1076,7 +1300,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Try clearing filters or search terms.',
+                            '${trainerSnap.error}',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: (11.0 * sf).clamp(10.0, 12.5),
@@ -1084,15 +1309,13 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          TextButton(
-                            onPressed: () {
-                              _findTrainerSearchController.clear();
-                              setState(() {
-                                _searchFilter = '';
-                                _selectedSpecialty = 'All';
-                              });
-                            },
-                            child: const Text('Reset Search', style: TextStyle(fontFamily: 'Syne', color: kDark)),
+                          ElevatedButton(
+                            onPressed: () => setState(() {}),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kDark,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text('Retry', style: TextStyle(fontFamily: 'Syne', color: Colors.white)),
                           ),
                         ],
                       ),
@@ -1100,17 +1323,233 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   );
                 }
 
-                return ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: list.length,
-                  itemBuilder: (context, index) {
-                    final trainer = list[index];
-                    return ClientTrainerCard(
-                      trainer: trainer,
-                      clientGender: clientGender,
-                      onBooked: () => setState(() {}),
+                var list = trainerSnap.data ?? [];
+
+                // ── Search Query Filter ──
+                if (_searchFilter.isNotEmpty) {
+                  list = list.where((t) {
+                    final q = _searchFilter;
+                    final nameMatch = t.displayName.toLowerCase().contains(q);
+                    final gymMatch = (t.gymName ?? '').toLowerCase().contains(q);
+                    final areaMatch = (t.serviceArea ?? '').toLowerCase().contains(q);
+                    final specMatch = t.specialties.any((s) => s.toLowerCase().contains(q));
+                    final goalMatch = t.trainingGoals.any((g) => g.toLowerCase().contains(q));
+                    final expMatch = t.experienceText.toLowerCase().contains(q) ||
+                        '${t.experienceYears} years'.contains(q);
+                    final certMatch = t.certifications.any((c) => c.toLowerCase().contains(q));
+                    final bioMatch = (t.profile.bio ?? '').toLowerCase().contains(q);
+                    return nameMatch ||
+                        gymMatch ||
+                        areaMatch ||
+                        specMatch ||
+                        goalMatch ||
+                        expMatch ||
+                        certMatch ||
+                        bioMatch;
+                  }).toList();
+                }
+
+                // ── Specialization Filter ──
+                if (_filterState.specializations.isNotEmpty) {
+                  list = list.where((t) {
+                    return _filterState.specializations.any((spec) => t.specialties.contains(spec));
+                  }).toList();
+                } else if (_selectedSpecialty != 'All') {
+                  list = list.where((t) => t.specialties.contains(_selectedSpecialty)).toList();
+                }
+
+                // ── Experience Filter ──
+                if (_filterState.experienceLevel != 'All') {
+                  list = list.where((t) {
+                    final exp = t.experienceYears;
+                    if (_filterState.experienceLevel == '1-3 years') return exp >= 1 && exp <= 3;
+                    if (_filterState.experienceLevel == '3-5 years') return exp >= 3 && exp <= 5;
+                    if (_filterState.experienceLevel == '5+ years') return exp >= 5;
+                    return true;
+                  }).toList();
+                }
+
+                // ── Rating Filter ──
+                if (_filterState.minRating > 0.0) {
+                  list = list.where((t) => t.rating >= _filterState.minRating).toList();
+                }
+
+                // ── Available Slots Filter ──
+                if (_filterState.availableSlotsOnly) {
+                  list = list.where((t) => t.hasAvailableSlots).toList();
+                }
+
+                // ── Training Goals Filter ──
+                if (_filterState.trainingGoals.isNotEmpty) {
+                  list = list.where((t) {
+                    return _filterState.trainingGoals.any(
+                      (g) => t.trainingGoals.contains(g) || t.specialties.contains(g),
                     );
+                  }).toList();
+                }
+
+                // ── Sorting ──
+                final sortedList = List<TrainerDisplayModel>.from(list);
+                switch (_sortBy) {
+                  case 'experience':
+                    sortedList.sort((a, b) {
+                      final cmp = b.experienceYears.compareTo(a.experienceYears);
+                      if (cmp != 0) return cmp;
+                      return b.rating.compareTo(a.rating);
+                    });
+                    break;
+                  case 'relevance':
+                    if (_searchFilter.isNotEmpty) {
+                      final q = _searchFilter;
+                      sortedList.sort((a, b) {
+                        final aName = a.displayName.toLowerCase().contains(q) ? 1 : 0;
+                        final bName = b.displayName.toLowerCase().contains(q) ? 1 : 0;
+                        if (aName != bName) return bName.compareTo(aName);
+                        return b.rating.compareTo(a.rating);
+                      });
+                    } else {
+                      sortedList.sort((a, b) {
+                        if (a.hasAvailableSlots != b.hasAvailableSlots) {
+                          return a.hasAvailableSlots ? -1 : 1;
+                        }
+                        return b.rating.compareTo(a.rating);
+                      });
+                    }
+                    break;
+                  case 'rating':
+                  default:
+                    sortedList.sort((a, b) {
+                      final cmp = b.rating.compareTo(a.rating);
+                      if (cmp != 0) return cmp;
+                      return b.totalReviews.compareTo(a.totalReviews);
+                    });
+                    break;
+                }
+
+                // ── Empty State ──
+                if (sortedList.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFF7F7F7),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Iconsax.user_search, size: 36, color: Color(0xFF888888)),
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            'No matching coaches found',
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontSize: (15.0 * sf).clamp(14.0, 17.0),
+                              fontWeight: FontWeight.w700,
+                              color: kDark,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'No verified $genderStr coaches match your search or filters in $effectiveCityName. Try expanding your criteria.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                              color: kGrey,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              _findTrainerSearchController.clear();
+                              setState(() {
+                                _searchFilter = '';
+                                _selectedSpecialty = 'All';
+                                _filterState = const TrainerFilterState();
+                              });
+                            },
+                            icon: const Icon(Icons.refresh, size: 16, color: kDark),
+                            label: const Text(
+                              'Reset All Filters',
+                              style: TextStyle(
+                                fontFamily: 'Syne',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: kDark,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kLime,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final displayed = sortedList.take(_trainerLimit).toList();
+                final hasMore = sortedList.length > _trainerLimit;
+
+                return RefreshIndicator(
+                  color: kDark,
+                  onRefresh: () async {
+                    setState(() {});
+                    await Future.delayed(const Duration(milliseconds: 300));
                   },
+                  child: ListView.builder(
+                    controller: _findTrainerScrollController,
+                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                    itemCount: displayed.length + (hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index < displayed.length) {
+                        final trainer = displayed[index];
+                        return ClientTrainerCard(
+                          trainer: trainer,
+                          clientGender: clientGender,
+                          clientId: uid,
+                          onBooked: () => setState(() {}),
+                        );
+                      } else {
+                        // Pagination Load More Card / Button
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          child: Center(
+                            child: OutlinedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _trainerLimit += 10;
+                                });
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFFDDDDDD)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text(
+                                'Load More Coaches (${sortedList.length - _trainerLimit} remaining)',
+                                style: const TextStyle(
+                                  fontFamily: 'Syne',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: kDark,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 );
               },
             ),
