@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../features/client/client_feature.dart';
-import '../screens/client/client_dashboard.dart';
 import '../screens/login_screen.dart';
 import '../screens/onboarding/client_onboarding.dart';
 import '../screens/onboarding/role_selection_screen.dart';
@@ -52,7 +51,8 @@ class AppRouter {
       case trainerOnboarding:
         return MaterialPageRoute(builder: (_) => const TrainerOnboardingScreen());
       case clientDashboard:
-        return MaterialPageRoute(builder: (_) => const ClientDashboard());
+      case clientHome:
+        return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
       case trainerDashboard:
         return MaterialPageRoute(builder: (_) => const TrainerDashboard());
 
@@ -77,8 +77,6 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => ClientProfileSetupScreen(isEditMode: isEditMode),
         );
-      case clientHome:
-        return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
 
       case accountSuspended:
         return MaterialPageRoute(

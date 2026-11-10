@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'user_model.dart';
 
 enum TrainerVerificationStatus {
   pending,
@@ -114,5 +115,44 @@ class TrainerProfileModel {
     final data = doc.data() as Map<String, dynamic>? ?? {};
     return TrainerProfileModel.fromMap(data, uid: doc.id);
   }
+}
+
+/// Aggregated display model for verified trainers rendered on Client Dashboard and Discovery screens
+class TrainerDisplayModel {
+  final TrainerProfileModel profile;
+  final String uid;
+  final String displayName;
+  final String? photoUrl;
+  final Gender gender;
+  final String? email;
+  final String? phoneNumber;
+  final String? gymName;
+  final List<String> specialties;
+  final int experienceYears;
+  final String? cityId;
+  final double ratingAvg;
+  final int totalReviews;
+  final int hourlyRate;
+
+  const TrainerDisplayModel({
+    required this.profile,
+    required this.uid,
+    required this.displayName,
+    this.photoUrl,
+    required this.gender,
+    this.email,
+    this.phoneNumber,
+    this.gymName,
+    required this.specialties,
+    required this.experienceYears,
+    this.cityId,
+    required this.ratingAvg,
+    required this.totalReviews,
+    required this.hourlyRate,
+  });
+
+  String get experienceText => '$experienceYears+ ${experienceYears == 1 ? 'Year' : 'Years'} Exp';
+  String get ratingText => ratingAvg.toStringAsFixed(1);
+  String get primarySpecialty => specialties.isNotEmpty ? specialties.first : 'Personal Trainer';
 }
 

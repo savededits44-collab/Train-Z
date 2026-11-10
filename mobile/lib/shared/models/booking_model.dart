@@ -56,6 +56,8 @@ class BookingModel {
   final String? creditTransactionId;
   final String? clientName;
   final String? clientPhone;
+  final String? trainerName;
+  final String? trainerPhotoUrl;
   final String? workoutType;
   final String? meetingLocation;
   final String? notes;
@@ -75,6 +77,8 @@ class BookingModel {
     this.status = BookingStatus.confirmed,
     this.clientName,
     this.clientPhone,
+    this.trainerName,
+    this.trainerPhotoUrl,
     this.workoutType,
     this.creditTransactionId,
     this.meetingLocation,
@@ -86,6 +90,8 @@ class BookingModel {
   /// Convenient display getters
   String get displayClientName =>
       (clientName != null && clientName!.trim().isNotEmpty) ? clientName! : 'Athlete #$id';
+  String get displayTrainerName =>
+      (trainerName != null && trainerName!.trim().isNotEmpty) ? trainerName! : 'Coach #$trainerId';
   String get displayWorkoutType =>
       (workoutType != null && workoutType!.trim().isNotEmpty) ? workoutType! : (planId ?? 'Personal Training');
 
@@ -102,6 +108,8 @@ class BookingModel {
     BookingStatus? status,
     String? clientName,
     String? clientPhone,
+    String? trainerName,
+    String? trainerPhotoUrl,
     String? workoutType,
     String? creditTransactionId,
     String? meetingLocation,
@@ -122,6 +130,8 @@ class BookingModel {
       status: status ?? this.status,
       clientName: clientName ?? this.clientName,
       clientPhone: clientPhone ?? this.clientPhone,
+      trainerName: trainerName ?? this.trainerName,
+      trainerPhotoUrl: trainerPhotoUrl ?? this.trainerPhotoUrl,
       workoutType: workoutType ?? this.workoutType,
       creditTransactionId: creditTransactionId ?? this.creditTransactionId,
       meetingLocation: meetingLocation ?? this.meetingLocation,
@@ -148,6 +158,8 @@ class BookingModel {
       'status': status.toFirestore(),
       'clientName': clientName,
       'clientPhone': clientPhone,
+      'trainerName': trainerName,
+      'trainerPhotoUrl': trainerPhotoUrl,
       'workoutType': workoutType,
       'creditTransactionId': creditTransactionId,
       'meetingLocation': meetingLocation,
@@ -177,6 +189,8 @@ class BookingModel {
       status: BookingStatus.fromFirestore(map['status']),
       clientName: map['clientName'] as String?,
       clientPhone: map['clientPhone'] as String?,
+      trainerName: map['trainerName'] as String?,
+      trainerPhotoUrl: map['trainerPhotoUrl'] as String?,
       workoutType: map['workoutType'] as String?,
       creditTransactionId: map['creditTransactionId'] as String?,
       meetingLocation: map['meetingLocation'] as String?,

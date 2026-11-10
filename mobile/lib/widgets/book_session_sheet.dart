@@ -3,23 +3,33 @@ import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../services/booking_service.dart';
 import '../services/trainer_profile_service.dart';
+import '../shared/models/user_model.dart';
 import 'app_widgets.dart';
 
 /// Interactive modal sheet allowing clients to book a training session.
 class BookSessionSheet extends StatefulWidget {
   final String? preferredTrainerName;
   final String? preferredGym;
+  final String? trainerId;
+  final Gender clientGender;
+  final Gender trainerGender;
 
   const BookSessionSheet({
     super.key,
     this.preferredTrainerName,
     this.preferredGym,
+    this.trainerId,
+    this.clientGender = Gender.male,
+    this.trainerGender = Gender.male,
   });
 
   static Future<bool?> show(
     BuildContext context, {
     String? trainerName,
     String? gymName,
+    String? trainerId,
+    Gender clientGender = Gender.male,
+    Gender trainerGender = Gender.male,
   }) {
     return showModalBottomSheet<bool>(
       context: context,
@@ -31,6 +41,9 @@ class BookSessionSheet extends StatefulWidget {
       builder: (_) => BookSessionSheet(
         preferredTrainerName: trainerName,
         preferredGym: gymName,
+        trainerId: trainerId,
+        clientGender: clientGender,
+        trainerGender: trainerGender,
       ),
     );
   }
@@ -108,6 +121,9 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
 
     try {
       await BookingService.instance.createBookingRequest(
+        trainerId: widget.trainerId,
+        clientGender: widget.clientGender,
+        trainerGender: widget.trainerGender,
         clientName: _nameController.text,
         clientPhone: _phoneController.text,
         sessionDate: sessionDate,
