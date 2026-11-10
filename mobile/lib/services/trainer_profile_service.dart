@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../core/constants/firestore_collections.dart';
+import '../shared/models/trainer_profile_model.dart';
 
-/// Singleton service holding and synchronizing Trainer onboarding and profile credentials.
+/// Singleton service holding and synchronizing Trainer onboarding, profile credentials,
+/// and admin verification status.
 class TrainerProfileService extends ChangeNotifier {
   static final TrainerProfileService _instance = TrainerProfileService._internal();
   static TrainerProfileService get instance => _instance;
@@ -24,6 +26,12 @@ class TrainerProfileService extends ChangeNotifier {
   String? _certificatePath; // local file path to coaching certificate (optional)
   bool _isProfileCompleted = false;
 
+  // Admin verification state
+  TrainerVerificationStatus _verificationStatus = TrainerVerificationStatus.pending;
+  DateTime? _submittedAt;
+  DateTime? _approvedAt;
+  String? _adminNotes;
+
   // Getters
   List<String> get specialties => List.unmodifiable(_specialties);
   String get experience => _experience;
@@ -37,6 +45,14 @@ class TrainerProfileService extends ChangeNotifier {
   String? get photoPath => _photoPath;
   String? get certificatePath => _certificatePath;
   bool get isProfileCompleted => _isProfileCompleted;
+
+  TrainerVerificationStatus get verificationStatus => _verificationStatus;
+  bool get isPendingApproval => _isProfileCompleted && _verificationStatus == TrainerVerificationStatus.pending;
+  bool get isApproved => _isProfileCompleted && _verificationStatus == TrainerVerificationStatus.approved;
+  bool get isRejected => _isProfileCompleted && _verificationStatus == TrainerVerificationStatus.rejected;
+  DateTime? get submittedAt => _submittedAt;
+  DateTime? get approvedAt => _approvedAt;
+  String? get adminNotes => _adminNotes;
 
   /// Update initial onboarding credentials
   void saveOnboarding({
@@ -52,7 +68,7 @@ class TrainerProfileService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Update complete trainer profile credentials
+  /// Update complete trainer profile credentials and submit to Admin for review
   Future<void> saveProfileDetails({
     required String fullName,
     required String age,
@@ -72,6 +88,8 @@ class TrainerProfileService extends ChangeNotifier {
     }
     _certificatePath = certificatePath;
     _isProfileCompleted = true;
+    _verificationStatus = TrainerVerificationStatus.pending;
+    _submittedAt = DateTime.now();
     notifyListeners();
 
     // Optionally sync with Firestore if authenticated user exists
@@ -108,13 +126,85 @@ class TrainerProfileService extends ChangeNotifier {
           'bio': _philosophy,
           if (_certificatePath != null && _certificatePath!.isNotEmpty)
             'certificationDocuments': [_certificatePath],
+          'verificationStatus': _verificationStatus.toFirestore(),
           'isProfileCompleted': true,
+          'submittedAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
 
         await batch.commit();
       } catch (e) {
         debugPrint('Notice: TrainerProfileService Firestore sync: $e');
+      }
+    }
+  }
+
+  /// Admin approval action
+  Future<void> approveByAdmin({String? notes}) async {
+    _verificationStatus = TrainerVerificationStatus.approved;
+    _approvedAt = DateTime.now();
+    _adminNotes = notes;
+    notifyListeners();
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection(FirestoreCollections.trainerProfiles)
+            .doc(uid)
+            .set({
+          'verificationStatus': 'APPROVED',
+          'approvedAt': FieldValue.serverTimestamp(),
+          'adminReviewNotes': notes,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('Notice: TrainerProfileService approve Firestore: $e');
+      }
+    }
+  }
+
+  /// Admin rejection action
+  Future<void> rejectByAdmin({required String reason}) async {
+    _verificationStatus = TrainerVerificationStatus.rejected;
+    _adminNotes = reason;
+    notifyListeners();
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection(FirestoreCollections.trainerProfiles)
+            .doc(uid)
+            .set({
+          'verificationStatus': 'REJECTED',
+          'adminReviewNotes': reason,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('Notice: TrainerProfileService reject Firestore: $e');
+      }
+    }
+  }
+
+  /// Reset to pending review (for testing / demo)
+  Future<void> resetToPending() async {
+    _verificationStatus = TrainerVerificationStatus.pending;
+    _adminNotes = null;
+    notifyListeners();
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection(FirestoreCollections.trainerProfiles)
+            .doc(uid)
+            .set({
+          'verificationStatus': 'PENDING',
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('Notice: TrainerProfileService reset Firestore: $e');
       }
     }
   }

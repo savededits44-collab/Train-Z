@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../features/client/client_feature.dart';
+import '../screens/admin/admin_trainer_review_screen.dart';
 import '../screens/client/client_dashboard.dart';
 import '../screens/login_screen.dart';
 import '../screens/onboarding/client_onboarding.dart';
@@ -76,6 +77,9 @@ class AppRouter {
         );
       case clientHome:
         return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
+
+      case adminDashboard:
+        return MaterialPageRoute(builder: (_) => const AdminTrainerReviewScreen());
 
       case accountSuspended:
         return MaterialPageRoute(

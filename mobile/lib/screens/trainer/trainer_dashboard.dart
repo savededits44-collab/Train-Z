@@ -8,6 +8,7 @@ import '../../shared/models/booking_model.dart';
 import '../../widgets/app_widgets.dart';
 import '../../widgets/logout_dialog.dart';
 import '../../widgets/trainer_session_card.dart';
+import '../admin/admin_trainer_review_screen.dart';
 import 'trainer_profile_setup_screen.dart';
 
 class TrainerDashboard extends StatefulWidget {
@@ -41,7 +42,11 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
   Widget build(BuildContext context) {
     final sf = scaleFactor(context);
     final pages = [
-      _TrainerHomeTab(sf: sf, onLogout: _onLogout),
+      _TrainerHomeTab(
+        sf: sf,
+        onLogout: _onLogout,
+        onGoToSchedule: () => setState(() => _tab = 2),
+      ),
       _TrainerClientsTab(sf: sf, onGoToSchedule: () => setState(() => _tab = 2)),
       _TrainerScheduleTab(sf: sf),
       _TrainerProfileTab(sf: sf, onLogout: _onLogout),
@@ -63,10 +68,12 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
 class _TrainerHomeTab extends StatelessWidget {
   final double sf;
   final VoidCallback onLogout;
+  final VoidCallback onGoToSchedule;
 
   const _TrainerHomeTab({
     required this.sf,
     required this.onLogout,
+    required this.onGoToSchedule,
   });
 
   @override
@@ -110,6 +117,42 @@ class _TrainerHomeTab extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: (8.0 * sf).clamp(6, 12)),
+                    // Admin mode button
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const AdminTrainerReviewScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: kField,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: kBorder),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(Icons.shield_rounded, size: 12, color: kDark),
+                            SizedBox(width: 4),
+                            Text(
+                              'Admin',
+                              style: TextStyle(
+                                fontFamily: 'Syne',
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: kDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Container(
                       width: (36.0 * sf).clamp(30, 44),
                       height: (36.0 * sf).clamp(30, 44),
@@ -218,93 +261,400 @@ class _TrainerHomeTab extends StatelessWidget {
 
             SizedBox(height: (h * 0.025).clamp(14, 24)),
 
-            // Complete profile CTA (Interactive) - Only visible when setup is pending
+            // Dynamic Trainer Status Card (Profile Setup, Application In Process, or Approved)
             ListenableBuilder(
               listenable: TrainerProfileService.instance,
               builder: (context, _) {
                 final service = TrainerProfileService.instance;
                 final isDone = service.isProfileCompleted;
+                final isPending = service.isPendingApproval;
+                final isApproved = service.isApproved;
 
-                if (isDone) {
-                  return const SizedBox.shrink();
-                }
+                Widget content;
 
-                return Column(
-                  children: [
-                    InkWell(
-                      borderRadius: BorderRadius.circular((16.0 * sf).clamp(12, 20)),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const TrainerProfileSetupScreen(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all((18.0 * sf).clamp(14, 24)),
-                        decoration: BoxDecoration(
-                          color: kDark,
-                          borderRadius:
-                              BorderRadius.circular((16.0 * sf).clamp(12, 20)),
+                if (!isDone) {
+                  // State 1: Incomplete Profile Setup
+                  content = InkWell(
+                    borderRadius: BorderRadius.circular((16.0 * sf).clamp(12, 20)),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const TrainerProfileSetupScreen(),
                         ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Complete your profile',
+                      );
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all((18.0 * sf).clamp(14, 24)),
+                      decoration: BoxDecoration(
+                        color: kDark,
+                        borderRadius:
+                            BorderRadius.circular((16.0 * sf).clamp(12, 20)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Complete your profile',
+                                  style: TextStyle(
+                                    fontFamily: 'Syne',
+                                    fontSize: (15.0 * sf).clamp(12, 18),
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: (4.0 * sf).clamp(2, 6)),
+                                Text(
+                                  'Attract more clients with a full profile.',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: (11.0 * sf).clamp(9, 13),
+                                    color: Colors.white.withValues(alpha: 0.65),
+                                  ),
+                                ),
+                                SizedBox(height: (12.0 * sf).clamp(8, 16)),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: (14.0 * sf).clamp(10, 18),
+                                    vertical: (8.0 * sf).clamp(6, 10),
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: kLime,
+                                    borderRadius:
+                                        BorderRadius.circular((8.0 * sf).clamp(6, 10)),
+                                  ),
+                                  child: Text(
+                                    'Set up now',
                                     style: TextStyle(
                                       fontFamily: 'Syne',
-                                      fontSize: (15.0 * sf).clamp(12, 18),
+                                      fontSize: (12.0 * sf).clamp(10, 14),
                                       fontWeight: FontWeight.w700,
-                                      color: Colors.white,
+                                      color: kDark,
                                     ),
                                   ),
-                                  SizedBox(height: (4.0 * sf).clamp(2, 6)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Iconsax.profile_tick,
+                            size: (48.0 * sf).clamp(36, 60),
+                            color: kLime.withValues(alpha: 0.15),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                } else if (isPending) {
+                  // State 2: Application in Process (Under Admin Review)
+                  content = Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all((16.0 * sf).clamp(14, 22)),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFDF5),
+                      borderRadius: BorderRadius.circular((16.0 * sf).clamp(12, 20)),
+                      border: Border.all(color: const Color(0xFFFFB300), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFFB300).withValues(alpha: 0.08),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF8E1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: const Color(0xFFFFB300)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(Iconsax.clock, size: 12, color: Color(0xFFE65100)),
+                                  SizedBox(width: 5),
                                   Text(
-                                    'Attract more clients with a full profile.',
+                                    'Under Admin Review',
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: (11.0 * sf).clamp(9, 13),
-                                      color: Colors.white.withValues(alpha: 0.65),
-                                    ),
-                                  ),
-                                  SizedBox(height: (12.0 * sf).clamp(8, 16)),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: (14.0 * sf).clamp(10, 18),
-                                      vertical: (8.0 * sf).clamp(6, 10),
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: kLime,
-                                      borderRadius:
-                                          BorderRadius.circular((8.0 * sf).clamp(6, 10)),
-                                    ),
-                                    child: Text(
-                                      'Set up now',
-                                      style: TextStyle(
-                                        fontFamily: 'Syne',
-                                        fontSize: (12.0 * sf).clamp(10, 14),
-                                        fontWeight: FontWeight.w700,
-                                        color: kDark,
-                                      ),
+                                      fontFamily: 'Syne',
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFFE65100),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Icon(
-                              Iconsax.profile_tick,
-                              size: (48.0 * sf).clamp(36, 60),
-                              color: kLime.withValues(alpha: 0.15),
+                            InkWell(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const AdminTrainerReviewScreen(),
+                                  ),
+                                );
+                              },
+                              child: Row(
+                                children: const [
+                                  Text(
+                                    'Admin Decision',
+                                    style: TextStyle(
+                                      fontFamily: 'Syne',
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: kDark,
+                                    ),
+                                  ),
+                                  SizedBox(width: 3),
+                                  Icon(Icons.arrow_forward_ios_rounded, size: 10, color: kDark),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                      ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Your Application is in Process',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (16.0 * sf).clamp(14.0, 18.0),
+                            fontWeight: FontWeight.w800,
+                            color: kDark,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Your profile details and credentials have been submitted to the TrainZ Admin. While the Admin is deciding on your application, session booking acceptance is temporarily on hold.',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (11.5 * sf).clamp(10.0, 13.0),
+                            color: const Color(0xFF6D4C41),
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const AdminTrainerReviewScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.shield_outlined, size: 15, color: kDark),
+                          label: const Text(
+                            'Open Admin Review Panel',
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: kDark,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFFD54F),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          ),
+                        ),
+                      ],
                     ),
+                  );
+                } else if (isApproved) {
+                  // State 3: Approved & Eligible to Give Service on TrainZ
+                  content = Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all((16.0 * sf).clamp(14, 22)),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F8E9),
+                      borderRadius: BorderRadius.circular((16.0 * sf).clamp(12, 20)),
+                      border: Border.all(color: const Color(0xFF66BB6A), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF4CAF50).withValues(alpha: 0.08),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F5E9),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: const Color(0xFF81C784)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF2E7D32)),
+                                  SizedBox(width: 5),
+                                  Text(
+                                    'Verified & Approved',
+                                    style: TextStyle(
+                                      fontFamily: 'Syne',
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF2E7D32),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: kLime,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text(
+                                'Active Coach',
+                                style: TextStyle(
+                                  fontFamily: 'Syne',
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: kDark,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'You are approved!',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (17.0 * sf).clamp(15.0, 20.0),
+                            fontWeight: FontWeight.w800,
+                            color: kDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'You are approved and now eligible to give your service on TrainZ.',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (12.0 * sf).clamp(10.5, 13.5),
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF2E7D32),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Your profile and credentials have been verified. You can now accept client bookings and start coaching athletes.',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (11.5 * sf).clamp(10.0, 12.5),
+                            color: kGrey,
+                            height: 1.35,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton.icon(
+                          onPressed: onGoToSchedule,
+                          icon: const Icon(Iconsax.calendar_tick, size: 15, color: kDark),
+                          label: const Text(
+                            'View Session Requests',
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: kDark,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kLime,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  // State 4: Rejected
+                  content = Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all((16.0 * sf).clamp(14, 22)),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFEBEE),
+                      borderRadius: BorderRadius.circular((16.0 * sf).clamp(12, 20)),
+                      border: Border.all(color: const Color(0xFFE53935), width: 1.5),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: const [
+                            Icon(Icons.cancel_rounded, color: Color(0xFFC62828), size: 16),
+                            SizedBox(width: 6),
+                            Text(
+                              'Application Rejected',
+                              style: TextStyle(
+                                fontFamily: 'Syne',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFFC62828),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Reason: ${service.adminNotes ?? "Credentials could not be verified."}',
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                            color: Color(0xFFB71C1C),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const TrainerProfileSetupScreen(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kDark,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: const Text(
+                            'Update Profile & Re-submit',
+                            style: TextStyle(fontFamily: 'Syne', color: Colors.white, fontSize: 11),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: [
+                    content,
                     SizedBox(height: (h * 0.025).clamp(14, 24)),
                   ],
                 );
@@ -578,7 +928,44 @@ class _TrainerScheduleTabState extends State<_TrainerScheduleTab> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+
+                ListenableBuilder(
+                  listenable: TrainerProfileService.instance,
+                  builder: (context, _) {
+                    final tService = TrainerProfileService.instance;
+                    if (tService.isApproved) {
+                      return const SizedBox.shrink();
+                    }
+                    return Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF8E1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFFB300)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Iconsax.clock, color: Color(0xFFE65100), size: 18),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Application in process: You will be eligible to accept sessions once approved by Admin.',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: (11.0 * sf).clamp(9.5, 12.0),
+                                color: const Color(0xFFE65100),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
 
                 // Filter Chips
                 SingleChildScrollView(
@@ -731,9 +1118,29 @@ class _TrainerProfileTab extends StatelessWidget {
         listenable: TrainerProfileService.instance,
         builder: (context, _) {
           final service = TrainerProfileService.instance;
-          final isDone = service.isProfileCompleted;
+          final isPending = service.isPendingApproval;
+          final isApproved = service.isApproved;
+          final isRejected = service.isRejected;
           final photoPath = service.photoPath;
           final hasPhoto = photoPath != null && File(photoPath).existsSync();
+
+          final badgeColor = isApproved
+              ? kLime
+              : isPending
+                  ? const Color(0xFFFFECB3)
+                  : isRejected
+                      ? const Color(0xFFFFCDD2)
+                      : const Color(0xFFFFECB3);
+
+          final badgeText = isApproved
+              ? 'Verified Coach'
+              : isPending
+                  ? 'Application In Process'
+                  : isRejected
+                      ? 'Application Rejected'
+                      : 'Setup Pending';
+
+          final badgeTextColor = isRejected ? const Color(0xFFB71C1C) : kDark;
 
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: hPad),
@@ -761,16 +1168,16 @@ class _TrainerProfileTab extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isDone ? kLime : const Color(0xFFFFECB3),
+                        color: badgeColor,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        isDone ? 'Verified Coach' : 'Setup Pending',
-                        style: const TextStyle(
+                        badgeText,
+                        style: TextStyle(
                           fontFamily: 'Syne',
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: kDark,
+                          color: badgeTextColor,
                         ),
                       ),
                     ),
@@ -970,7 +1377,49 @@ class _TrainerProfileTab extends StatelessWidget {
                             : 'Not uploaded (Optional)',
                         sf: sf,
                       ),
+                      const Divider(height: 20, color: kBorder),
+                      _DetailRow(
+                        icon: Icons.shield_rounded,
+                        title: 'Verification Status',
+                        value: isApproved
+                            ? 'Approved & Eligible on TrainZ'
+                            : isPending
+                                ? 'Application In Process'
+                                : isRejected
+                                    ? 'Rejected by Admin'
+                                    : 'Profile Incomplete',
+                        sf: sf,
+                      ),
                     ],
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const AdminTrainerReviewScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.shield_outlined, size: 16, color: kDark),
+                    label: const Text(
+                      'Open Admin Review Portal (Approvals)',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: kDark,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: kBorder),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
                   ),
                 ),
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../services/booking_service.dart';
+import '../services/trainer_profile_service.dart';
 import '../shared/models/booking_model.dart';
 import 'app_widgets.dart';
 
@@ -26,6 +27,31 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
   bool _loading = false;
 
   Future<void> _handleAccept() async {
+    final trainerProfile = TrainerProfileService.instance;
+    if (!trainerProfile.isApproved) {
+      HapticFeedback.lightImpact();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: const [
+              Icon(Icons.info_outline_rounded, color: Colors.white, size: 20),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Application under review: You will be eligible to accept sessions once approved by Admin.',
+                  style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600, fontSize: 12.5),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFFE65100),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+      return;
+    }
+
     setState(() => _loading = true);
     HapticFeedback.heavyImpact();
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../widgets/app_widgets.dart';
+import '../admin/admin_trainer_review_screen.dart';
 import 'client_onboarding.dart';
 import 'trainer_onboarding.dart';
 
@@ -99,7 +100,31 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 },
               ),
 
-              SizedBox(height: (h * 0.03 * sf).clamp(16.0, 30.0)),
+              SizedBox(height: (14.0 * sf).clamp(10.0, 18.0)),
+
+              Center(
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const AdminTrainerReviewScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.shield_rounded, size: 15, color: kGrey),
+                  label: const Text(
+                    'Admin Portal (Trainer Approvals)',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: kGrey,
+                    ),
+                  ),
+                ),
+              ),
+
+              SizedBox(height: (h * 0.02 * sf).clamp(12.0, 24.0)),
             ],
           ),
         ),
