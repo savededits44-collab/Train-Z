@@ -252,6 +252,79 @@ class FirestoreService {
   }
 
   // ───────────────────────────────────────────────────────────────────────────
+  // Favorite Trainers
+  // ───────────────────────────────────────────────────────────────────────────
+
+  /// Toggles whether a trainer is in client's favorites in Firestore.
+  /// Returns `true` if trainer is now favorited, `false` if removed.
+  Future<bool> toggleFavoriteTrainer({
+    required String clientId,
+    required String trainerId,
+  }) async {
+    if (clientId.isEmpty || trainerId.isEmpty) return false;
+
+    final docRef = _firestore.collection(FirestoreCollections.clientProfiles).doc(clientId);
+    final docSnap = await docRef.get();
+
+    List<String> favorites = [];
+    if (docSnap.exists) {
+      final data = docSnap.data() ?? {};
+      favorites = (data['favoriteTrainerIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+    }
+
+    final isFav = favorites.contains(trainerId);
+    if (isFav) {
+      favorites.remove(trainerId);
+      await docRef.set({
+        'favoriteTrainerIds': FieldValue.arrayRemove([trainerId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      return false;
+    } else {
+      favorites.add(trainerId);
+      await docRef.set({
+        'favoriteTrainerIds': FieldValue.arrayUnion([trainerId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      return true;
+    }
+  }
+
+  /// Streams whether a trainer is favorited by the client.
+  Stream<bool> streamIsTrainerFavorite({
+    required String clientId,
+    required String trainerId,
+  }) {
+    if (clientId.isEmpty || trainerId.isEmpty) return Stream.value(false);
+
+    return _firestore
+        .collection(FirestoreCollections.clientProfiles)
+        .doc(clientId)
+        .snapshots()
+        .map((snap) {
+      if (!snap.exists) return false;
+      final data = snap.data() ?? {};
+      final favorites = (data['favoriteTrainerIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+      return favorites.contains(trainerId);
+    });
+  }
+
+  /// Streams the list of all favorite trainer IDs for a client.
+  Stream<List<String>> streamFavoriteTrainerIds(String clientId) {
+    if (clientId.isEmpty) return Stream.value(const []);
+
+    return _firestore
+        .collection(FirestoreCollections.clientProfiles)
+        .doc(clientId)
+        .snapshots()
+        .map((snap) {
+      if (!snap.exists) return const [];
+      final data = snap.data() ?? {};
+      return (data['favoriteTrainerIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [];
+    });
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
   // Bookings (With Gender Matching Validation)
   // ───────────────────────────────────────────────────────────────────────────
 

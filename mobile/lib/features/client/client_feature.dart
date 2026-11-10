@@ -13,6 +13,7 @@ export 'presentation/screens/client_forgot_password_screen.dart';
 export 'presentation/screens/client_profile_completion_screen.dart';
 export 'presentation/screens/client_profile_setup_screen.dart';
 export 'presentation/screens/client_home_screen.dart';
+export 'presentation/screens/client_package_selection_screen.dart';
 export 'presentation/screens/trainer_detail_screen.dart';
 export 'presentation/widgets/client_bottom_nav.dart';
 export 'presentation/widgets/client_gender_selector.dart';

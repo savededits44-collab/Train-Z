@@ -34,6 +34,8 @@ class AppRouter {
   static const String clientProfileCompletion = '/client/profile-completion';
   static const String clientProfileSetup = '/client/profile-setup';
   static const String clientHome = '/client/home';
+  static const String clientTrainerDetail = '/client/trainer-detail';
+  static const String clientPackageSelection = '/client/package-selection';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -77,6 +79,24 @@ class AppRouter {
         final isEditMode = (settings.arguments as bool?) ?? false;
         return MaterialPageRoute(
           builder: (_) => ClientProfileSetupScreen(isEditMode: isEditMode),
+        );
+      case clientTrainerDetail:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => TrainerDetailScreen(
+            trainer: args['trainer'],
+            clientGender: args['clientGender'],
+            clientId: args['clientId'] ?? '',
+          ),
+        );
+      case clientPackageSelection:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientPackageSelectionScreen(
+            trainer: args['trainer'],
+            clientGender: args['clientGender'],
+            clientId: args['clientId'] ?? '',
+          ),
         );
 
       case adminDashboard:

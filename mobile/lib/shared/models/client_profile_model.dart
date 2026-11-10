@@ -12,6 +12,7 @@ class ClientProfileModel {
   final String? privateAddress; // Kept private, never shown publicly
   final String? activePackageId;
   final String? emergencyContact;
+  final List<String> favoriteTrainerIds;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -27,6 +28,7 @@ class ClientProfileModel {
     this.privateAddress,
     this.activePackageId,
     this.emergencyContact,
+    this.favoriteTrainerIds = const [],
     this.createdAt,
     this.updatedAt,
   });
@@ -63,6 +65,7 @@ class ClientProfileModel {
       'privateAddress': privateAddress,
       'activePackageId': activePackageId,
       'emergencyContact': emergencyContact,
+      'favoriteTrainerIds': favoriteTrainerIds,
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -87,6 +90,7 @@ class ClientProfileModel {
       privateAddress: map['privateAddress'] as String?,
       activePackageId: map['activePackageId'] as String?,
       emergencyContact: map['emergencyContact'] as String?,
+      favoriteTrainerIds: (map['favoriteTrainerIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       createdAt: parseTimestamp(map['createdAt']),
       updatedAt: parseTimestamp(map['updatedAt']),
     );
@@ -96,6 +100,8 @@ class ClientProfileModel {
     final data = doc.data() as Map<String, dynamic>? ?? {};
     return ClientProfileModel.fromMap(data, uid: doc.id);
   }
+
+  bool isFavorite(String trainerId) => favoriteTrainerIds.contains(trainerId);
 
   ClientProfileModel copyWith({
     List<String>? fitnessGoals,
@@ -108,6 +114,7 @@ class ClientProfileModel {
     String? privateAddress,
     String? activePackageId,
     String? emergencyContact,
+    List<String>? favoriteTrainerIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -123,6 +130,7 @@ class ClientProfileModel {
       privateAddress: privateAddress ?? this.privateAddress,
       activePackageId: activePackageId ?? this.activePackageId,
       emergencyContact: emergencyContact ?? this.emergencyContact,
+      favoriteTrainerIds: favoriteTrainerIds ?? this.favoriteTrainerIds,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
