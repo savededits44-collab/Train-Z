@@ -47,10 +47,12 @@ class StorageService {
     final downloadUrl = await uploadTask.ref.getDownloadURL();
 
     // Sync photoUrl to users document
-    await _firestore.collection(FirestoreCollections.users).doc(userId).update({
-      'photoUrl': downloadUrl,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    if (userId.trim().isNotEmpty) {
+      await _firestore.collection(FirestoreCollections.users).doc(userId).update({
+        'photoUrl': downloadUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
 
     return downloadUrl;
   }
@@ -94,10 +96,12 @@ class StorageService {
     final downloadUrl = await uploadTask.ref.getDownloadURL();
 
     // Append to trainer_profiles certificationDocuments array
-    await _firestore.collection(FirestoreCollections.trainerProfiles).doc(trainerId).update({
-      'certificationDocuments': FieldValue.arrayUnion([downloadUrl]),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    if (trainerId.trim().isNotEmpty) {
+      await _firestore.collection(FirestoreCollections.trainerProfiles).doc(trainerId).update({
+        'certificationDocuments': FieldValue.arrayUnion([downloadUrl]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
 
     return downloadUrl;
   }
@@ -135,11 +139,13 @@ class StorageService {
     final downloadUrl = await uploadTask.ref.getDownloadURL();
 
     // Append to trainer_profiles verificationDocuments array
-    await _firestore.collection(FirestoreCollections.trainerProfiles).doc(trainerId).update({
-      'verificationDocuments': FieldValue.arrayUnion([downloadUrl]),
-      'verificationStatus': 'PENDING', // Reset/Set to pending review on new document upload
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    if (trainerId.trim().isNotEmpty) {
+      await _firestore.collection(FirestoreCollections.trainerProfiles).doc(trainerId).update({
+        'verificationDocuments': FieldValue.arrayUnion([downloadUrl]),
+        'verificationStatus': 'PENDING', // Reset/Set to pending review on new document upload
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
 
     return downloadUrl;
   }

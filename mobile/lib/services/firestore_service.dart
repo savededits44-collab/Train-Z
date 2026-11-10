@@ -37,6 +37,7 @@ class FirestoreService {
 
   /// Get single training plan by id
   Future<TrainingPlanModel?> getTrainingPlan(String planId) async {
+    if (planId.trim().isEmpty) return null;
     final doc = await _firestore.collection(FirestoreCollections.trainingPlans).doc(planId).get();
     if (!doc.exists) return null;
     return TrainingPlanModel.fromDocument(doc);
@@ -81,6 +82,7 @@ class FirestoreService {
       final List<TrainerProfileModel> list = [];
       for (final doc in snap.docs) {
         final trainer = TrainerProfileModel.fromDocument(doc);
+        if (trainer.uid.trim().isEmpty) continue;
         // Verify gender match from users collection
         final userDoc = await _firestore.collection(FirestoreCollections.users).doc(trainer.uid).get();
         if (userDoc.exists) {
@@ -128,6 +130,7 @@ class FirestoreService {
         }
 
         // Fetch corresponding user record for name, photo and gender verification
+        if (profile.uid.trim().isEmpty) continue;
         final userDoc = await _firestore.collection(FirestoreCollections.users).doc(profile.uid).get();
         if (!userDoc.exists) continue;
 
@@ -190,6 +193,7 @@ class FirestoreService {
 
   /// Get trainer profile
   Future<TrainerProfileModel?> getTrainerProfile(String trainerId) async {
+    if (trainerId.trim().isEmpty) return null;
     final doc = await _firestore.collection(FirestoreCollections.trainerProfiles).doc(trainerId).get();
     if (!doc.exists) return null;
     return TrainerProfileModel.fromDocument(doc);
@@ -197,6 +201,7 @@ class FirestoreService {
 
   /// Get client profile
   Future<ClientProfileModel?> getClientProfile(String clientId) async {
+    if (clientId.trim().isEmpty) return null;
     final doc = await _firestore.collection(FirestoreCollections.clientProfiles).doc(clientId).get();
     if (!doc.exists) return null;
     return ClientProfileModel.fromDocument(doc);
@@ -204,6 +209,7 @@ class FirestoreService {
 
   /// Stream client profile in real time
   Stream<ClientProfileModel?> streamClientProfile(String clientId) {
+    if (clientId.trim().isEmpty) return Stream.value(null);
     return _firestore
         .collection(FirestoreCollections.clientProfiles)
         .doc(clientId)
@@ -222,6 +228,7 @@ class FirestoreService {
     String? photoUrl,
     required ClientProfileModel profile,
   }) async {
+    if (uid.trim().isEmpty) return;
     final batch = _firestore.batch();
 
     // 1. Update common user information in users collection
@@ -278,6 +285,7 @@ class FirestoreService {
 
   /// Streams bookings for a client
   Stream<List<BookingModel>> streamClientBookings(String clientId) {
+    if (clientId.trim().isEmpty) return Stream.value(<BookingModel>[]);
     return _firestore
         .collection(FirestoreCollections.bookings)
         .where('clientId', isEqualTo: clientId)
@@ -292,6 +300,7 @@ class FirestoreService {
     required String cityId,
     String? preferredLocation,
   }) async {
+    if (clientId.trim().isEmpty) return;
     final docRef = _firestore.collection(FirestoreCollections.clientProfiles).doc(clientId);
     final updates = <String, dynamic>{
       'preferredCityId': cityId,

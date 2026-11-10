@@ -22,6 +22,7 @@ class CreditService {
 
   /// Real-time stream of a client's credit account
   Stream<SessionCreditModel?> streamClientCredits(String clientId) {
+    if (clientId.trim().isEmpty) return Stream.value(null);
     return _firestore
         .collection(FirestoreCollections.sessionCredits)
         .doc(clientId)
@@ -34,6 +35,7 @@ class CreditService {
 
   /// Real-time stream of immutable credit transaction history
   Stream<List<CreditTransactionModel>> streamCreditTransactions(String clientId) {
+    if (clientId.trim().isEmpty) return Stream.value(<CreditTransactionModel>[]);
     return _firestore
         .collection(FirestoreCollections.sessionCredits)
         .doc(clientId)
@@ -54,6 +56,7 @@ class CreditService {
     required String paymentId,
     required String planId,
   }) async {
+    if (clientId.trim().isEmpty) return;
     final creditDocRef = _firestore.collection(FirestoreCollections.sessionCredits).doc(clientId);
     final txColRef = creditDocRef.collection(FirestoreCollections.creditTransactions);
 
@@ -102,6 +105,9 @@ class CreditService {
     required String clientId,
     required String bookingId,
   }) async {
+    if (clientId.trim().isEmpty) {
+      throw ArgumentError('Valid client ID is required to reserve credits.');
+    }
     final creditDocRef = _firestore.collection(FirestoreCollections.sessionCredits).doc(clientId);
     final txColRef = creditDocRef.collection(FirestoreCollections.creditTransactions);
 
@@ -158,6 +164,7 @@ class CreditService {
     required String clientId,
     required String bookingId,
   }) async {
+    if (clientId.trim().isEmpty) return;
     final creditDocRef = _firestore.collection(FirestoreCollections.sessionCredits).doc(clientId);
     final txColRef = creditDocRef.collection(FirestoreCollections.creditTransactions);
 
@@ -207,6 +214,7 @@ class CreditService {
     required DateTime sessionStartTime,
     required UserRole cancelledByRole,
   }) async {
+    if (clientId.trim().isEmpty) return false;
     final creditDocRef = _firestore.collection(FirestoreCollections.sessionCredits).doc(clientId);
     final txColRef = creditDocRef.collection(FirestoreCollections.creditTransactions);
 

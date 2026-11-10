@@ -59,7 +59,7 @@ class _ClientProfileCompletionScreenState
 
   Future<void> _handleSaveProfile() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
+    if (uid == null || uid.trim().isEmpty) return;
 
     setState(() => _saving = true);
     HapticFeedback.mediumImpact();

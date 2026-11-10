@@ -25,7 +25,7 @@ class AuthService {
   /// Stream of current typed UserModel from Firestore
   Stream<UserModel?> get currentUserProfileStream {
     final uid = _auth.currentUser?.uid;
-    if (uid == null) return Stream.value(null);
+    if (uid == null || uid.trim().isEmpty) return Stream.value(null);
     return _firestore
         .collection(FirestoreCollections.users)
         .doc(uid)
@@ -257,12 +257,14 @@ class AuthService {
 
   /// Fetch user document map (backward compatible)
   Future<Map<String, dynamic>?> getUserProfile(String uid) async {
+    if (uid.trim().isEmpty) return null;
     final doc = await _firestore.collection(FirestoreCollections.users).doc(uid).get();
     return doc.data();
   }
 
   /// Fetch strongly-typed UserModel
   Future<UserModel?> getUserModel(String uid) async {
+    if (uid.trim().isEmpty) return null;
     final doc = await _firestore.collection(FirestoreCollections.users).doc(uid).get();
     if (!doc.exists) return null;
     return UserModel.fromDocument(doc);
@@ -276,7 +278,7 @@ class AuthService {
     String? preferredCityId,
   }) async {
     final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+    if (uid == null || uid.trim().isEmpty) return;
 
     final batch = _firestore.batch();
 
@@ -329,7 +331,7 @@ class AuthService {
     int? hourlyRate,
   }) async {
     final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+    if (uid == null || uid.trim().isEmpty) return;
 
     final batch = _firestore.batch();
 

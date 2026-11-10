@@ -94,7 +94,7 @@ class TrainerProfileService extends ChangeNotifier {
 
     // Optionally sync with Firestore if authenticated user exists
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
+    if (uid != null && uid.trim().isNotEmpty) {
       try {
         final batch = FirebaseFirestore.instance.batch();
         final userRef = FirebaseFirestore.instance
@@ -147,7 +147,7 @@ class TrainerProfileService extends ChangeNotifier {
     notifyListeners();
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
+    if (uid != null && uid.trim().isNotEmpty) {
       try {
         await FirebaseFirestore.instance
             .collection(FirestoreCollections.trainerProfiles)
@@ -171,7 +171,7 @@ class TrainerProfileService extends ChangeNotifier {
     notifyListeners();
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
+    if (uid != null && uid.trim().isNotEmpty) {
       try {
         await FirebaseFirestore.instance
             .collection(FirestoreCollections.trainerProfiles)
@@ -194,7 +194,7 @@ class TrainerProfileService extends ChangeNotifier {
     notifyListeners();
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
+    if (uid != null && uid.trim().isNotEmpty) {
       try {
         await FirebaseFirestore.instance
             .collection(FirestoreCollections.trainerProfiles)
