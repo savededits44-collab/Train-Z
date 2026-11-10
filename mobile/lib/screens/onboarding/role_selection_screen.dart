@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../../features/client/client_feature.dart';
 import '../../widgets/app_widgets.dart';
+import 'client_onboarding.dart';
 import 'trainer_onboarding.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
@@ -92,7 +92,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   } else {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (_) => const ClientProfileCompletionScreen(),
+                        builder: (_) => const ClientOnboardingScreen(),
                       ),
                     );
                   }

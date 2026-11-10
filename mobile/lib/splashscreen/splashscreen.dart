@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../screens/login_screen.dart';
+import '../screens/onboarding/role_selection_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -44,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen>
   void _onStartTransformation() {
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (context, anim, secondaryAnim) => const LoginScreen(),
+        pageBuilder: (context, anim, secondaryAnim) => const RoleSelectionScreen(),
         transitionsBuilder: (context, anim, secondaryAnim, child) =>
             FadeTransition(opacity: anim, child: child),
         transitionDuration: const Duration(milliseconds: 450),

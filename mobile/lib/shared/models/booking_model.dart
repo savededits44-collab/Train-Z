@@ -8,7 +8,8 @@ enum BookingStatus {
   cancelledClientEarly, // >= 12h, credit returned
   cancelledClientLate,  // < 12h, credit forfeited
   cancelledTrainer,     // credit returned
-  cancelledAdmin;       // credit returned
+  cancelledAdmin,       // credit returned
+  rejected;             // Trainer rejected request
 
   String toFirestore() {
     switch (this) {
@@ -26,6 +27,8 @@ enum BookingStatus {
         return 'CANCELLED_TRAINER';
       case BookingStatus.cancelledAdmin:
         return 'CANCELLED_ADMIN';
+      case BookingStatus.rejected:
+        return 'REJECTED';
     }
   }
 
@@ -51,6 +54,9 @@ class BookingModel {
   final String endTime;   // e.g. "08:00"
   final BookingStatus status;
   final String? creditTransactionId;
+  final String? clientName;
+  final String? clientPhone;
+  final String? workoutType;
   final String? meetingLocation;
   final String? notes;
   final DateTime? createdAt;
@@ -67,12 +73,63 @@ class BookingModel {
     required this.startTime,
     required this.endTime,
     this.status = BookingStatus.confirmed,
+    this.clientName,
+    this.clientPhone,
+    this.workoutType,
     this.creditTransactionId,
     this.meetingLocation,
     this.notes,
     this.createdAt,
     this.updatedAt,
   });
+
+  /// Convenient display getters
+  String get displayClientName =>
+      (clientName != null && clientName!.trim().isNotEmpty) ? clientName! : 'Athlete #$id';
+  String get displayWorkoutType =>
+      (workoutType != null && workoutType!.trim().isNotEmpty) ? workoutType! : (planId ?? 'Personal Training');
+
+  BookingModel copyWith({
+    String? id,
+    String? clientId,
+    String? trainerId,
+    Gender? clientGender,
+    Gender? trainerGender,
+    String? planId,
+    DateTime? sessionDate,
+    String? startTime,
+    String? endTime,
+    BookingStatus? status,
+    String? clientName,
+    String? clientPhone,
+    String? workoutType,
+    String? creditTransactionId,
+    String? meetingLocation,
+    String? notes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return BookingModel(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      trainerId: trainerId ?? this.trainerId,
+      clientGender: clientGender ?? this.clientGender,
+      trainerGender: trainerGender ?? this.trainerGender,
+      planId: planId ?? this.planId,
+      sessionDate: sessionDate ?? this.sessionDate,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      status: status ?? this.status,
+      clientName: clientName ?? this.clientName,
+      clientPhone: clientPhone ?? this.clientPhone,
+      workoutType: workoutType ?? this.workoutType,
+      creditTransactionId: creditTransactionId ?? this.creditTransactionId,
+      meetingLocation: meetingLocation ?? this.meetingLocation,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 
   /// Business Rule Section 5: Male -> Male only, Female -> Female only
   bool get hasValidGenderMatch => clientGender == trainerGender;
@@ -89,6 +146,9 @@ class BookingModel {
       'startTime': startTime,
       'endTime': endTime,
       'status': status.toFirestore(),
+      'clientName': clientName,
+      'clientPhone': clientPhone,
+      'workoutType': workoutType,
       'creditTransactionId': creditTransactionId,
       'meetingLocation': meetingLocation,
       'notes': notes,
@@ -115,6 +175,9 @@ class BookingModel {
       startTime: map['startTime'] as String? ?? '06:00',
       endTime: map['endTime'] as String? ?? '07:00',
       status: BookingStatus.fromFirestore(map['status']),
+      clientName: map['clientName'] as String?,
+      clientPhone: map['clientPhone'] as String?,
+      workoutType: map['workoutType'] as String?,
       creditTransactionId: map['creditTransactionId'] as String?,
       meetingLocation: map['meetingLocation'] as String?,
       notes: map['notes'] as String?,

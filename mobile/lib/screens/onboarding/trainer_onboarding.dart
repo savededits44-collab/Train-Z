@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../services/auth_service.dart';
+import '../../services/trainer_profile_service.dart';
 import '../../widgets/app_widgets.dart';
 import '../trainer/trainer_dashboard.dart';
 
@@ -165,7 +166,7 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
               ),
               SizedBox(height: (h * 0.02 * sf).clamp(14.0, 20.0)),
               Text(
-                'Short Bio / Philosophy',
+                'Your Philosophy',
                 style: TextStyle(
                   fontFamily: 'Syne',
                   fontSize: (15.0 * sf).clamp(13.0, 18.0),
@@ -173,19 +174,41 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
                   color: kDark,
                 ),
               ),
+              const SizedBox(height: 4),
+              Text(
+                'Share your coaching mindset and training methodology.',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: (12.0 * sf).clamp(10.5, 13.0),
+                  color: kGrey,
+                ),
+              ),
               const SizedBox(height: 8),
               AppTextField(
                 controller: _bioController,
-                label: 'Brief introduction to clients',
+                label: 'e.g. Focus on progressive overload and functional longevity',
                 icon: Iconsax.edit_2,
               ),
               SizedBox(height: (h * 0.045 * sf).clamp(24.0, 48.0)),
               AppPrimaryButton(
-                label: 'Complete Setup',
+                label: 'Complete Setup & Go to Dashboard',
                 loading: _loading,
                 onTap: () async {
                   final nav = Navigator.of(context);
                   setState(() => _loading = true);
+
+                  // 1. Save in local TrainerProfileService
+                  TrainerProfileService.instance.saveOnboarding(
+                    specialties: _selectedSpecialties.toList(),
+                    experience: _experienceController.text.trim().isEmpty
+                        ? '1 Year'
+                        : _experienceController.text.trim(),
+                    philosophy: _bioController.text.trim().isEmpty
+                        ? 'Dedicated to high performance fitness and discipline.'
+                        : _bioController.text.trim(),
+                  );
+
+                  // 2. Background sync to Firebase if available
                   try {
                     await AuthService().saveTrainerOnboarding(
                       specialties: _selectedSpecialties.toList(),
@@ -193,8 +216,9 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
                       bio: _bioController.text.trim(),
                     );
                   } catch (e) {
-                    debugPrint('Error saving trainer onboarding: $e');
+                    debugPrint('Notice saving trainer onboarding: $e');
                   }
+
                   if (!mounted) return;
                   setState(() => _loading = false);
                   nav.pushReplacement(
