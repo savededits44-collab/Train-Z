@@ -1,0 +1,6 @@
+{
+  "terminal.integrated.cwd": "${workspaceFolder}/mobile",
+  "dart.projectSearchPaths": [
+    "mobile"
+  ]
+}
