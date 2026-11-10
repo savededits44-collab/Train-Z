@@ -1,8 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../services/booking_service.dart';
+import '../../services/trainer_profile_service.dart';
+import '../../shared/models/booking_model.dart';
 import '../../widgets/app_widgets.dart';
 import '../../widgets/logout_dialog.dart';
+import '../../widgets/trainer_session_card.dart';
+import 'trainer_profile_setup_screen.dart';
 
 class TrainerDashboard extends StatefulWidget {
   const TrainerDashboard({super.key});
@@ -36,8 +42,8 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
     final sf = scaleFactor(context);
     final pages = [
       _TrainerHomeTab(sf: sf, onLogout: _onLogout),
-      const _PlaceholderTab(icon: Iconsax.people, label: 'My Clients'),
-      const _PlaceholderTab(icon: Iconsax.calendar_tick, label: 'Schedule'),
+      _TrainerClientsTab(sf: sf, onGoToSchedule: () => setState(() => _tab = 2)),
+      _TrainerScheduleTab(sf: sf),
       _TrainerProfileTab(sf: sf, onLogout: _onLogout),
     ];
 
@@ -165,147 +171,239 @@ class _TrainerHomeTab extends StatelessWidget {
 
             SizedBox(height: (h * 0.025).clamp(14, 24)),
 
-            // Stats row
-            Row(
-              children: [
-                Expanded(
-                  child: _TStatCard(
-                    label: 'Clients',
-                    value: '0',
-                    icon: Iconsax.people,
-                    sf: sf,
-                  ),
-                ),
-                SizedBox(width: (10.0 * sf).clamp(8, 14)),
-                Expanded(
-                  child: _TStatCard(
-                    label: 'Sessions',
-                    value: '0',
-                    icon: Iconsax.calendar_tick,
-                    sf: sf,
-                    accent: true,
-                  ),
-                ),
-                SizedBox(width: (10.0 * sf).clamp(8, 14)),
-                Expanded(
-                  child: _TStatCard(
-                    label: 'Rating',
-                    value: '—',
-                    icon: Iconsax.star,
-                    sf: sf,
-                  ),
-                ),
-              ],
+            // Stats row (Live Real-Time)
+            ListenableBuilder(
+              listenable: BookingService.instance,
+              builder: (context, _) {
+                final bService = BookingService.instance;
+                final confirmedCount = bService.confirmedBookings.length;
+                final uniqueClients = bService.confirmedBookings
+                    .map((b) => b.displayClientName)
+                    .toSet()
+                    .length;
+
+                return Row(
+                  children: [
+                    Expanded(
+                      child: _TStatCard(
+                        label: 'Clients',
+                        value: '$uniqueClients',
+                        icon: Iconsax.people,
+                        sf: sf,
+                      ),
+                    ),
+                    SizedBox(width: (10.0 * sf).clamp(8, 14)),
+                    Expanded(
+                      child: _TStatCard(
+                        label: 'Sessions',
+                        value: '$confirmedCount',
+                        icon: Iconsax.calendar_tick,
+                        sf: sf,
+                        accent: true,
+                      ),
+                    ),
+                    SizedBox(width: (10.0 * sf).clamp(8, 14)),
+                    Expanded(
+                      child: _TStatCard(
+                        label: 'Rating',
+                        value: '5.0',
+                        icon: Iconsax.star,
+                        sf: sf,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
 
             SizedBox(height: (h * 0.025).clamp(14, 24)),
 
-            // Complete profile CTA
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all((18.0 * sf).clamp(14, 24)),
-              decoration: BoxDecoration(
-                color: kDark,
-                borderRadius:
-                    BorderRadius.circular((16.0 * sf).clamp(12, 20)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            // Complete profile CTA (Interactive) - Only visible when setup is pending
+            ListenableBuilder(
+              listenable: TrainerProfileService.instance,
+              builder: (context, _) {
+                final service = TrainerProfileService.instance;
+                final isDone = service.isProfileCompleted;
+
+                if (isDone) {
+                  return const SizedBox.shrink();
+                }
+
+                return Column(
+                  children: [
+                    InkWell(
+                      borderRadius: BorderRadius.circular((16.0 * sf).clamp(12, 20)),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const TrainerProfileSetupScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all((18.0 * sf).clamp(14, 24)),
+                        decoration: BoxDecoration(
+                          color: kDark,
+                          borderRadius:
+                              BorderRadius.circular((16.0 * sf).clamp(12, 20)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Complete your profile',
+                                    style: TextStyle(
+                                      fontFamily: 'Syne',
+                                      fontSize: (15.0 * sf).clamp(12, 18),
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: (4.0 * sf).clamp(2, 6)),
+                                  Text(
+                                    'Attract more clients with a full profile.',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: (11.0 * sf).clamp(9, 13),
+                                      color: Colors.white.withValues(alpha: 0.65),
+                                    ),
+                                  ),
+                                  SizedBox(height: (12.0 * sf).clamp(8, 16)),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: (14.0 * sf).clamp(10, 18),
+                                      vertical: (8.0 * sf).clamp(6, 10),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: kLime,
+                                      borderRadius:
+                                          BorderRadius.circular((8.0 * sf).clamp(6, 10)),
+                                    ),
+                                    child: Text(
+                                      'Set up now',
+                                      style: TextStyle(
+                                        fontFamily: 'Syne',
+                                        fontSize: (12.0 * sf).clamp(10, 14),
+                                        fontWeight: FontWeight.w700,
+                                        color: kDark,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Iconsax.profile_tick,
+                              size: (48.0 * sf).clamp(36, 60),
+                              color: kLime.withValues(alpha: 0.15),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: (h * 0.025).clamp(14, 24)),
+                  ],
+                );
+              },
+            ),
+
+            // Live Upcoming Sessions & Booking Requests
+            ListenableBuilder(
+              listenable: BookingService.instance,
+              builder: (context, _) {
+                final bService = BookingService.instance;
+                final pending = bService.pendingBookings;
+                final confirmed = bService.confirmedBookings;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Complete your profile',
+                          'Upcoming Sessions',
                           style: TextStyle(
                             fontFamily: 'Syne',
-                            fontSize: (15.0 * sf).clamp(12, 18),
+                            fontSize: (15.0 * sf).clamp(13, 18),
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: kDark,
                           ),
                         ),
-                        SizedBox(height: (4.0 * sf).clamp(2, 6)),
-                        Text(
-                          'Attract more clients with a full profile.',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: (11.0 * sf).clamp(9, 13),
-                            color: Colors.white.withValues(alpha: 0.55),
-                          ),
-                        ),
-                        SizedBox(height: (12.0 * sf).clamp(8, 16)),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: (14.0 * sf).clamp(10, 18),
-                            vertical: (8.0 * sf).clamp(6, 10),
-                          ),
-                          decoration: BoxDecoration(
-                            color: kLime,
-                            borderRadius:
-                                BorderRadius.circular((8.0 * sf).clamp(6, 10)),
-                          ),
-                          child: Text(
-                            'Set up now',
-                            style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontSize: (12.0 * sf).clamp(10, 14),
-                              fontWeight: FontWeight.w700,
-                              color: kDark,
+                        if (pending.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF3E0),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFF9800),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  '${pending.length} pending',
+                                  style: const TextStyle(
+                                    fontFamily: 'Syne',
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFFE65100),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
                       ],
                     ),
-                  ),
-                  Icon(
-                    Iconsax.profile_tick,
-                    size: (48.0 * sf).clamp(36, 60),
-                    color: kLime.withValues(alpha: 0.15),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: (h * 0.025).clamp(14, 24)),
-
-            Text(
-              'Upcoming Sessions',
-              style: TextStyle(
-                fontFamily: 'Syne',
-                fontSize: (15.0 * sf).clamp(13, 18),
-                fontWeight: FontWeight.w700,
-                color: kDark,
-              ),
-            ),
-
-            SizedBox(height: (h * 0.015).clamp(10, 18)),
-
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all((20.0 * sf).clamp(14, 24)),
-              decoration: BoxDecoration(
-                color: kField,
-                borderRadius:
-                    BorderRadius.circular((14.0 * sf).clamp(10, 18)),
-              ),
-              child: Column(
-                children: [
-                  Icon(
-                    Iconsax.calendar_remove,
-                    size: (32.0 * sf).clamp(24, 42),
-                    color: const Color(0xFFCCCCCC),
-                  ),
-                  SizedBox(height: (8.0 * sf).clamp(6, 12)),
-                  Text(
-                    'No sessions yet',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: (12.0 * sf).clamp(10, 14),
-                      color: const Color(0xFFBBBBBB),
-                    ),
-                  ),
-                ],
-              ),
+                    SizedBox(height: (h * 0.015).clamp(10, 18)),
+                    if (pending.isNotEmpty) ...[
+                      ...pending.map((b) => TrainerSessionCard(booking: b, sf: sf, compact: true)),
+                    ],
+                    if (confirmed.isNotEmpty) ...[
+                      ...confirmed.take(2).map((b) => TrainerSessionCard(booking: b, sf: sf, compact: true)),
+                    ],
+                    if (pending.isEmpty && confirmed.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all((20.0 * sf).clamp(14, 24)),
+                        decoration: BoxDecoration(
+                          color: kField,
+                          borderRadius:
+                              BorderRadius.circular((14.0 * sf).clamp(10, 18)),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Iconsax.calendar_remove,
+                              size: (32.0 * sf).clamp(24, 42),
+                              color: const Color(0xFFCCCCCC),
+                            ),
+                            SizedBox(height: (8.0 * sf).clamp(6, 12)),
+                            Text(
+                              'No sessions yet',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: (12.0 * sf).clamp(10, 14),
+                                color: const Color(0xFFBBBBBB),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                );
+              },
             ),
 
             SizedBox(height: (h * 0.03).clamp(20, 32)),
@@ -370,6 +468,249 @@ class _TStatCard extends StatelessWidget {
   }
 }
 
+// ── Trainer Schedule & Live Session Requests Tab ─────────────────────────────
+class _TrainerScheduleTab extends StatefulWidget {
+  final double sf;
+  const _TrainerScheduleTab({required this.sf});
+
+  @override
+  State<_TrainerScheduleTab> createState() => _TrainerScheduleTabState();
+}
+
+class _TrainerScheduleTabState extends State<_TrainerScheduleTab> {
+  // 0 = All, 1 = Pending Requests, 2 = Confirmed Sessions
+  int _filterIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final sf = widget.sf;
+    final w = MediaQuery.of(context).size.width;
+    final hPad = (w * 0.072).clamp(18.0, 32.0);
+
+    return SafeArea(
+      child: ListenableBuilder(
+        listenable: BookingService.instance,
+        builder: (context, _) {
+          final service = BookingService.instance;
+          final all = service.allBookings;
+          final pending = service.pendingBookings;
+          final confirmed = service.confirmedBookings;
+
+          List<BookingModel> displayed;
+          if (_filterIndex == 1) {
+            displayed = pending;
+          } else if (_filterIndex == 2) {
+            displayed = confirmed;
+          } else {
+            displayed = all;
+          }
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: hPad),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 24),
+
+                // Title and Real-time Live Badge
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Session Schedule',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: (20.0 * sf).clamp(16.0, 26.0),
+                          fontWeight: FontWeight.w800,
+                          color: kDark,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: pending.isNotEmpty
+                            ? const Color(0xFFFFF3E0)
+                            : const Color(0xFFE8F5E9),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: pending.isNotEmpty
+                                  ? const Color(0xFFFF9800)
+                                  : const Color(0xFF4CAF50),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            pending.isNotEmpty
+                                ? '${pending.length} Live Requests'
+                                : 'Live Sync Active',
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: pending.isNotEmpty
+                                  ? const Color(0xFFE65100)
+                                  : const Color(0xFF2E7D32),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Manage incoming client session requests and accept or reject live.',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: (12.0 * sf).clamp(10.5, 13.5),
+                    color: kGrey,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Filter Chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _FilterTabChip(
+                        label: 'All (${all.length})',
+                        selected: _filterIndex == 0,
+                        onTap: () => setState(() => _filterIndex = 0),
+                        sf: sf,
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterTabChip(
+                        label: 'Requests (${pending.length})',
+                        selected: _filterIndex == 1,
+                        badgeColor: const Color(0xFFFF9800),
+                        onTap: () => setState(() => _filterIndex = 1),
+                        sf: sf,
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterTabChip(
+                        label: 'Confirmed (${confirmed.length})',
+                        selected: _filterIndex == 2,
+                        badgeColor: kLime,
+                        onTap: () => setState(() => _filterIndex = 2),
+                        sf: sf,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                if (displayed.isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: kField,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: kBorder),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Iconsax.calendar_tick,
+                          size: 40,
+                          color: Color(0xFFCCCCCC),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          _filterIndex == 1
+                              ? 'No pending requests right now'
+                              : 'No sessions scheduled yet',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (14.0 * sf).clamp(12.5, 16.0),
+                            fontWeight: FontWeight.w700,
+                            color: kDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'When a client books a session, it will show here instantly with Accept / Reject options.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (11.5 * sf).clamp(10.0, 13.0),
+                            color: kGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  ...displayed.map((b) => TrainerSessionCard(booking: b, sf: sf)),
+
+                const SizedBox(height: 40),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _FilterTabChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final double sf;
+  final Color? badgeColor;
+
+  const _FilterTabChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.sf,
+    this.badgeColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? kDark : kField,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: selected ? kDark : kBorder,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: (11.5 * sf).clamp(10.0, 13.0),
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            color: selected ? Colors.white : kDark,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ── Trainer Profile Tab with Log Out ──────────────────────────────────────────
 class _TrainerProfileTab extends StatelessWidget {
   final double sf;
@@ -386,138 +727,552 @@ class _TrainerProfileTab extends StatelessWidget {
     final hPad = (w * 0.072).clamp(18.0, 32.0);
 
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: hPad),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: ListenableBuilder(
+        listenable: TrainerProfileService.instance,
+        builder: (context, _) {
+          final service = TrainerProfileService.instance;
+          final isDone = service.isProfileCompleted;
+          final photoPath = service.photoPath;
+          final hasPhoto = photoPath != null && File(photoPath).existsSync();
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: hPad),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 24),
+
+                // Top Header Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Coach Profile',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: (24.0 * sf).clamp(20.0, 30.0),
+                          fontWeight: FontWeight.w800,
+                          color: kDark,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isDone ? kLime : const Color(0xFFFFECB3),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        isDone ? 'Verified Coach' : 'Setup Pending',
+                        style: const TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: kDark,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // ── Main Profile Header Card (Live Photo + Name + Phone) ──
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: kField,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: kBorder),
+                  ),
+                  child: Row(
+                    children: [
+                      // Avatar / Live Photo
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const TrainerProfileSetupScreen(),
+                            ),
+                          );
+                        },
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: kDark,
+                                border: Border.all(
+                                  color: hasPhoto ? kLime : Colors.transparent,
+                                  width: 2.5,
+                                ),
+                              ),
+                              child: ClipOval(
+                                child: hasPhoto
+                                    ? Image.file(
+                                        File(photoPath),
+                                        fit: BoxFit.cover,
+                                        width: 64,
+                                        height: 64,
+                                        errorBuilder: (context, error, stackTrace) =>
+                                            const Icon(Iconsax.user, color: kLime, size: 30),
+                                      )
+                                    : const Icon(Iconsax.user, color: kLime, size: 30),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: kDark,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 1.5),
+                                ),
+                                child: const Icon(Iconsax.camera, color: kLime, size: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              service.fullName ?? 'Coach Profile',
+                              style: TextStyle(
+                                fontFamily: 'Syne',
+                                fontSize: (16.0 * sf).clamp(14.0, 18.0),
+                                fontWeight: FontWeight.w700,
+                                color: kDark,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              service.mobileNumber ?? 'Mobile number not added',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: (12.0 * sf).clamp(10.5, 13.0),
+                                color: kGrey,
+                              ),
+                            ),
+                            if (service.gymName != null && service.gymName!.isNotEmpty) ...[
+                              const SizedBox(height: 3),
+                              Row(
+                                children: [
+                                  const Icon(Iconsax.building, size: 13, color: kDark),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      service.gymName!,
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: (11.5 * sf).clamp(10.0, 12.5),
+                                        fontWeight: FontWeight.w500,
+                                        color: kDark,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Iconsax.edit_2, size: 18, color: kDark),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const TrainerProfileSetupScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // ── Coaching Details & Credentials ──
                 Text(
-                  'Coach Profile',
+                  'Coaching Identity',
                   style: TextStyle(
                     fontFamily: 'Syne',
-                    fontSize: (24.0 * sf).clamp(20.0, 30.0),
-                    fontWeight: FontWeight.w800,
+                    fontSize: (14.0 * sf).clamp(12.5, 16.0),
+                    fontWeight: FontWeight.w700,
                     color: kDark,
                   ),
                 ),
+                const SizedBox(height: 10),
+
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: kLime,
-                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: kBorder),
                   ),
-                  child: const Text(
-                    'Coach',
-                    style: TextStyle(
-                      fontFamily: 'Syne',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: kDark,
-                    ),
+                  child: Column(
+                    children: [
+                      _DetailRow(
+                        icon: Iconsax.building,
+                        title: 'Gym / Fitness Studio',
+                        value: service.gymName ?? 'Not specified yet',
+                        sf: sf,
+                      ),
+                      const Divider(height: 20, color: kBorder),
+                      _DetailRow(
+                        icon: Iconsax.user,
+                        title: 'Age',
+                        value: service.age != null && service.age!.isNotEmpty
+                            ? '${service.age} Years Old'
+                            : 'Not set',
+                        sf: sf,
+                      ),
+                      const Divider(height: 20, color: kBorder),
+                      _DetailRow(
+                        icon: Iconsax.clock,
+                        title: 'Working Since',
+                        value: service.sinceWhen ?? 'Not specified',
+                        sf: sf,
+                      ),
+                      const Divider(height: 20, color: kBorder),
+                      _DetailRow(
+                        icon: Iconsax.award,
+                        title: 'Experience',
+                        value: service.experience,
+                        sf: sf,
+                      ),
+                      const Divider(height: 20, color: kBorder),
+                      _DetailRow(
+                        icon: Iconsax.call,
+                        title: 'Contact Phone',
+                        value: service.mobileNumber ?? 'Not added',
+                        sf: sf,
+                      ),
+                      const Divider(height: 20, color: kBorder),
+                      _DetailRow(
+                        icon: Iconsax.document_text,
+                        title: 'Certification',
+                        value: service.certificatePath != null && service.certificatePath!.isNotEmpty
+                            ? 'Uploaded (Document Attached)'
+                            : 'Not uploaded (Optional)',
+                        sf: sf,
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            // Trainer Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: kField,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
+
+                if (service.certificatePath != null &&
+                    File(service.certificatePath!).existsSync()) ...[
+                  const SizedBox(height: 12),
                   Container(
-                    width: 52,
-                    height: 52,
-                    decoration: const BoxDecoration(
-                      color: kDark,
-                      shape: BoxShape.circle,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: kField,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: kBorder),
                     ),
-                    child: const Icon(Iconsax.teacher, color: kLime, size: 26),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        const Text(
-                          'Coach Marcus',
-                          style: TextStyle(
-                            fontFamily: 'Syne',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: kDark,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            File(service.certificatePath!),
+                            width: 52,
+                            height: 52,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Iconsax.award, color: kDark, size: 28),
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'marcus.fit@trainuspro.com',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 12,
-                            color: kGrey,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.verified_rounded, size: 14, color: Color(0xFF2E7D32)),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      'Coaching Credential Attached',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontFamily: 'Syne',
+                                        fontSize: (12.0 * sf).clamp(11.0, 13.0),
+                                        fontWeight: FontWeight.w700,
+                                        color: kDark,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                service.certificatePath!.split('/').last,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 11,
+                                  color: kGrey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const TrainerProfileSetupScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Edit',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                              color: kDark,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: 28),
-            Text(
-              'Coach Settings',
-              style: TextStyle(
-                fontFamily: 'Syne',
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: kDark,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _CoachProfileTile(icon: Iconsax.user_edit, label: 'Edit Coach Profile', sf: sf),
-            _CoachProfileTile(icon: Iconsax.card, label: 'Payout & Earnings', sf: sf),
-            _CoachProfileTile(icon: Iconsax.calendar_edit, label: 'Availability & Slots', sf: sf),
-            _CoachProfileTile(icon: Iconsax.notification, label: 'Notification Settings', sf: sf),
-            _CoachProfileTile(icon: Iconsax.shield_tick, label: 'Security & Certifications', sf: sf),
 
-            const SizedBox(height: 32),
+                const SizedBox(height: 20),
 
-            // Prominent Log Out Button
-            SizedBox(
-              width: double.infinity,
-              height: (50.0 * sf).clamp(44.0, 56.0),
-              child: ElevatedButton.icon(
-                onPressed: onLogout,
-                icon: const Icon(Iconsax.logout, size: 18, color: Color(0xFFE53935)),
-                label: const Text(
-                  'Log Out',
+                // ── Specialties ──
+                Text(
+                  'Specialties',
                   style: TextStyle(
                     fontFamily: 'Syne',
-                    fontSize: 14,
+                    fontSize: (14.0 * sf).clamp(12.5, 16.0),
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFE53935),
+                    color: kDark,
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFEBEE),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: service.specialties.map((spec) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: kDark,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.check_circle_rounded, color: kLime, size: 14),
+                          const SizedBox(width: 6),
+                          Text(
+                            spec,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: (11.5 * sf).clamp(10.0, 12.5),
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+
+                const SizedBox(height: 20),
+
+                // ── Training Philosophy ──
+                Text(
+                  'Training Philosophy',
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: (14.0 * sf).clamp(12.5, 16.0),
+                    fontWeight: FontWeight.w700,
+                    color: kDark,
                   ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: kField,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kBorder),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Iconsax.quote_down, size: 18, color: kDark),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          service.philosophy,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (12.5 * sf).clamp(11.0, 13.5),
+                            fontStyle: FontStyle.italic,
+                            color: kDark,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                // ── Coach Settings ──
+                Text(
+                  'Coach Settings',
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: (14.0 * sf).clamp(12.5, 16.0),
+                    fontWeight: FontWeight.w700,
+                    color: kDark,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _CoachProfileTile(
+                  icon: Iconsax.user_edit,
+                  label: 'Edit Coach Profile & Photo',
+                  sf: sf,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const TrainerProfileSetupScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _CoachProfileTile(
+                  icon: Iconsax.card,
+                  label: 'Payout & Earnings',
+                  sf: sf,
+                  onTap: () {},
+                ),
+                _CoachProfileTile(
+                  icon: Iconsax.calendar_edit,
+                  label: 'Availability & Slots',
+                  sf: sf,
+                  onTap: () {},
+                ),
+                _CoachProfileTile(
+                  icon: Iconsax.notification,
+                  label: 'Notification Settings',
+                  sf: sf,
+                  onTap: () {},
+                ),
+                _CoachProfileTile(
+                  icon: Iconsax.shield_tick,
+                  label: 'Security & Certifications',
+                  sf: sf,
+                  onTap: () {},
+                ),
+
+                const SizedBox(height: 28),
+
+                // Prominent Log Out Button
+                SizedBox(
+                  width: double.infinity,
+                  height: (50.0 * sf).clamp(44.0, 56.0),
+                  child: ElevatedButton.icon(
+                    onPressed: onLogout,
+                    icon: const Icon(Iconsax.logout, size: 18, color: Color(0xFFE53935)),
+                    label: const Text(
+                      'Log Out',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFE53935),
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFEBEE),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+              ],
             ),
-            const SizedBox(height: 32),
-          ],
-        ),
+          );
+        },
       ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+  final double sf;
+
+  const _DetailRow({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.sf,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: kDark),
+        const SizedBox(width: 10),
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: (12.0 * sf).clamp(10.5, 13.0),
+            color: kGrey,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: (12.5 * sf).clamp(11.0, 13.5),
+              fontWeight: FontWeight.w600,
+              color: kDark,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -526,11 +1281,13 @@ class _CoachProfileTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final double sf;
+  final VoidCallback? onTap;
 
   const _CoachProfileTile({
     required this.icon,
     required this.label,
     required this.sf,
+    this.onTap,
   });
 
   @override
@@ -539,7 +1296,7 @@ class _CoachProfileTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () {},
+        onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           decoration: BoxDecoration(
@@ -655,42 +1412,367 @@ class _TrainerBottomNav extends StatelessWidget {
   }
 }
 
-class _PlaceholderTab extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _PlaceholderTab({required this.icon, required this.label});
+// ── Trainer My Clients Tab (Live Accepted Bookings) ───────────────────────────
+class _TrainerClientsTab extends StatelessWidget {
+  final double sf;
+  final VoidCallback onGoToSchedule;
+
+  const _TrainerClientsTab({
+    required this.sf,
+    required this.onGoToSchedule,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final sf = scaleFactor(context);
+    final w = MediaQuery.of(context).size.width;
+    final hPad = (w * 0.072).clamp(18.0, 32.0);
+
     return SafeArea(
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: (48.0 * sf).clamp(36, 60), color: kBorder),
-            SizedBox(height: (12.0 * sf).clamp(8, 16)),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'Syne',
-                fontSize: (18.0 * sf).clamp(14, 22),
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFFDDDDDD),
-              ),
+      child: ListenableBuilder(
+        listenable: BookingService.instance,
+        builder: (context, _) {
+          final accepted = BookingService.instance.confirmedBookings;
+          final uniqueClientsCount =
+              accepted.map((b) => b.displayClientName).toSet().length;
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: hPad),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 24),
+
+                // Top Header Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'My Clients',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: (22.0 * sf).clamp(18.0, 28.0),
+                          fontWeight: FontWeight.w800,
+                          color: kDark,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: accepted.isNotEmpty
+                            ? const Color(0xFFE8F5E9)
+                            : kField,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        accepted.isNotEmpty
+                            ? '$uniqueClientsCount Accepted ${uniqueClientsCount == 1 ? "Client" : "Clients"}'
+                            : '0 Clients',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: accepted.isNotEmpty ? const Color(0xFF2E7D32) : kGrey,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Athletes whose session requests have been accepted by you.',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: (12.0 * sf).clamp(10.5, 13.5),
+                    color: kGrey,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                if (accepted.isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: kField,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: kBorder),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Iconsax.people,
+                          size: 44,
+                          color: Color(0xFFCCCCCC),
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          'No accepted clients yet',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (15.0 * sf).clamp(13.0, 17.0),
+                            fontWeight: FontWeight.w700,
+                            color: kDark,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'When you accept a session request from an athlete, they will immediately appear here.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (11.5 * sf).clamp(10.0, 13.0),
+                            color: kGrey,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        ElevatedButton.icon(
+                          onPressed: onGoToSchedule,
+                          icon: const Icon(Iconsax.calendar_tick, size: 16, color: kDark),
+                          label: const Text(
+                            'View Session Requests',
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontWeight: FontWeight.w700,
+                              color: kDark,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kLime,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  ...accepted.map((b) => _AcceptedClientCard(booking: b, sf: sf)),
+
+                const SizedBox(height: 36),
+              ],
             ),
-            SizedBox(height: (6.0 * sf).clamp(4, 8)),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _AcceptedClientCard extends StatelessWidget {
+  final BookingModel booking;
+  final double sf;
+
+  const _AcceptedClientCard({
+    required this.booking,
+    required this.sf,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final b = booking;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: EdgeInsets.all((16.0 * sf).clamp(12.0, 20.0)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: kLime.withValues(alpha: 0.6), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Client Avatar + Name + Active Status Badge
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: const BoxDecoration(
+                  color: kDark,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    b.displayClientName.isNotEmpty ? b.displayClientName[0].toUpperCase() : 'C',
+                    style: const TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: kLime,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      b.displayClientName,
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: (15.5 * sf).clamp(14.0, 18.0),
+                        fontWeight: FontWeight.w700,
+                        color: kDark,
+                      ),
+                    ),
+                    if (b.clientPhone != null && b.clientPhone!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(Iconsax.call, size: 12, color: kGrey),
+                          const SizedBox(width: 4),
+                          Text(
+                            b.clientPhone!,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: (11.5 * sf).clamp(10.0, 12.5),
+                              color: kGrey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.check_circle_rounded, color: Color(0xFF2E7D32), size: 13),
+                    SizedBox(width: 4),
+                    Text(
+                      'Accepted',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF2E7D32),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          // Accepted Session Details
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: kField,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Iconsax.clock, size: 14, color: kDark),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        '${b.startTime} - ${b.endTime}  •  ${_formatDate(b.sessionDate)}',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: (12.0 * sf).clamp(10.5, 13.0),
+                          fontWeight: FontWeight.w600,
+                          color: kDark,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Iconsax.weight, size: 14, color: kGrey),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        b.displayWorkoutType,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: (11.5 * sf).clamp(10.0, 12.5),
+                          color: kDark,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (b.meetingLocation != null && b.meetingLocation!.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Iconsax.building, size: 14, color: kGrey),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          b.meetingLocation!,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (11.5 * sf).clamp(10.0, 12.5),
+                            color: kGrey,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          if (b.notes != null && b.notes!.isNotEmpty) ...[
+            const SizedBox(height: 10),
             Text(
-              'Coming soon',
+              'Goals / Notes: "${b.notes}"',
               style: TextStyle(
                 fontFamily: 'Poppins',
-                fontSize: (12.0 * sf).clamp(10, 14),
-                color: const Color(0xFFCCCCCC),
+                fontSize: (11.0 * sf).clamp(9.5, 12.0),
+                fontStyle: FontStyle.italic,
+                color: kGrey,
               ),
             ),
           ],
-        ),
+        ],
       ),
     );
+  }
+
+  String _formatDate(DateTime dt) {
+    final now = DateTime.now();
+    if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
+      return 'Today';
+    }
+    final tomorrow = now.add(const Duration(days: 1));
+    if (dt.year == tomorrow.year && dt.month == tomorrow.month && dt.day == tomorrow.day) {
+      return 'Tomorrow';
+    }
+    const months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${months[dt.month]} ${dt.day}';
   }
 }
