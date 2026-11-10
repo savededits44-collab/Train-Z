@@ -7,6 +7,7 @@ import '../../services/trainer_profile_service.dart';
 import '../../shared/models/booking_model.dart';
 import '../../widgets/app_widgets.dart';
 import '../../widgets/logout_dialog.dart';
+import '../../widgets/trainer_animations.dart';
 import '../../widgets/trainer_session_card.dart';
 import 'trainer_profile_setup_screen.dart';
 
@@ -53,7 +54,21 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: pages[_tab],
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 280),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey<int>(_tab),
+          child: pages[_tab],
+        ),
+      ),
       bottomNavigationBar: _TrainerBottomNav(
         current: _tab,
         onTap: (i) => setState(() => _tab = i),
@@ -89,157 +104,176 @@ class _TrainerHomeTab extends StatelessWidget {
           children: [
             SizedBox(height: (h * 0.03).clamp(16, 28)),
 
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                AppLogo(fontSize: (14.0 * sf).clamp(12, 18)),
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: (10.0 * sf).clamp(8, 14),
-                        vertical: (5.0 * sf).clamp(4, 8),
-                      ),
-                      decoration: BoxDecoration(
-                        color: kLime,
-                        borderRadius: BorderRadius.circular((8.0 * sf).clamp(6, 10)),
-                      ),
-                      child: Text(
-                        'Trainer',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: (11.0 * sf).clamp(9, 13),
-                          fontWeight: FontWeight.w700,
-                          color: kDark,
+            // Header with luxury entrance animation
+            TrainerFadeSlide(
+              delayMs: 30,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AppLogo(fontSize: (14.0 * sf).clamp(12, 18)),
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: (10.0 * sf).clamp(8, 14),
+                          vertical: (5.0 * sf).clamp(4, 8),
+                        ),
+                        decoration: BoxDecoration(
+                          color: kLime,
+                          borderRadius: BorderRadius.circular((8.0 * sf).clamp(6, 10)),
+                        ),
+                        child: Text(
+                          'Trainer',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (11.0 * sf).clamp(9, 13),
+                            fontWeight: FontWeight.w700,
+                            color: kDark,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: (8.0 * sf).clamp(6, 12)),
-                    Container(
-                      width: (36.0 * sf).clamp(30, 44),
-                      height: (36.0 * sf).clamp(30, 44),
-                      decoration: const BoxDecoration(
-                        color: kField,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Iconsax.notification,
-                        size: (18.0 * sf).clamp(14, 22),
-                        color: kDark,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Quick logout
-                    InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: onLogout,
-                      child: Container(
+                      SizedBox(width: (8.0 * sf).clamp(6, 12)),
+                      Container(
                         width: (36.0 * sf).clamp(30, 44),
                         height: (36.0 * sf).clamp(30, 44),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFEBEE),
+                        decoration: const BoxDecoration(
+                          color: kField,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          Iconsax.logout,
-                          size: (17.0 * sf).clamp(14, 20),
-                          color: const Color(0xFFE53935),
+                          Iconsax.notification,
+                          size: (18.0 * sf).clamp(14, 22),
+                          color: kDark,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 8),
+                      // Quick logout
+                      TrainerPressScale(
+                        onTap: onLogout,
+                        child: Container(
+                          width: (36.0 * sf).clamp(30, 44),
+                          height: (36.0 * sf).clamp(30, 44),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFFEBEE),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Iconsax.logout,
+                            size: (17.0 * sf).clamp(14, 20),
+                            color: const Color(0xFFE53935),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
 
             SizedBox(height: (h * 0.03).clamp(16, 28)),
 
-            Text(
-              'Your dashboard',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: (13.0 * sf).clamp(11, 15),
-                color: kGrey,
-              ),
-            ),
-            SizedBox(height: (4.0 * sf).clamp(2, 6)),
-            Text(
-              'Build your\nclientele.',
-              style: TextStyle(
-                fontFamily: 'Syne',
-                fontSize: (26.0 * sf).clamp(20, 32),
-                fontWeight: FontWeight.w800,
-                color: kDark,
-                height: 1.1,
+            // Title with smooth stagger
+            TrainerFadeSlide(
+              delayMs: 80,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Your dashboard',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: (13.0 * sf).clamp(11, 15),
+                      color: kGrey,
+                    ),
+                  ),
+                  SizedBox(height: (4.0 * sf).clamp(2, 6)),
+                  Text(
+                    'Build your\nclientele.',
+                    style: TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: (26.0 * sf).clamp(20, 32),
+                      fontWeight: FontWeight.w800,
+                      color: kDark,
+                      height: 1.1,
+                    ),
+                  ),
+                ],
               ),
             ),
 
             SizedBox(height: (h * 0.025).clamp(14, 24)),
 
-            // Stats row (Live Real-Time)
-            ListenableBuilder(
-              listenable: BookingService.instance,
-              builder: (context, _) {
-                final bService = BookingService.instance;
-                final confirmedCount = bService.confirmedBookings.length;
-                final uniqueClients = bService.confirmedBookings
-                    .map((b) => b.displayClientName)
-                    .toSet()
-                    .length;
+            // Stats row (Live Real-Time with rolling counters & spring scale)
+            TrainerFadeSlide(
+              delayMs: 140,
+              child: ListenableBuilder(
+                listenable: BookingService.instance,
+                builder: (context, _) {
+                  final bService = BookingService.instance;
+                  final confirmedCount = bService.confirmedBookings.length;
+                  final uniqueClients = bService.confirmedBookings
+                      .map((b) => b.displayClientName)
+                      .toSet()
+                      .length;
 
-                return Row(
-                  children: [
-                    Expanded(
-                      child: _TStatCard(
-                        label: 'Clients',
-                        value: '$uniqueClients',
-                        icon: Iconsax.people,
-                        sf: sf,
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: _TStatCard(
+                          label: 'Clients',
+                          value: '$uniqueClients',
+                          icon: Iconsax.people,
+                          sf: sf,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: (10.0 * sf).clamp(8, 14)),
-                    Expanded(
-                      child: _TStatCard(
-                        label: 'Sessions',
-                        value: '$confirmedCount',
-                        icon: Iconsax.calendar_tick,
-                        sf: sf,
-                        accent: true,
+                      SizedBox(width: (10.0 * sf).clamp(8, 14)),
+                      Expanded(
+                        child: _TStatCard(
+                          label: 'Sessions',
+                          value: '$confirmedCount',
+                          icon: Iconsax.calendar_tick,
+                          sf: sf,
+                          accent: true,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: (10.0 * sf).clamp(8, 14)),
-                    Expanded(
-                      child: _TStatCard(
-                        label: 'Rating',
-                        value: '5.0',
-                        icon: Iconsax.star,
-                        sf: sf,
+                      SizedBox(width: (10.0 * sf).clamp(8, 14)),
+                      Expanded(
+                        child: _TStatCard(
+                          label: 'Rating',
+                          value: '5.0',
+                          icon: Iconsax.star,
+                          sf: sf,
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              },
+                    ],
+                  );
+                },
+              ),
             ),
 
             SizedBox(height: (h * 0.02).clamp(12, 20)),
 
-            // Today's Income Box Column (Live Real-Time Daily Revenue)
-            _TrainerTodaysIncomeCard(
-              sf: sf,
-              onGoToSchedule: onGoToSchedule,
+            // Today's Income Box Column (Live Real-Time Daily Revenue with pulsing glow)
+            TrainerFadeSlide(
+              delayMs: 200,
+              child: _TrainerTodaysIncomeCard(
+                sf: sf,
+                onGoToSchedule: onGoToSchedule,
+              ),
             ),
 
             SizedBox(height: (h * 0.02).clamp(12, 20)),
 
             // Dynamic Trainer Status Card (Profile Setup, Application In Process, or Approved)
-            ListenableBuilder(
-              listenable: TrainerProfileService.instance,
-              builder: (context, _) {
-                final service = TrainerProfileService.instance;
-                final isDone = service.isProfileCompleted;
-                final isPending = service.isPendingApproval;
-                final isApproved = service.isApproved;
+            TrainerFadeSlide(
+              delayMs: 260,
+              child: ListenableBuilder(
+                listenable: TrainerProfileService.instance,
+                builder: (context, _) {
+                  final service = TrainerProfileService.instance;
+                  final isDone = service.isProfileCompleted;
+                  final isPending = service.isPendingApproval;
+                  final isApproved = service.isApproved;
 
                 Widget content;
 
@@ -574,100 +608,104 @@ class _TrainerHomeTab extends StatelessWidget {
                 );
               },
             ),
+          ),
 
             // Live Upcoming Sessions & Booking Requests
-            ListenableBuilder(
-              listenable: BookingService.instance,
-              builder: (context, _) {
-                final bService = BookingService.instance;
-                final pending = bService.pendingBookings;
-                final confirmed = bService.confirmedBookings;
+            TrainerFadeSlide(
+              delayMs: 320,
+              child: ListenableBuilder(
+                listenable: BookingService.instance,
+                builder: (context, _) {
+                  final bService = BookingService.instance;
+                  final pending = bService.pendingBookings;
+                  final confirmed = bService.confirmedBookings;
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Upcoming Sessions',
-                          style: TextStyle(
-                            fontFamily: 'Syne',
-                            fontSize: (15.0 * sf).clamp(13, 18),
-                            fontWeight: FontWeight.w700,
-                            color: kDark,
-                          ),
-                        ),
-                        if (pending.isNotEmpty)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFF3E0),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFF9800),
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  '${pending.length} pending',
-                                  style: const TextStyle(
-                                    fontFamily: 'Syne',
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFFE65100),
-                                  ),
-                                ),
-                              ],
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Upcoming Sessions',
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontSize: (15.0 * sf).clamp(13, 18),
+                              fontWeight: FontWeight.w700,
+                              color: kDark,
                             ),
                           ),
-                      ],
-                    ),
-                    SizedBox(height: (h * 0.015).clamp(10, 18)),
-                    if (pending.isNotEmpty) ...[
-                      ...pending.map((b) => TrainerSessionCard(booking: b, sf: sf, compact: true)),
-                    ],
-                    if (confirmed.isNotEmpty) ...[
-                      ...confirmed.take(2).map((b) => TrainerSessionCard(booking: b, sf: sf, compact: true)),
-                    ],
-                    if (pending.isEmpty && confirmed.isEmpty)
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all((20.0 * sf).clamp(14, 24)),
-                        decoration: BoxDecoration(
-                          color: kField,
-                          borderRadius:
-                              BorderRadius.circular((14.0 * sf).clamp(10, 18)),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Iconsax.calendar_remove,
-                              size: (32.0 * sf).clamp(24, 42),
-                              color: const Color(0xFFCCCCCC),
-                            ),
-                            SizedBox(height: (8.0 * sf).clamp(6, 12)),
-                            Text(
-                              'No sessions yet',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: (12.0 * sf).clamp(10, 14),
-                                color: const Color(0xFFBBBBBB),
+                          if (pending.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF3E0),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFF9800),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    '${pending.length} pending',
+                                    style: const TextStyle(
+                                      fontFamily: 'Syne',
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFFE65100),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
+                        ],
                       ),
-                  ],
-                );
-              },
+                      SizedBox(height: (h * 0.015).clamp(10, 18)),
+                      if (pending.isNotEmpty) ...[
+                        ...pending.map((b) => TrainerSessionCard(booking: b, sf: sf, compact: true)),
+                      ],
+                      if (confirmed.isNotEmpty) ...[
+                        ...confirmed.take(2).map((b) => TrainerSessionCard(booking: b, sf: sf, compact: true)),
+                      ],
+                      if (pending.isEmpty && confirmed.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all((20.0 * sf).clamp(14, 24)),
+                          decoration: BoxDecoration(
+                            color: kField,
+                            borderRadius:
+                                BorderRadius.circular((14.0 * sf).clamp(10, 18)),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Iconsax.calendar_remove,
+                                size: (32.0 * sf).clamp(24, 42),
+                                color: const Color(0xFFCCCCCC),
+                              ),
+                              SizedBox(height: (8.0 * sf).clamp(6, 12)),
+                              Text(
+                                'No sessions yet',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: (12.0 * sf).clamp(10, 14),
+                                  color: const Color(0xFFBBBBBB),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
 
             SizedBox(height: (h * 0.03).clamp(20, 32)),
@@ -695,38 +733,64 @@ class _TStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all((14.0 * sf).clamp(10, 18)),
-      decoration: BoxDecoration(
-        color: accent ? kLime : kField,
-        borderRadius: BorderRadius.circular((14.0 * sf).clamp(10, 18)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon,
+    final numValue = num.tryParse(value);
+
+    return TrainerPressScale(
+      child: Container(
+        padding: EdgeInsets.all((14.0 * sf).clamp(10, 18)),
+        decoration: BoxDecoration(
+          color: accent ? kLime : kField,
+          borderRadius: BorderRadius.circular((14.0 * sf).clamp(10, 18)),
+          boxShadow: accent
+              ? [
+                  BoxShadow(
+                    color: kLime.withValues(alpha: 0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              icon,
               size: (18.0 * sf).clamp(14, 22),
-              color: accent ? kDark : kDark),
-          SizedBox(height: (6.0 * sf).clamp(4, 10)),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: 'Syne',
-              fontSize: (20.0 * sf).clamp(16, 26),
-              fontWeight: FontWeight.w800,
               color: kDark,
             ),
-          ),
-          SizedBox(height: (2.0 * sf).clamp(1, 4)),
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: (10.0 * sf).clamp(9, 12),
-              color: accent ? kDark.withValues(alpha: 0.6) : kGrey,
+            SizedBox(height: (6.0 * sf).clamp(4, 10)),
+            if (numValue != null)
+              TrainerCountUp(
+                value: numValue,
+                style: TextStyle(
+                  fontFamily: 'Syne',
+                  fontSize: (20.0 * sf).clamp(16, 26),
+                  fontWeight: FontWeight.w800,
+                  color: kDark,
+                ),
+              )
+            else
+              Text(
+                value,
+                style: TextStyle(
+                  fontFamily: 'Syne',
+                  fontSize: (20.0 * sf).clamp(16, 26),
+                  fontWeight: FontWeight.w800,
+                  color: kDark,
+                ),
+              ),
+            SizedBox(height: (2.0 * sf).clamp(1, 4)),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: (10.0 * sf).clamp(9, 12),
+                color: accent ? kDark.withValues(alpha: 0.6) : kGrey,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -757,255 +821,256 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
         final todayCount = todayConfirmed.length;
         final rate = pService.hourlyRate;
 
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.all((18.0 * sf).clamp(14.0, 22.0)),
-          decoration: BoxDecoration(
-            color: const Color(0xFF141416),
-            borderRadius: BorderRadius.circular((18.0 * sf).clamp(14.0, 22.0)),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.08),
-              width: 1.2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.16),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top Bar: Icon + Title + Real-Time Badge
-              Row(
-                children: [
-                  Container(
-                    width: (34.0 * sf).clamp(28.0, 40.0),
-                    height: (34.0 * sf).clamp(28.0, 40.0),
-                    decoration: BoxDecoration(
-                      color: kLime,
-                      borderRadius: BorderRadius.circular((10.0 * sf).clamp(8.0, 12.0)),
-                    ),
-                    child: Icon(
-                      Iconsax.wallet_3,
-                      size: (18.0 * sf).clamp(14.0, 22.0),
-                      color: kDark,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "TODAY'S INCOME",
-                          style: TextStyle(
-                            fontFamily: 'Syne',
-                            fontSize: (11.0 * sf).clamp(9.5, 12.5),
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.2,
-                            color: kLime,
-                          ),
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          'Estimated Daily Earnings',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: (11.0 * sf).clamp(9.5, 12.0),
-                            color: Colors.white.withValues(alpha: 0.65),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.07),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.12),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF4CAF50),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        const Text(
-                          'Live',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: (16.0 * sf).clamp(12.0, 20.0)),
-
-              // Big Revenue Display + Rate Badge
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    '₹',
-                    style: TextStyle(
-                      fontFamily: 'Syne',
-                      fontSize: (22.0 * sf).clamp(18.0, 26.0),
-                      fontWeight: FontWeight.w800,
-                      color: kLime,
-                    ),
-                  ),
-                  const SizedBox(width: 3),
-                  Text(
-                    income.toString(),
-                    style: TextStyle(
-                      fontFamily: 'Syne',
-                      fontSize: (34.0 * sf).clamp(28.0, 40.0),
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      height: 1.0,
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: kLime.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: kLime.withValues(alpha: 0.28),
-                      ),
-                    ),
-                    child: Text(
-                      '₹$rate / Session',
-                      style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontSize: (11.0 * sf).clamp(9.5, 12.5),
-                        fontWeight: FontWeight.w700,
-                        color: kLime,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: (14.0 * sf).clamp(10.0, 18.0)),
-
-              // Subtle Divider
-              Container(
-                height: 1,
+        return TrainerBreathingGlow(
+          glowColor: kLime,
+          active: true,
+          minBlur: 4,
+          maxBlur: 14,
+          borderRadius: (18.0 * sf).clamp(14.0, 22.0),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all((18.0 * sf).clamp(14.0, 22.0)),
+            decoration: BoxDecoration(
+              color: const Color(0xFF141416),
+              borderRadius: BorderRadius.circular((18.0 * sf).clamp(14.0, 22.0)),
+              border: Border.all(
                 color: Colors.white.withValues(alpha: 0.08),
+                width: 1.2,
               ),
-
-              SizedBox(height: (12.0 * sf).clamp(8.0, 14.0)),
-
-              // Footer Status & Quick Action
-              if (income > 0)
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.16),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Bar: Icon + Title + Real-Time Badge
                 Row(
                   children: [
-                    const Icon(
-                      Iconsax.tick_circle,
-                      size: 14,
-                      color: Color(0xFF4CAF50),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        '$todayCount session${todayCount == 1 ? '' : 's'} accepted for today',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: (11.5 * sf).clamp(10.0, 12.5),
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withValues(alpha: 0.85),
-                        ),
+                    Container(
+                      width: (34.0 * sf).clamp(28.0, 40.0),
+                      height: (34.0 * sf).clamp(28.0, 40.0),
+                      decoration: BoxDecoration(
+                        color: kLime,
+                        borderRadius: BorderRadius.circular((10.0 * sf).clamp(8.0, 12.0)),
+                      ),
+                      child: Icon(
+                        Iconsax.wallet_3,
+                        size: (18.0 * sf).clamp(14.0, 22.0),
+                        color: kDark,
                       ),
                     ),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(6),
-                      onTap: onGoToSchedule,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'View Schedule',
+                            "TODAY'S INCOME",
                             style: TextStyle(
                               fontFamily: 'Syne',
-                              fontSize: (11.0 * sf).clamp(9.5, 12.0),
-                              fontWeight: FontWeight.w700,
+                              fontSize: (11.0 * sf).clamp(9.5, 12.5),
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
                               color: kLime,
                             ),
                           ),
-                          const SizedBox(width: 3),
-                          const Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            size: 10,
-                            color: kLime,
+                          const SizedBox(height: 1),
+                          Text(
+                            'Estimated Daily Earnings',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: (11.0 * sf).clamp(9.5, 12.0),
+                              color: Colors.white.withValues(alpha: 0.65),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.07),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          TrainerLivePulseDot(
+                            color: Color(0xFF4CAF50),
+                            size: 6.5,
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            'Live',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ],
-                )
-              else
+                ),
+
+                SizedBox(height: (16.0 * sf).clamp(12.0, 20.0)),
+
+                // Big Revenue Display + Rate Badge
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Icon(
-                      Iconsax.info_circle,
-                      size: 14,
-                      color: Colors.white.withValues(alpha: 0.45),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        '0 sessions accepted today',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: (11.0 * sf).clamp(9.5, 12.0),
-                          color: Colors.white.withValues(alpha: 0.55),
-                        ),
+                    Text(
+                      '₹',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: (22.0 * sf).clamp(18.0, 26.0),
+                        fontWeight: FontWeight.w800,
+                        color: kLime,
                       ),
                     ),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(6),
-                      onTap: onGoToSchedule,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: kLime,
-                          borderRadius: BorderRadius.circular(6),
+                    const SizedBox(width: 3),
+                    TrainerCountUp(
+                      value: income,
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: (34.0 * sf).clamp(28.0, 40.0),
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        height: 1.0,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: kLime.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: kLime.withValues(alpha: 0.28),
                         ),
-                        child: Text(
-                          'View Requests',
-                          style: TextStyle(
-                            fontFamily: 'Syne',
-                            fontSize: (10.5 * sf).clamp(9.0, 11.5),
-                            fontWeight: FontWeight.w700,
-                            color: kDark,
-                          ),
+                      ),
+                      child: Text(
+                        '₹$rate / Session',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: (11.0 * sf).clamp(9.5, 12.5),
+                          fontWeight: FontWeight.w700,
+                          color: kLime,
                         ),
                       ),
                     ),
                   ],
                 ),
-            ],
+
+                SizedBox(height: (14.0 * sf).clamp(10.0, 18.0)),
+
+                // Subtle Divider
+                Container(
+                  height: 1,
+                  color: Colors.white.withValues(alpha: 0.08),
+                ),
+
+                SizedBox(height: (12.0 * sf).clamp(8.0, 14.0)),
+
+                // Footer Status & Quick Action
+                if (income > 0)
+                  Row(
+                    children: [
+                      const Icon(
+                        Iconsax.tick_circle,
+                        size: 14,
+                        color: Color(0xFF4CAF50),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '$todayCount session${todayCount == 1 ? '' : 's'} accepted for today',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (11.5 * sf).clamp(10.0, 12.5),
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: 0.85),
+                          ),
+                        ),
+                      ),
+                      TrainerPressScale(
+                        onTap: onGoToSchedule,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'View Schedule',
+                              style: TextStyle(
+                                fontFamily: 'Syne',
+                                fontSize: (11.0 * sf).clamp(9.5, 12.0),
+                                fontWeight: FontWeight.w700,
+                                color: kLime,
+                              ),
+                            ),
+                            const SizedBox(width: 3),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 10,
+                              color: kLime,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    children: [
+                      Icon(
+                        Iconsax.info_circle,
+                        size: 14,
+                        color: Colors.white.withValues(alpha: 0.45),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '0 sessions accepted today',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (11.0 * sf).clamp(9.5, 12.0),
+                            color: Colors.white.withValues(alpha: 0.55),
+                          ),
+                        ),
+                      ),
+                      TrainerPressScale(
+                        onTap: onGoToSchedule,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: kLime,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'View Requests',
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontSize: (10.5 * sf).clamp(9.0, 11.5),
+                              fontWeight: FontWeight.w700,
+                              color: kDark,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         );
       },
@@ -1052,10 +1117,12 @@ class _TrainerScheduleTabState extends State<_TrainerScheduleTab> {
 
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: hPad),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 24),
+            child: TrainerFadeSlide(
+              delayMs: 30,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 24),
 
                 // Title and Real-time Live Badge
                 Row(
@@ -1242,11 +1309,12 @@ class _TrainerScheduleTabState extends State<_TrainerScheduleTab> {
                 const SizedBox(height: 40),
               ],
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+  );
+}
 }
 
 class _FilterTabChip extends StatelessWidget {
@@ -1266,11 +1334,12 @@ class _FilterTabChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(10),
+    return TrainerPressScale(
       onTap: onTap,
+      scaleDown: 0.94,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? kDark : kField,
@@ -1278,6 +1347,15 @@ class _FilterTabChip extends StatelessWidget {
           border: Border.all(
             color: selected ? kDark : kBorder,
           ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
         ),
         child: Text(
           label,
@@ -1339,10 +1417,12 @@ class _TrainerProfileTab extends StatelessWidget {
 
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: hPad),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 24),
+            child: TrainerFadeSlide(
+              delayMs: 30,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 24),
 
                 // Top Header Row
                 Row(
@@ -1838,11 +1918,12 @@ class _TrainerProfileTab extends StatelessWidget {
                 const SizedBox(height: 32),
               ],
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+  );
+}
 }
 
 class _DetailRow extends StatelessWidget {
@@ -1979,40 +2060,59 @@ class _TrainerBottomNav extends StatelessWidget {
             final selected = i == current;
             final item = _items[i];
             return Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => onTap(i),
+              child: TrainerPressScale(
+                scaleDown: 0.92,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  onTap(i);
+                },
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                       vertical: (10.0 * sf).clamp(8, 14)),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        selected ? item.$2 : item.$1,
-                        size: iconSz,
-                        color: selected ? kDark : const Color(0xFFBBBBBB),
-                      ),
-                      SizedBox(height: (3.0 * sf).clamp(2, 4)),
-                      Text(
-                        item.$3,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: labelSz,
-                          fontWeight: selected
-                              ? FontWeight.w600
-                              : FontWeight.w400,
+                      AnimatedScale(
+                        scale: selected ? 1.15 : 1.0,
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOutBack,
+                        child: Icon(
+                          selected ? item.$2 : item.$1,
+                          size: iconSz,
                           color: selected ? kDark : const Color(0xFFBBBBBB),
                         ),
                       ),
                       SizedBox(height: (3.0 * sf).clamp(2, 4)),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 180),
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: labelSz,
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                          color: selected ? kDark : const Color(0xFFBBBBBB),
+                        ),
+                        child: Text(item.$3),
+                      ),
+                      SizedBox(height: (3.0 * sf).clamp(2, 4)),
                       AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 240),
+                        curve: Curves.easeOutCubic,
                         height: 3,
-                        width: selected ? (20.0 * sf).clamp(14, 24) : 0,
+                        width: selected ? (22.0 * sf).clamp(16, 26) : 0,
                         decoration: BoxDecoration(
                           color: kLime,
                           borderRadius: BorderRadius.circular(2),
+                          boxShadow: selected
+                              ? [
+                                  BoxShadow(
+                                    color: kLime.withValues(alpha: 0.6),
+                                    blurRadius: 4,
+                                    spreadRadius: 0.5,
+                                  ),
+                                ]
+                              : null,
                         ),
                       ),
                     ],
@@ -2052,10 +2152,12 @@ class _TrainerClientsTab extends StatelessWidget {
 
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: hPad),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 24),
+            child: TrainerFadeSlide(
+              delayMs: 30,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 24),
 
                 // Top Header Row
                 Row(
@@ -2169,11 +2271,12 @@ class _TrainerClientsTab extends StatelessWidget {
                 const SizedBox(height: 36),
               ],
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+  );
+}
 }
 
 class _AcceptedClientCard extends StatelessWidget {
@@ -2189,22 +2292,23 @@ class _AcceptedClientCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final b = booking;
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: EdgeInsets.all((16.0 * sf).clamp(12.0, 20.0)),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kLime.withValues(alpha: 0.6), width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return TrainerPressScale(
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: EdgeInsets.all((16.0 * sf).clamp(12.0, 20.0)),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: kLime.withValues(alpha: 0.6), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2373,8 +2477,9 @@ class _AcceptedClientCard extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   String _formatDate(DateTime dt) {
     final now = DateTime.now();

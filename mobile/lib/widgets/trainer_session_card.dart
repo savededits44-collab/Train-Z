@@ -5,6 +5,7 @@ import '../services/booking_service.dart';
 import '../services/trainer_profile_service.dart';
 import '../shared/models/booking_model.dart';
 import 'app_widgets.dart';
+import 'trainer_animations.dart';
 
 /// Card component displaying live session booking details with real-time Accept/Reject controls.
 class TrainerSessionCard extends StatefulWidget {
@@ -164,27 +165,31 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
     final isConfirmed = b.status == BookingStatus.confirmed;
     final isRejected = b.status == BookingStatus.rejected;
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: EdgeInsets.all((16.0 * sf).clamp(12.0, 20.0)),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular((16.0 * sf).clamp(12, 18)),
-        border: Border.all(
-          color: isPending
-              ? const Color(0xFFFFB300)
-              : (isConfirmed ? kLime.withValues(alpha: 0.6) : kBorder),
-          width: isPending ? 1.5 : 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return TrainerBreathingGlow(
+      active: isPending,
+      glowColor: const Color(0xFFFFB300),
+      borderRadius: (16.0 * sf).clamp(12.0, 18.0),
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: EdgeInsets.all((16.0 * sf).clamp(12.0, 20.0)),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular((16.0 * sf).clamp(12, 18)),
+          border: Border.all(
+            color: isPending
+                ? const Color(0xFFFFB300)
+                : (isConfirmed ? kLime.withValues(alpha: 0.6) : kBorder),
+            width: isPending ? 1.5 : 1.0,
           ),
-        ],
-      ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -395,49 +400,58 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
             else
               Row(
                 children: [
-                  // Reject Button
+                  // Reject Button with spring-scale
                   Expanded(
                     flex: 4,
-                    child: OutlinedButton.icon(
-                      onPressed: _showRejectDialog,
-                      icon: const Icon(Icons.close_rounded, size: 16, color: Color(0xFFE53935)),
-                      label: const Text(
-                        'Reject',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12.5,
-                          color: Color(0xFFE53935),
+                    child: TrainerPressScale(
+                      onTap: _showRejectDialog,
+                      child: OutlinedButton.icon(
+                        onPressed: _showRejectDialog,
+                        icon: const Icon(Icons.close_rounded, size: 16, color: Color(0xFFE53935)),
+                        label: const Text(
+                          'Reject',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12.5,
+                            color: Color(0xFFE53935),
+                          ),
                         ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFFFCDD2)),
-                        padding: const EdgeInsets.symmetric(vertical: 11),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFFFFCDD2)),
+                          padding: const EdgeInsets.symmetric(vertical: 11),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  // Accept Button
+                  // Accept Button with shimmer sweep & spring-scale
                   Expanded(
                     flex: 6,
-                    child: ElevatedButton.icon(
-                      onPressed: _handleAccept,
-                      icon: const Icon(Icons.check_rounded, size: 18, color: kDark),
-                      label: const Text(
-                        'Accept Session',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12.5,
-                          color: kDark,
+                    child: TrainerPressScale(
+                      onTap: _handleAccept,
+                      child: TrainerShimmerSweep(
+                        period: const Duration(milliseconds: 2400),
+                        child: ElevatedButton.icon(
+                          onPressed: _handleAccept,
+                          icon: const Icon(Icons.check_rounded, size: 18, color: kDark),
+                          label: const Text(
+                            'Accept Session',
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12.5,
+                              color: kDark,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kLime,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 11),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kLime,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 11),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                     ),
                   ),
@@ -500,8 +514,9 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
           ],
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   String _formatDate(DateTime dt) {
     final now = DateTime.now();
