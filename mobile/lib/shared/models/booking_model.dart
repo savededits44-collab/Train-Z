@@ -117,12 +117,12 @@ class BookingModel {
   String get resolvedPackageName {
     if (packageName != null && packageName!.trim().isNotEmpty) return packageName!;
     final pid = (planId ?? '').toLowerCase();
-    if (pid.contains('1_day')) return '1 Day Pass';
-    if (pid.contains('3_day')) return '3 Days Starter';
-    if (pid.contains('1_week')) return '1 Week Intensive';
+    if (pid.contains('1_day')) return '1 Session Pass';
+    if (pid.contains('3_day')) return '3 Sessions Starter';
+    if (pid.contains('1_week')) return '1 Week (6 Sessions)';
     if (pid.contains('3_month')) return '3 Months Transformation';
     if (pid.contains('6_month')) return '6-Month Transformation';
-    return 'Monthly Plan (30 Days)';
+    return 'Monthly Plan (30 Sessions)';
   }
 
   int get resolvedTotalDays {
@@ -164,8 +164,9 @@ class BookingModel {
     return (resolvedTotalDays - resolvedDaysRemaining).clamp(0, resolvedTotalDays);
   }
 
-  /// Package remaining fraction: e.g. "15/30 Days Left", "7/90 Days Left", "3/30 Days Left"
-  String get remainingDaysFraction => '$resolvedDaysRemaining/$resolvedTotalDays Days Left';
+  /// Package remaining fraction: e.g. "15/30 Sessions Left", "7/90 Sessions Left", "3/30 Sessions Left"
+  String get remainingDaysFraction => '$resolvedDaysRemaining/$resolvedTotalDays Sessions Left';
+  String get remainingSessionsFraction => '$resolvedDaysRemaining/$resolvedTotalDays Sessions Left';
 
   /// Visual progress fraction (0.0 to 1.0) of remaining duration
   double get packageProgress {

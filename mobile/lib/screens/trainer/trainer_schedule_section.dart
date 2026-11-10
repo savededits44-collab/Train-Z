@@ -272,7 +272,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
               ),
               const SizedBox(height: 2),
               Text(
-                'Track client packages, remaining days, and sessions.',
+                'Track client packages, remaining sessions, and schedule.',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: (11.5 * sf).clamp(10.0, 13.0),
@@ -345,7 +345,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
         children: [
           _StatMiniItem(label: 'Total Clients', value: '$total', color: kDark, sf: sf),
           Container(width: 1, height: 28, color: kBorder),
-          _StatMiniItem(label: 'Healthy (>7d)', value: '$active', color: const Color(0xFF16A34A), sf: sf),
+          _StatMiniItem(label: 'Healthy (>7s)', value: '$active', color: const Color(0xFF16A34A), sf: sf),
           Container(width: 1, height: 28, color: kBorder),
           _StatMiniItem(label: 'Expiring Soon', value: '$expiring', color: const Color(0xFFEA580C), sf: sf),
           if (pending > 0) ...[
@@ -766,7 +766,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
             children: [
               _buildFilterChip('All Statuses', PackageFilter.all, sf),
               const SizedBox(width: 6),
-              _buildFilterChip('Healthy (>7d)', PackageFilter.active, sf, badgeColor: const Color(0xFF16A34A)),
+              _buildFilterChip('Healthy (>7s)', PackageFilter.active, sf, badgeColor: const Color(0xFF16A34A)),
               const SizedBox(width: 6),
               _buildFilterChip('Expiring Soon', PackageFilter.expiringSoon, sf, badgeColor: const Color(0xFFEA580C)),
               if (pendingCount > 0) ...[
@@ -1213,7 +1213,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Remaining Days',
+                'Remaining Sessions',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: (11.0 * sf).clamp(10.0, 12.0),
@@ -1641,13 +1641,13 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
 
                     const SizedBox(height: 16),
 
-                    // Metrics Grid (Total days, Days completed, Remaining, Dates)
+                    // Metrics Grid (Total Sessions, Sessions Done, Remaining, Dates)
                     Row(
                       children: [
                         Expanded(
                           child: _MetricDetailBox(
-                            label: 'Total Days',
-                            value: '${b.resolvedTotalDays} Days',
+                            label: 'Total Sessions',
+                            value: '${b.resolvedTotalDays} Sessions',
                             icon: Iconsax.calendar_tick,
                             sf: sf,
                           ),
@@ -1655,8 +1655,8 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         const SizedBox(width: 8),
                         Expanded(
                           child: _MetricDetailBox(
-                            label: 'Days Completed',
-                            value: '${b.resolvedDaysCompleted} Days',
+                            label: 'Sessions Done',
+                            value: '${b.resolvedDaysCompleted} Sessions',
                             icon: Iconsax.tick_circle,
                             sf: sf,
                           ),
@@ -1664,8 +1664,8 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         const SizedBox(width: 8),
                         Expanded(
                           child: _MetricDetailBox(
-                            label: 'Days Remaining',
-                            value: '${b.resolvedDaysRemaining} Days',
+                            label: 'Remaining',
+                            value: '${b.resolvedDaysRemaining} Sessions',
                             icon: Iconsax.timer_1,
                             valueColor: badgeColor,
                             sf: sf,

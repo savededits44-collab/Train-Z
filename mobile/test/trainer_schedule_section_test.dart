@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trainuspro/services/booking_service.dart';
 import 'package:trainuspro/shared/models/booking_model.dart';
 import 'package:trainuspro/shared/models/user_model.dart';
 
@@ -22,13 +21,14 @@ void main() {
         packageStartDate: now.subtract(const Duration(days: 15)),
         packageExpiryDate: now.add(const Duration(days: 15)),
       );
-      expect(booking1.remainingDaysFraction, '15/30 Days Left');
+      expect(booking1.remainingDaysFraction, '15/30 Sessions Left');
+      expect(booking1.remainingSessionsFraction, '15/30 Sessions Left');
       expect(booking1.resolvedDaysRemaining, 15);
       expect(booking1.resolvedDaysCompleted, 15);
       expect(booking1.packageProgress, closeTo(0.5, 0.05));
       expect(booking1.packageHealthStatus, 'green');
 
-      // Case 2: 7/90 Days Left (3 Months - Nearing Expiry / Orange)
+      // Case 2: 7/90 Sessions Left (3 Months - Nearing Expiry / Orange)
       final booking2 = BookingModel(
         id: 'test_b2',
         clientId: 'c2',
@@ -42,12 +42,13 @@ void main() {
         packageStartDate: now.subtract(const Duration(days: 83)),
         packageExpiryDate: now.add(const Duration(days: 7)),
       );
-      expect(booking2.remainingDaysFraction, '7/90 Days Left');
+      expect(booking2.remainingDaysFraction, '7/90 Sessions Left');
+      expect(booking2.remainingSessionsFraction, '7/90 Sessions Left');
       expect(booking2.resolvedDaysRemaining, 7);
       expect(booking2.resolvedDaysCompleted, 83);
       expect(booking2.packageHealthStatus, 'orange');
 
-      // Case 3: 3/30 Days Left (Monthly - Expiring Soon / Red)
+      // Case 3: 3/30 Sessions Left (Monthly - Expiring Soon / Red)
       final booking3 = BookingModel(
         id: 'test_b3',
         clientId: 'c3',
@@ -61,7 +62,8 @@ void main() {
         packageStartDate: now.subtract(const Duration(days: 27)),
         packageExpiryDate: now.add(const Duration(days: 3)),
       );
-      expect(booking3.remainingDaysFraction, '3/30 Days Left');
+      expect(booking3.remainingDaysFraction, '3/30 Sessions Left');
+      expect(booking3.remainingSessionsFraction, '3/30 Sessions Left');
       expect(booking3.resolvedDaysRemaining, 3);
       expect(booking3.resolvedDaysCompleted, 27);
       expect(booking3.packageHealthStatus, 'red');
@@ -83,9 +85,9 @@ void main() {
       );
 
       expect(bookingMonth.resolvedTotalDays, 30);
-      expect(bookingMonth.resolvedPackageName, 'Monthly Plan (30 Days)');
+      expect(bookingMonth.resolvedPackageName, 'Monthly Plan (30 Sessions)');
       expect(bookingMonth.resolvedTotalSessions, 26);
-      expect(bookingMonth.remainingDaysFraction.contains('/30 Days Left'), isTrue);
+      expect(bookingMonth.remainingDaysFraction.contains('/30 Sessions Left'), isTrue);
 
       final booking3Months = BookingModel(
         id: 'test_b5',
@@ -102,7 +104,7 @@ void main() {
       expect(booking3Months.resolvedTotalDays, 90);
       expect(booking3Months.resolvedPackageName, '3 Months Transformation');
       expect(booking3Months.resolvedTotalSessions, 78);
-      expect(booking3Months.remainingDaysFraction.contains('/90 Days Left'), isTrue);
+      expect(booking3Months.remainingDaysFraction.contains('/90 Sessions Left'), isTrue);
     });
 
     test('BookingModel completion mutation increments attended count and sets status', () {
