@@ -8,7 +8,6 @@ import '../../shared/models/booking_model.dart';
 import '../../widgets/app_widgets.dart';
 import '../../widgets/logout_dialog.dart';
 import '../../widgets/trainer_session_card.dart';
-import '../admin/admin_trainer_review_screen.dart';
 import 'trainer_profile_setup_screen.dart';
 
 class TrainerDashboard extends StatefulWidget {
@@ -117,42 +116,6 @@ class _TrainerHomeTab extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: (8.0 * sf).clamp(6, 12)),
-                    // Admin mode button
-                    InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const AdminTrainerReviewScreen(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: kField,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: kBorder),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.shield_rounded, size: 12, color: kDark),
-                            SizedBox(width: 4),
-                            Text(
-                              'Admin',
-                              style: TextStyle(
-                                fontFamily: 'Syne',
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: kDark,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
                     Container(
                       width: (36.0 * sf).clamp(30, 44),
                       height: (36.0 * sf).clamp(30, 44),
@@ -368,58 +331,29 @@ class _TrainerHomeTab extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF8E1),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: const Color(0xFFFFB300)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF8E1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFFFB300)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Iconsax.clock, size: 12, color: Color(0xFFE65100)),
+                              SizedBox(width: 5),
+                              Text(
+                                'Under Admin Review',
+                                style: TextStyle(
+                                  fontFamily: 'Syne',
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFFE65100),
+                                ),
                               ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(Iconsax.clock, size: 12, color: Color(0xFFE65100)),
-                                  SizedBox(width: 5),
-                                  Text(
-                                    'Under Admin Review',
-                                    style: TextStyle(
-                                      fontFamily: 'Syne',
-                                      fontSize: 10.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFFE65100),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => const AdminTrainerReviewScreen(),
-                                  ),
-                                );
-                              },
-                              child: Row(
-                                children: const [
-                                  Text(
-                                    'Admin Decision',
-                                    style: TextStyle(
-                                      fontFamily: 'Syne',
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: kDark,
-                                    ),
-                                  ),
-                                  SizedBox(width: 3),
-                                  Icon(Icons.arrow_forward_ios_rounded, size: 10, color: kDark),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -433,40 +367,12 @@ class _TrainerHomeTab extends StatelessWidget {
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          'Your profile details and credentials have been submitted to the TrainZ Admin. While the Admin is deciding on your application, session booking acceptance is temporarily on hold.',
+                          'Your profile details and credentials have been submitted to the TrainZ Admin. While the Admin is deciding on your application, session booking acceptance is temporarily on hold. You will be notified once approved.',
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: (11.5 * sf).clamp(10.0, 13.0),
                             color: const Color(0xFF6D4C41),
                             height: 1.4,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const AdminTrainerReviewScreen(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.shield_outlined, size: 15, color: kDark),
-                          label: const Text(
-                            'Open Admin Review Panel',
-                            style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: kDark,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFFD54F),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           ),
                         ),
                       ],
@@ -1391,35 +1297,6 @@ class _TrainerProfileTab extends StatelessWidget {
                         sf: sf,
                       ),
                     ],
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const AdminTrainerReviewScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.shield_outlined, size: 16, color: kDark),
-                    label: const Text(
-                      'Open Admin Review Portal (Approvals)',
-                      style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: kDark,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: kBorder),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
                   ),
                 ),
 
