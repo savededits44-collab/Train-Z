@@ -6,7 +6,7 @@ import '../../controllers/client_auth_controller.dart';
 import 'client_email_verification_screen.dart';
 import 'client_forgot_password_screen.dart';
 import 'client_home_screen.dart';
-import 'client_profile_completion_screen.dart';
+import 'client_profile_setup_screen.dart';
 import 'client_register_screen.dart';
 
 /// Premium Login Screen specifically tailored for TRAIN Z Clients.
@@ -69,7 +69,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
         case ClientAuthNavigationTarget.profileCompletion:
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (_) => const ClientProfileCompletionScreen(),
+              builder: (_) => const ClientProfileSetupScreen(),
             ),
           );
           break;

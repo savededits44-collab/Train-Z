@@ -58,6 +58,9 @@ class SessionCreditModel {
   int get computedAvailable =>
       (totalPurchased + totalReturned) - (totalReserved + totalConsumed + totalForfeited);
 
+  bool get hasAvailableCredits => availableBalance > 0;
+  bool get canBookSession => availableBalance > 0;
+
   Map<String, dynamic> toMap() {
     return {
       'clientId': clientId,

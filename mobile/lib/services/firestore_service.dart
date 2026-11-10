@@ -11,6 +11,7 @@ import '../shared/models/trainer_availability_model.dart';
 import '../shared/models/trainer_profile_model.dart';
 import '../shared/models/training_plan_model.dart';
 import '../shared/models/user_model.dart';
+import 'credit_service.dart';
 
 /// Core Firestore data access service for TRAIN Z shared features.
 class FirestoreService {
@@ -93,6 +94,68 @@ class FirestoreService {
     });
   }
 
+  /// Streams approved trainers with full display details for Client Home and Discovery
+  /// Enforces:
+  /// - Only APPROVED and active trainers
+  /// - Strict 1-on-1 gender matching (Male -> Male, Female -> Female)
+  /// - Optional launch city filter
+  Stream<List<TrainerDisplayModel>> streamApprovedTrainersDisplay({
+    required Gender clientGender,
+    String? cityId,
+  }) {
+    return _firestore
+        .collection(FirestoreCollections.trainerProfiles)
+        .where('verificationStatus', isEqualTo: 'APPROVED')
+        .snapshots()
+        .asyncMap((snap) async {
+      final List<TrainerDisplayModel> list = [];
+
+      for (final doc in snap.docs) {
+        final profile = TrainerProfileModel.fromDocument(doc);
+        if (!profile.isActive) continue;
+
+        // Service city filtering: match cityId if specified
+        if (cityId != null &&
+            cityId.isNotEmpty &&
+            profile.cityId != null &&
+            profile.cityId!.isNotEmpty &&
+            profile.cityId != cityId) {
+          continue;
+        }
+
+        // Fetch corresponding user record for name, photo and gender verification
+        final userDoc = await _firestore.collection(FirestoreCollections.users).doc(profile.uid).get();
+        if (!userDoc.exists) continue;
+
+        final user = UserModel.fromDocument(userDoc);
+        // STRICT 1-ON-1 GENDER MATCHING: Male clients with Male trainers only, Female with Female
+        if (user.gender != clientGender) continue;
+
+        final rawData = doc.data();
+        final gymName = rawData['gymName'] as String?;
+
+        list.add(TrainerDisplayModel(
+          profile: profile,
+          uid: profile.uid,
+          displayName: user.displayName ?? (rawData['fullName'] as String?) ?? 'Coach',
+          photoUrl: user.photoUrl,
+          gender: user.gender ?? clientGender,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          gymName: gymName,
+          specialties: profile.specialties,
+          experienceYears: profile.experienceYears,
+          cityId: profile.cityId,
+          ratingAvg: profile.ratingAvg,
+          totalReviews: profile.totalReviews,
+          hourlyRate: profile.hourlyRate,
+        ));
+      }
+
+      return list;
+    });
+  }
+
   /// Get trainer profile
   Future<TrainerProfileModel?> getTrainerProfile(String trainerId) async {
     final doc = await _firestore.collection(FirestoreCollections.trainerProfiles).doc(trainerId).get();
@@ -105,6 +168,48 @@ class FirestoreService {
     final doc = await _firestore.collection(FirestoreCollections.clientProfiles).doc(clientId).get();
     if (!doc.exists) return null;
     return ClientProfileModel.fromDocument(doc);
+  }
+
+  /// Stream client profile in real time
+  Stream<ClientProfileModel?> streamClientProfile(String clientId) {
+    return _firestore
+        .collection(FirestoreCollections.clientProfiles)
+        .doc(clientId)
+        .snapshots()
+        .map((snap) {
+      if (!snap.exists || snap.data() == null) return null;
+      return ClientProfileModel.fromDocument(snap);
+    });
+  }
+
+  /// Atomically saves common user info into `users/{uid}` and client-specific info into `client_profiles/{uid}`
+  Future<void> saveFullClientProfile({
+    required String uid,
+    required String displayName,
+    required String phoneNumber,
+    String? photoUrl,
+    required ClientProfileModel profile,
+  }) async {
+    final batch = _firestore.batch();
+
+    // 1. Update common user information in users collection
+    final userRef = _firestore.collection(FirestoreCollections.users).doc(uid);
+    final userUpdates = <String, dynamic>{
+      'displayName': displayName.trim(),
+      'phoneNumber': phoneNumber.trim(),
+      'onboarded': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      userUpdates['photoUrl'] = photoUrl;
+    }
+    batch.update(userRef, userUpdates);
+
+    // 2. Save client-specific information in client_profiles collection
+    final profileRef = _firestore.collection(FirestoreCollections.clientProfiles).doc(uid);
+    batch.set(profileRef, profile.toMap(), SetOptions(merge: true));
+
+    await batch.commit();
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -147,6 +252,53 @@ class FirestoreService {
         .orderBy('sessionDate', descending: true)
         .snapshots()
         .map((snap) => snap.docs.map((d) => BookingModel.fromDocument(d)).toList());
+  }
+
+  /// Updates client's selected city and training venue preference in real time
+  Future<void> updateClientLocation({
+    required String clientId,
+    required String cityId,
+    String? preferredLocation,
+  }) async {
+    final docRef = _firestore.collection(FirestoreCollections.clientProfiles).doc(clientId);
+    final updates = <String, dynamic>{
+      'preferredCityId': cityId,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+    if (preferredLocation != null && preferredLocation.isNotEmpty) {
+      updates['preferredTrainingLocation'] = preferredLocation;
+    }
+    await docRef.set(updates, SetOptions(merge: true));
+  }
+
+  /// Cancels a booking as a client, applying the Section 8 (12-hour) cancellation refund policy
+  Future<bool> cancelBookingAsClient({
+    required String bookingId,
+    required String clientId,
+  }) async {
+    final bookingDoc = await _firestore.collection(FirestoreCollections.bookings).doc(bookingId).get();
+    if (!bookingDoc.exists) return false;
+
+    final booking = BookingModel.fromDocument(bookingDoc);
+
+    // Enforce 12-hour cancellation rule through CreditService
+    final creditReturned = await CreditService().processCancellationCredit(
+      clientId: clientId,
+      bookingId: bookingId,
+      sessionStartTime: booking.sessionDate,
+      cancelledByRole: UserRole.client,
+    );
+
+    final newStatus = creditReturned
+        ? BookingStatus.cancelledClientEarly
+        : BookingStatus.cancelledClientLate;
+
+    await _firestore.collection(FirestoreCollections.bookings).doc(bookingId).update({
+      'status': newStatus.toFirestore(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    return creditReturned;
   }
 
   /// Streams bookings for a trainer

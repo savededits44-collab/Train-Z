@@ -27,12 +27,13 @@ class AppRouter {
   static const String adminDashboard = '/admin/dashboard';
   static const String accountSuspended = '/account-suspended';
 
-  // Dedicated Client Routes (Prompt 2C)
+  // Dedicated Client Routes (Prompt 2C & Profile Setup)
   static const String clientLogin = '/client/login';
   static const String clientRegister = '/client/register';
   static const String clientVerifyEmail = '/client/verify-email';
   static const String clientForgotPassword = '/client/forgot-password';
   static const String clientProfileCompletion = '/client/profile-completion';
+  static const String clientProfileSetup = '/client/profile-setup';
   static const String clientHome = '/client/home';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -52,7 +53,8 @@ class AppRouter {
       case trainerOnboarding:
         return MaterialPageRoute(builder: (_) => const TrainerOnboardingScreen());
       case clientDashboard:
-        return MaterialPageRoute(builder: (_) => const ClientDashboard());
+      case clientHome:
+        return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
       case trainerDashboard:
         return MaterialPageRoute(builder: (_) => const TrainerDashboard());
 
@@ -72,11 +74,11 @@ class AppRouter {
           builder: (_) => ClientForgotPasswordScreen(initialEmail: email),
         );
       case clientProfileCompletion:
+      case clientProfileSetup:
+        final isEditMode = (settings.arguments as bool?) ?? false;
         return MaterialPageRoute(
-          builder: (_) => const ClientProfileCompletionScreen(),
+          builder: (_) => ClientProfileSetupScreen(isEditMode: isEditMode),
         );
-      case clientHome:
-        return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
 
       case adminDashboard:
         return MaterialPageRoute(builder: (_) => const AdminTrainerReviewScreen());
