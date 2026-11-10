@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../services/credit_service.dart';
+import '../../../../services/firestore_service.dart';
+import '../../../../shared/models/client_profile_model.dart';
 import '../../../../shared/models/session_credit_model.dart';
 import '../../../../shared/models/user_model.dart';
 import '../../../../widgets/app_widgets.dart';
 import '../../../../widgets/logout_dialog.dart';
+import 'client_profile_setup_screen.dart';
 
 /// Clean Client Home foundation screen for TRAIN Z.
 /// Displays client profile summary, gender matching status, and real-time credit ledger.
@@ -52,17 +55,51 @@ class ClientHomeScreen extends StatelessWidget {
                 // ── Client Header ──
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: (26.0 * sf).clamp(22.0, 30.0),
-                      backgroundColor: const Color(0xFF111111),
-                      child: Text(
-                        displayName.isNotEmpty ? displayName[0].toUpperCase() : 'A',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                          fontWeight: FontWeight.w800,
-                          color: kLime,
-                        ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ClientProfileSetupScreen(isEditMode: true),
+                          ),
+                        );
+                      },
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: (26.0 * sf).clamp(22.0, 30.0),
+                            backgroundColor: const Color(0xFF111111),
+                            backgroundImage: (client?.photoUrl != null && client!.photoUrl!.isNotEmpty)
+                                ? NetworkImage(client.photoUrl!)
+                                : null,
+                            child: (client?.photoUrl == null || client!.photoUrl!.isEmpty)
+                                ? Text(
+                                    displayName.isNotEmpty ? displayName[0].toUpperCase() : 'A',
+                                    style: TextStyle(
+                                      fontFamily: 'Syne',
+                                      fontSize: (18.0 * sf).clamp(16.0, 22.0),
+                                      fontWeight: FontWeight.w800,
+                                      color: kLime,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: const BoxDecoration(
+                                color: kDark,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.edit,
+                                size: 10,
+                                color: kLime,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -100,6 +137,17 @@ class ClientHomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Iconsax.edit_2, size: 20, color: kDark),
+                      tooltip: 'Edit Profile',
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ClientProfileSetupScreen(isEditMode: true),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -156,6 +204,123 @@ class ClientHomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // ── Real-time Profile Completion Status ──
+                StreamBuilder<ClientProfileModel?>(
+                  stream: FirestoreService().streamClientProfile(uid),
+                  builder: (context, profileSnap) {
+                    final profile = profileSnap.data;
+                    final completion = profile?.calculateCompletion(
+                          hasName: (client?.displayName != null && client!.displayName!.trim().length >= 2),
+                          hasPhone: (client?.phoneNumber != null && client!.phoneNumber!.trim().isNotEmpty),
+                          hasPhoto: (client?.photoUrl != null && client!.photoUrl!.isNotEmpty),
+                          hasGender: client?.gender != null,
+                        ) ??
+                        (client?.isOnboarded == true ? 100 : 40);
+
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: completion == 100 ? const Color(0xFFF9FAFB) : const Color(0xFFF6FBF4),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: completion == 100 ? const Color(0xFFEEEEEE) : kLime.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    completion == 100 ? Iconsax.verify : Iconsax.user_edit,
+                                    size: 16,
+                                    color: completion == 100 ? const Color(0xFF16A34A) : kDark,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    completion == 100 ? 'PROFILE 100% COMPLETE' : 'PROFILE SETUP IN PROGRESS',
+                                    style: TextStyle(
+                                      fontFamily: 'Syne',
+                                      fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                                      fontWeight: FontWeight.w700,
+                                      color: kDark,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '$completion%',
+                                style: TextStyle(
+                                  fontFamily: 'Syne',
+                                  fontSize: (13.0 * sf).clamp(11.5, 14.5),
+                                  fontWeight: FontWeight.w800,
+                                  color: completion == 100 ? const Color(0xFF16A34A) : kDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: completion / 100.0,
+                              minHeight: 6,
+                              backgroundColor: const Color(0xFFE5E7EB),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                completion == 100 ? const Color(0xFF16A34A) : kLime,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  completion == 100
+                                      ? 'Your fitness preferences & city are saved for coach matching.'
+                                      : 'Add your fitness goals, city, and photo for optimized coach matching.',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: (10.5 * sf).clamp(9.5, 12.0),
+                                    color: kGrey,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const ClientProfileSetupScreen(isEditMode: true),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  completion == 100 ? 'Edit' : 'Complete',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                                    fontWeight: FontWeight.w700,
+                                    color: kDark,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 20),

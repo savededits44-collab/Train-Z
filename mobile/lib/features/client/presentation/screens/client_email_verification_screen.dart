@@ -6,7 +6,7 @@ import '../../../../widgets/app_widgets.dart';
 import '../../controllers/client_auth_controller.dart';
 import 'client_home_screen.dart';
 import 'client_login_screen.dart';
-import 'client_profile_completion_screen.dart';
+import 'client_profile_setup_screen.dart';
 
 /// Screen requiring the client to verify their email address before accessing protected trainer features.
 class ClientEmailVerificationScreen extends StatefulWidget {
@@ -74,7 +74,7 @@ class _ClientEmailVerificationScreenState
         MaterialPageRoute(
           builder: (_) => isOnboarded
               ? const ClientHomeScreen()
-              : const ClientProfileCompletionScreen(),
+              : const ClientProfileSetupScreen(),
         ),
       );
     } else {

@@ -107,6 +107,48 @@ class FirestoreService {
     return ClientProfileModel.fromDocument(doc);
   }
 
+  /// Stream client profile in real time
+  Stream<ClientProfileModel?> streamClientProfile(String clientId) {
+    return _firestore
+        .collection(FirestoreCollections.clientProfiles)
+        .doc(clientId)
+        .snapshots()
+        .map((snap) {
+      if (!snap.exists || snap.data() == null) return null;
+      return ClientProfileModel.fromDocument(snap);
+    });
+  }
+
+  /// Atomically saves common user info into `users/{uid}` and client-specific info into `client_profiles/{uid}`
+  Future<void> saveFullClientProfile({
+    required String uid,
+    required String displayName,
+    required String phoneNumber,
+    String? photoUrl,
+    required ClientProfileModel profile,
+  }) async {
+    final batch = _firestore.batch();
+
+    // 1. Update common user information in users collection
+    final userRef = _firestore.collection(FirestoreCollections.users).doc(uid);
+    final userUpdates = <String, dynamic>{
+      'displayName': displayName.trim(),
+      'phoneNumber': phoneNumber.trim(),
+      'onboarded': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      userUpdates['photoUrl'] = photoUrl;
+    }
+    batch.update(userRef, userUpdates);
+
+    // 2. Save client-specific information in client_profiles collection
+    final profileRef = _firestore.collection(FirestoreCollections.clientProfiles).doc(uid);
+    batch.set(profileRef, profile.toMap(), SetOptions(merge: true));
+
+    await batch.commit();
+  }
+
   // ───────────────────────────────────────────────────────────────────────────
   // Bookings (With Gender Matching Validation)
   // ───────────────────────────────────────────────────────────────────────────
