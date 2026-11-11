@@ -151,8 +151,12 @@ service cloud.firestore {
         resource.data.clientId == request.auth.uid ||
         isAdmin()
       );
-      // Payments ledger written by trusted backend or administrator
-      allow write: if isAdmin();
+      // Clients may create INITIATED orders; SUCCESS and credit-granting must be performed by admin or Cloud Functions
+      allow create: if isAuthenticated() &&
+        request.resource.data.clientId == request.auth.uid &&
+        request.resource.data.status == 'INITIATED';
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     // ─────────────────────────────────────────────────────────────────────────

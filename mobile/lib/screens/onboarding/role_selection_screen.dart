@@ -68,11 +68,11 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
 
               SizedBox(height: (14.0 * sf).clamp(10.0, 18.0)),
 
-              // Card 2: Coach / Trainer
+              // Card 2: Personal Trainer
               _RoleOptionCard(
-                title: 'Coach / Personal Trainer',
+                title: 'Personal Trainer',
                 subtitle:
-                    'Train athletes, manage bookings & grow your fitness coaching career.',
+                    'Train clients, manage bookings & grow your personal training career.',
                 icon: Iconsax.teacher,
                 selected: _selectedRole == 1,
                 onTap: () => setState(() => _selectedRole = 1),

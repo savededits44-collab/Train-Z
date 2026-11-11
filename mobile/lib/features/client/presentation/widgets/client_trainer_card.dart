@@ -7,7 +7,7 @@ import '../../../../widgets/app_widgets.dart';
 import '../../../../widgets/book_session_sheet.dart';
 import '../screens/trainer_detail_screen.dart';
 
-/// Premium card displaying an approved, gender-matched personal trainer.
+/// Professional card displaying an approved personal trainer.
 class ClientTrainerCard extends StatelessWidget {
   final TrainerDisplayModel trainer;
   final Gender clientGender;
@@ -96,7 +96,7 @@ class ClientTrainerCard extends StatelessWidget {
                           ? Text(
                               trainer.displayName.isNotEmpty
                                   ? trainer.displayName[0].toUpperCase()
-                                  : 'C',
+                                  : 'T',
                               style: TextStyle(
                                 fontFamily: 'Syne',
                                 fontSize: (18.0 * sf).clamp(16.0, 22.0),

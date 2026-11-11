@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../core/constants/app_constants.dart';
+import '../../../../services/location_service.dart';
 import '../../../../shared/models/user_model.dart';
 import '../../../../widgets/app_widgets.dart';
 import '../../controllers/client_profile_controller.dart';
@@ -37,7 +37,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
   String _selectedLevel = 'Intermediate';
   final Set<String> _selectedTrainingTypes = {'Weightlifting / Gym'};
   final Set<String> _selectedInterests = {'Core Strength'};
-  String _selectedCityId = 'city_mumbai';
+  String _selectedCityId = LocationService.instance.currentCityId;
   String _preferredLocation = 'Commercial Gym';
 
   bool _initialized = false;
@@ -120,8 +120,10 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
             ..clear()
             ..addAll(p.fitnessInterests);
         }
-        if (p.preferredCityId != null) {
+        if (p.preferredCityId != null && LocationService.instance.isCityActive(p.preferredCityId)) {
           _selectedCityId = p.preferredCityId!;
+        } else {
+          _selectedCityId = LocationService.instance.currentCityId;
         }
         if (p.preferredTrainingLocation != null) {
           _preferredLocation = p.preferredTrainingLocation!;
@@ -259,6 +261,8 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
     if (!mounted) return;
 
     if (success) {
+      await LocationService.instance.setCity(_selectedCityId, venue: _preferredLocation);
+      if (!mounted) return;
       HapticFeedback.mediumImpact();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -351,7 +355,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Personalize your athlete profile for matched coaching.',
+                            'Personalize your profile for personal training and fitness goals.',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: (12.0 * sf).clamp(11.0, 13.5),
@@ -558,7 +562,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Locked to maintain strict 1-on-1 coach matching rules.',
+                              'Account detail locked after registration.',
                               style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontSize: (10.5 * sf).clamp(9.5, 12.0),
@@ -821,16 +825,19 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                       value: _selectedCityId,
                       isExpanded: true,
                       icon: const Icon(Iconsax.arrow_down_1, size: 18, color: kDark),
-                      items: AppConstants.initialLaunchCities.map((city) {
+                      items: LocationService.instance.allCities.map((city) {
                         return DropdownMenuItem<String>(
-                          value: city['id'] as String,
+                          value: city.id,
+                          enabled: city.isActive,
                           child: Text(
-                            '${city['name']} (${city['state']})',
+                            city.isActive
+                                ? '${city.name} (${city.state})'
+                                : '${city.name} (${city.state}) - Coming Soon',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: (13.0 * sf).clamp(12.0, 14.5),
                               fontWeight: FontWeight.w500,
-                              color: kDark,
+                              color: city.isActive ? kDark : const Color(0xFF999999),
                             ),
                           ),
                         );

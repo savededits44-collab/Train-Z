@@ -5,6 +5,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../core/errors/app_exceptions.dart';
 import '../../../../services/booking_service.dart';
 import '../../../../services/firestore_service.dart';
+import '../../../../services/location_service.dart';
 import '../../../../shared/models/trainer_availability_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../shared/models/training_plan_model.dart';
@@ -86,6 +87,12 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
   }
 
   Future<void> _handleProceedToCheckout() async {
+    // Inactive city guard (Requirement 6)
+    if (widget.trainer.cityId != null && !LocationService.instance.isCityActive(widget.trainer.cityId)) {
+      setState(() => _errorMessage = 'Bookings are not currently active in ${LocationService.instance.getCityName(widget.trainer.cityId)}. Bookings in this area will open soon.');
+      return;
+    }
+
     if (_selectedStartTime == null || _selectedEndTime == null) {
       setState(() => _errorMessage = 'Please select an available 60-minute time slot.');
       return;
@@ -775,7 +782,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
         ),
         const SizedBox(height: 6),
         Text(
-          'Coach Service Area: ${widget.trainer.serviceArea}',
+          'Trainer Service Area: ${widget.trainer.serviceArea}',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontSize: (11.0 * sf).clamp(10.0, 12.0),

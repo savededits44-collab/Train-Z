@@ -2,13 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../../../../services/booking_service.dart';
-import '../../../../services/client_package_service.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../shared/models/training_plan_model.dart';
 import '../../../../widgets/app_widgets.dart';
+import 'client_payment_screen.dart';
 
 /// Screen displaying the temporary reservation status or final confirmed booking.
 /// For pending payments: clearly explains the booking is NOT yet confirmed,
@@ -35,7 +34,6 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
   late BookingModel _currentBooking;
   Timer? _countdownTimer;
   int _secondsLeft = 900; // 15 mins default
-  bool _isProcessingPayment = false;
   bool _isCancelling = false;
   String? _statusMessage;
 
@@ -79,58 +77,22 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
     return '${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
-  /// Hook connecting to the payment module (implemented separately).
-  /// Verifies backend confirmation before treating booking as confirmed.
-  Future<void> _handleProceedToPayment() async {
+  /// Opens Razorpay payment checkout screen
+  void _handleProceedToPayment() {
     HapticFeedback.mediumImpact();
-    setState(() {
-      _isProcessingPayment = true;
-      _statusMessage = 'Connecting to payment module...';
-    });
-
-    // Simulate payment module handshake & verification via backend Cloud Function
-    await Future.delayed(const Duration(seconds: 2));
-
-    try {
-      final confirmed = await _firestoreService.confirmBookingPayment(
-        bookingId: _currentBooking.id,
-        paymentTransactionId: 'PAY_${DateTime.now().millisecondsSinceEpoch}',
-      );
-
-      // Immediately sync confirmed booking to BookingService
-      BookingService.instance.addOrUpdateBooking(confirmed);
-
-      // Automatically create purchased package record and connect client to trainer
-      await ClientPackageService.instance.createPurchasedPackage(
-        clientId: confirmed.clientId,
-        clientName: confirmed.displayClientName,
-        clientPhone: confirmed.clientPhone,
-        trainerId: widget.trainer.uid,
-        trainerName: widget.trainer.displayName,
-        trainerPhotoUrl: widget.trainer.photoUrl,
-        packageId: widget.plan.id,
-        packageName: widget.plan.title,
-        price: widget.plan.price,
-        totalDays: widget.plan.validityDays,
-        totalSessions: widget.plan.sessionsCount,
-        paymentTransactionId: confirmed.paymentTransactionId,
-      );
-
-      if (!mounted) return;
-      _countdownTimer?.cancel();
-      setState(() {
-        _isProcessingPayment = false;
-        _currentBooking = confirmed;
-        _statusMessage = null;
-      });
-      HapticFeedback.heavyImpact();
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isProcessingPayment = false;
-        _statusMessage = 'Payment verification failed: $e';
-      });
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ClientPaymentScreen(
+          plan: widget.plan,
+          trainer: widget.trainer,
+          booking: _currentBooking,
+          clientId: _currentBooking.clientId,
+          clientName: _currentBooking.clientName ?? 'TRAIN Z Athlete',
+          clientPhone: _currentBooking.clientPhone ?? '+91 98201 54321',
+        ),
+      ),
+    );
   }
 
   /// Releases the temporary slot reservation immediately if client cancels or backs out
@@ -335,7 +297,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: _isProcessingPayment || _isCancelling ? null : _handleProceedToPayment,
+                              onPressed: _isCancelling ? null : _handleProceedToPayment,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: kDark,
                                 foregroundColor: kLime,
@@ -343,35 +305,22 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                                 elevation: 0,
                               ),
-                              child: _isProcessingPayment
-                                  ? const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(strokeWidth: 2, color: kLime),
-                                        ),
-                                        SizedBox(width: 10),
-                                        Text('Verifying Payment...', style: TextStyle(fontFamily: 'Syne', color: kLime, fontWeight: FontWeight.w700)),
-                                      ],
-                                    )
-                                  : Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(Iconsax.card_tick, size: 18, color: kLime),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Pay ₹${widget.plan.price} & Confirm',
-                                          style: TextStyle(
-                                            fontFamily: 'Syne',
-                                            fontSize: (14.5 * sf).clamp(13.0, 16.5),
-                                            fontWeight: FontWeight.w800,
-                                            color: kLime,
-                                          ),
-                                        ),
-                                      ],
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Iconsax.card_tick, size: 18, color: kLime),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Pay ₹${widget.plan.price} & Confirm',
+                                    style: TextStyle(
+                                      fontFamily: 'Syne',
+                                      fontSize: (14.5 * sf).clamp(13.0, 16.5),
+                                      fontWeight: FontWeight.w800,
+                                      color: kLime,
                                     ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -424,7 +373,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           ),
           const SizedBox(height: 4),
           Text(
-            'Payment verified. Your coach is notified & scheduled.',
+            'Payment verified. Your trainer is notified & scheduled.',
             style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: (11.5 * sf).clamp(10.5, 13.0),
@@ -595,7 +544,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                       ),
                     ),
                     Text(
-                      'Personal Performance Coach',
+                      'Personal Trainer',
                       style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
                     ),
                   ],

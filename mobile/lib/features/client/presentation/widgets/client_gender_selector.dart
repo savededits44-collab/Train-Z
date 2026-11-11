@@ -3,9 +3,8 @@ import 'package:flutter/services.dart';
 import '../../../../shared/models/user_model.dart';
 import '../../../../widgets/app_widgets.dart';
 
-/// Luxury Gender Selector specifically designed for TRAIN Z Client Onboarding.
-/// Visually clarifies the platform matching rule:
-/// Male clients $\leftrightarrow$ Male trainers, Female clients $\leftrightarrow$ Female trainers.
+/// Gender Selector for TRAIN Z Registration.
+/// Male clients book male trainers; female clients book female trainers.
 class ClientGenderSelector extends StatelessWidget {
   final Gender? selectedGender;
   final ValueChanged<Gender> onGenderSelected;
@@ -35,24 +34,6 @@ class ClientGenderSelector extends StatelessWidget {
                 fontSize: (12.5 * sf).clamp(11.0, 14.0),
                 fontWeight: FontWeight.w600,
                 color: kDark,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: const Color(0xFFBBF7D0)),
-              ),
-              child: Text(
-                'Required for 1-on-1 Matching',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: (9.5 * sf).clamp(8.5, 11.0),
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF166534),
-                ),
               ),
             ),
           ],

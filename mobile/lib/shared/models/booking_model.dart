@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'payment_model.dart';
 import 'user_model.dart';
+
+export 'payment_model.dart' show PaymentStatus;
 
 enum BookingStatus {
   pending,
@@ -56,35 +59,6 @@ enum BookingStatus {
   }
 }
 
-enum PaymentStatus {
-  pending,
-  completed,
-  failed,
-  refunded;
-
-  String toFirestore() {
-    switch (this) {
-      case PaymentStatus.pending:
-        return 'PENDING';
-      case PaymentStatus.completed:
-        return 'COMPLETED';
-      case PaymentStatus.failed:
-        return 'FAILED';
-      case PaymentStatus.refunded:
-        return 'REFUNDED';
-    }
-  }
-
-  static PaymentStatus fromFirestore(dynamic val) {
-    if (val == null) return PaymentStatus.pending;
-    final str = val.toString().trim().toUpperCase();
-    for (final s in PaymentStatus.values) {
-      if (s.toFirestore() == str) return s;
-    }
-    return PaymentStatus.pending;
-  }
-}
-
 class BookingModel {
   final String id;
   final String clientId;
@@ -120,6 +94,11 @@ class BookingModel {
   final String? meetingLocation;
   final String? locationReference;
   final String? notes;
+  final bool _isRescheduled;
+  final DateTime? rescheduledAt;
+  final DateTime? previousSessionDate;
+  final String? previousStartTime;
+  final String? previousEndTime;
   final DateTime? reservedAt;
   final DateTime? expiresAt;
   final DateTime? confirmedAt;
@@ -161,12 +140,17 @@ class BookingModel {
     this.meetingLocation,
     this.locationReference,
     this.notes,
+    bool isRescheduled = false,
+    this.rescheduledAt,
+    this.previousSessionDate,
+    this.previousStartTime,
+    this.previousEndTime,
     this.reservedAt,
     this.expiresAt,
     this.confirmedAt,
     this.createdAt,
     this.updatedAt,
-  });
+  }) : _isRescheduled = isRescheduled;
 
   /// Convenient display getters
   String get displayClientName =>
@@ -194,9 +178,16 @@ class BookingModel {
       status == BookingStatus.confirmed && paymentStatus == PaymentStatus.completed;
 
   /// Rescheduled check
-  bool get isRescheduled => status == BookingStatus.rescheduled;
+  bool get isRescheduled => _isRescheduled || status == BookingStatus.rescheduled;
 
-  /// Completed check
+  /// Status classification getters for client bookings section
+  bool get isUpcoming =>
+      status == BookingStatus.confirmed &&
+      sessionDate.isAfter(DateTime.now().subtract(const Duration(hours: 1)));
+
+  bool get isPending =>
+      status == BookingStatus.pending || status == BookingStatus.reserved;
+
   bool get isCompleted => status == BookingStatus.completed;
 
   /// Cancelled check (any client, trainer, or admin cancellation)
@@ -205,8 +196,51 @@ class BookingModel {
       status == BookingStatus.cancelledClientEarly ||
       status == BookingStatus.cancelledClientLate ||
       status == BookingStatus.cancelledTrainer ||
+      status == BookingStatus.cancelledAdmin ||
+      status == BookingStatus.expired ||
+      status == BookingStatus.rejected;
+
+  /// Whether credit was returned upon cancellation
+  bool get isCreditReturned =>
+      status == BookingStatus.cancelledClientEarly ||
+      status == BookingStatus.cancelledTrainer ||
       status == BookingStatus.cancelledAdmin;
 
+  /// Whether credit was forfeited upon cancellation (<12h)
+  bool get isCreditForfeited => status == BookingStatus.cancelledClientLate;
+
+  /// Display string for status chip
+  String get displayStatus {
+    switch (status) {
+      case BookingStatus.confirmed:
+        return 'Confirmed';
+      case BookingStatus.pending:
+        return 'Pending Approval';
+      case BookingStatus.reserved:
+        return 'Hold (Checkout)';
+      case BookingStatus.rescheduled:
+        return 'Rescheduled';
+      case BookingStatus.completed:
+        return 'Completed';
+      case BookingStatus.cancelled:
+        return 'Cancelled';
+      case BookingStatus.cancelledClientEarly:
+        return 'Cancelled (Credit Returned)';
+      case BookingStatus.cancelledClientLate:
+        return 'Cancelled (Credit Forfeited)';
+      case BookingStatus.cancelledTrainer:
+        return 'Cancelled by Trainer (Credit Returned)';
+      case BookingStatus.cancelledAdmin:
+        return 'Cancelled by Platform (Credit Returned)';
+      case BookingStatus.rejected:
+        return 'Declined by Trainer';
+      case BookingStatus.expired:
+        return 'Hold Expired';
+    }
+  }
+
+  /// Explicit 60-minute duration string
+  String get sessionDurationDisplay => '60 Minutes (Personal 1-on-1)';
   /// Minutes remaining until reservation expires
   int get minutesRemaining {
     if (expiresAt == null) return 0;
@@ -353,6 +387,11 @@ class BookingModel {
     String? meetingLocation,
     String? locationReference,
     String? notes,
+    bool? isRescheduled,
+    DateTime? rescheduledAt,
+    DateTime? previousSessionDate,
+    String? previousStartTime,
+    String? previousEndTime,
     DateTime? reservedAt,
     DateTime? expiresAt,
     DateTime? confirmedAt,
@@ -394,6 +433,11 @@ class BookingModel {
       meetingLocation: meetingLocation ?? this.meetingLocation,
       locationReference: locationReference ?? this.locationReference,
       notes: notes ?? this.notes,
+      isRescheduled: isRescheduled ?? this.isRescheduled,
+      rescheduledAt: rescheduledAt ?? this.rescheduledAt,
+      previousSessionDate: previousSessionDate ?? this.previousSessionDate,
+      previousStartTime: previousStartTime ?? this.previousStartTime,
+      previousEndTime: previousEndTime ?? this.previousEndTime,
       reservedAt: reservedAt ?? this.reservedAt,
       expiresAt: expiresAt ?? this.expiresAt,
       confirmedAt: confirmedAt ?? this.confirmedAt,
@@ -441,6 +485,11 @@ class BookingModel {
       'meetingLocation': meetingLocation,
       'locationReference': locationReference ?? meetingLocation,
       'notes': notes,
+      'isRescheduled': isRescheduled,
+      'rescheduledAt': rescheduledAt != null ? Timestamp.fromDate(rescheduledAt!) : null,
+      'previousSessionDate': previousSessionDate != null ? Timestamp.fromDate(previousSessionDate!) : null,
+      'previousStartTime': previousStartTime,
+      'previousEndTime': previousEndTime,
       'reservedAt': reservedAt != null ? Timestamp.fromDate(reservedAt!) : null,
       'expiresAt': expiresAt != null ? Timestamp.fromDate(expiresAt!) : null,
       'confirmedAt': confirmedAt != null ? Timestamp.fromDate(confirmedAt!) : null,
@@ -491,6 +540,11 @@ class BookingModel {
       meetingLocation: map['meetingLocation'] as String?,
       locationReference: map['locationReference'] as String? ?? map['meetingLocation'] as String?,
       notes: map['notes'] as String?,
+      isRescheduled: map['isRescheduled'] as bool? ?? false,
+      rescheduledAt: parseTimestamp(map['rescheduledAt']),
+      previousSessionDate: parseTimestamp(map['previousSessionDate']),
+      previousStartTime: map['previousStartTime'] as String?,
+      previousEndTime: map['previousEndTime'] as String?,
       reservedAt: parseTimestamp(map['reservedAt']),
       expiresAt: parseTimestamp(map['expiresAt']),
       confirmedAt: parseTimestamp(map['confirmedAt']),

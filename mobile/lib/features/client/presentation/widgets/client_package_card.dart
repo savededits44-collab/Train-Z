@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../../../../services/credit_service.dart';
 import '../../../../shared/models/training_plan_model.dart';
 import '../../../../widgets/app_widgets.dart';
+import '../screens/client_payment_screen.dart';
 
 /// Card displaying an official fixed platform package from Firestore.
 class ClientPackageCard extends StatefulWidget {
@@ -23,154 +22,20 @@ class ClientPackageCard extends StatefulWidget {
 }
 
 class _ClientPackageCardState extends State<ClientPackageCard> {
-  bool _purchasing = false;
-
   void _showPurchaseConfirmation() {
-    final sf = scaleFactor(context);
-
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: kDark,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Iconsax.card, color: kLime, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Confirm Package',
-                  style: TextStyle(
-                    fontFamily: 'Syne',
-                    fontSize: (18.0 * sf).clamp(16.0, 20.0),
-                    fontWeight: FontWeight.w800,
-                    color: kDark,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'You are activating the ${widget.plan.title} package.',
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: kDark,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFEEEEEE)),
-                ),
-                child: Column(
-                  children: [
-                    _DialogRow(label: 'Total Sessions', value: '${widget.plan.sessionsCount} Sessions (60m)'),
-                    const SizedBox(height: 6),
-                    _DialogRow(label: 'Validity', value: '${widget.plan.validityDays} Days'),
-                    const SizedBox(height: 6),
-                    _DialogRow(label: 'Price per Session', value: '₹${widget.plan.pricePerSession.round()}'),
-                    const Divider(height: 16),
-                    _DialogRow(
-                      label: 'Total Amount',
-                      value: '₹${widget.plan.price}',
-                      isBold: true,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Your session credit balance will be credited instantly upon confirmation.',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 11,
-                  color: kGrey,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: kGrey)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                _executePurchase();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kDark,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              ),
-              child: const Text(
-                'Confirm & Credit',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kLime),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _executePurchase() async {
-    setState(() => _purchasing = true);
     HapticFeedback.mediumImpact();
-
-    try {
-      final paymentId = 'pay_${DateTime.now().millisecondsSinceEpoch}';
-
-      await CreditService().recordPurchase(
-        clientId: widget.clientId,
-        sessionCount: widget.plan.sessionsCount,
-        paymentId: paymentId,
-        planId: widget.plan.id,
-      );
-
-      if (!mounted) return;
-
-      widget.onPurchased?.call();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Success! +${widget.plan.sessionsCount} session credits added to your account.',
-            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w600),
-          ),
-          backgroundColor: const Color(0xFF16A34A),
-          behavior: SnackBarBehavior.floating,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ClientPaymentScreen(
+          plan: widget.plan,
+          clientId: widget.clientId,
+          clientName: 'TRAIN Z Athlete',
         ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Payment/credit failed: $e'),
-          backgroundColor: const Color(0xFFE53935),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _purchasing = false);
-    }
+      ),
+    ).then((_) {
+      if (mounted) widget.onPurchased?.call();
+    });
   }
 
   @override
@@ -336,7 +201,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _purchasing ? null : _showPurchaseConfirmation,
+                onPressed: _showPurchaseConfirmation,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isPopular ? kLime : kDark,
                   elevation: 0,
@@ -345,24 +210,15 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: _purchasing
-                    ? SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: isPopular ? kDark : Colors.white,
-                        ),
-                      )
-                    : Text(
-                        'Select Package',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: (12.5 * sf).clamp(11.5, 14.0),
-                          fontWeight: FontWeight.w800,
-                          color: isPopular ? kDark : Colors.white,
-                        ),
-                      ),
+                child: Text(
+                  'Select Package',
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: (12.5 * sf).clamp(11.5, 14.0),
+                    fontWeight: FontWeight.w800,
+                    color: isPopular ? kDark : Colors.white,
+                  ),
+                ),
               ),
             ),
           ],
@@ -398,41 +254,6 @@ class _FeatureLine extends StatelessWidget {
               fontSize: (11.0 * sf).clamp(10.0, 12.5),
               color: isDark ? const Color(0xFFDDDDDD) : const Color(0xFF444444),
             ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _DialogRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool isBold;
-
-  const _DialogRow({required this.label, required this.value, this.isBold = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: isBold ? 13 : 12,
-            color: isBold ? kDark : kGrey,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontFamily: 'Syne',
-            fontSize: isBold ? 15 : 12,
-            color: isBold ? kDark : const Color(0xFF222222),
-            fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
           ),
         ),
       ],

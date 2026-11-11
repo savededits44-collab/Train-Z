@@ -27,7 +27,7 @@ class AppConstants {
       'sessions': 1,
       'validityDays': 1,
       'sessionDurationMinutes': 60,
-      'description': 'Single 60-min personal coaching session to jumpstart your fitness journey.',
+      'description': 'Single 60-min personal training session to jumpstart your fitness journey.',
       'popular': false,
     },
     {
@@ -77,40 +77,43 @@ class AppConstants {
       'sessions': 150,
       'validityDays': 180,
       'sessionDurationMinutes': 60,
-      'description': '150 sessions for complete physical and lifestyle transformation with elite coaches.',
+      'description': '150 sessions for complete physical and lifestyle transformation with elite trainers.',
       'popular': false,
     },
   ];
 
-  /// Initial launch cities in India
+  /// TRAIN Z Exclusive Operating Location (Pune-Only)
+  static const String operatingCity = 'Pune';
+  static const String operatingState = 'Maharashtra';
+  static const String operatingCountry = 'India';
+  static const String operatingLocationDisplay = 'Pune, Maharashtra';
+
+  /// Standard Pune Neighborhood Service Areas
+  static const List<String> puneServiceAreas = [
+    'Koregaon Park',
+    'Baner',
+    'Kothrud',
+    'Kalyani Nagar',
+    'Viman Nagar',
+    'Aundh',
+    'Shivaji Nagar',
+    'Wakad',
+    'Hinjawadi',
+    'Magarpatta',
+    'Senapati Bapat Road',
+    'Bavdhan',
+  ];
+
+  // Default Platform Launch Location
+  static const String defaultCityId = 'city_pune';
+  static const String defaultCityName = 'Pune';
+  static const String defaultStateName = 'Maharashtra';
+  static const String defaultCountryName = 'India';
+
+  /// Initial launch cities in India.
+  /// Pune is ACTIVE for initial launch.
+  /// Mumbai, Delhi NCR, Bengaluru, and Hyderabad are registered for future expansion (INACTIVE).
   static const List<Map<String, dynamic>> initialLaunchCities = [
-    {
-      'id': 'city_mumbai',
-      'name': 'Mumbai',
-      'state': 'Maharashtra',
-      'country': 'India',
-      'isActive': true,
-      'lat': 19.0760,
-      'lng': 72.8777,
-    },
-    {
-      'id': 'city_delhi_ncr',
-      'name': 'Delhi NCR',
-      'state': 'Delhi',
-      'country': 'India',
-      'isActive': true,
-      'lat': 28.6139,
-      'lng': 77.2090,
-    },
-    {
-      'id': 'city_bengaluru',
-      'name': 'Bengaluru',
-      'state': 'Karnataka',
-      'country': 'India',
-      'isActive': true,
-      'lat': 12.9716,
-      'lng': 77.5946,
-    },
     {
       'id': 'city_pune',
       'name': 'Pune',
@@ -121,11 +124,38 @@ class AppConstants {
       'lng': 73.8567,
     },
     {
+      'id': 'city_mumbai',
+      'name': 'Mumbai',
+      'state': 'Maharashtra',
+      'country': 'India',
+      'isActive': false,
+      'lat': 19.0760,
+      'lng': 72.8777,
+    },
+    {
+      'id': 'city_delhi_ncr',
+      'name': 'Delhi NCR',
+      'state': 'Delhi',
+      'country': 'India',
+      'isActive': false,
+      'lat': 28.6139,
+      'lng': 77.2090,
+    },
+    {
+      'id': 'city_bengaluru',
+      'name': 'Bengaluru',
+      'state': 'Karnataka',
+      'country': 'India',
+      'isActive': false,
+      'lat': 12.9716,
+      'lng': 77.5946,
+    },
+    {
       'id': 'city_hyderabad',
       'name': 'Hyderabad',
       'state': 'Telangana',
       'country': 'India',
-      'isActive': true,
+      'isActive': false,
       'lat': 17.3850,
       'lng': 78.4867,
     },

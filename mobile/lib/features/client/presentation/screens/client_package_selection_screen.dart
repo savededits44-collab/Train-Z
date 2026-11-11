@@ -8,6 +8,7 @@ import '../../../../shared/models/training_plan_model.dart';
 import '../../../../shared/models/user_model.dart';
 import '../../../../widgets/app_widgets.dart';
 import 'client_booking_schedule_screen.dart';
+import 'client_payment_screen.dart';
 
 /// Screen allowing clients to view, compare and select a training package before booking a personal trainer.
 /// Fetches all 6 official packages from the Firestore `training_plans` collection with transparent
@@ -122,7 +123,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                   _buildSummaryRow('Validity Period', '${plan.validityDays} Days from activation'),
                   if (widget.trainer != null) ...[
                     const Divider(height: 20, color: Color(0xFFE5E5E5)),
-                    _buildSummaryRow('Assigned Coach', widget.trainer!.displayName),
+                    _buildSummaryRow('Assigned Trainer', widget.trainer!.displayName),
                     const SizedBox(height: 6),
                     _buildSummaryRow('Training Area', widget.trainer!.displayLocation),
                   ],
@@ -149,7 +150,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                     child: Text(
                       widget.trainer != null
                           ? 'Next Step: Pick your first 1-on-1 session date and time slot from ${widget.trainer!.displayName}\'s schedule.'
-                          : 'Next Step: Select an approved personal trainer matching your city and gender.',
+                          : 'Next Step: Select an available personal trainer.',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: (11.0 * sf).clamp(10.0, 12.5),
@@ -183,7 +184,16 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                     ),
                   );
                 } else {
-                  Navigator.pop(context); // Return to home / find trainer
+                  // Package purchased without pre-selected trainer: purchase & book later
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ClientPaymentScreen(
+                        plan: plan,
+                        clientId: widget.clientId ?? 'client_active',
+                      ),
+                    ),
+                  );
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -192,7 +202,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(
-                widget.trainer != null ? 'Continue to Schedule Session' : 'Done & Browse Trainers',
+                widget.trainer != null ? 'Continue to Schedule Session' : 'Proceed to Payment & Book Later',
                 style: const TextStyle(
                   fontFamily: 'Syne',
                   fontSize: 14,
@@ -382,7 +392,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
             ),
             const SizedBox(height: 4),
             Text(
-              'Fixed platform pricing for 1-on-1 personal coaching. All sessions are 60 minutes with 12-hour refund protection.',
+              'Fixed platform pricing for 1-on-1 personal training. All sessions are 60 minutes with 12-hour cancellation protection.',
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: (11.5 * sf).clamp(10.5, 13.0),
@@ -590,8 +600,8 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                   const SizedBox(height: 10),
                   _buildPolicyRow(
                     icon: Icons.verified_user_outlined,
-                    title: 'Strict Gender-Matched Coaching',
-                    subtitle: 'Male clients train with male coaches only, and female clients train with female coaches only.',
+                    title: 'Certified Personal Trainers',
+                    subtitle: 'All platform trainers are verified for qualifications, background checks, and professional standards.',
                     sf: sf,
                   ),
                 ],

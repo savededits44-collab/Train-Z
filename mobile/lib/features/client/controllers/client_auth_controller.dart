@@ -72,7 +72,7 @@ class ClientAuthController extends ChangeNotifier {
     }
 
     if (gender == null) {
-      _setError('Please select your gender for personal trainer matching.');
+      _setError('Please select your gender to complete registration.');
       return false;
     }
 

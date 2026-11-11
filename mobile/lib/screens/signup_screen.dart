@@ -2,9 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../features/client/client_feature.dart';
 import '../services/auth_service.dart';
 import '../widgets/app_widgets.dart';
-import 'client/client_dashboard.dart';
 import 'login_screen.dart';
 import 'onboarding/role_selection_screen.dart';
 import 'trainer/trainer_dashboard.dart';
@@ -67,7 +67,7 @@ class _SignupScreenState extends State<SignupScreen>
         MaterialPageRoute(
           builder: (_) => role == 'trainer'
               ? const TrainerDashboard()
-              : const ClientDashboard(),
+              : const ClientHomeScreen(),
         ),
       );
     } else {

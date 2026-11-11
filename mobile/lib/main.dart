@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'routing/app_router.dart';
+import 'services/location_service.dart';
 import 'splashscreen/splashscreen.dart';
 import 'theme/app_theme.dart';
 
@@ -13,6 +14,13 @@ void main() async {
     await Firebase.initializeApp();
   } catch (e) {
     debugPrint('Firebase initialization notice: $e');
+  }
+
+  // Initialize central application-wide location service (defaults to Pune, Maharashtra)
+  try {
+    await LocationService.instance.initialize();
+  } catch (e) {
+    debugPrint('LocationService initialization notice: $e');
   }
 
   // Set system UI style for ultra-clean edge-to-edge dark luxury

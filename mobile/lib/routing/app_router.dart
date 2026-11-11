@@ -38,6 +38,11 @@ class AppRouter {
   static const String clientPackageSelection = '/client/package-selection';
   static const String clientBookingSchedule = '/client/booking-schedule';
   static const String clientBookingConfirmation = '/client/booking-confirmation';
+  static const String clientPayment = '/client/payment';
+  static const String clientPaymentReceipt = '/client/payment-receipt';
+  static const String clientPaymentHistory = '/client/payment-history';
+  static const String clientMyBookings = '/client/my-bookings';
+  static const String clientBookingDetail = '/client/booking-detail';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -117,6 +122,49 @@ class AppRouter {
             booking: args['booking'],
             trainer: args['trainer'],
             plan: args['plan'],
+          ),
+        );
+      case clientPayment:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientPaymentScreen(
+            plan: args['plan'],
+            trainer: args['trainer'],
+            booking: args['booking'],
+            clientId: args['clientId'] ?? '',
+            clientName: args['clientName'] ?? 'TRAIN Z Athlete',
+            clientEmail: args['clientEmail'] ?? 'athlete@trainz.com',
+            clientPhone: args['clientPhone'] ?? '+91 98201 54321',
+          ),
+        );
+      case clientPaymentReceipt:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientPaymentReceiptScreen(
+            payment: args['payment'],
+            trainer: args['trainer'],
+            booking: args['booking'],
+          ),
+        );
+      case clientPaymentHistory:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientPaymentHistoryScreen(
+            clientId: args['clientId'] ?? '',
+          ),
+        );
+      case clientMyBookings:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientMyBookingsScreen(
+            clientId: args['clientId'] ?? '',
+          ),
+        );
+      case clientBookingDetail:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientBookingDetailScreen(
+            booking: args['booking'],
           ),
         );
 

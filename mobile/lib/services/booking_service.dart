@@ -165,7 +165,7 @@ class BookingService extends ChangeNotifier {
         sessionDate: now,
         startTime: '05:30 PM',
         endTime: '06:30 PM',
-        meetingLocation: 'Personal Training Zone, Mumbai',
+        meetingLocation: 'Personal Training Zone',
         notes: 'Rotator cuff warmups and explosive plyometrics.',
         status: BookingStatus.confirmed,
         createdAt: now.subtract(const Duration(days: 27)),

@@ -59,7 +59,7 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
               ),
               SizedBox(height: 8),
               Text(
-                'Help us match you with the best coaches and plans.',
+                'Set your fitness goals to find the right training packages and trainers.',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: (13.0 * sf).clamp(11.0, 14.0),

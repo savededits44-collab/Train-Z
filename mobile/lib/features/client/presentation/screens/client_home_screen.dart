@@ -6,6 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../services/credit_service.dart';
 import '../../../../services/firestore_service.dart';
+import '../../../../services/location_service.dart';
 import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/client_profile_model.dart';
 import '../../../../shared/models/session_credit_model.dart';
@@ -20,6 +21,7 @@ import '../widgets/client_package_card.dart';
 import '../widgets/client_trainer_card.dart';
 import '../widgets/client_upcoming_session_card.dart';
 import '../widgets/trainer_filter_sheet.dart';
+import 'client_my_bookings_screen.dart';
 import 'client_profile_setup_screen.dart';
 
 /// Comprehensive Client Home Dashboard for TRAIN Z.
@@ -113,74 +115,74 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         final clientGender = clientUser?.gender ?? Gender.male;
         final displayName = clientUser?.displayName ?? user?.displayName ?? 'Athlete';
 
-        return StreamBuilder<ClientProfileModel?>(
-          stream: FirestoreService().streamClientProfile(uid),
-          builder: (context, profileSnap) {
-            final clientProfile = profileSnap.data;
-            final selectedCityId = clientProfile?.preferredCityId ?? 'city_mumbai';
-            final preferredVenue = clientProfile?.preferredTrainingLocation ?? 'Commercial Gym';
+        final loc = LocationService.instance;
+        return ListenableBuilder(
+          listenable: loc,
+          builder: (context, _) {
+            final selectedCityId = loc.currentCityId;
+            final cityName = loc.currentCityName;
 
-            final cityName = AppConstants.initialLaunchCities.firstWhere(
-              (c) => c['id'] == selectedCityId,
-              orElse: () => {'name': 'Mumbai'},
-            )['name'] as String;
+            return StreamBuilder<ClientProfileModel?>(
+              stream: FirestoreService().streamClientProfile(uid),
+              builder: (context, profileSnap) {
+                final clientProfile = profileSnap.data;
+                final preferredVenue = clientProfile?.preferredTrainingLocation ?? loc.currentVenue;
 
-            return Scaffold(
-              backgroundColor: Colors.white,
-              appBar: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                title: const AppLogo(fontSize: 16),
-                actions: [
-                  // Location Pill Action
-                  InkWell(
-                    onTap: () {
-                      ClientLocationSheet.show(
-                        context,
-                        clientId: uid,
-                        currentCityId: selectedCityId,
-                        currentVenue: preferredVenue,
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF7F7F7),
+                return Scaffold(
+                  backgroundColor: Colors.white,
+                  appBar: AppBar(
+                    backgroundColor: Colors.white,
+                    elevation: 0,
+                    scrolledUnderElevation: 0,
+                    title: const AppLogo(fontSize: 16),
+                    actions: [
+                      // Central Location Pill (Displays active city, interactive city selection)
+                      InkWell(
+                        onTap: () {
+                          ClientLocationSheet.show(
+                            context,
+                            clientId: uid,
+                            currentCityId: selectedCityId,
+                            currentVenue: preferredVenue,
+                          );
+                        },
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE5E5E5)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Iconsax.location, size: 14, color: kDark),
-                          const SizedBox(width: 4),
-                          Text(
-                            cityName,
-                            style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                              fontWeight: FontWeight.w700,
-                              color: kDark,
-                            ),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF7F7F7),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFE5E5E5)),
                           ),
-                          const SizedBox(width: 2),
-                          const Icon(Icons.arrow_drop_down, size: 16, color: kDark),
-                        ],
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.location_on, size: 13, color: kDark),
+                              const SizedBox(width: 4),
+                              Text(
+                                loc.currentFormattedLocation,
+                                style: TextStyle(
+                                  fontFamily: 'Syne',
+                                  fontSize: (11.5 * sf).clamp(10.5, 13.0),
+                                  fontWeight: FontWeight.w700,
+                                  color: kDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 10),
+                      // Sign Out
+                      IconButton(
+                        icon: const Icon(Iconsax.logout, color: kDark, size: 20),
+                        tooltip: 'Sign Out',
+                        onPressed: () => showLogoutDialog(context),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  // Sign Out
-                  IconButton(
-                    icon: const Icon(Iconsax.logout, color: kDark, size: 20),
-                    tooltip: 'Sign Out',
-                    onPressed: () => showLogoutDialog(context),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ),
               body: IndexedStack(
                 index: _currentTab,
                 children: [
@@ -208,12 +210,10 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     cityName: cityName,
                   ),
 
-                  // TAB 2: Bookings
-                  _buildBookingsTab(
-                    context: context,
-                    sf: sf,
-                    uid: uid,
-                    clientGender: clientGender,
+                  // TAB 2: Bookings (Full My Bookings section)
+                  ClientMyBookingsScreen(
+                    clientId: uid,
+                    onBookNew: () => _switchTab(1),
                   ),
 
                   // TAB 3: Messages
@@ -248,6 +248,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         );
       },
     );
+  },
+);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -268,7 +270,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   }) {
     final w = MediaQuery.of(context).size.width;
     final hPad = (w * 0.065).clamp(18.0, 28.0);
-    final genderStr = clientGender == Gender.female ? 'Female' : 'Male';
 
     return SingleChildScrollView(
       controller: _homeScrollController,
@@ -386,7 +387,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 }
               },
               decoration: InputDecoration(
-                hintText: 'Search $genderStr trainers by name or specialty...',
+                hintText: 'Search trainers by name, specialty, or gym...',
                 hintStyle: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: (12.0 * sf).clamp(11.0, 13.5),
@@ -408,7 +409,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
 
           const SizedBox(height: 16),
 
-          // ── 3. Gender Alignment & Area Security Banner ──
+          // ── 3. Location & Workout Service Banner ──
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -424,8 +425,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     color: kDark,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
-                    clientGender == Gender.female ? Icons.female : Icons.male,
+                  child: const Icon(
+                    Iconsax.location,
                     size: 16,
                     color: kLime,
                   ),
@@ -436,7 +437,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Matching with $genderStr Coaches in $cityName',
+                        'Personal Training',
                         style: TextStyle(
                           fontFamily: 'Syne',
                           fontSize: (12.0 * sf).clamp(11.0, 13.5),
@@ -446,7 +447,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Venue: $preferredVenue • Strict 1-on-1 backend verified.',
+                        'Preferred Venue: $preferredVenue • Verified 1-on-1 sessions.',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: (10.0 * sf).clamp(9.0, 11.5),
@@ -491,16 +492,21 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'SESSION CREDITS',
-                          style: TextStyle(
-                            fontFamily: 'Syne',
-                            fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFFAAAAAA),
-                            letterSpacing: 1.0,
+                        Flexible(
+                          child: Text(
+                            'SESSION CREDITS',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFFAAAAAA),
+                              letterSpacing: 0.8,
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
@@ -511,7 +517,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             '60 Min / Session',
                             style: TextStyle(
                               fontFamily: 'Poppins',
-                              fontSize: (10.0 * sf).clamp(9.0, 11.5),
+                              fontSize: (9.5 * sf).clamp(9.0, 11.0),
                               fontWeight: FontWeight.w700,
                               color: kLime,
                             ),
@@ -522,34 +528,40 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text(
-                              '$available',
-                              style: TextStyle(
-                                fontFamily: 'Syne',
-                                fontSize: (42.0 * sf).clamp(34.0, 50.0),
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
+                        Expanded(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text(
+                                '$available',
+                                style: TextStyle(
+                                  fontFamily: 'Syne',
+                                  fontSize: (38.0 * sf).clamp(30.0, 44.0),
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Available Sessions',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: (13.0 * sf).clamp(12.0, 15.0),
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFFCCCCCC),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  'Available Sessions',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: (12.0 * sf).clamp(11.0, 13.5),
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFFCCCCCC),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         InkWell(
                           onTap: _scrollToPackages,
                           borderRadius: BorderRadius.circular(10),
@@ -722,7 +734,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Book a certified coach to lock in your next training session.',
+                        'Book a personal trainer to schedule your next workout session.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Poppins',
@@ -769,10 +781,10 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
 
           const SizedBox(height: 26),
 
-          // ── 7. Featured Trainers Section (Gender & Area Matched) ──
+          // ── 7. Featured Trainers Section ──
           _SectionHeader(
-            title: 'VERIFIED 1-ON-1 COACHES',
-            actionLabel: 'See All ($genderStr)',
+            title: 'VERIFIED PERSONAL TRAINERS',
+            actionLabel: 'See All',
             sf: sf,
             onAction: () => _switchTab(1),
           ),
@@ -809,7 +821,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       const Icon(Iconsax.user_search, size: 28, color: Color(0xFF888888)),
                       const SizedBox(height: 10),
                       Text(
-                        'No approved $genderStr coaches in $cityName yet',
+                        'No trainers found',
                         style: TextStyle(
                           fontFamily: 'Syne',
                           fontSize: (13.5 * sf).clamp(12.5, 15.0),
@@ -819,31 +831,12 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Try switching to Mumbai or Bengaluru, or explore coaches across other launch cities.',
+                        'Trainers are currently onboarding in this area. Check back shortly!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: (11.0 * sf).clamp(10.0, 12.5),
                           color: kGrey,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      OutlinedButton(
-                        onPressed: () {
-                          ClientLocationSheet.show(
-                            context,
-                            clientId: uid,
-                            currentCityId: selectedCityId,
-                            currentVenue: preferredVenue,
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: kDark),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        child: const Text(
-                          'Switch City',
-                          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark),
                         ),
                       ),
                     ],
@@ -940,12 +933,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     required String selectedCityId,
     required String cityName,
   }) {
-    final genderStr = clientGender == Gender.female ? 'Female' : 'Male';
     final effectiveCityId = _filterState.cityId ?? selectedCityId;
-    final effectiveCityName = AppConstants.initialLaunchCities.firstWhere(
-      (c) => c['id'] == effectiveCityId,
-      orElse: () => {'name': cityName},
-    )['name'] as String;
 
     final quickSpecialties = [
       'All',
@@ -972,7 +960,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Find Your Coach',
+                      'Discover Trainers',
                       style: TextStyle(
                         fontFamily: 'Syne',
                         fontSize: (22.0 * sf).clamp(18.0, 26.0),
@@ -980,9 +968,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         color: kDark,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
-                      'Approved $genderStr trainers in $effectiveCityName • Strict 1-on-1 verified.',
+                      'Explore professional trainers, compare experience and find training that fits your fitness goals.',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: (11.5 * sf).clamp(10.5, 13.0),
@@ -1008,7 +996,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               controller: _findTrainerSearchController,
               onChanged: (val) => setState(() => _searchFilter = val.trim().toLowerCase()),
               decoration: InputDecoration(
-                hintText: 'Search by coach name, specialty, goal or gym...',
+                hintText: 'Search by trainer name, specialization, goal or gym...',
                 hintStyle: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: (12.0 * sf).clamp(11.0, 13.5),
@@ -1444,7 +1432,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           ),
                           const SizedBox(height: 14),
                           Text(
-                            'No matching coaches found',
+                            'No trainers found',
                             style: TextStyle(
                               fontFamily: 'Syne',
                               fontSize: (15.0 * sf).clamp(14.0, 17.0),
@@ -1454,7 +1442,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'No verified $genderStr coaches match your search or filters in $effectiveCityName. Try expanding your criteria.',
+                            'No verified trainers match your search or filters. Try expanding your criteria.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: 'Poppins',
@@ -1560,139 +1548,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TAB 2: BOOKINGS
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  Widget _buildBookingsTab({
-    required BuildContext context,
-    required double sf,
-    required String uid,
-    required Gender clientGender,
-  }) {
-    return DefaultTabController(
-      length: 3,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'My Workouts',
-                      style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontSize: (22.0 * sf).clamp(18.0, 26.0),
-                        fontWeight: FontWeight.w800,
-                        color: kDark,
-                      ),
-                    ),
-                    Text(
-                      'Manage confirmed sessions and booking requests.',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                        color: kGrey,
-                      ),
-                    ),
-                  ],
-                ),
-                IconButton(
-                  icon: const Icon(Iconsax.calendar_add, color: kDark),
-                  tooltip: 'Book New Session',
-                  onPressed: () => _switchTab(1),
-                ),
-              ],
-            ),
-          ),
-
-          // Sub-tabs
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF7F7F7),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TabBar(
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              indicator: BoxDecoration(
-                color: kDark,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              labelColor: kLime,
-              unselectedLabelColor: kGrey,
-              labelStyle: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 12),
-              unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12),
-              tabs: const [
-                Tab(text: 'Confirmed'),
-                Tab(text: 'Pending'),
-                Tab(text: 'History'),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Expanded(
-            child: StreamBuilder<List<BookingModel>>(
-              stream: FirestoreService().streamClientBookings(uid),
-              builder: (context, bookingSnap) {
-                if (bookingSnap.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: kDark));
-                }
-
-                final all = bookingSnap.data ?? [];
-                final confirmed = all.where((b) => b.status == BookingStatus.confirmed).toList();
-                final pending = all.where((b) => b.status == BookingStatus.pending).toList();
-                final history = all.where((b) =>
-                    b.status != BookingStatus.confirmed &&
-                    b.status != BookingStatus.pending).toList();
-
-                return TabBarView(
-                  children: [
-                    _BookingListTab(
-                      bookings: confirmed,
-                      clientId: uid,
-                      emptyTitle: 'No confirmed upcoming workouts',
-                      emptySubtitle: 'Book a certified trainer to see sessions here.',
-                      sf: sf,
-                      onBookNew: () => _switchTab(1),
-                      onCancelled: () => setState(() {}),
-                    ),
-                    _BookingListTab(
-                      bookings: pending,
-                      clientId: uid,
-                      emptyTitle: 'No pending booking requests',
-                      emptySubtitle: 'When you request a session, it appears here until coach approval.',
-                      sf: sf,
-                      onBookNew: () => _switchTab(1),
-                      onCancelled: () => setState(() {}),
-                    ),
-                    _BookingListTab(
-                      bookings: history,
-                      clientId: uid,
-                      emptyTitle: 'No session history yet',
-                      emptySubtitle: 'Completed workouts and refunded cancellations will appear here.',
-                      sf: sf,
-                      onBookNew: () => _switchTab(1),
-                      onCancelled: () => setState(() {}),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
   // TAB 3: MESSAGES
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1763,12 +1618,12 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               stream: FirestoreService().streamClientBookings(uid),
               builder: (context, snap) {
                 final bookings = snap.data ?? [];
-                final coachNames = <String>{};
+                final trainerNames = <String>{};
                 for (final b in bookings) {
-                  coachNames.add(b.displayTrainerName);
+                  trainerNames.add(b.displayTrainerName);
                 }
 
-                if (coachNames.isEmpty) {
+                if (trainerNames.isEmpty) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
@@ -1778,7 +1633,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           const Icon(Iconsax.message_notif, size: 44, color: Color(0xFFB0B0B0)),
                           const SizedBox(height: 14),
                           Text(
-                            'No active chats yet',
+                            'Your conversations with trainers will appear here.',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: 'Syne',
                               fontSize: (14.5 * sf).clamp(13.0, 16.5),
@@ -1786,9 +1642,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                               color: kDark,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Text(
-                            'Book a coach to discuss workout routines, meeting venues, and progressive targets.',
+                            'Once you connect with a trainer, your conversations will appear here.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: 'Poppins',
@@ -1796,16 +1652,16 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                               color: kGrey,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 18),
                           ElevatedButton(
                             onPressed: () => _switchTab(1),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: kDark,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
                             ),
                             child: const Text(
-                              'Browse Trainers',
+                              'Find a Trainer',
                               style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kLime),
                             ),
                           ),
@@ -1817,7 +1673,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
 
                 return ListView(
                   physics: const BouncingScrollPhysics(),
-                  children: coachNames.map((name) {
+                  children: trainerNames.map((name) {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 10),
                       padding: const EdgeInsets.all(14),
@@ -1910,7 +1766,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     required String cityName,
     required String preferredVenue,
   }) {
-    final genderStr = clientGender == Gender.female ? 'Female' : 'Male';
     final completion = clientProfile?.calculateCompletion(
           hasName: clientUser?.displayName != null && clientUser!.displayName!.trim().length >= 2,
           hasPhone: clientUser?.phoneNumber != null && clientUser!.phoneNumber!.trim().isNotEmpty,
@@ -2065,7 +1920,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
 
           const SizedBox(height: 14),
 
-          // Gender Lock Badge (Section 5)
+          // Account Profile Verified Badge
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -2073,10 +1928,10 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: const Color(0xFFEEEEEE)),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                Icon(clientGender == Gender.female ? Icons.female : Icons.male, size: 20, color: kDark),
-                const SizedBox(width: 12),
+                Icon(Iconsax.shield_tick, size: 20, color: kDark),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -2084,16 +1939,16 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       Row(
                         children: [
                           Text(
-                            'Gender: $genderStr Athlete',
-                            style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+                            'Account Profile Verified',
+                            style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
                           ),
-                          const SizedBox(width: 6),
-                          const Icon(Icons.lock, size: 12, color: kGrey),
+                          SizedBox(width: 6),
+                          Icon(Icons.verified, size: 14, color: Color(0xFF16A34A)),
                         ],
                       ),
-                      const SizedBox(height: 2),
-                      const Text(
-                        'Locked to protect 1-on-1 coach matching rules.',
+                      SizedBox(height: 2),
+                      Text(
+                        'Platform profile verified for 1-on-1 personal training.',
                         style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: kGrey),
                       ),
                     ],
@@ -2128,7 +1983,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         ClientLocationSheet.show(
                           context,
                           clientId: uid,
-                          currentCityId: clientProfile?.preferredCityId ?? 'city_mumbai',
+                          currentCityId: LocationService.instance.currentCityId,
                           currentVenue: preferredVenue,
                         );
                       },
@@ -2233,14 +2088,18 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontFamily: 'Syne',
-            fontSize: (11.5 * sf).clamp(10.5, 13.0),
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF888888),
-            letterSpacing: 0.8,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: 'Syne',
+              fontSize: (11.5 * sf).clamp(10.5, 13.0),
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF888888),
+              letterSpacing: 0.8,
+            ),
           ),
         ),
         if (actionLabel != null)
@@ -2318,91 +2177,6 @@ class _QuickActionCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _BookingListTab extends StatelessWidget {
-  final List<BookingModel> bookings;
-  final String clientId;
-  final String emptyTitle;
-  final String emptySubtitle;
-  final double sf;
-  final VoidCallback onBookNew;
-  final VoidCallback onCancelled;
-
-  const _BookingListTab({
-    required this.bookings,
-    required this.clientId,
-    required this.emptyTitle,
-    required this.emptySubtitle,
-    required this.sf,
-    required this.onBookNew,
-    required this.onCancelled,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (bookings.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Iconsax.calendar_remove, size: 40, color: Color(0xFFB0B0B0)),
-              const SizedBox(height: 12),
-              Text(
-                emptyTitle,
-                style: TextStyle(
-                  fontFamily: 'Syne',
-                  fontSize: (14.0 * sf).clamp(13.0, 16.0),
-                  fontWeight: FontWeight.w700,
-                  color: kDark,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                emptySubtitle,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                  color: kGrey,
-                ),
-              ),
-              const SizedBox(height: 14),
-              ElevatedButton.icon(
-                onPressed: onBookNew,
-                icon: const Icon(Iconsax.calendar_add, size: 15, color: kDark),
-                label: const Text(
-                  'Book a Session',
-                  style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: kDark),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kLime,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      physics: const BouncingScrollPhysics(),
-      itemCount: bookings.length,
-      itemBuilder: (context, index) {
-        final b = bookings[index];
-        return ClientUpcomingSessionCard(
-          booking: b,
-          clientId: clientId,
-          onCancelled: onCancelled,
-        );
-      },
     );
   }
 }

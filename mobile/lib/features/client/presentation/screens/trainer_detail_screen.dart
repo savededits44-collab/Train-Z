@@ -92,7 +92,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'TRAIN Z enforces strict 1-on-1 gender matching to guarantee athlete privacy and platform safety.\n\n${widget.clientGender == Gender.female ? "Female" : "Male"} athletes may only view and book ${widget.clientGender == Gender.female ? "female" : "male"} coaches.',
+                  'This trainer profile is not eligible for booking with your current account profile. Only verified eligible personal trainers can be booked.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Poppins',
@@ -110,7 +110,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text(
-                    'Return to Discovery',
+                    'Return to Trainers',
                     style: TextStyle(fontFamily: 'Syne', color: Colors.white, fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -183,12 +183,12 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
           // ── Share Profile Button ──
           IconButton(
             icon: const Icon(Iconsax.share, color: kDark, size: 20),
-            tooltip: 'Share Coach Profile',
+            tooltip: 'Share Trainer Profile',
             onPressed: () {
-              Clipboard.setData(ClipboardData(text: 'https://trainz.app/coach/${trainer.uid}'));
+              Clipboard.setData(ClipboardData(text: 'https://trainz.app/trainer/${trainer.uid}'));
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Coach profile link copied to clipboard!'),
+                  content: Text('Trainer profile link copied to clipboard!'),
                   duration: Duration(seconds: 2),
                 ),
               );
@@ -264,7 +264,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    trainer.gymName ?? 'Certified Master Fitness Coach',
+                    trainer.gymName ?? 'Certified Personal Trainer',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: (12.5 * sf).clamp(11.5, 14.0),
@@ -357,7 +357,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   _MetricPill(
                     label: 'Experience',
                     value: trainer.experienceText,
-                    subtext: 'Verified Coach',
+                    subtext: 'Verified Trainer',
                     sf: sf,
                   ),
                   Container(width: 1, height: 36, color: const Color(0xFFE5E5E5)),
@@ -374,12 +374,12 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
             const SizedBox(height: 22),
 
             // ── 3. About Trainer & Biography ──
-            _SectionHeading(title: 'ABOUT COACH & BACKGROUND', sf: sf),
+            _SectionHeading(title: 'ABOUT TRAINER & BACKGROUND', sf: sf),
             const SizedBox(height: 8),
             Text(
               trainer.profile.bio != null && trainer.profile.bio!.isNotEmpty
                   ? trainer.profile.bio!
-                  : 'Dedicated personal fitness coach specializing in structured progressive overload, nutritional balance, movement longevity, and athletic conditioning.',
+                  : 'Dedicated personal fitness trainer specializing in structured progressive overload, nutritional balance, movement longevity, and athletic conditioning.',
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: (12.5 * sf).clamp(11.5, 14.0),
@@ -410,7 +410,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   _buildPrincipleRow(
                     icon: Icons.fitness_center_outlined,
                     title: 'Compound Lift Biomechanics',
-                    subtitle: 'Precision coaching for squat, bench, deadlift, and accessories.',
+                    subtitle: 'Precision instruction for squat, bench, deadlift, and accessories.',
                     sf: sf,
                   ),
                   const SizedBox(height: 10),
@@ -525,9 +525,9 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
             _buildServiceCard(
               title: 'Body Composition & Nutrition Guidance',
               format: 'Lifestyle Alignment',
-              duration: 'Habit Coaching',
-              description: 'Targeted caloric and macronutrient coaching aligned with your hypertrophy, fat loss, or stamina goals.',
-              icon: Iconsax.heart_circle,
+              duration: 'Nutrition Coaching',
+              description: 'Targeted caloric and nutritional guidance aligned with your hypertrophy, fat loss, or stamina goals.',
+              icon: Iconsax.activity,
               sf: sf,
             ),
 
@@ -763,7 +763,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          'Be the first athlete to book a session and share feedback for this coach!',
+                          'Be the first client to book a session and leave a review for this trainer!',
                           textAlign: TextAlign.center,
                           style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
                         ),

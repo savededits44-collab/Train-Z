@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen>
     } else if (role?.toLowerCase() == 'client') {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => const ClientProfileCompletionScreen(),
+          builder: (_) => const ClientProfileSetupScreen(),
         ),
       );
     } else {

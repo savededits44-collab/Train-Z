@@ -443,7 +443,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Fill in your verified coaching identity to show on your profile and get matched with athletes.',
+                  'Fill in your verified trainer profile to show on your profile and connect with clients seeking personal training.',
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: (12.5 * sf).clamp(11.0, 14.0),

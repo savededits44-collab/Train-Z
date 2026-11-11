@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../../../../core/constants/app_constants.dart';
+import '../../../../services/location_service.dart';
 import '../../../../widgets/app_widgets.dart';
 
 /// Filter state parameters for discovering trainers
@@ -458,20 +458,34 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                         child: DropdownButton<String?>(
                           value: _cityId,
                           isExpanded: true,
-                          hint: const Text('All Launch Cities', style: TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                          hint: Text('Current City (${LocationService.instance.currentCityName})', style: const TextStyle(fontFamily: 'Poppins', fontSize: 13)),
                           items: [
-                            const DropdownMenuItem<String?>(
+                            DropdownMenuItem<String?>(
                               value: null,
-                              child: Text('All Launch Cities', style: TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                              child: Text('Current City (${LocationService.instance.currentCityName})', style: const TextStyle(fontFamily: 'Poppins', fontSize: 13)),
                             ),
-                            ...AppConstants.initialLaunchCities.map((city) {
+                            ...LocationService.instance.allCities.map((city) {
                               return DropdownMenuItem<String?>(
-                                value: city['id'] as String,
-                                child: Text('${city['name']} (${city['state']})', style: const TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                                value: city.id,
+                                enabled: city.isActive,
+                                child: Text(
+                                  city.isActive
+                                      ? '${city.name} (${city.state})'
+                                      : '${city.name} (${city.state}) - Coming Soon',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 13,
+                                    color: city.isActive ? kDark : const Color(0xFF999999),
+                                  ),
+                                ),
                               );
                             }),
                           ],
-                          onChanged: (val) => setState(() => _cityId = val),
+                          onChanged: (val) {
+                            if (val == null || LocationService.instance.isCityActive(val)) {
+                              setState(() => _cityId = val);
+                            }
+                          },
                         ),
                       ),
                     ),

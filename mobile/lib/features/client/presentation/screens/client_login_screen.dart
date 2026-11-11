@@ -179,7 +179,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
               const SizedBox(height: 8),
 
               Text(
-                'Sign in to book sessions, review your coach schedule & track workouts.',
+                'Sign in to book sessions, review your trainer schedule & track workouts.',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: (12.5 * sf).clamp(11.0, 14.0),

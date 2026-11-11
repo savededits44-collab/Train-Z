@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../../../../core/constants/app_constants.dart';
-import '../../../../services/firestore_service.dart';
+import '../../../../services/location_service.dart';
 import '../../../../widgets/app_widgets.dart';
 
 /// Interactive modal sheet allowing clients to select their active launch city
-/// and preferred training venue in real time.
+/// and preferred training venue in real time. Synchronized through [LocationService].
 class ClientLocationSheet extends StatefulWidget {
   final String clientId;
   final String currentCityId;
@@ -24,10 +23,15 @@ class ClientLocationSheet extends StatefulWidget {
   static Future<void> show(
     BuildContext context, {
     required String clientId,
-    required String currentCityId,
+    String? currentCityId,
     String? currentVenue,
     ValueChanged<String>? onCityChanged,
   }) {
+    final effectiveCityId = (currentCityId != null && currentCityId.isNotEmpty)
+        ? currentCityId
+        : LocationService.instance.currentCityId;
+    final effectiveVenue = currentVenue ?? LocationService.instance.currentVenue;
+
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -37,8 +41,8 @@ class ClientLocationSheet extends StatefulWidget {
       ),
       builder: (_) => ClientLocationSheet(
         clientId: clientId,
-        currentCityId: currentCityId,
-        currentVenue: currentVenue,
+        currentCityId: effectiveCityId,
+        currentVenue: effectiveVenue,
         onCityChanged: onCityChanged,
       ),
     );
@@ -63,20 +67,42 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
   @override
   void initState() {
     super.initState();
-    _selectedCityId = widget.currentCityId.isNotEmpty ? widget.currentCityId : 'city_mumbai';
-    _selectedVenue = widget.currentVenue ?? 'Commercial Gym';
+    _selectedCityId = widget.currentCityId.isNotEmpty
+        ? widget.currentCityId
+        : LocationService.instance.currentCityId;
+    _selectedVenue = widget.currentVenue ?? LocationService.instance.currentVenue;
   }
 
   Future<void> _handleSave() async {
+    final locService = LocationService.instance;
+    if (!locService.isCityActive(_selectedCityId)) {
+      final inactiveCity = locService.getCityOrDefault(_selectedCityId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${inactiveCity.name} is scheduled for future platform expansion. Service is not yet available in this city.',
+            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+          ),
+          backgroundColor: const Color(0xFF1E1E24),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     setState(() => _saving = true);
     HapticFeedback.mediumImpact();
 
     try {
-      await FirestoreService().updateClientLocation(
+      final success = await locService.setCity(
+        _selectedCityId,
+        venue: _selectedVenue,
         clientId: widget.clientId,
-        cityId: _selectedCityId,
-        preferredLocation: _selectedVenue,
       );
+
+      if (!success) {
+        throw Exception('Unable to activate the selected city.');
+      }
 
       widget.onCityChanged?.call(_selectedCityId);
 
@@ -84,12 +110,12 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
       Navigator.of(context).pop();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Location updated! Displaying coaches in your selected area.',
-            style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+            'Location updated to ${locService.currentFormattedLocation}! Showing trainers in your area.',
+            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
           ),
-          backgroundColor: Color(0xFF16A34A),
+          backgroundColor: const Color(0xFF16A34A),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -143,27 +169,33 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                     child: const Icon(Iconsax.location, color: kLime, size: 20),
                   ),
                   const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Change Service Location',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                          fontWeight: FontWeight.w800,
-                          color: kDark,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Change Service Location',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (18.0 * sf).clamp(16.0, 22.0),
+                            fontWeight: FontWeight.w800,
+                            color: kDark,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Select city & venue to filter local approved coaches.',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                          color: kGrey,
+                        Text(
+                          'Select city & venue to filter local approved trainers.',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (11.5 * sf).clamp(10.5, 13.0),
+                            color: kGrey,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -171,7 +203,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
               const SizedBox(height: 22),
 
               Text(
-                'ACTIVE LAUNCH CITIES',
+                'PLATFORM LOCATIONS',
                 style: TextStyle(
                   fontFamily: 'Syne',
                   fontSize: (11.0 * sf).clamp(10.0, 12.5),
@@ -182,35 +214,55 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
               ),
               const SizedBox(height: 10),
 
-              // City List
-              ...AppConstants.initialLaunchCities.map((city) {
-                final cityId = city['id'] as String;
-                final cityName = city['name'] as String;
-                final state = city['state'] as String;
-                final isSelected = _selectedCityId == cityId;
+              // City List from LocationService
+              ...LocationService.instance.allCities.map((city) {
+                final isSelected = _selectedCityId == city.id;
+                final isActive = city.isActive;
 
                 return InkWell(
                   onTap: () {
                     HapticFeedback.selectionClick();
-                    setState(() => _selectedCityId = cityId);
+                    if (!isActive) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${city.name} will be available in upcoming expansion. Training services will launch here soon.',
+                            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                          ),
+                          duration: const Duration(seconds: 2),
+                          backgroundColor: const Color(0xFF1E1E24),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      return;
+                    }
+                    setState(() => _selectedCityId = city.id);
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFFF9FAFB) : Colors.white,
+                      color: isSelected
+                          ? const Color(0xFFF9FAFB)
+                          : (isActive ? Colors.white : const Color(0xFFFAFAFA)),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isSelected ? kDark : const Color(0xFFEEEEEE),
+                        color: isSelected
+                            ? kDark
+                            : (isActive ? const Color(0xFFEEEEEE) : const Color(0xFFE5E7EB)),
                         width: isSelected ? 1.5 : 1.0,
                       ),
                     ),
                     child: Row(
                       children: [
                         Icon(
-                          isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                          color: isSelected ? kDark : const Color(0xFFB0B0B0),
+                          isSelected
+                              ? Icons.radio_button_checked
+                              : (isActive ? Icons.radio_button_off : Icons.lock_outline),
+                          color: isSelected
+                              ? kDark
+                              : (isActive ? const Color(0xFFB0B0B0) : const Color(0xFFD1D5DB)),
                           size: 18,
                         ),
                         const SizedBox(width: 12),
@@ -218,21 +270,46 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                cityName,
-                                style: TextStyle(
-                                  fontFamily: 'Syne',
-                                  fontSize: (13.5 * sf).clamp(12.5, 15.0),
-                                  fontWeight: FontWeight.w700,
-                                  color: kDark,
-                                ),
+                              Row(
+                                children: [
+                                  Text(
+                                    city.name,
+                                    style: TextStyle(
+                                      fontFamily: 'Syne',
+                                      fontSize: (13.5 * sf).clamp(12.5, 15.0),
+                                      fontWeight: FontWeight.w700,
+                                      color: isActive ? kDark : const Color(0xFF888888),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  if (!isActive)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF3F4F6),
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                                      ),
+                                      child: const Text(
+                                        'Coming Soon',
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF6B7280),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                               Text(
-                                '$state • 1-on-1 Coaches Available',
+                                isActive
+                                    ? '${city.state} • Active Launch City'
+                                    : '${city.state} • Expansion Phase',
                                 style: TextStyle(
                                   fontFamily: 'Poppins',
                                   fontSize: (10.5 * sf).clamp(9.5, 12.0),
-                                  color: kGrey,
+                                  color: isActive ? kGrey : const Color(0xFFAAAAAA),
                                 ),
                               ),
                             ],
@@ -246,7 +323,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
-                              'Selected',
+                              'Active',
                               style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontSize: 10,

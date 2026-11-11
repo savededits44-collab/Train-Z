@@ -136,7 +136,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               const Text(
-                'The premier network connecting goal-driven clients with world-class certified fitness coaches.',
+                'The premier network connecting goal-driven clients with world-class certified personal trainers.',
                 style: TextStyle(
                   fontFamily: AppTheme.fontFamily,
                   fontSize: 14,
@@ -152,7 +152,7 @@ class WelcomeScreen extends StatelessWidget {
               _PortalCard(
                 icon: Iconsax.activity,
                 title: 'Continue as Athlete',
-                subtitle: 'Find elite trainers, customized plans & 1-on-1 coaching',
+                subtitle: 'Find verified personal trainers, structured packages & 1-on-1 training',
                 isPrimary: true,
                 onTap: () {},
               ),

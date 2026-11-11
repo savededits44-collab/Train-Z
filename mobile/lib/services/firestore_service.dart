@@ -5,6 +5,7 @@ import '../shared/models/booking_model.dart';
 import '../shared/models/city_model.dart';
 import '../shared/models/client_profile_model.dart';
 import '../shared/models/notification_model.dart';
+import '../shared/models/payment_model.dart';
 import '../shared/models/platform_settings_model.dart';
 import '../shared/models/review_model.dart';
 import '../shared/models/trainer_availability_model.dart';
@@ -14,6 +15,7 @@ import '../shared/models/user_model.dart';
 import 'booking_service.dart';
 import 'credit_service.dart';
 import 'notification_service.dart';
+import 'location_service.dart';
 
 /// Core Firestore data access service for TRAIN Z shared features.
 class FirestoreService {
@@ -121,6 +123,11 @@ class FirestoreService {
       for (final doc in snap.docs) {
         final profile = TrainerProfileModel.fromDocument(doc);
         if (!profile.isActive) continue;
+
+        // Inactive city guard: Never return trainers for inactive cities (Requirement 6)
+        if (cityId != null && !LocationService.instance.isCityActive(cityId)) {
+          continue;
+        }
 
         // Service city filtering: match cityId if specified
         if (cityId != null &&
@@ -369,6 +376,14 @@ class FirestoreService {
         .map((snap) => snap.docs.map((d) => BookingModel.fromDocument(d)).toList());
   }
 
+  /// Gets a single booking document by ID
+  Future<BookingModel?> getBooking(String bookingId) async {
+    if (bookingId.trim().isEmpty) return null;
+    final doc = await _firestore.collection(FirestoreCollections.bookings).doc(bookingId).get();
+    if (!doc.exists) return null;
+    return BookingModel.fromDocument(doc);
+  }
+
   /// Updates client's selected city and training venue preference in real time
   Future<void> updateClientLocation({
     required String clientId,
@@ -419,7 +434,103 @@ class FirestoreService {
       updatedAt: DateTime.now(),
     ));
 
+    // Create in-app notification for the client
+    final notifRef = _firestore.collection(FirestoreCollections.notifications).doc();
+    await notifRef.set({
+      'id': notifRef.id,
+      'userId': clientId,
+      'title': creditReturned ? 'Booking Cancelled (Credit Returned)' : 'Booking Cancelled (Credit Forfeited)',
+      'body': creditReturned
+          ? 'Your session with ${booking.displayTrainerName} was cancelled. 1 session credit has been returned to your available balance.'
+          : 'Your session with ${booking.displayTrainerName} was cancelled within 12h of workout. 1 session credit was forfeited per Section 8 policy.',
+      'type': 'BOOKING_CANCELLED',
+      'isRead': false,
+      'data': {
+        'bookingId': bookingId,
+        'returnedCredit': creditReturned,
+        'status': newStatus.toFirestore(),
+      },
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+
     return creditReturned;
+  }
+
+  /// Reschedules an active booking session, subject to trainer availability and double-booking protection
+  Future<bool> rescheduleBooking({
+    required String bookingId,
+    required DateTime newSessionDate,
+    required String newStartTime,
+    required String newEndTime,
+    String? newTimeSlotId,
+  }) async {
+    final bookingRef = _firestore.collection(FirestoreCollections.bookings).doc(bookingId);
+    final bookingDoc = await bookingRef.get();
+    if (!bookingDoc.exists) {
+      throw const AuthException('Booking record not found.');
+    }
+
+    final booking = BookingModel.fromDocument(bookingDoc);
+    if (booking.status != BookingStatus.confirmed && booking.status != BookingStatus.pending) {
+      throw Exception('Only confirmed or pending bookings can be rescheduled.');
+    }
+
+    // Availability re-check on target date to prevent double-booking
+    final startOfDay = DateTime(newSessionDate.year, newSessionDate.month, newSessionDate.day);
+    final endOfDay = DateTime(newSessionDate.year, newSessionDate.month, newSessionDate.day, 23, 59, 59);
+
+    final conflictQuery = await _firestore
+        .collection(FirestoreCollections.bookings)
+        .where('trainerId', isEqualTo: booking.trainerId)
+        .where('sessionDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+        .where('sessionDate', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
+        .get();
+
+    for (final doc in conflictQuery.docs) {
+      if (doc.id == bookingId) continue;
+      final statusStr = doc.data()['status'] as String? ?? '';
+      final startTime = doc.data()['startTime'] as String? ?? '';
+      if ((statusStr == 'CONFIRMED' || statusStr == 'PENDING' || statusStr == 'RESERVED') &&
+          startTime == newStartTime) {
+        throw const BookingConflictException(
+          'Selected trainer slot is already booked. Please choose another time slot.',
+        );
+      }
+    }
+
+    // Update booking document
+    await bookingRef.update({
+      'sessionDate': Timestamp.fromDate(newSessionDate),
+      'startTime': newStartTime,
+      'endTime': newEndTime,
+      'timeSlotId': ?newTimeSlotId,
+      'isRescheduled': true,
+      'rescheduledAt': FieldValue.serverTimestamp(),
+      'previousSessionDate': Timestamp.fromDate(booking.sessionDate),
+      'previousStartTime': booking.startTime,
+      'previousEndTime': booking.endTime,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    // Create notification
+    final notifRef = _firestore.collection(FirestoreCollections.notifications).doc();
+    await notifRef.set({
+      'id': notifRef.id,
+      'userId': booking.clientId,
+      'title': 'Session Rescheduled',
+      'body': 'Your session with ${booking.displayTrainerName} has been rescheduled to ${newSessionDate.day}/${newSessionDate.month}/${newSessionDate.year} at $newStartTime - $newEndTime.',
+      'type': 'BOOKING_RESCHEDULED',
+      'isRead': false,
+      'data': {
+        'bookingId': bookingId,
+        'newDate': newSessionDate.toIso8601String(),
+        'newStartTime': newStartTime,
+        'newEndTime': newEndTime,
+      },
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+
+    return true;
   }
 
   /// Streams bookings for a trainer
@@ -740,8 +851,10 @@ class FirestoreService {
     final lowerAddr = clientAddress.toLowerCase();
     final lowerArea = trainerServiceArea.toLowerCase();
 
-    if (trainerCity != null && trainerCity.isNotEmpty && lowerAddr.contains(trainerCity.toLowerCase())) {
-      return true;
+    if (trainerCity != null && trainerCity.isNotEmpty) {
+      if (lowerAddr.contains(trainerCity.toLowerCase())) return true;
+      final cityName = LocationService.instance.getCityName(trainerCity).toLowerCase();
+      if (cityName.isNotEmpty && lowerAddr.contains(cityName)) return true;
     }
 
     final areaKeywords = lowerArea
@@ -819,5 +932,159 @@ class FirestoreService {
         .collection(FirestoreCollections.notifications)
         .doc(notificationId)
         .update({'isRead': true});
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Payments & Transaction History
+  // ───────────────────────────────────────────────────────────────────────────
+
+  /// Streams payment transaction history for a client
+  Stream<List<PaymentModel>> streamClientPayments(String clientId) {
+    if (clientId.trim().isEmpty) return Stream.value(<PaymentModel>[]);
+    return _firestore
+        .collection(FirestoreCollections.payments)
+        .where('clientId', isEqualTo: clientId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map((d) => PaymentModel.fromDocument(d)).toList());
+  }
+
+  /// Get single payment record by ID
+  Future<PaymentModel?> getPayment(String paymentId) async {
+    if (paymentId.trim().isEmpty) return null;
+    final doc = await _firestore.collection(FirestoreCollections.payments).doc(paymentId).get();
+    if (!doc.exists) return null;
+    return PaymentModel.fromDocument(doc);
+  }
+
+  /// Atomically finalizes a verified payment, allocates session credits,
+  /// and confirms any attached booking reservation with idempotency protection.
+  Future<PaymentModel> finalizeVerifiedPayment({
+    required String paymentDocId,
+    required String razorpayPaymentId,
+    required String razorpaySignature,
+    String? paymentMethod,
+  }) async {
+    final paymentRef = _firestore.collection(FirestoreCollections.payments).doc(paymentDocId);
+
+    return await _firestore.runTransaction<PaymentModel>((transaction) async {
+      final docSnap = await transaction.get(paymentRef);
+      if (!docSnap.exists) {
+        throw const AuthException('Payment record not found.');
+      }
+
+      final payment = PaymentModel.fromDocument(docSnap);
+
+      // Idempotency: Do not grant credits multiple times
+      if (payment.isSuccess && payment.creditsGranted) {
+        return payment;
+      }
+
+      final now = DateTime.now();
+      final sessionsCount = payment.sessionsCount ?? 1;
+
+      // 1. Allocate session credits via double-entry transaction
+      final creditDocRef = _firestore.collection(FirestoreCollections.sessionCredits).doc(payment.clientId);
+      final creditSnap = await transaction.get(creditDocRef);
+      final currentCredits = creditSnap.exists
+          ? creditSnap.data() ?? {}
+          : {'totalPurchased': 0, 'availableBalance': 0};
+
+      final newPurchased = ((currentCredits['totalPurchased'] as num?)?.toInt() ?? 0) + sessionsCount;
+      final newAvailable = ((currentCredits['availableBalance'] as num?)?.toInt() ?? 0) + sessionsCount;
+
+      transaction.set(
+        creditDocRef,
+        {
+          'clientId': payment.clientId,
+          'totalPurchased': newPurchased,
+          'availableBalance': newAvailable,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      final txRef = creditDocRef.collection(FirestoreCollections.creditTransactions).doc();
+      transaction.set(txRef, {
+        'id': txRef.id,
+        'clientId': payment.clientId,
+        'type': 'PURCHASE',
+        'count': sessionsCount,
+        'paymentId': paymentDocId,
+        'reason': 'Purchased package: ${payment.displayPackageName} ($sessionsCount sessions)',
+        'balanceAfter': newAvailable,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // 2. Confirm linked booking reservation (if present)
+      if (payment.bookingId != null && payment.bookingId!.isNotEmpty) {
+        final bookingRef = _firestore.collection(FirestoreCollections.bookings).doc(payment.bookingId);
+        final bookingSnap = await transaction.get(bookingRef);
+
+        if (bookingSnap.exists) {
+          final bookingData = bookingSnap.data() ?? {};
+          final status = bookingData['status'] as String? ?? '';
+
+          if (status == 'RESERVED' || status == 'PENDING') {
+            transaction.update(bookingRef, {
+              'status': 'CONFIRMED',
+              'paymentStatus': 'COMPLETED',
+              'paymentTransactionId': razorpayPaymentId,
+              'confirmedAt': Timestamp.fromDate(now),
+              'updatedAt': FieldValue.serverTimestamp(),
+            });
+
+            final dateStr = (bookingData['sessionDate'] as Timestamp?)?.toDate().toIso8601String().substring(0, 10) ?? '';
+            final safeTime = (bookingData['startTime'] as String? ?? '').replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+            final trainerId = bookingData['trainerId'] as String? ?? '';
+            if (trainerId.isNotEmpty && dateStr.isNotEmpty) {
+              final lockDocId = '${trainerId}_${dateStr}_$safeTime';
+              final lockRef = _firestore.collection(FirestoreCollections.slotLocks).doc(lockDocId);
+              transaction.set(lockRef, {
+                'status': 'CONFIRMED',
+                'updatedAt': FieldValue.serverTimestamp(),
+              }, SetOptions(merge: true));
+            }
+          }
+        }
+      }
+
+      // 3. Update payment record to SUCCESS
+      final updated = payment.copyWith(
+        status: PaymentStatus.success,
+        razorpayPaymentId: razorpayPaymentId,
+        razorpaySignature: razorpaySignature,
+        paymentMethod: paymentMethod ?? 'ONLINE',
+        creditsGranted: true,
+        verifiedAt: now,
+        updatedAt: now,
+      );
+
+      transaction.update(paymentRef, {
+        'status': 'SUCCESS',
+        'razorpayPaymentId': razorpayPaymentId,
+        'razorpaySignature': razorpaySignature,
+        'paymentMethod': paymentMethod ?? 'ONLINE',
+        'creditsGranted': true,
+        'verifiedAt': Timestamp.fromDate(now),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      return updated;
+    });
+  }
+
+  /// Records payment failure or cancellation on the payment document
+  Future<void> recordPaymentFailure({
+    required String paymentDocId,
+    String? errorCode,
+    String? errorDescription,
+  }) async {
+    final paymentRef = _firestore.collection(FirestoreCollections.payments).doc(paymentDocId);
+    await paymentRef.update({
+      'status': 'FAILED',
+      'errorMessage': errorDescription ?? 'Payment cancelled or failed',
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 }

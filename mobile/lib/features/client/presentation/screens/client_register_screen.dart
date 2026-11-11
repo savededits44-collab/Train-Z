@@ -63,7 +63,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
     }
 
     if (_selectedGender == null) {
-      _showToast('Please select your gender for personal trainer matching.');
+      _showToast('Please select your gender to complete registration.');
       return;
     }
 
@@ -188,7 +188,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                 const SizedBox(height: 8),
 
                 Text(
-                  'Create your account to match with verified 1-on-1 personal coaches.',
+                  'Create your account to train with verified 1-on-1 personal trainers.',
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: (12.5 * sf).clamp(11.0, 14.0),
