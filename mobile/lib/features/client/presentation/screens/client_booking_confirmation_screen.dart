@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../../../services/booking_service.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
@@ -94,6 +95,9 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
         bookingId: _currentBooking.id,
         paymentTransactionId: 'PAY_${DateTime.now().millisecondsSinceEpoch}',
       );
+
+      // Immediately sync confirmed booking to BookingService
+      BookingService.instance.addOrUpdateBooking(confirmed);
 
       if (!mounted) return;
       _countdownTimer?.cancel();

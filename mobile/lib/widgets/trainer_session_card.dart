@@ -161,7 +161,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
   Widget build(BuildContext context) {
     final b = widget.booking;
     final sf = widget.sf;
-    final isPending = b.status == BookingStatus.pending;
+    final isPending = b.status == BookingStatus.pending || b.status == BookingStatus.reserved;
     final isConfirmed = b.status == BookingStatus.confirmed;
     final isRejected = b.status == BookingStatus.rejected;
 

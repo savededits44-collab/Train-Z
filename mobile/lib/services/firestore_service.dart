@@ -11,6 +11,7 @@ import '../shared/models/trainer_availability_model.dart';
 import '../shared/models/trainer_profile_model.dart';
 import '../shared/models/training_plan_model.dart';
 import '../shared/models/user_model.dart';
+import 'booking_service.dart';
 import 'credit_service.dart';
 
 /// Core Firestore data access service for TRAIN Z shared features.
@@ -412,6 +413,11 @@ class FirestoreService {
       'updatedAt': FieldValue.serverTimestamp(),
     });
 
+    BookingService.instance.addOrUpdateBooking(booking.copyWith(
+      status: newStatus,
+      updatedAt: DateTime.now(),
+    ));
+
     return creditReturned;
   }
 
@@ -536,6 +542,7 @@ class FirestoreService {
       );
 
       transaction.set(bookingRef, booking.toMap());
+      BookingService.instance.addOrUpdateBooking(booking);
       return booking;
     });
   }
@@ -595,6 +602,7 @@ class FirestoreService {
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
+      BookingService.instance.addOrUpdateBooking(updated);
       return updated;
     });
   }
@@ -622,6 +630,11 @@ class FirestoreService {
     final safeTime = booking.startTime.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
     final lockDocId = '${booking.trainerId}_${dateStr}_$safeTime';
     await _firestore.collection(FirestoreCollections.slotLocks).doc(lockDocId).delete();
+
+    BookingService.instance.addOrUpdateBooking(booking.copyWith(
+      status: reason == 'EXPIRED' ? BookingStatus.expired : BookingStatus.cancelledClientEarly,
+      updatedAt: DateTime.now(),
+    ));
   }
 
   /// Streams available 60-minute time slots for a specific trainer and date,

@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../core/errors/app_exceptions.dart';
+import '../../../../services/booking_service.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../shared/models/trainer_availability_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
@@ -102,6 +104,12 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
     HapticFeedback.mediumImpact();
 
     try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final athleteName = currentUser?.displayName?.isNotEmpty == true
+          ? currentUser!.displayName!
+          : 'Active Athlete';
+      final athletePhone = currentUser?.phoneNumber;
+
       // 1. Double-booking check & atomic reservation in Firestore
       final reservedBooking = await _firestoreService.reserveBookingSlot(
         clientId: widget.clientId,
@@ -112,9 +120,14 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
         endTime: _selectedEndTime!,
         trainingLocation: locationText,
         notes: _notesController.text.trim(),
+        clientName: athleteName,
+        clientPhone: athletePhone,
         clientGender: widget.clientGender,
         trainerGender: widget.trainer.gender,
       );
+
+      // Immediately sync with BookingService in-memory stream for 0ms trainer reflection
+      BookingService.instance.addOrUpdateBooking(reservedBooking);
 
       if (!mounted) return;
 

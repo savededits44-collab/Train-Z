@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../core/constants/firestore_collections.dart';
 import '../shared/models/booking_model.dart';
@@ -14,6 +15,7 @@ class BookingService extends ChangeNotifier {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   StreamSubscription<QuerySnapshot>? _firestoreSub;
+  StreamSubscription<User?>? _authSub;
 
   final List<BookingModel> _bookings = [];
   final StreamController<List<BookingModel>> _streamController =
@@ -22,13 +24,29 @@ class BookingService extends ChangeNotifier {
   BookingService._internal() {
     _initializeSeedData();
     _initFirestoreListener();
+    _initAuthListener();
+  }
+
+  void _initAuthListener() {
+    try {
+      _authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
+        if (user != null) {
+          _initFirestoreListener();
+        }
+      });
+    } catch (e) {
+      debugPrint('Notice: FirebaseAuth not active in tests: $e');
+    }
   }
 
   Stream<List<BookingModel>> get stream => _streamController.stream;
   List<BookingModel> get allBookings => List.unmodifiable(_bookings);
 
-  List<BookingModel> get pendingBookings =>
-      _bookings.where((b) => b.status == BookingStatus.pending).toList();
+  List<BookingModel> get pendingBookings => _bookings.where((b) {
+        if (b.status == BookingStatus.pending) return true;
+        if (b.status == BookingStatus.reserved && !b.isReservationExpired) return true;
+        return false;
+      }).toList();
 
   List<BookingModel> get confirmedBookings =>
       _bookings.where((b) => b.status == BookingStatus.confirmed).toList();
@@ -225,36 +243,90 @@ class BookingService extends ChangeNotifier {
   }
 
   void _initFirestoreListener() {
+    _firestoreSub?.cancel();
     try {
+      // Real-time Firestore stream: listens to the bookings collection live
       _firestoreSub = _firestore
           .collection(FirestoreCollections.bookings)
-          .orderBy('createdAt', descending: true)
           .snapshots()
           .listen(
         (snapshot) {
-          if (snapshot.docs.isNotEmpty) {
-            final fromDb = snapshot.docs
-                .map((d) => BookingModel.fromDocument(d))
-                .toList();
+          bool changed = false;
+          for (final change in snapshot.docChanges) {
+            final doc = change.doc;
+            final item = BookingModel.fromDocument(doc);
+            final index = _bookings.indexWhere((b) => b.id == item.id);
 
-            for (final item in fromDb) {
-              final index = _bookings.indexWhere((b) => b.id == item.id);
+            if (change.type == DocumentChangeType.removed) {
+              if (index >= 0) {
+                _bookings.removeAt(index);
+                changed = true;
+              }
+            } else {
               if (index >= 0) {
                 _bookings[index] = item;
+                changed = true;
               } else {
                 _bookings.insert(0, item);
+                changed = true;
               }
             }
+          }
+          if (changed) {
             _notify();
           }
         },
         onError: (err) {
           debugPrint('Notice: BookingService live stream Firestore fallback active: $err');
+          _initScopedListener();
         },
       );
     } catch (e) {
       debugPrint('Notice: Firestore not connected yet, using live reactive memory stream: $e');
     }
+  }
+
+  void _initScopedListener() {
+    try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null || uid.isEmpty) return;
+
+      _firestoreSub?.cancel();
+      _firestoreSub = _firestore
+          .collection(FirestoreCollections.bookings)
+          .where('trainerId', isEqualTo: uid)
+          .snapshots()
+          .listen(
+        (snapshot) {
+          for (final doc in snapshot.docs) {
+            final item = BookingModel.fromDocument(doc);
+            final index = _bookings.indexWhere((b) => b.id == item.id);
+            if (index >= 0) {
+              _bookings[index] = item;
+            } else {
+              _bookings.insert(0, item);
+            }
+          }
+          _notify();
+        },
+        onError: (e) {
+          debugPrint('Notice: Scoped listener error: $e');
+        },
+      );
+    } catch (e) {
+      debugPrint('Notice: Scoped listener exception: $e');
+    }
+  }
+
+  /// Add or update booking in real-time memory and broadcast to all trainer screens immediately
+  void addOrUpdateBooking(BookingModel booking) {
+    final index = _bookings.indexWhere((b) => b.id == booking.id);
+    if (index >= 0) {
+      _bookings[index] = booking;
+    } else {
+      _bookings.insert(0, booking);
+    }
+    _notify();
   }
 
   void _notify() {
@@ -400,6 +472,7 @@ class BookingService extends ChangeNotifier {
 
   @override
   void dispose() {
+    _authSub?.cancel();
     _firestoreSub?.cancel();
     _streamController.close();
     super.dispose();

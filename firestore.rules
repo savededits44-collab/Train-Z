@@ -124,11 +124,7 @@ service cloud.firestore {
     // 6. bookings Collection
     // ─────────────────────────────────────────────────────────────────────────
     match /bookings/{bookingId} {
-      allow read: if isAuthenticated() && (
-        resource.data.clientId == request.auth.uid ||
-        resource.data.trainerId == request.auth.uid ||
-        isAdmin()
-      );
+      allow read: if isAuthenticated();
 
       // Section 5: Gender Matching Enforcement & Section 6: Approved Trainer
       allow create: if isAuthenticated() &&
