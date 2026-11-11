@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../services/booking_service.dart';
+import '../../services/notification_service.dart';
 import '../../services/trainer_profile_service.dart';
 import '../../shared/models/booking_model.dart';
 import '../../widgets/app_widgets.dart';
 import '../../widgets/logout_dialog.dart';
+import '../../widgets/notifications_bottom_sheet.dart';
 import '../../widgets/trainer_animations.dart';
 import '../../widgets/trainer_session_card.dart';
 import 'trainer_profile_setup_screen.dart';
@@ -134,17 +136,55 @@ class _TrainerHomeTab extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: (8.0 * sf).clamp(6, 12)),
-                      Container(
-                        width: (36.0 * sf).clamp(30, 44),
-                        height: (36.0 * sf).clamp(30, 44),
-                        decoration: const BoxDecoration(
-                          color: kField,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Iconsax.notification,
-                          size: (18.0 * sf).clamp(14, 22),
-                          color: kDark,
+                      TrainerPressScale(
+                        onTap: () => NotificationsBottomSheet.show(context),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: (36.0 * sf).clamp(30, 44),
+                              height: (36.0 * sf).clamp(30, 44),
+                              decoration: const BoxDecoration(
+                                color: kField,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Iconsax.notification,
+                                size: (18.0 * sf).clamp(14, 22),
+                                color: kDark,
+                              ),
+                            ),
+                            ListenableBuilder(
+                              listenable: NotificationService.instance,
+                              builder: (context, _) {
+                                final count = NotificationService.instance.unreadCount;
+                                if (count == 0) return const SizedBox.shrink();
+                                return Positioned(
+                                  top: -2,
+                                  right: -2,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFDC2626),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                    child: Center(
+                                      child: Text(
+                                        '$count',
+                                        style: const TextStyle(
+                                          fontFamily: 'Syne',
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -2180,6 +2220,108 @@ class _AcceptedClientCard extends StatelessWidget {
                     ],
                   ),
                 ],
+              ],
+            ),
+          ),
+
+          // Package Progress & Health Section
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: kBorder),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      b.resolvedPackageName,
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: (12.5 * sf).clamp(11.0, 14.0),
+                        fontWeight: FontWeight.w700,
+                        color: kDark,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F5E9),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        '✓ Paid',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF2E7D32),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // Sessions Progress
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Sessions: ${b.resolvedSessionsCompleted}/${b.resolvedTotalSessions} Completed',
+                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, fontWeight: FontWeight.w600, color: kDark),
+                    ),
+                    Text(
+                      '${b.resolvedTotalSessions - b.resolvedSessionsCompleted} Left',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: b.packageHealthStatus == 'red' ? const Color(0xFFDC2626) : kGrey,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: b.resolvedTotalSessions > 0
+                        ? (b.resolvedSessionsCompleted / b.resolvedTotalSessions).clamp(0.0, 1.0)
+                        : 0.0,
+                    backgroundColor: kField,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      b.packageHealthStatus == 'red'
+                          ? const Color(0xFFDC2626)
+                          : (b.packageHealthStatus == 'orange' ? const Color(0xFFF59E0B) : kDark),
+                    ),
+                    minHeight: 6,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Days Progress
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Validity: ${b.resolvedDaysCompleted}/${b.resolvedTotalDays} Days',
+                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: kGrey),
+                    ),
+                    Text(
+                      '${b.resolvedDaysRemaining} Days Left',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                        color: b.packageHealthStatus == 'red' ? const Color(0xFFDC2626) : kGrey,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

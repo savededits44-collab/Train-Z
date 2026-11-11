@@ -642,3 +642,161 @@ export const releaseBookingReservation = onCall(async (request) => {
     return { success: true, bookingId, status: newStatus };
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. Reschedule Booking (Atomic Double-Booking Protected Slot Move)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const rescheduleBooking = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated to reschedule.');
+  }
+
+  const { bookingId, newSessionDateIso, newStartTime, newEndTime, reason } = request.data || {};
+  if (!bookingId || !newSessionDateIso || !newStartTime || !newEndTime) {
+    throw new HttpsError('invalid-argument', 'Missing required rescheduling parameters.');
+  }
+
+  const newDate = new Date(newSessionDateIso);
+
+  return await db.runTransaction(async (transaction) => {
+    const bookingRef = db.collection('bookings').doc(bookingId);
+    const bookingSnap = await transaction.get(bookingRef);
+
+    if (!bookingSnap.exists) {
+      throw new HttpsError('not-found', 'Booking not found.');
+    }
+
+    const booking = bookingSnap.data()!;
+    const uid = request.auth!.uid;
+
+    // Caller must be client or trainer
+    if (booking.clientId !== uid && booking.trainerId !== uid) {
+      throw new HttpsError('permission-denied', 'You do not have permission to reschedule this booking.');
+    }
+
+    // Check old slot lock
+    const oldDateKey = booking.sessionDate.toDate().toISOString().slice(0, 10);
+    const oldSafeTimeKey = (booking.startTime || '').replace(/[^a-zA-Z0-9]/g, '');
+    const oldLockId = `${booking.trainerId}_${oldDateKey}_${oldSafeTimeKey}`;
+    const oldLockRef = db.collection('slot_locks').doc(oldLockId);
+
+    // Check new slot lock
+    const newDateKey = newDate.toISOString().slice(0, 10);
+    const newSafeTimeKey = newStartTime.replace(/[^a-zA-Z0-9]/g, '');
+    const newLockId = `${booking.trainerId}_${newDateKey}_${newSafeTimeKey}`;
+    const newLockRef = db.collection('slot_locks').doc(newLockId);
+
+    const newLockSnap = await transaction.get(newLockRef);
+    if (newLockSnap.exists) {
+      const lockData = newLockSnap.data()!;
+      if (lockData.status === 'CONFIRMED' || lockData.status === 'RESERVED') {
+        throw new HttpsError('already-exists', 'The requested new time slot is already booked.');
+      }
+    }
+
+    // Release old lock
+    transaction.delete(oldLockRef);
+
+    // Claim new lock
+    transaction.set(newLockRef, {
+      lockId: newLockId,
+      trainerId: booking.trainerId,
+      clientId: booking.clientId,
+      sessionDate: admin.firestore.Timestamp.fromDate(newDate),
+      startTime: newStartTime,
+      endTime: newEndTime,
+      status: 'CONFIRMED',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Update booking
+    transaction.update(bookingRef, {
+      sessionDate: admin.firestore.Timestamp.fromDate(newDate),
+      startTime: newStartTime,
+      endTime: newEndTime,
+      status: 'RESCHEDULED',
+      rescheduleReason: reason || 'Rescheduled by user',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Send in-app notification to the opposite user
+    const recipientId = uid === booking.trainerId ? booking.clientId : booking.trainerId;
+    const notifRef = db.collection('notifications').doc();
+    transaction.set(notifRef, {
+      id: notifRef.id,
+      userId: recipientId,
+      title: 'Session Rescheduled 🔄',
+      body: `Your session has been moved to ${newDateKey} at ${newStartTime}.`,
+      type: 'BOOKING_RESCHEDULED',
+      isRead: false,
+      data: { bookingId, newStartTime, newDateKey },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { success: true, bookingId, status: 'RESCHEDULED' };
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. Cancel Booking (Client or Trainer Cancellation)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const cancelBooking = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const { bookingId, reason } = request.data || {};
+  if (!bookingId) {
+    throw new HttpsError('invalid-argument', 'Booking ID is required.');
+  }
+
+  return await db.runTransaction(async (transaction) => {
+    const bookingRef = db.collection('bookings').doc(bookingId);
+    const bookingSnap = await transaction.get(bookingRef);
+
+    if (!bookingSnap.exists) {
+      throw new HttpsError('not-found', 'Booking not found.');
+    }
+
+    const booking = bookingSnap.data()!;
+    const uid = request.auth!.uid;
+
+    if (booking.clientId !== uid && booking.trainerId !== uid) {
+      throw new HttpsError('permission-denied', 'Unauthorized to cancel this booking.');
+    }
+
+    const isTrainer = uid === booking.trainerId;
+    const newStatus = isTrainer ? 'CANCELLED_TRAINER' : 'CANCELLED_CLIENT_EARLY';
+
+    transaction.update(bookingRef, {
+      status: newStatus,
+      cancellationReason: reason || 'Cancelled by user',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Release slot lock
+    const dateKey = booking.sessionDate.toDate().toISOString().slice(0, 10);
+    const safeTimeKey = (booking.startTime || '').replace(/[^a-zA-Z0-9]/g, '');
+    const slotLockId = `${booking.trainerId}_${dateKey}_${safeTimeKey}`;
+    const slotLockRef = db.collection('slot_locks').doc(slotLockId);
+    transaction.delete(slotLockRef);
+
+    // Send notification
+    const recipientId = isTrainer ? booking.clientId : booking.trainerId;
+    const notifRef = db.collection('notifications').doc();
+    transaction.set(notifRef, {
+      id: notifRef.id,
+      userId: recipientId,
+      title: 'Session Cancelled ❌',
+      body: `The session on ${dateKey} at ${booking.startTime} was cancelled.`,
+      type: 'BOOKING_CANCELLED',
+      isRead: false,
+      data: { bookingId },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { success: true, bookingId, status: newStatus };
+  });
+});

@@ -1400,6 +1400,80 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
     );
   }
 
+  Future<void> _handleReschedule() async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: widget.booking.sessionDate.add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 90)),
+    );
+    if (pickedDate == null || !mounted) return;
+
+    setState(() => _actionLoading = true);
+    HapticFeedback.mediumImpact();
+    await BookingService.instance.rescheduleBooking(
+      bookingId: widget.booking.id,
+      newDate: pickedDate,
+      newStartTime: widget.booking.startTime,
+      newEndTime: widget.booking.endTime,
+      reason: 'Trainer schedule adjustment',
+    );
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Session rescheduled to ${pickedDate.day}/${pickedDate.month} for ${widget.booking.displayClientName}.',
+          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w600),
+        ),
+        backgroundColor: const Color(0xFF7C3AED),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _handleCancel() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Cancel Session?', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800)),
+        content: Text('Are you sure you want to cancel the session for ${widget.booking.displayClientName}?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Back')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Cancel Session', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _actionLoading = true);
+    HapticFeedback.mediumImpact();
+    await BookingService.instance.cancelBooking(
+      bookingId: widget.booking.id,
+      isTrainer: true,
+      reason: 'Trainer cancelled session',
+    );
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Session cancelled for ${widget.booking.displayClientName}.',
+          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFFDC2626),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final b = widget.booking;
@@ -1815,7 +1889,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                     ),
                   ],
                 ),
-              ] else if (b.status == BookingStatus.confirmed) ...[
+              ] else if (b.status == BookingStatus.confirmed || b.status == BookingStatus.rescheduled) ...[
                 TrainerPressScale(
                   onTap: _markAttendance,
                   child: Container(
@@ -1844,6 +1918,42 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                       ],
                     ),
                   ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _handleReschedule,
+                        icon: const Icon(Iconsax.calendar_edit, size: 14, color: kDark),
+                        label: const Text(
+                          'Reschedule',
+                          style: TextStyle(fontFamily: 'Syne', fontSize: 12, fontWeight: FontWeight.w700, color: kDark),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: kBorder),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _handleCancel,
+                        icon: const Icon(Icons.close_rounded, size: 14, color: Color(0xFFDC2626)),
+                        label: const Text(
+                          'Cancel Session',
+                          style: TextStyle(fontFamily: 'Syne', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFDC2626)),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFFFCA5A5)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ],

@@ -13,6 +13,7 @@ import '../shared/models/training_plan_model.dart';
 import '../shared/models/user_model.dart';
 import 'booking_service.dart';
 import 'credit_service.dart';
+import 'notification_service.dart';
 
 /// Core Firestore data access service for TRAIN Z shared features.
 class FirestoreService {
@@ -474,7 +475,7 @@ class FirestoreService {
     final now = DateTime.now();
     final expiresAt = now.add(const Duration(minutes: 15));
 
-    return await _firestore.runTransaction((transaction) async {
+    final reservedBooking = await _firestore.runTransaction((transaction) async {
       final lockSnap = await transaction.get(slotLockRef);
       if (lockSnap.exists) {
         final data = lockSnap.data() ?? {};
@@ -545,6 +546,23 @@ class FirestoreService {
       BookingService.instance.addOrUpdateBooking(booking);
       return booking;
     });
+
+    // Notify trainer of the incoming reservation in real-time
+    NotificationService.instance.sendNotification(
+      userId: trainerId,
+      title: 'New Session Request! 📅',
+      body: '${reservedBooking.displayClientName} requested a session for ${reservedBooking.sessionDate.day}/${reservedBooking.sessionDate.month} at ${reservedBooking.startTime}.',
+      type: 'BOOKING_RECEIVED',
+      relatedId: reservedBooking.id,
+      data: {
+        'clientId': clientId,
+        'packageId': packageId,
+        'startTime': startTime,
+        'endTime': endTime,
+      },
+    );
+
+    return reservedBooking;
   }
 
   /// Server-verified payment confirmation: marks booking CONFIRMED and payment COMPLETED
@@ -554,7 +572,7 @@ class FirestoreService {
   }) async {
     final bookingRef = _firestore.collection(FirestoreCollections.bookings).doc(bookingId);
 
-    return await _firestore.runTransaction((transaction) async {
+    final reservedBooking = await _firestore.runTransaction((transaction) async {
       final docSnap = await transaction.get(bookingRef);
       if (!docSnap.exists) {
         throw const AuthException('Booking record not found.');
@@ -605,6 +623,17 @@ class FirestoreService {
       BookingService.instance.addOrUpdateBooking(updated);
       return updated;
     });
+
+    // Notify trainer of confirmed payment and booking
+    NotificationService.instance.sendNotification(
+      userId: reservedBooking.trainerId,
+      title: 'Payment & Session Confirmed! 💳',
+      body: '${reservedBooking.displayClientName} confirmed payment for session on ${reservedBooking.sessionDate.day}/${reservedBooking.sessionDate.month} at ${reservedBooking.startTime}.',
+      type: 'PAYMENT_SUCCESS',
+      relatedId: reservedBooking.id,
+    );
+
+    return reservedBooking;
   }
 
   /// Releases a temporary reservation on payment cancellation, failure, or user exit

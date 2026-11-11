@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../services/booking_service.dart';
+import '../../services/notification_service.dart';
 import '../../shared/models/booking_model.dart';
 import '../../widgets/app_widgets.dart';
 import '../../widgets/book_session_sheet.dart';
 import '../../widgets/logout_dialog.dart';
+import '../../widgets/notifications_bottom_sheet.dart';
 
 class ClientDashboard extends StatefulWidget {
   const ClientDashboard({super.key});
@@ -90,17 +92,56 @@ class _HomeTab extends StatelessWidget {
                 AppLogo(fontSize: (14.0 * sf).clamp(12, 18)),
                 Row(
                   children: [
-                    Container(
-                      width: (36.0 * sf).clamp(30, 44),
-                      height: (36.0 * sf).clamp(30, 44),
-                      decoration: const BoxDecoration(
-                        color: kField,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Iconsax.notification,
-                        size: (18.0 * sf).clamp(14, 22),
-                        color: kDark,
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () => NotificationsBottomSheet.show(context),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            width: (36.0 * sf).clamp(30, 44),
+                            height: (36.0 * sf).clamp(30, 44),
+                            decoration: const BoxDecoration(
+                              color: kField,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Iconsax.notification,
+                              size: (18.0 * sf).clamp(14, 22),
+                              color: kDark,
+                            ),
+                          ),
+                          ListenableBuilder(
+                            listenable: NotificationService.instance,
+                            builder: (context, _) {
+                              final count = NotificationService.instance.unreadCount;
+                              if (count == 0) return const SizedBox.shrink();
+                              return Positioned(
+                                top: -2,
+                                right: -2,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFDC2626),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                  child: Center(
+                                    child: Text(
+                                      '$count',
+                                      style: const TextStyle(
+                                        fontFamily: 'Syne',
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -735,12 +776,79 @@ class _ClientBookingItem extends StatelessWidget {
     required this.sf,
   });
 
+  void _showCancelDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text('Cancel Training Session?', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800)),
+        content: Text(
+          'Are you sure you want to cancel your session with Coach ${booking.displayTrainerName}? The coach will be notified immediately.',
+          style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kGrey),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Keep Session', style: TextStyle(fontFamily: 'Poppins', color: kDark, fontWeight: FontWeight.w600)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              HapticFeedback.mediumImpact();
+              await BookingService.instance.cancelBooking(
+                bookingId: booking.id,
+                isTrainer: false,
+                reason: 'Client requested cancellation',
+              );
+            },
+            child: const Text('Cancel Session', style: TextStyle(fontFamily: 'Syne', color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final b = booking;
-    final isPending = b.status == BookingStatus.pending;
+    final isPending = b.status == BookingStatus.pending || b.status == BookingStatus.reserved;
     final isConfirmed = b.status == BookingStatus.confirmed;
+    final isRescheduled = b.status == BookingStatus.rescheduled;
+    final isCompleted = b.status == BookingStatus.completed;
+    final isCancelled = b.isCancelled;
     final isRejected = b.status == BookingStatus.rejected;
+
+    Color badgeBg;
+    Color badgeTextColor;
+    String badgeText;
+
+    if (isPending) {
+      badgeBg = const Color(0xFFFFF3E0);
+      badgeTextColor = const Color(0xFFE65100);
+      badgeText = 'Pending Response';
+    } else if (isRescheduled) {
+      badgeBg = const Color(0xFFEDE9FE);
+      badgeTextColor = const Color(0xFF7C3AED);
+      badgeText = '🔄 Rescheduled';
+    } else if (isConfirmed) {
+      badgeBg = const Color(0xFFE8F5E9);
+      badgeTextColor = const Color(0xFF2E7D32);
+      badgeText = '✓ Confirmed';
+    } else if (isCompleted) {
+      badgeBg = const Color(0xFFF0FDF4);
+      badgeTextColor = const Color(0xFF15803D);
+      badgeText = '💪 Completed';
+    } else if (isCancelled) {
+      badgeBg = const Color(0xFFF3F4F6);
+      badgeTextColor = const Color(0xFF6B7280);
+      badgeText = '✕ Cancelled';
+    } else {
+      badgeBg = const Color(0xFFFFEBEE);
+      badgeTextColor = const Color(0xFFC62828);
+      badgeText = '✕ Declined';
+    }
 
     return Container(
       width: double.infinity,
@@ -752,7 +860,7 @@ class _ClientBookingItem extends StatelessWidget {
         border: Border.all(
           color: isPending
               ? const Color(0xFFFFB300)
-              : (isConfirmed ? kLime : kBorder),
+              : (isConfirmed || isRescheduled ? kLime : kBorder),
           width: isPending ? 1.5 : 1.0,
         ),
         boxShadow: [
@@ -769,51 +877,31 @@ class _ClientBookingItem extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                b.displayWorkoutType,
-                style: TextStyle(
-                  fontFamily: 'Syne',
-                  fontSize: (14.5 * sf).clamp(13.0, 16.0),
-                  fontWeight: FontWeight.w700,
-                  color: kDark,
+              Expanded(
+                child: Text(
+                  b.displayWorkoutType,
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: (14.5 * sf).clamp(13.0, 16.0),
+                    fontWeight: FontWeight.w700,
+                    color: kDark,
+                  ),
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isPending
-                      ? const Color(0xFFFFF3E0)
-                      : (isConfirmed ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE)),
+                  color: badgeBg,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (isPending) ...[
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFF9800),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                    ],
-                    Text(
-                      isPending
-                          ? 'Pending Response'
-                          : (isConfirmed ? '✓ Confirmed' : '✕ Declined'),
-                      style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
-                        color: isPending
-                            ? const Color(0xFFE65100)
-                            : (isConfirmed ? const Color(0xFF2E7D32) : const Color(0xFFC62828)),
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  badgeText,
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: badgeTextColor,
+                  ),
                 ),
               ),
             ],
@@ -824,7 +912,7 @@ class _ClientBookingItem extends StatelessWidget {
               const Icon(Iconsax.clock, size: 14, color: kDark),
               const SizedBox(width: 6),
               Text(
-                '${b.startTime} - ${b.endTime}',
+                '${b.startTime} - ${b.endTime}  •  ${b.sessionDate.day}/${b.sessionDate.month}/${b.sessionDate.year}',
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 12,
@@ -834,6 +922,23 @@ class _ClientBookingItem extends StatelessWidget {
               ),
             ],
           ),
+          if (b.trainerName != null && b.trainerName!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Iconsax.user, size: 14, color: kGrey),
+                const SizedBox(width: 6),
+                Text(
+                  'Coach: ${b.displayTrainerName}',
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 11.5,
+                    color: kGrey,
+                  ),
+                ),
+              ],
+            ),
+          ],
           if (b.meetingLocation != null && b.meetingLocation!.isNotEmpty) ...[
             const SizedBox(height: 4),
             Row(
@@ -856,13 +961,14 @@ class _ClientBookingItem extends StatelessWidget {
           if (isPending) ...[
             const SizedBox(height: 10),
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF8E1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                '📡 Waiting for trainer to accept or reject in real-time.',
+                '📡 Waiting for trainer to accept in real-time.',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 11,
@@ -870,9 +976,28 @@ class _ClientBookingItem extends StatelessWidget {
                 ),
               ),
             ),
+          ] else if (isRescheduled) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEDE9FE),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '🔄 Coach rescheduled this session to ${b.startTime} on ${b.sessionDate.day}/${b.sessionDate.month}.',
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 11,
+                  color: Color(0xFF7C3AED),
+                ),
+              ),
+            ),
           ] else if (isRejected) ...[
             const SizedBox(height: 10),
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFEBEE),
@@ -884,6 +1009,32 @@ class _ClientBookingItem extends StatelessWidget {
                   fontFamily: 'Poppins',
                   fontSize: 11,
                   color: Color(0xFFC62828),
+                ),
+              ),
+            ),
+          ],
+
+          // Cancel Action button for pending, confirmed, or rescheduled sessions
+          if (isPending || isConfirmed || isRescheduled) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () => _showCancelDialog(context),
+                icon: const Icon(Icons.close_rounded, size: 14, color: Color(0xFFDC2626)),
+                label: const Text(
+                  'Cancel Session',
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFDC2626),
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
             ),

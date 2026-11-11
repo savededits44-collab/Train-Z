@@ -14,6 +14,7 @@ class FirestoreCollections {
   static const String trainerAvailability = 'trainer_availability';
   static const String reviews = 'reviews';
   static const String notifications = 'notifications';
+  static const String purchasedPackages = 'purchased_packages';
   static const String platformSettings = 'platform_settings';
   static const String slotLocks = 'slot_locks';
 

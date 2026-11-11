@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../services/booking_service.dart';
+import '../../../../services/client_package_service.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
@@ -98,6 +99,22 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
 
       // Immediately sync confirmed booking to BookingService
       BookingService.instance.addOrUpdateBooking(confirmed);
+
+      // Automatically create purchased package record and connect client to trainer
+      await ClientPackageService.instance.createPurchasedPackage(
+        clientId: confirmed.clientId,
+        clientName: confirmed.displayClientName,
+        clientPhone: confirmed.clientPhone,
+        trainerId: widget.trainer.uid,
+        trainerName: widget.trainer.displayName,
+        trainerPhotoUrl: widget.trainer.photoUrl,
+        packageId: widget.plan.id,
+        packageName: widget.plan.title,
+        price: widget.plan.price,
+        totalDays: widget.plan.validityDays,
+        totalSessions: widget.plan.sessionsCount,
+        paymentTransactionId: confirmed.paymentTransactionId,
+      );
 
       if (!mounted) return;
       _countdownTimer?.cancel();

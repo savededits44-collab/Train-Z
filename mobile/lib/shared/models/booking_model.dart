@@ -6,11 +6,13 @@ enum BookingStatus {
   reserved,             // Temporary slot reservation (hold) during checkout
   confirmed,
   completed,
+  cancelled,            // Generic / client or trainer cancelled
   cancelledClientEarly, // >= 12h, credit returned
   cancelledClientLate,  // < 12h, credit forfeited
   cancelledTrainer,     // credit returned
   cancelledAdmin,       // credit returned
   rejected,             // Trainer rejected request
+  rescheduled,          // Trainer or client rescheduled session
   expired;              // Temporary slot reservation expired
 
   String toFirestore() {
@@ -23,6 +25,8 @@ enum BookingStatus {
         return 'CONFIRMED';
       case BookingStatus.completed:
         return 'COMPLETED';
+      case BookingStatus.cancelled:
+        return 'CANCELLED';
       case BookingStatus.cancelledClientEarly:
         return 'CANCELLED_CLIENT_EARLY';
       case BookingStatus.cancelledClientLate:
@@ -33,6 +37,8 @@ enum BookingStatus {
         return 'CANCELLED_ADMIN';
       case BookingStatus.rejected:
         return 'REJECTED';
+      case BookingStatus.rescheduled:
+        return 'RESCHEDULED';
       case BookingStatus.expired:
         return 'EXPIRED';
     }
@@ -41,6 +47,8 @@ enum BookingStatus {
   static BookingStatus fromFirestore(dynamic val) {
     if (val == null) return BookingStatus.pending;
     final str = val.toString().trim().toUpperCase();
+    if (str == 'RESCHEDULED') return BookingStatus.rescheduled;
+    if (str == 'CANCELLED') return BookingStatus.cancelled;
     for (final s in BookingStatus.values) {
       if (s.toFirestore() == str) return s;
     }
@@ -184,6 +192,20 @@ class BookingModel {
   /// Verified confirmed check
   bool get isConfirmed =>
       status == BookingStatus.confirmed && paymentStatus == PaymentStatus.completed;
+
+  /// Rescheduled check
+  bool get isRescheduled => status == BookingStatus.rescheduled;
+
+  /// Completed check
+  bool get isCompleted => status == BookingStatus.completed;
+
+  /// Cancelled check (any client, trainer, or admin cancellation)
+  bool get isCancelled =>
+      status == BookingStatus.cancelled ||
+      status == BookingStatus.cancelledClientEarly ||
+      status == BookingStatus.cancelledClientLate ||
+      status == BookingStatus.cancelledTrainer ||
+      status == BookingStatus.cancelledAdmin;
 
   /// Minutes remaining until reservation expires
   int get minutesRemaining {

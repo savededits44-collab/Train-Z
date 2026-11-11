@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import '../core/constants/firestore_collections.dart';
 import '../shared/models/booking_model.dart';
 import '../shared/models/user_model.dart';
+import 'client_package_service.dart';
+import 'notification_service.dart';
 import 'trainer_profile_service.dart';
 
 /// Singleton service providing real-time, live booking synchronization
@@ -13,7 +15,15 @@ class BookingService extends ChangeNotifier {
   static final BookingService _instance = BookingService._internal();
   static BookingService get instance => _instance;
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore? _firestoreInstance;
+  FirebaseFirestore? get _firestore {
+    try {
+      _firestoreInstance ??= FirebaseFirestore.instance;
+      return _firestoreInstance;
+    } catch (_) {
+      return null;
+    }
+  }
   StreamSubscription<QuerySnapshot>? _firestoreSub;
   StreamSubscription<User?>? _authSub;
 
@@ -243,10 +253,11 @@ class BookingService extends ChangeNotifier {
   }
 
   void _initFirestoreListener() {
+    if (_firestore == null) return;
     _firestoreSub?.cancel();
     try {
       // Real-time Firestore stream: listens to the bookings collection live
-      _firestoreSub = _firestore
+      _firestoreSub = _firestore!
           .collection(FirestoreCollections.bookings)
           .snapshots()
           .listen(
@@ -287,12 +298,13 @@ class BookingService extends ChangeNotifier {
   }
 
   void _initScopedListener() {
+    if (_firestore == null) return;
     try {
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid == null || uid.isEmpty) return;
 
       _firestoreSub?.cancel();
-      _firestoreSub = _firestore
+      _firestoreSub = _firestore!
           .collection(FirestoreCollections.bookings)
           .where('trainerId', isEqualTo: uid)
           .snapshots()
@@ -377,9 +389,24 @@ class BookingService extends ChangeNotifier {
     // Sync to Firestore in real time
     try {
       await _firestore
-          .collection(FirestoreCollections.bookings)
+          ?.collection(FirestoreCollections.bookings)
           .doc(newId)
           .set(booking.toMap(), SetOptions(merge: true));
+
+      // Notify trainer immediately
+      await NotificationService.instance.sendNotification(
+        userId: booking.trainerId,
+        title: 'New Session Request! 📅',
+        body: '${booking.displayClientName} requested a session for ${_formatDate(sessionDate)} at $startTime.',
+        type: 'BOOKING_RECEIVED',
+        relatedId: booking.id,
+        data: {
+          'clientId': booking.clientId,
+          'date': sessionDate.toIso8601String(),
+          'startTime': startTime,
+          'endTime': endTime,
+        },
+      );
     } catch (e) {
       debugPrint('Notice: Booking created in local real-time state: $e');
     }
@@ -390,23 +417,35 @@ class BookingService extends ChangeNotifier {
   /// Trainer accepts a booking in real-time
   Future<void> acceptBooking(String bookingId) async {
     final index = _bookings.indexWhere((b) => b.id == bookingId);
+    BookingModel? target;
     if (index >= 0) {
       final updated = _bookings[index].copyWith(
         status: BookingStatus.confirmed,
         updatedAt: DateTime.now(),
       );
       _bookings[index] = updated;
+      target = updated;
       _notify();
     }
 
     try {
       await _firestore
-          .collection(FirestoreCollections.bookings)
+          ?.collection(FirestoreCollections.bookings)
           .doc(bookingId)
           .set({
         'status': 'CONFIRMED',
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+
+      if (target != null) {
+        await NotificationService.instance.sendNotification(
+          userId: target.clientId,
+          title: 'Session Confirmed! ✅',
+          body: 'Coach ${target.displayTrainerName} accepted your session on ${_formatDate(target.sessionDate)} at ${target.startTime}.',
+          type: 'BOOKING_CONFIRMED',
+          relatedId: bookingId,
+        );
+      }
     } catch (e) {
       debugPrint('Notice: Booking accept updated in local state: $e');
     }
@@ -415,6 +454,7 @@ class BookingService extends ChangeNotifier {
   /// Trainer rejects a booking in real-time
   Future<void> rejectBooking(String bookingId, {String? reason}) async {
     final index = _bookings.indexWhere((b) => b.id == bookingId);
+    BookingModel? target;
     if (index >= 0) {
       final current = _bookings[index];
       final updated = current.copyWith(
@@ -425,18 +465,29 @@ class BookingService extends ChangeNotifier {
         updatedAt: DateTime.now(),
       );
       _bookings[index] = updated;
+      target = updated;
       _notify();
     }
 
     try {
       await _firestore
-          .collection(FirestoreCollections.bookings)
+          ?.collection(FirestoreCollections.bookings)
           .doc(bookingId)
           .set({
         'status': 'REJECTED',
         'updatedAt': FieldValue.serverTimestamp(),
         ...?reason != null ? {'rejectionReason': reason} : null,
       }, SetOptions(merge: true));
+
+      if (target != null) {
+        await NotificationService.instance.sendNotification(
+          userId: target.clientId,
+          title: 'Session Request Declined ✕',
+          body: 'Coach ${target.displayTrainerName} was unable to accept your session request.${reason != null && reason.trim().isNotEmpty ? " Reason: $reason" : ""}',
+          type: 'BOOKING_REJECTED',
+          relatedId: bookingId,
+        );
+      }
     } catch (e) {
       debugPrint('Notice: Booking reject updated in local state: $e');
     }
@@ -445,6 +496,7 @@ class BookingService extends ChangeNotifier {
   /// Trainer marks a session as completed / records attendance
   Future<void> markSessionCompleted(String bookingId) async {
     final index = _bookings.indexWhere((b) => b.id == bookingId);
+    BookingModel? target;
     if (index >= 0) {
       final current = _bookings[index];
       final currentCompleted = current.sessionsCompleted ?? current.resolvedSessionsCompleted;
@@ -454,20 +506,156 @@ class BookingService extends ChangeNotifier {
         updatedAt: DateTime.now(),
       );
       _bookings[index] = updated;
+      target = updated;
       _notify();
     }
 
     try {
       await _firestore
-          .collection(FirestoreCollections.bookings)
+          ?.collection(FirestoreCollections.bookings)
           .doc(bookingId)
           .set({
         'status': 'COMPLETED',
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+
+      if (target != null) {
+        await NotificationService.instance.sendNotification(
+          userId: target.clientId,
+          title: 'Workout Completed! 💪',
+          body: 'Great workout with Coach ${target.displayTrainerName}! Your session has been marked completed.',
+          type: 'WORKOUT_COMPLETED',
+          relatedId: bookingId,
+        );
+        if (target.packageId != null) {
+          ClientPackageService.instance.incrementCompletedSession(target.packageId!);
+        }
+      }
     } catch (e) {
       debugPrint('Notice: Booking complete updated in local state: $e');
     }
+  }
+
+  /// Reschedule booking date and time in real-time
+  Future<void> rescheduleBooking({
+    required String bookingId,
+    required DateTime newDate,
+    required String newStartTime,
+    required String newEndTime,
+    String? reason,
+  }) async {
+    final index = _bookings.indexWhere((b) => b.id == bookingId);
+    BookingModel? target;
+    if (index >= 0) {
+      final current = _bookings[index];
+      final updated = current.copyWith(
+        sessionDate: newDate,
+        startTime: newStartTime,
+        endTime: newEndTime,
+        status: BookingStatus.rescheduled,
+        notes: reason != null && reason.trim().isNotEmpty
+            ? '${current.notes != null ? "${current.notes}\n" : ""}[Rescheduled: $reason]'
+            : current.notes,
+        updatedAt: DateTime.now(),
+      );
+      _bookings[index] = updated;
+      target = updated;
+      _notify();
+    }
+
+    try {
+      await _firestore
+          ?.collection(FirestoreCollections.bookings)
+          .doc(bookingId)
+          .set({
+        'sessionDate': Timestamp.fromDate(newDate),
+        'startTime': newStartTime,
+        'endTime': newEndTime,
+        'status': 'RESCHEDULED',
+        'updatedAt': FieldValue.serverTimestamp(),
+        ...?reason != null ? {'rescheduleReason': reason} : null,
+      }, SetOptions(merge: true));
+
+      if (target != null) {
+        await NotificationService.instance.sendNotification(
+          userId: target.clientId,
+          title: 'Session Rescheduled 🔄',
+          body: 'Your session with Coach ${target.displayTrainerName} has been moved to ${_formatDate(newDate)} at $newStartTime.',
+          type: 'BOOKING_RESCHEDULED',
+          relatedId: bookingId,
+          data: {
+            'newDate': newDate.toIso8601String(),
+            'newStartTime': newStartTime,
+            'newEndTime': newEndTime,
+          },
+        );
+      }
+    } catch (e) {
+      debugPrint('Notice: Error rescheduling booking: $e');
+    }
+  }
+
+  /// Cancel booking in real-time (by client or trainer)
+  Future<void> cancelBooking({
+    required String bookingId,
+    required bool isTrainer,
+    String? reason,
+  }) async {
+    final newStatus = isTrainer ? BookingStatus.cancelledTrainer : BookingStatus.cancelledClientEarly;
+    final index = _bookings.indexWhere((b) => b.id == bookingId);
+    BookingModel? target;
+    if (index >= 0) {
+      final current = _bookings[index];
+      final updated = current.copyWith(
+        status: newStatus,
+        notes: reason != null && reason.trim().isNotEmpty
+            ? '${current.notes != null ? "${current.notes}\n" : ""}[Cancelled by ${isTrainer ? "Trainer" : "Client"}: $reason]'
+            : current.notes,
+        updatedAt: DateTime.now(),
+      );
+      _bookings[index] = updated;
+      target = updated;
+      _notify();
+    }
+
+    try {
+      await _firestore
+          ?.collection(FirestoreCollections.bookings)
+          .doc(bookingId)
+          .set({
+        'status': isTrainer ? 'CANCELLED_TRAINER' : 'CANCELLED_CLIENT_EARLY',
+        'updatedAt': FieldValue.serverTimestamp(),
+        ...?reason != null ? {'cancellationReason': reason} : null,
+      }, SetOptions(merge: true));
+
+      if (target != null) {
+        // Release slot lock
+        final dateStr = '${target.sessionDate.year.toString().padLeft(4, '0')}-${target.sessionDate.month.toString().padLeft(2, '0')}-${target.sessionDate.day.toString().padLeft(2, '0')}';
+        final safeTime = target.startTime.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+        final lockDocId = '${target.trainerId}_${dateStr}_$safeTime';
+        if (_firestore != null) {
+          await _firestore!.collection(FirestoreCollections.slotLocks).doc(lockDocId).delete();
+        }
+
+        // Send notification to the opposite party
+        final recipientId = isTrainer ? target.clientId : target.trainerId;
+        final senderName = isTrainer ? target.displayTrainerName : target.displayClientName;
+        await NotificationService.instance.sendNotification(
+          userId: recipientId,
+          title: 'Session Cancelled ❌',
+          body: '$senderName cancelled the session on ${_formatDate(target.sessionDate)} at ${target.startTime}.${reason != null ? " Reason: $reason" : ""}',
+          type: 'BOOKING_CANCELLED',
+          relatedId: bookingId,
+        );
+      }
+    } catch (e) {
+      debugPrint('Notice: Error cancelling booking: $e');
+    }
+  }
+
+  String _formatDate(DateTime dt) {
+    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${dt.day} ${months[dt.month]}';
   }
 
   @override
