@@ -140,7 +140,7 @@ class BookingModel {
     this.meetingLocation,
     this.locationReference,
     this.notes,
-    bool isRescheduled = false,
+    this._isRescheduled = false,
     this.rescheduledAt,
     this.previousSessionDate,
     this.previousStartTime,
@@ -150,7 +150,7 @@ class BookingModel {
     this.confirmedAt,
     this.createdAt,
     this.updatedAt,
-  }) : _isRescheduled = isRescheduled;
+  });
 
   /// Convenient display getters
   String get displayClientName =>

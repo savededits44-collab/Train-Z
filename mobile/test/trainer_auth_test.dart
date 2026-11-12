@@ -1,6 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trainuspro/core/errors/app_exceptions.dart';
-import 'package:trainuspro/core/utils/validators.dart';
 import 'package:trainuspro/features/trainer/controllers/trainer_auth_controller.dart';
 import 'package:trainuspro/routing/app_router.dart';
 import 'package:trainuspro/routing/role_guards.dart';
