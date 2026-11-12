@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../features/client/client_feature.dart';
+import '../features/trainer/trainer_feature.dart';
+import '../shared/models/trainer_profile_model.dart';
 import '../screens/admin/admin_trainer_review_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/onboarding/client_onboarding.dart';
@@ -43,6 +45,17 @@ class AppRouter {
   static const String clientPaymentHistory = '/client/payment-history';
   static const String clientMyBookings = '/client/my-bookings';
   static const String clientBookingDetail = '/client/booking-detail';
+
+  // Dedicated Trainer Routes
+  static const String trainerLogin = '/trainer/login';
+  static const String trainerRegister = '/trainer/register';
+  static const String trainerCategorySelection = '/trainer/category-selection';
+  static const String trainerRegistrationSuccess = '/trainer/registration-success';
+  static const String trainerVerifyEmail = '/trainer/verify-email';
+  static const String trainerPendingApproval = '/trainer/pending-approval';
+  static const String trainerApproved = '/trainer/approved';
+  static const String trainerRejected = '/trainer/rejected';
+  static const String trainerForgotPassword = '/trainer/forgot-password';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -166,6 +179,40 @@ class AppRouter {
           builder: (_) => ClientBookingDetailScreen(
             booking: args['booking'],
           ),
+        );
+
+      // Dedicated Trainer Routes
+      case trainerLogin:
+        return MaterialPageRoute(builder: (_) => const TrainerLoginScreen());
+      case trainerRegister:
+        return MaterialPageRoute(builder: (_) => const TrainerRegisterScreen());
+      case trainerVerifyEmail:
+        final email = settings.arguments as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => TrainerEmailVerificationScreen(email: email),
+        );
+      case trainerPendingApproval:
+        return MaterialPageRoute(
+          builder: (_) => const TrainerPendingApprovalScreen(),
+        );
+      case trainerApproved:
+        final profile = settings.arguments as TrainerProfileModel?;
+        return MaterialPageRoute(
+          builder: (_) => profile != null
+              ? TrainerApprovedScreen(profile: profile)
+              : const TrainerDashboard(),
+        );
+      case trainerRejected:
+        final profile = settings.arguments as TrainerProfileModel?;
+        return MaterialPageRoute(
+          builder: (_) => profile != null
+              ? TrainerRejectedScreen(profile: profile)
+              : const TrainerLoginScreen(),
+        );
+      case trainerForgotPassword:
+        final email = settings.arguments as String?;
+        return MaterialPageRoute(
+          builder: (_) => TrainerForgotPasswordScreen(initialEmail: email),
         );
 
       case adminDashboard:

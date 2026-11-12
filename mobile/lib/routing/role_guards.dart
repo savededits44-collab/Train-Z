@@ -1,3 +1,4 @@
+import '../shared/models/trainer_profile_model.dart';
 import '../shared/models/user_model.dart';
 import 'app_router.dart';
 
@@ -18,6 +19,17 @@ class RoleGuards {
     if (user == null) return false;
     if (user.status == UserStatus.suspended) return false;
     return user.role == UserRole.trainer;
+  }
+
+  /// Checks if trainer is fully verified and approved by administration.
+  /// Section 3 & 5: Pending or rejected trainers cannot access restricted dashboard.
+  static bool canAccessTrainerDashboard({
+    required UserModel? user,
+    required TrainerProfileModel? profile,
+  }) {
+    if (!canAccessTrainer(user)) return false;
+    if (profile == null) return false;
+    return profile.verificationStatus == TrainerVerificationStatus.approved;
   }
 
   /// Checks if user is authorized to access Admin features
@@ -49,7 +61,7 @@ class RoleGuards {
 
     if (!user.isOnboarded) {
       return user.role == UserRole.trainer
-          ? AppRouter.trainerOnboarding
+          ? AppRouter.trainerCategorySelection
           : AppRouter.clientProfileCompletion;
     }
 
@@ -61,6 +73,43 @@ class RoleGuards {
         return AppRouter.trainerDashboard;
       case UserRole.admin:
         return AppRouter.adminDashboard;
+    }
+  }
+
+  /// Resolves the dedicated destination route for Trainer users based on Admin approval lifecycle
+  static String resolveTrainerDestinationRoute({
+    required UserModel? user,
+    required TrainerProfileModel? profile,
+  }) {
+    if (user == null) {
+      return AppRouter.trainerLogin;
+    }
+
+    if (user.status == UserStatus.suspended) {
+      return AppRouter.accountSuspended;
+    }
+
+    if (user.role != UserRole.trainer) {
+      return AppRouter.roleSelection;
+    }
+
+    if (!user.isEmailVerified) {
+      return AppRouter.trainerVerifyEmail;
+    }
+
+    if (profile == null) {
+      return AppRouter.trainerCategorySelection;
+    }
+
+    switch (profile.verificationStatus) {
+      case TrainerVerificationStatus.pending:
+        return AppRouter.trainerPendingApproval;
+      case TrainerVerificationStatus.approved:
+        return AppRouter.trainerDashboard;
+      case TrainerVerificationStatus.rejected:
+        return AppRouter.trainerRejected;
+      case TrainerVerificationStatus.suspended:
+        return AppRouter.accountSuspended;
     }
   }
 }

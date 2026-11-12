@@ -91,10 +91,11 @@ service cloud.firestore {
         request.resource.data.verificationStatus == 'PENDING'
       );
 
-      // Section 4 & 6: Only admins can approve or modify verification fields
+      // Section 4 & 6: Only admins can approve or modify verification fields, approval status, and trainer category
       allow update: if isAdmin() || (
         isOwner(trainerId) &&
         (!('verificationStatus' in request.resource.data) || request.resource.data.verificationStatus == resource.data.verificationStatus) &&
+        (!('category' in request.resource.data) || request.resource.data.category == resource.data.category) &&
         (!('approvedAt' in request.resource.data) || request.resource.data.approvedAt == resource.data.approvedAt) &&
         (!('approvedBy' in request.resource.data) || request.resource.data.approvedBy == resource.data.approvedBy) &&
         (!('adminReviewNotes' in request.resource.data) || request.resource.data.adminReviewNotes == resource.data.adminReviewNotes)

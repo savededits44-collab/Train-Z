@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../features/trainer/trainer_feature.dart';
 import '../../widgets/app_widgets.dart';
 import '../admin/admin_trainer_review_screen.dart';
 import 'client_onboarding.dart';
-import 'trainer_onboarding.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -87,7 +87,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   if (_selectedRole == 1) {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (_) => const TrainerOnboardingScreen(),
+                        builder: (_) => const TrainerRegisterScreen(),
                       ),
                     );
                   } else {

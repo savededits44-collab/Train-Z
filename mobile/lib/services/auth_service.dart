@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../core/constants/firestore_collections.dart';
 import '../core/errors/app_exceptions.dart';
+import '../shared/models/trainer_profile_model.dart';
 import '../shared/models/user_model.dart';
 
 /// Single, unified authentication service for TRAIN Z (both Clients and Trainers).
@@ -49,6 +50,8 @@ class AuthService {
     String? phoneNumber,
     UserRole? requestedRole,
     Gender? gender,
+    TrainerCategory? trainerCategory,
+    double? experienceYears,
   }) async {
     // Security Guard: Prevent public users from attempting to self-assign ADMIN role
     if (requestedRole == UserRole.admin) {
@@ -115,6 +118,32 @@ class AuthService {
             'totalForfeited': 0,
             'availableBalance': 0,
             'lastUpdated': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
+      }
+
+      // 3. If registered as TRAINER, initialize trainer_profiles with PENDING verification
+      if (requestedRole == UserRole.trainer) {
+        batch.set(
+          _firestore.collection(FirestoreCollections.trainerProfiles).doc(user.uid),
+          {
+            'uid': user.uid,
+            'category': (trainerCategory ?? TrainerCategory.trainer).toFirestore(),
+            'verificationStatus': 'PENDING',
+            'experienceYears': experienceYears ?? 0.0,
+            'specialties': <String>[],
+            'hourlyRate': 500,
+            'verificationDocuments': <String>[],
+            'certificationDocuments': <String>[],
+            'adminReviewNotes': null,
+            'approvedAt': null,
+            'approvedBy': null,
+            'isActive': true,
+            'ratingAvg': 5.0,
+            'totalReviews': 0,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
           },
           SetOptions(merge: true),
         );
@@ -268,6 +297,27 @@ class AuthService {
     final doc = await _firestore.collection(FirestoreCollections.users).doc(uid).get();
     if (!doc.exists) return null;
     return UserModel.fromDocument(doc);
+  }
+
+  /// Fetch strongly-typed TrainerProfileModel
+  Future<TrainerProfileModel?> getTrainerProfile(String uid) async {
+    if (uid.trim().isEmpty) return null;
+    final doc = await _firestore.collection(FirestoreCollections.trainerProfiles).doc(uid).get();
+    if (!doc.exists || doc.data() == null) return null;
+    return TrainerProfileModel.fromDocument(doc);
+  }
+
+  /// Stream of current typed TrainerProfileModel from Firestore
+  Stream<TrainerProfileModel?> trainerProfileStream(String uid) {
+    if (uid.trim().isEmpty) return Stream.value(null);
+    return _firestore
+        .collection(FirestoreCollections.trainerProfiles)
+        .doc(uid)
+        .snapshots()
+        .map((snapshot) {
+      if (!snapshot.exists || snapshot.data() == null) return null;
+      return TrainerProfileModel.fromDocument(snapshot);
+    });
   }
 
   /// Update client onboarding preferences (backward compatible)
