@@ -700,16 +700,19 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                 ),
                 child: _isSaving
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Iconsax.tick_circle, color: kLime, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'Save Weekly Availability',
-                            style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
-                          ),
-                        ],
+                    : const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Iconsax.tick_circle, color: kLime, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'Save Weekly Availability',
+                              style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
+                            ),
+                          ],
+                        ),
                       ),
               ),
             ),
@@ -838,8 +841,9 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
             // Add Window Button
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
                     '${day.generateSlots().length} session slots',
@@ -879,6 +883,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
+                isExpanded: true,
                 value: _timeOptions.contains(window.start) ? window.start : _timeOptions.first,
                 isDense: true,
                 style: TextStyle(fontFamily: 'Poppins', fontSize: 12 * sf, color: kDark, fontWeight: FontWeight.w600),
@@ -899,6 +904,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
+                isExpanded: true,
                 value: _timeOptions.contains(window.end) ? window.end : _timeOptions.last,
                 isDense: true,
                 style: TextStyle(fontFamily: 'Poppins', fontSize: 12 * sf, color: kDark, fontWeight: FontWeight.w600),
@@ -952,21 +958,24 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: const Color(0xFFFFE082)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Iconsax.coffee, size: 12, color: Color(0xFFF57F17)),
-          const SizedBox(width: 6),
-          Text(
-            'Break: ${w1.end} - ${w2.start} ($durationStr)',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 10 * sf,
-              color: const Color(0xFFF57F17),
-              fontWeight: FontWeight.w600,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Iconsax.coffee, size: 12, color: Color(0xFFF57F17)),
+            const SizedBox(width: 6),
+            Text(
+              'Break: ${w1.end} - ${w2.start} ($durationStr)',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 10 * sf,
+                color: const Color(0xFFF57F17),
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

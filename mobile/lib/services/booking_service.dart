@@ -719,6 +719,21 @@ class BookingService extends ChangeNotifier {
     _bookings[index] = updated;
     _notify();
 
+    // Increment completed sessions on package if present
+    if (booking.packageId != null && booking.packageId!.isNotEmpty) {
+      try {
+        ClientPackageService.instance.incrementCompletedSession(booking.packageId!);
+      } catch (_) {}
+    }
+
+    // Atomically consume credit on client ledger
+    try {
+      await CreditService.instance.consumeCreditForCompletedSession(
+        clientId: booking.clientId,
+        bookingId: bookingId,
+      );
+    } catch (_) {}
+
     final firestore = _firestore;
     if (firestore != null) {
       try {
@@ -738,24 +753,14 @@ class BookingService extends ChangeNotifier {
         final lockDocId = '${booking.trainerId}_${dateStr}_$safeTime';
         await firestore.collection(FirestoreCollections.slotLocks).doc(lockDocId).delete();
 
-        // Increment completed sessions on package if present
+        // Increment completed sessions on package in Firestore
         if (booking.packageId != null && booking.packageId!.isNotEmpty) {
-          try {
-            ClientPackageService.instance.incrementCompletedSession(booking.packageId!);
-          } catch (_) {}
           final pkgRef = firestore.collection(FirestoreCollections.purchasedPackages).doc(booking.packageId);
           await pkgRef.set({
             'completedSessions': FieldValue.increment(1),
             'updatedAt': FieldValue.serverTimestamp(),
           }, SetOptions(merge: true));
         }
-
-        try {
-          await CreditService.instance.consumeCreditForCompletedSession(
-            clientId: booking.clientId,
-            bookingId: bookingId,
-          );
-        } catch (_) {}
 
         // Send notification to client
         await NotificationService.instance.sendNotification(
@@ -809,6 +814,13 @@ class BookingService extends ChangeNotifier {
       }, SetOptions(merge: true));
 
       if (target != null) {
+        await CreditService.instance.processCancellationCredit(
+          clientId: target.clientId,
+          bookingId: bookingId,
+          sessionStartTime: target.fullSessionStartDateTime,
+          cancelledByRole: isTrainer ? UserRole.trainer : UserRole.client,
+        );
+
         // Release slot lock
         final dateStr = '${target.sessionDate.year.toString().padLeft(4, '0')}-${target.sessionDate.month.toString().padLeft(2, '0')}-${target.sessionDate.day.toString().padLeft(2, '0')}';
         final safeTime = target.startTime.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');

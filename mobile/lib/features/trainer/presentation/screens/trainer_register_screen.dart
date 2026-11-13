@@ -255,11 +255,12 @@ class _TrainerRegisterScreenState extends State<TrainerRegisterScreen> {
 
                 // Already registered link
                 Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
-                        'Already an active or registered trainer? ',
+                        'Already registered as trainer? ',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: (12.5 * sf).clamp(11.0, 13.5),

@@ -1,0 +1,12 @@
+# TRAIN Z Android Release Signing Configuration Template
+# Copy this file to 'key.properties' in the same directory (android/key.properties).
+# NEVER commit key.properties or .jks keystore files to version control!
+#
+# Generate a new release keystore with:
+# keytool -genkey -v -keystore trainz-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias trainz-release-key
+
+keyAlias=trainz-release-key
+keyPassword=YOUR_KEY_PASSWORD
+storePassword=YOUR_STORE_PASSWORD
+storeFile=trainz-release.jks
+

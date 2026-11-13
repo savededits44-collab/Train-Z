@@ -267,6 +267,10 @@ class ReviewService {
     }
 
     final existing = _mockReviews[bookingId];
+    if (existing != null && existing.clientId != clientId) {
+      throw const ReviewException('You cannot modify another athlete\'s review.');
+    }
+
     final reviewModel = ReviewModel(
       id: bookingId,
       bookingId: bookingId,

@@ -418,10 +418,12 @@ class AuthService {
   /// Sign out from both Firebase and Google session and securely clear in-memory caches
   Future<void> signOut() async {
     _cachedRole = null;
-    await Future.wait([
-      _auth.signOut(),
-      _googleSignIn.signOut(),
-    ]);
+    try {
+      await Future.wait([
+        _auth.signOut(),
+        _googleSignIn.signOut(),
+      ]);
+    } catch (_) {}
 
     // Securely clear sensitive in-memory session caches to prevent cross-account leaks
     try {

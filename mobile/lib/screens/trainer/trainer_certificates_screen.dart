@@ -203,16 +203,21 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'SUBMITTED CERTIFICATES (${certificates.length})',
-                        style: const TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: kDark,
-                          letterSpacing: 0.5,
+                      Expanded(
+                        child: Text(
+                          'SUBMITTED CERTIFICATES (${certificates.length})',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: kDark,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       if (certificates.isNotEmpty)
                         Text(
                           '${eligibility.verifiedCertificatesCount} Verified',
@@ -314,28 +319,35 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: kDark,
-                      borderRadius: BorderRadius.circular(10),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: kDark,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Iconsax.award, color: kLime, size: 18),
                     ),
-                    child: const Icon(Iconsax.award, color: kLime, size: 18),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    _category.displayName.toUpperCase(),
-                    style: const TextStyle(
-                      fontFamily: 'Syne',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: kDark,
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _category.displayName.toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: kDark,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(

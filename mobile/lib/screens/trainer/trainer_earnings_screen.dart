@@ -431,16 +431,21 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'TRAINER NET EARNINGS',
-                    style: TextStyle(
-                      fontFamily: 'Syne',
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w800,
-                      color: _kLime,
-                      letterSpacing: 1.1,
+                  const Expanded(
+                    child: Text(
+                      'TRAINER NET EARNINGS',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                        color: _kLime,
+                        letterSpacing: 1.1,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -556,15 +561,20 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 11.5,
-                  color: _kGrey,
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 11.5,
+                    color: _kGrey,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
+              const SizedBox(width: 4),
               Icon(icon, size: 16, color: color),
             ],
           ),

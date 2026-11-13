@@ -50,7 +50,7 @@ class TrainusproApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Trainz',
+      title: 'TRAIN Z',
       debugShowCheckedModeBanner: false,
       navigatorKey: PushNotificationService.navigatorKey,
       theme: AppTheme.darkTheme,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -194,6 +195,13 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
 
   /// Sandbox Simulation / Test-mode payment verification
   Future<void> _handleTestModePayment() async {
+    if (kReleaseMode) {
+      setState(() {
+        _errorMessage = 'Test mode simulation is disabled in production.';
+      });
+      return;
+    }
+
     setState(() {
       _isCreatingOrder = true;
       _errorMessage = null;
@@ -433,34 +441,36 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              // Sandbox Test Mode Trigger
-              InkWell(
-                onTap: _isCreatingOrder || _isVerifying ? null : _handleTestModePayment,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.flash_on, size: 14, color: Color(0xFFD97706)),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Test Mode Simulation (Instant Sandbox Verification)',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: (11.0 * sf).clamp(10.0, 11.5),
-                            color: const Color(0xFFB45309),
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.underline,
+              if (!kReleaseMode) ...[
+                const SizedBox(height: 8),
+                // Sandbox Test Mode Trigger
+                InkWell(
+                  onTap: _isCreatingOrder || _isVerifying ? null : _handleTestModePayment,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.flash_on, size: 14, color: Color(0xFFD97706)),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Test Mode Simulation (Instant Sandbox Verification)',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: (11.0 * sf).clamp(10.0, 11.5),
+                              color: const Color(0xFFB45309),
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
