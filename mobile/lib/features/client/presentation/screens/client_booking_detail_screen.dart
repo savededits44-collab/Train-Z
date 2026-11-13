@@ -1,12 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../shared/models/booking_model.dart';
+import '../../../../shared/models/conversation_model.dart';
 import '../../../../shared/models/payment_model.dart';
 import '../../../../widgets/app_widgets.dart';
 import '../widgets/client_reschedule_modal.dart';
+import 'client_chat_screen.dart';
 import 'client_payment_receipt_screen.dart';
 
 /// Detailed screen displaying full session booking metrics,
@@ -361,6 +364,52 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                       fontSize: (10.0 * sf).clamp(9.0, 11.0),
                       fontWeight: FontWeight.w600,
                       color: kDark,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                InkWell(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ClientChatScreen(
+                          conversation: ConversationModel(
+                            id: ConversationModel.generateId(_currentBooking.clientId, _currentBooking.trainerId),
+                            clientId: _currentBooking.clientId,
+                            trainerId: _currentBooking.trainerId,
+                            bookingId: _currentBooking.id,
+                            trainerName: _currentBooking.displayTrainerName,
+                            trainerPhotoUrl: _currentBooking.trainerPhotoUrl,
+                            clientName: FirebaseAuth.instance.currentUser?.displayName ?? 'Athlete',
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: kDark,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Iconsax.message, size: 13, color: kLime),
+                        SizedBox(width: 5),
+                        Text(
+                          'Message Trainer',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

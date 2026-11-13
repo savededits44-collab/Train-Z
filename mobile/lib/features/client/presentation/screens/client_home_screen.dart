@@ -4,11 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../services/auth_service.dart';
+import '../../../../services/chat_service.dart';
 import '../../../../services/credit_service.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../services/location_service.dart';
+import '../../../../services/notification_service.dart';
 import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/client_profile_model.dart';
+import '../../../../shared/models/conversation_model.dart';
 import '../../../../shared/models/session_credit_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../shared/models/training_plan_model.dart';
@@ -21,7 +24,9 @@ import '../widgets/client_package_card.dart';
 import '../widgets/client_trainer_card.dart';
 import '../widgets/client_upcoming_session_card.dart';
 import '../widgets/trainer_filter_sheet.dart';
+import 'client_chat_screen.dart';
 import 'client_my_bookings_screen.dart';
+import 'client_notifications_screen.dart';
 import 'client_profile_setup_screen.dart';
 
 /// Comprehensive Client Home Dashboard for TRAIN Z.
@@ -173,7 +178,58 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 4),
+                      // Notification Centre Button with Unread Badge
+                      ListenableBuilder(
+                        listenable: NotificationService.instance,
+                        builder: (context, _) {
+                          final unreadCount = NotificationService.instance.unreadCount;
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Iconsax.notification, color: kDark, size: 20),
+                                tooltip: 'Notifications',
+                                onPressed: () {
+                                  HapticFeedback.lightImpact();
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const ClientNotificationsScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                              if (unreadCount > 0)
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(3.5),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFDC2626),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                    child: Center(
+                                      child: Text(
+                                        unreadCount > 9 ? '9+' : '$unreadCount',
+                                        style: const TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                          height: 1,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 4),
                       // Sign Out
                       IconButton(
                         icon: const Icon(Iconsax.logout, color: kDark, size: 20),
@@ -239,9 +295,15 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   ),
                 ],
               ),
-              bottomNavigationBar: ClientBottomNav(
-                currentIndex: _currentTab,
-                onTap: (index) => setState(() => _currentTab = index),
+              bottomNavigationBar: StreamBuilder<int>(
+                stream: ChatService.instance.streamClientTotalUnreadCount(uid),
+                builder: (context, unreadSnap) {
+                  return ClientBottomNav(
+                    currentIndex: _currentTab,
+                    unreadMessageCount: unreadSnap.data ?? 0,
+                    onTap: (index) => setState(() => _currentTab = index),
+                  );
+                },
               ),
             );
           },
@@ -1582,26 +1644,26 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Security & Safety Notice
           Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: const Color(0xFFF9FAFB),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFFEEEEEE)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.shield_outlined, size: 20, color: Color(0xFF16A34A)),
+                const Icon(Icons.shield_outlined, size: 18, color: Color(0xFF16A34A)),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Direct chat activates automatically with trainers once a training session is requested or confirmed.',
+                    'Direct chat is active with your booked trainers. Discuss scheduling, fitness goals, and session details.',
                     style: TextStyle(
                       fontFamily: 'Poppins',
-                      fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                      fontSize: (10.5 * sf).clamp(9.5, 12.0),
                       color: const Color(0xFF555555),
                     ),
                   ),
@@ -1610,138 +1672,138 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Message Thread Previews
           Expanded(
-            child: StreamBuilder<List<BookingModel>>(
-              stream: FirestoreService().streamClientBookings(uid),
+            child: StreamBuilder<List<ConversationModel>>(
+              stream: ChatService.instance.streamClientConversations(uid),
               builder: (context, snap) {
-                final bookings = snap.data ?? [];
-                final trainerNames = <String>{};
-                for (final b in bookings) {
-                  trainerNames.add(b.displayTrainerName);
-                }
+                final conversations = snap.data ?? [];
 
-                if (trainerNames.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Iconsax.message_notif, size: 44, color: Color(0xFFB0B0B0)),
-                          const SizedBox(height: 14),
-                          Text(
-                            'Your conversations with trainers will appear here.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontSize: (14.5 * sf).clamp(13.0, 16.5),
-                              fontWeight: FontWeight.w700,
-                              color: kDark,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Once you connect with a trainer, your conversations will appear here.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                              color: kGrey,
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          ElevatedButton(
-                            onPressed: () => _switchTab(1),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: kDark,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
-                            ),
-                            child: const Text(
-                              'Find a Trainer',
-                              style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kLime),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
+                if (conversations.isEmpty) {
+                  // Check if client has any booked trainers to start conversations with
+                  return StreamBuilder<List<BookingModel>>(
+                    stream: FirestoreService().streamClientBookings(uid),
+                    builder: (context, bookingSnap) {
+                      final bookings = bookingSnap.data ?? [];
+                      final uniqueBookedTrainers = <String, BookingModel>{};
+                      for (final b in bookings) {
+                        if (!uniqueBookedTrainers.containsKey(b.trainerId)) {
+                          uniqueBookedTrainers[b.trainerId] = b;
+                        }
+                      }
 
-                return ListView(
-                  physics: const BouncingScrollPhysics(),
-                  children: trainerNames.map((name) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFEEEEEE)),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: kDark,
-                            child: Text(
-                              name.isNotEmpty ? name[0] : 'C',
-                              style: const TextStyle(fontFamily: 'Syne', color: kLime, fontWeight: FontWeight.w800),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
+                      if (uniqueBookedTrainers.isEmpty) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      name,
-                                      style: const TextStyle(
-                                        fontFamily: 'Syne',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: kDark,
-                                      ),
-                                    ),
-                                    const Text(
-                                      'Active',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontSize: 10,
-                                        color: Color(0xFF16A34A),
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+                                const Icon(Iconsax.message_notif, size: 48, color: Color(0xFFB0B0B0)),
+                                const SizedBox(height: 14),
+                                Text(
+                                  'Messages',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: 'Syne',
+                                    fontSize: (18.0 * sf).clamp(16.0, 20.0),
+                                    fontWeight: FontWeight.w800,
+                                    color: kDark,
+                                  ),
                                 ),
-                                const SizedBox(height: 2),
-                                const Text(
-                                  'Ready for upcoming workout session.',
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Your conversations with trainers will appear here.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: (12.0 * sf).clamp(11.0, 13.5),
+                                    color: kGrey,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () => _switchTab(1),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: kDark,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  ),
+                                  child: const Text(
+                                    'Find a Trainer',
+                                    style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kLime),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          IconButton(
-                            icon: const Icon(Iconsax.message, size: 18, color: kDark),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Direct chat thread with $name ready!')),
-                              );
-                            },
+                        );
+                      }
+
+                      // If client has booked trainers but no active message thread yet:
+                      return ListView(
+                        physics: const BouncingScrollPhysics(),
+                        children: [
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Column(
+                                children: [
+                                  const Icon(Iconsax.message_notif, size: 40, color: Color(0xFFB0B0B0)),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    'Messages',
+                                    style: TextStyle(
+                                      fontFamily: 'Syne',
+                                      fontSize: (16.0 * sf).clamp(14.0, 18.0),
+                                      fontWeight: FontWeight.w800,
+                                      color: kDark,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Your conversations with trainers will appear here.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: (11.5 * sf).clamp(10.5, 12.5),
+                                      color: kGrey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Your Booked Trainers',
+                            style: TextStyle(
+                              fontFamily: 'Syne',
+                              fontSize: (14.0 * sf).clamp(13.0, 16.0),
+                              fontWeight: FontWeight.w700,
+                              color: kDark,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ...uniqueBookedTrainers.values.map((booking) {
+                            return _buildBookedTrainerStartCard(booking, uid, displayName, sf);
+                          }),
                         ],
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    },
+                  );
+                }
+
+                return ListView.separated(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: conversations.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final conv = conversations[index];
+                    return _buildConversationListItem(conv, sf);
+                  },
                 );
               },
             ),
@@ -1749,6 +1811,248 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildConversationListItem(ConversationModel conv, double sf) {
+    final timeStr = conv.lastMessageAt != null ? _formatMessageTime(conv.lastMessageAt!) : '';
+
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ClientChatScreen(conversation: conv),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: conv.clientUnreadCount > 0 ? kDark.withValues(alpha: 0.18) : const Color(0xFFEEEEEE),
+            width: conv.clientUnreadCount > 0 ? 1.5 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: kDark,
+                  backgroundImage: (conv.trainerPhotoUrl != null && conv.trainerPhotoUrl!.isNotEmpty)
+                      ? NetworkImage(conv.trainerPhotoUrl!)
+                      : null,
+                  child: (conv.trainerPhotoUrl == null || conv.trainerPhotoUrl!.isEmpty)
+                      ? Text(
+                          conv.trainerName.isNotEmpty ? conv.trainerName[0].toUpperCase() : 'T',
+                          style: const TextStyle(fontFamily: 'Syne', color: kLime, fontWeight: FontWeight.w800),
+                        )
+                      : null,
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF16A34A),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          conv.trainerName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (13.5 * sf).clamp(12.5, 15.0),
+                            fontWeight: conv.clientUnreadCount > 0 ? FontWeight.w800 : FontWeight.w700,
+                            color: kDark,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        timeStr,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: (10.0 * sf).clamp(9.0, 11.0),
+                          color: conv.clientUnreadCount > 0 ? kDark : const Color(0xFF9CA3AF),
+                          fontWeight: conv.clientUnreadCount > 0 ? FontWeight.w600 : FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          conv.lastMessage.isNotEmpty ? conv.lastMessage : 'Tap to start conversation',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                            color: conv.clientUnreadCount > 0 ? kDark : kGrey,
+                            fontWeight: conv.clientUnreadCount > 0 ? FontWeight.w600 : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                      if (conv.clientUnreadCount > 0)
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: kDark,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '${conv.clientUnreadCount}',
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: kLime,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBookedTrainerStartCard(BookingModel booking, String uid, String displayName, double sf) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: kDark,
+            backgroundImage: (booking.trainerPhotoUrl != null && booking.trainerPhotoUrl!.isNotEmpty)
+                ? NetworkImage(booking.trainerPhotoUrl!)
+                : null,
+            child: (booking.trainerPhotoUrl == null || booking.trainerPhotoUrl!.isEmpty)
+                ? Text(
+                    booking.displayTrainerName.isNotEmpty ? booking.displayTrainerName[0].toUpperCase() : 'T',
+                    style: const TextStyle(fontFamily: 'Syne', color: kLime, fontWeight: FontWeight.w800),
+                  )
+                : null,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  booking.displayTrainerName,
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: (13.5 * sf).clamp(12.5, 15.0),
+                    fontWeight: FontWeight.w700,
+                    color: kDark,
+                  ),
+                ),
+                Text(
+                  'Booked Trainer • Ready to chat',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: (10.5 * sf).clamp(9.5, 11.5),
+                    color: const Color(0xFF16A34A),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              HapticFeedback.lightImpact();
+              final conv = await ChatService.instance.getOrCreateConversation(
+                clientId: uid,
+                trainerId: booking.trainerId,
+                trainerName: booking.displayTrainerName,
+                trainerPhotoUrl: booking.trainerPhotoUrl,
+                clientName: displayName,
+                bookingId: booking.id,
+              );
+              if (mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ClientChatScreen(conversation: conv),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kDark,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              elevation: 0,
+            ),
+            child: const Text(
+              'Chat',
+              style: TextStyle(fontFamily: 'Syne', fontSize: 11, fontWeight: FontWeight.w700, color: kLime),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatMessageTime(DateTime dt) {
+    final now = DateTime.now();
+    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    final min = dt.minute.toString().padLeft(2, '0');
+    final timeStr = '$hour:$min $period';
+
+    if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
+      return timeStr;
+    } else if (dt.year == now.year && dt.month == now.month && dt.day == now.day - 1) {
+      return 'Yesterday';
+    } else {
+      return '${dt.day}/${dt.month}';
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -214,6 +214,19 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
                     ),
                   ],
                 ),
+                if (item.trainerName != null && item.trainerName!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Iconsax.user, size: 12, color: kGrey),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Coach: ${item.trainerName}',
+                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ],
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Divider(height: 1, color: Color(0xFFF3F4F6)),

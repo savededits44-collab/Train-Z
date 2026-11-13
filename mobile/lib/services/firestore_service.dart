@@ -16,6 +16,7 @@ import 'booking_service.dart';
 import 'credit_service.dart';
 import 'notification_service.dart';
 import 'location_service.dart';
+import 'trainer_availability_service.dart';
 
 /// Core Firestore data access service for TRAIN Z shared features.
 class FirestoreService {
@@ -23,28 +24,108 @@ class FirestoreService {
   factory FirestoreService() => _instance;
   FirestoreService._internal();
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore? _firestoreInstance;
+  FirebaseFirestore get _firestore {
+    try {
+      _firestoreInstance ??= FirebaseFirestore.instance;
+      return _firestoreInstance!;
+    } catch (_) {
+      return FirebaseFirestore.instance;
+    }
+  }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // Training Plans (Fixed Packages)
+  // Training Plans & Packages
   // ───────────────────────────────────────────────────────────────────────────
 
-  /// Streams active platform training packages
+  /// Streams active platform training packages (used by Standard Trainers and platform default)
   Stream<List<TrainingPlanModel>> streamTrainingPlans() {
-    return _firestore
-        .collection(FirestoreCollections.trainingPlans)
-        .where('isActive', isEqualTo: true)
-        .snapshots()
-        .map((snap) => snap.docs.map((d) => TrainingPlanModel.fromDocument(d)).toList()
-          ..sort((a, b) => a.price.compareTo(b.price)));
+    return streamPlatformTrainingPlans();
+  }
+
+  /// Streams the 6 predefined TRAIN Z platform packages.
+  /// Falls back to [TrainingPlanModel.platformPackages] if the collection has not yet been seeded.
+  Stream<List<TrainingPlanModel>> streamPlatformTrainingPlans() {
+    try {
+      return _firestore
+          .collection(FirestoreCollections.trainingPlans)
+          .where('isActive', isEqualTo: true)
+          .snapshots()
+          .map((snap) {
+        final plans = snap.docs
+            .map((d) => TrainingPlanModel.fromDocument(d))
+            .where((p) => p.isPlatformPackage)
+            .toList();
+        if (plans.isEmpty) {
+          return TrainingPlanModel.platformPackages;
+        }
+        plans.sort((a, b) => a.price.compareTo(b.price));
+        return plans;
+      }).handleError((_) => TrainingPlanModel.platformPackages);
+    } catch (_) {
+      return Stream.value(TrainingPlanModel.platformPackages);
+    }
+  }
+
+  /// Streams custom training plans created by an Advanced Trainer.
+  /// Enforces that only plans approved (isApproved: true) and published (isActive: true)
+  /// by TRAIN Z Admin are returned.
+  Stream<List<TrainingPlanModel>> streamAdvancedTrainerPlans(String trainerUid) {
+    if (trainerUid.trim().isEmpty) return Stream.value([]);
+    try {
+      return _firestore
+          .collection(FirestoreCollections.trainingPlans)
+          .where('trainerId', isEqualTo: trainerUid)
+          .where('isApproved', isEqualTo: true)
+          .where('isActive', isEqualTo: true)
+          .snapshots()
+          .map((snap) {
+        final plans = snap.docs.map((d) => TrainingPlanModel.fromDocument(d)).toList();
+        plans.sort((a, b) => a.price.compareTo(b.price));
+        return plans;
+      }).handleError((_) => <TrainingPlanModel>[]);
+    } catch (e) {
+      return Stream.value([]);
+    }
+  }
+
+  /// Category-aware package streaming for a selected trainer:
+  /// - Standard Trainer: returns the 6 predefined TRAIN Z platform packages.
+  /// - Advanced Trainer: returns only custom plans approved & published for this trainer.
+  /// - Professional Trainer: returns empty (Coming Soon).
+  Stream<List<TrainingPlanModel>> streamPackagesForTrainer(TrainerDisplayModel? trainer) {
+    if (trainer == null) {
+      return streamPlatformTrainingPlans();
+    }
+    switch (trainer.category) {
+      case TrainerCategory.trainer:
+        return streamPlatformTrainingPlans();
+      case TrainerCategory.advancedTrainer:
+        return streamAdvancedTrainerPlans(trainer.uid);
+      case TrainerCategory.professionalTrainer:
+        return Stream.value([]);
+    }
   }
 
   /// Get single training plan by id
   Future<TrainingPlanModel?> getTrainingPlan(String planId) async {
     if (planId.trim().isEmpty) return null;
-    final doc = await _firestore.collection(FirestoreCollections.trainingPlans).doc(planId).get();
-    if (!doc.exists) return null;
-    return TrainingPlanModel.fromDocument(doc);
+    try {
+      final doc = await _firestore.collection(FirestoreCollections.trainingPlans).doc(planId).get();
+      if (!doc.exists) {
+        // Fallback to platform packages list if not in Firestore
+        for (final p in TrainingPlanModel.platformPackages) {
+          if (p.id == planId) return p;
+        }
+        return null;
+      }
+      return TrainingPlanModel.fromDocument(doc);
+    } catch (_) {
+      for (final p in TrainingPlanModel.platformPackages) {
+        if (p.id == planId) return p;
+      }
+      return null;
+    }
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -169,15 +250,14 @@ class FirestoreService {
 
         final trainingGoals = (rawData['trainingGoals'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
             profile.specialties;
-        final certs = (rawData['certifications'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-            (profile.certificationDocuments.isNotEmpty
-                ? ['Certified Personal Coach', 'CPR/AED Certified']
-                : ['TRAIN Z Verified Professional']);
+        final certs = (rawData['verifiedCertifications'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+            (rawData['certifications'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+            <String>[];
 
         list.add(TrainerDisplayModel(
           profile: profile,
           uid: profile.uid,
-          displayName: user.displayName ?? (rawData['fullName'] as String?) ?? 'Coach',
+          displayName: user.displayName ?? (rawData['fullName'] as String?) ?? 'Personal Trainer',
           photoUrl: user.photoUrl,
           gender: user.gender ?? clientGender,
           email: user.email,
@@ -778,52 +858,52 @@ class FirestoreService {
   }
 
   /// Streams available 60-minute time slots for a specific trainer and date,
-  /// taking into account active bookings and slot locks in Firestore.
+  /// respecting the trainer's weekly availability, date overrides/blackouts,
+  /// confirmed bookings, temporary reservations (slot locks) and past times.
   Stream<List<TimeSlot>> streamSlotsForTrainerDate({
     required String trainerId,
     required DateTime date,
+    String? currentClientId,
   }) {
-    final dateStr = date.toIso8601String().substring(0, 10);
+    return TrainerAvailabilityService.instance.streamSlotsForTrainerDate(
+      trainerId: trainerId,
+      date: date,
+      currentClientId: currentClientId,
+    );
+  }
 
-    return _firestore
-        .collection(FirestoreCollections.slotLocks)
-        .where('trainerId', isEqualTo: trainerId)
-        .where('date', isEqualTo: dateStr)
-        .snapshots()
-        .map((snap) {
-      final lockedTimes = <String>{};
-      final now = DateTime.now();
+  /// Checks if a time slot has already elapsed today
+  static bool isTimeInPast(String timeStr, DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final targetDate = DateTime(date.year, date.month, date.day);
+    if (targetDate.isBefore(today)) return true;
+    if (targetDate.isAfter(today)) return false;
 
-      for (final doc in snap.docs) {
-        final data = doc.data();
-        final status = data['status'] as String? ?? '';
-        final expRaw = data['expiresAt'];
-        DateTime? exp;
-        if (expRaw is Timestamp) exp = expRaw.toDate();
+    // It's today, check the hour/minute
+    final parsed = parseTimeOfDay(timeStr);
+    if (parsed == null) return false;
+    final slotDateTime = DateTime(now.year, now.month, now.day, parsed.hour, parsed.minute);
+    return now.isAfter(slotDateTime);
+  }
 
-        if (status == 'CONFIRMED') {
-          lockedTimes.add(data['startTime'] as String? ?? '');
-        } else if (status == 'RESERVED' && exp != null && exp.isAfter(now)) {
-          lockedTimes.add(data['startTime'] as String? ?? '');
-        }
-      }
-
-      final defaultSlots = [
-        '06:00 AM',
-        '07:00 AM',
-        '08:30 AM',
-        '10:00 AM',
-        '11:30 AM',
-        '05:00 PM',
-        '06:30 PM',
-        '08:00 PM',
-      ];
-
-      return defaultSlots.map((start) {
-        final isBooked = lockedTimes.contains(start);
-        return TimeSlot(start: start, end: computeSlotEndTime(start), isBooked: isBooked);
-      }).toList();
-    });
+  /// Parses 12-hour AM/PM string into 24-hour hour & minute
+  static ({int hour, int minute})? parseTimeOfDay(String timeStr) {
+    try {
+      final clean = timeStr.trim().toUpperCase();
+      final isPm = clean.contains('PM');
+      final isAm = clean.contains('AM');
+      final digits = clean.replaceAll(RegExp(r'[^0-9:]'), '');
+      final parts = digits.split(':');
+      if (parts.isEmpty) return null;
+      int hour = int.parse(parts[0]);
+      int minute = parts.length > 1 ? int.parse(parts[1]) : 0;
+      if (isPm && hour < 12) hour += 12;
+      if (isAm && hour == 12) hour = 0;
+      return (hour: hour, minute: minute);
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Helper to compute end time for 60-minute slots
@@ -1016,7 +1096,34 @@ class FirestoreService {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      // 2. Confirm linked booking reservation (if present)
+      // 2. Activate purchased package record
+      final packageDocRef = _firestore.collection(FirestoreCollections.purchasedPackages).doc();
+      final validity = payment.validityDays ?? 30;
+      final expiryDate = now.add(Duration(days: validity));
+
+      transaction.set(packageDocRef, {
+        'id': packageDocRef.id,
+        'clientId': payment.clientId,
+        'clientName': 'TRAIN Z Athlete',
+        'trainerId': payment.trainerId ?? '',
+        'trainerName': payment.trainerName ?? 'Personal Coach',
+        'packageId': payment.packageId,
+        'packageName': payment.displayPackageName,
+        'price': payment.amount,
+        'purchaseDate': Timestamp.fromDate(now),
+        'startDate': Timestamp.fromDate(now),
+        'expiryDate': Timestamp.fromDate(expiryDate),
+        'totalDays': validity,
+        'totalSessions': sessionsCount,
+        'completedSessions': 0,
+        'paymentStatus': 'COMPLETED',
+        'paymentTransactionId': razorpayPaymentId,
+        'status': 'ACTIVE',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // 3. Confirm linked booking reservation (if present and not expired)
       if (payment.bookingId != null && payment.bookingId!.isNotEmpty) {
         final bookingRef = _firestore.collection(FirestoreCollections.bookings).doc(payment.bookingId);
         final bookingSnap = await transaction.get(bookingRef);
@@ -1024,12 +1131,16 @@ class FirestoreService {
         if (bookingSnap.exists) {
           final bookingData = bookingSnap.data() ?? {};
           final status = bookingData['status'] as String? ?? '';
+          final expiresAt = (bookingData['expiresAt'] as Timestamp?)?.toDate();
+          final isExpired = expiresAt != null && expiresAt.isBefore(now);
 
-          if (status == 'RESERVED' || status == 'PENDING') {
+          if (!isExpired && (status == 'RESERVED' || status == 'PENDING')) {
             transaction.update(bookingRef, {
               'status': 'CONFIRMED',
               'paymentStatus': 'COMPLETED',
               'paymentTransactionId': razorpayPaymentId,
+              'packageId': payment.packageId,
+              'purchasedPackageId': packageDocRef.id,
               'confirmedAt': Timestamp.fromDate(now),
               'updatedAt': FieldValue.serverTimestamp(),
             });
@@ -1045,17 +1156,23 @@ class FirestoreService {
                 'updatedAt': FieldValue.serverTimestamp(),
               }, SetOptions(merge: true));
             }
+          } else if (isExpired && status == 'RESERVED') {
+            transaction.update(bookingRef, {
+              'status': 'EXPIRED',
+              'updatedAt': FieldValue.serverTimestamp(),
+            });
           }
         }
       }
 
-      // 3. Update payment record to SUCCESS
+      // 4. Update payment record to SUCCESS
       final updated = payment.copyWith(
         status: PaymentStatus.success,
         razorpayPaymentId: razorpayPaymentId,
         razorpaySignature: razorpaySignature,
         paymentMethod: paymentMethod ?? 'ONLINE',
         creditsGranted: true,
+        purchasedPackageId: packageDocRef.id,
         verifiedAt: now,
         updatedAt: now,
       );
@@ -1066,6 +1183,7 @@ class FirestoreService {
         'razorpaySignature': razorpaySignature,
         'paymentMethod': paymentMethod ?? 'ONLINE',
         'creditsGranted': true,
+        'purchasedPackageId': packageDocRef.id,
         'verifiedAt': Timestamp.fromDate(now),
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -1081,10 +1199,44 @@ class FirestoreService {
     String? errorDescription,
   }) async {
     final paymentRef = _firestore.collection(FirestoreCollections.payments).doc(paymentDocId);
+    final paymentSnap = await paymentRef.get();
+
     await paymentRef.update({
       'status': 'FAILED',
+      'errorCode': errorCode ?? 'PAYMENT_CANCELLED_OR_FAILED',
       'errorMessage': errorDescription ?? 'Payment cancelled or failed',
       'updatedAt': FieldValue.serverTimestamp(),
     });
+
+    // Release temporary slot reservation if attached
+    if (paymentSnap.exists) {
+      final paymentData = paymentSnap.data() ?? {};
+      final bookingId = paymentData['bookingId'] as String?;
+      if (bookingId != null && bookingId.isNotEmpty) {
+        final bookingRef = _firestore.collection(FirestoreCollections.bookings).doc(bookingId);
+        final bookingSnap = await bookingRef.get();
+        if (bookingSnap.exists) {
+          final b = bookingSnap.data() ?? {};
+          if (b['status'] == 'RESERVED') {
+            await bookingRef.update({
+              'status': 'CANCELLED',
+              'cancellationReason': 'Payment cancelled or failed during checkout',
+              'updatedAt': FieldValue.serverTimestamp(),
+            });
+
+            final dateStr = (b['sessionDate'] as Timestamp?)?.toDate().toIso8601String().substring(0, 10) ?? '';
+            final safeTime = (b['startTime'] as String? ?? '').replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+            final trainerId = b['trainerId'] as String? ?? '';
+            if (trainerId.isNotEmpty && dateStr.isNotEmpty) {
+              final lockDocId = '${trainerId}_${dateStr}_$safeTime';
+              await _firestore.collection(FirestoreCollections.slotLocks).doc(lockDocId).update({
+                'status': 'RELEASED',
+                'updatedAt': FieldValue.serverTimestamp(),
+              });
+            }
+          }
+        }
+      }
+    }
   }
 }

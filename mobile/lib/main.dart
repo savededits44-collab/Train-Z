@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'routing/app_router.dart';
 import 'services/location_service.dart';
+import 'services/push_notification_service.dart';
 import 'splashscreen/splashscreen.dart';
 import 'theme/app_theme.dart';
 
@@ -21,6 +22,13 @@ void main() async {
     await LocationService.instance.initialize();
   } catch (e) {
     debugPrint('LocationService initialization notice: $e');
+  }
+
+  // Initialize push notification service (FCM)
+  try {
+    await PushNotificationService.instance.initialize();
+  } catch (e) {
+    debugPrint('PushNotificationService initialization notice: $e');
   }
 
   // Set system UI style for ultra-clean edge-to-edge dark luxury
@@ -44,6 +52,7 @@ class TrainusproApp extends StatelessWidget {
     return MaterialApp(
       title: 'Trainz',
       debugShowCheckedModeBanner: false,
+      navigatorKey: PushNotificationService.navigatorKey,
       theme: AppTheme.darkTheme,
       home: const SplashScreen(),
       onGenerateRoute: AppRouter.onGenerateRoute,

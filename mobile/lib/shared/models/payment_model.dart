@@ -61,6 +61,7 @@ class PaymentModel {
   final bool creditsGranted;
   final String? errorMessage;
   final String? invoiceId;
+  final String? purchasedPackageId;
   final DateTime? verifiedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -88,6 +89,7 @@ class PaymentModel {
     this.creditsGranted = false,
     this.errorMessage,
     this.invoiceId,
+    this.purchasedPackageId,
     this.verifiedAt,
     this.createdAt,
     this.updatedAt,
@@ -128,6 +130,7 @@ class PaymentModel {
     bool? creditsGranted,
     String? errorMessage,
     String? invoiceId,
+    String? purchasedPackageId,
     DateTime? verifiedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -155,6 +158,7 @@ class PaymentModel {
       creditsGranted: creditsGranted ?? this.creditsGranted,
       errorMessage: errorMessage ?? this.errorMessage,
       invoiceId: invoiceId ?? this.invoiceId,
+      purchasedPackageId: purchasedPackageId ?? this.purchasedPackageId,
       verifiedAt: verifiedAt ?? this.verifiedAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -185,6 +189,7 @@ class PaymentModel {
       'creditsGranted': creditsGranted,
       'errorMessage': errorMessage,
       'invoiceId': invoiceId,
+      'purchasedPackageId': purchasedPackageId,
       'verifiedAt': verifiedAt != null ? Timestamp.fromDate(verifiedAt!) : null,
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
@@ -221,6 +226,7 @@ class PaymentModel {
       creditsGranted: map['creditsGranted'] as bool? ?? false,
       errorMessage: map['errorMessage'] as String?,
       invoiceId: map['invoiceId'] as String?,
+      purchasedPackageId: map['purchasedPackageId'] as String?,
       verifiedAt: parseTimestamp(map['verifiedAt']),
       createdAt: parseTimestamp(map['createdAt']),
       updatedAt: parseTimestamp(map['updatedAt']),

@@ -25,6 +25,7 @@ class StorageService {
   Future<String> uploadProfilePicture({
     required String userId,
     required File file,
+    void Function(double progress)? onProgress,
   }) async {
     final bytes = await file.length();
     if (bytes > maxProfileImageBytes) {
@@ -35,6 +36,13 @@ class StorageService {
     }
 
     final ext = file.path.split('.').last.toLowerCase();
+    if (!['jpg', 'jpeg', 'png', 'webp'].contains(ext)) {
+      throw const StorageException(
+        'Invalid file type. Only JPG, JPEG, PNG, and WebP images are permitted.',
+        code: 'INVALID_FILE_TYPE',
+      );
+    }
+
     final fileName = 'avatar_${DateTime.now().millisecondsSinceEpoch}.$ext';
     final ref = _storage.ref().child('${FirestoreCollections.storageProfilePictures}/$userId/$fileName');
 
@@ -43,15 +51,36 @@ class StorageService {
       customMetadata: {'userId': userId},
     );
 
-    final uploadTask = await ref.putFile(file, metadata);
-    final downloadUrl = await uploadTask.ref.getDownloadURL();
+    final uploadTask = ref.putFile(file, metadata);
 
-    // Sync photoUrl to users document
+    if (onProgress != null) {
+      uploadTask.snapshotEvents.listen((event) {
+        if (event.totalBytes > 0) {
+          final progress = (event.bytesTransferred / event.totalBytes).clamp(0.0, 1.0);
+          onProgress(progress);
+        }
+      });
+    }
+
+    final snapshot = await uploadTask;
+    final downloadUrl = await snapshot.ref.getDownloadURL();
+
+    // Sync photoUrl to users document and trainer_profiles document
     if (userId.trim().isNotEmpty) {
-      await _firestore.collection(FirestoreCollections.users).doc(userId).update({
+      final batch = _firestore.batch();
+      final userRef = _firestore.collection(FirestoreCollections.users).doc(userId);
+      batch.set(userRef, {
         'photoUrl': downloadUrl,
         'updatedAt': FieldValue.serverTimestamp(),
-      });
+      }, SetOptions(merge: true));
+
+      final trainerRef = _firestore.collection(FirestoreCollections.trainerProfiles).doc(userId);
+      batch.set(trainerRef, {
+        'photoUrl': downloadUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await batch.commit();
     }
 
     return downloadUrl;

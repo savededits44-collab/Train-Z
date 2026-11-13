@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../core/constants/firestore_collections.dart';
 import '../core/errors/app_exceptions.dart';
+import '../shared/models/trainer_certificate_model.dart';
 import '../shared/models/trainer_profile_model.dart';
 import '../shared/models/user_model.dart';
 
@@ -13,15 +15,44 @@ class AuthService {
   factory AuthService() => _instance;
   AuthService._internal();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseAuth? _authInstance;
+  FirebaseAuth get _auth {
+    _authInstance ??= FirebaseAuth.instance;
+    return _authInstance!;
+  }
+
+  FirebaseFirestore? _firestoreInstance;
+  FirebaseFirestore get _firestore {
+    _firestoreInstance ??= FirebaseFirestore.instance;
+    return _firestoreInstance!;
+  }
+
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  User? get currentUser => _auth.currentUser;
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  User? get currentUser {
+    try {
+      return _auth.currentUser;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Stream<User?> get authStateChanges {
+    try {
+      return _auth.authStateChanges();
+    } catch (_) {
+      return Stream.value(null);
+    }
+  }
 
   /// Checks if current authenticated user has verified their email address
-  bool get isEmailVerified => _auth.currentUser?.emailVerified ?? false;
+  bool get isEmailVerified {
+    try {
+      return _auth.currentUser?.emailVerified ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
 
   /// Stream of current typed UserModel from Firestore
   Stream<UserModel?> get currentUserProfileStream {
@@ -294,17 +325,234 @@ class AuthService {
   /// Fetch strongly-typed UserModel
   Future<UserModel?> getUserModel(String uid) async {
     if (uid.trim().isEmpty) return null;
-    final doc = await _firestore.collection(FirestoreCollections.users).doc(uid).get();
-    if (!doc.exists) return null;
-    return UserModel.fromDocument(doc);
+    try {
+      final doc = await _firestore.collection(FirestoreCollections.users).doc(uid).get();
+      if (doc.exists && doc.data() != null) {
+        final model = UserModel.fromDocument(doc);
+        if (!kReleaseMode && isDemoTrainer(uid: uid, email: model.email)) {
+          return model.copyWith(
+            role: UserRole.trainer,
+            status: UserStatus.active,
+            isEmailVerified: true,
+            isOnboarded: true,
+          );
+        }
+        return model;
+      }
+    } catch (e) {
+      debugPrint('Notice: Error fetching user model: $e');
+    }
+
+    if (!kReleaseMode && isDemoTrainer(uid: uid)) {
+      return syntheticDemoUser(uid);
+    }
+    return null;
+  }
+
+  /// Dedicated development demo trainer account constants
+  static const String demoStandardTrainerUid = 'nY3lebkFPBZwWNV6ycj4QtpttV92';
+  static const String demoAdvancedTrainerUid = 'tBzc47n2bpbLVVIFSIEd34Mfbma2';
+  static const String demoStandardTrainerEmail = 'trainer.demo@trainz.test';
+  static const String demoAdvancedTrainerEmail = 'advanced.demo@trainz.test';
+
+  /// Development/Test environment helper to identify seeded demo trainer accounts
+  static bool isDemoTrainer({String? email, String? uid}) {
+    if (kReleaseMode) return false;
+    final cleanEmail = email?.toLowerCase().trim();
+    return uid == demoStandardTrainerUid ||
+        uid == demoAdvancedTrainerUid ||
+        cleanEmail == demoStandardTrainerEmail ||
+        cleanEmail == demoAdvancedTrainerEmail;
+  }
+
+  static bool isStandardDemoTrainer({String? email, String? uid}) {
+    if (kReleaseMode) return false;
+    final cleanEmail = email?.toLowerCase().trim();
+    return uid == demoStandardTrainerUid || cleanEmail == demoStandardTrainerEmail;
+  }
+
+  static bool isAdvancedDemoTrainer({String? email, String? uid}) {
+    if (kReleaseMode) return false;
+    final cleanEmail = email?.toLowerCase().trim();
+    return uid == demoAdvancedTrainerUid || cleanEmail == demoAdvancedTrainerEmail;
+  }
+
+  static UserModel syntheticDemoUser(String uid) {
+    final isAdv = isAdvancedDemoTrainer(uid: uid);
+    return UserModel(
+      uid: uid,
+      email: isAdv ? demoAdvancedTrainerEmail : demoStandardTrainerEmail,
+      displayName: isAdv ? 'Demo Advanced Trainer' : 'Demo Standard Trainer',
+      role: UserRole.trainer,
+      status: UserStatus.active,
+      isEmailVerified: true,
+      isOnboarded: true,
+      phoneNumber: isAdv ? '+919876543211' : '+919876543210',
+      gender: Gender.male,
+    );
+  }
+
+  static TrainerProfileModel syntheticDemoProfile(String uid) {
+    final isAdv = isAdvancedDemoTrainer(uid: uid);
+    if (isAdv) {
+      return const TrainerProfileModel(
+        uid: demoAdvancedTrainerUid,
+        fullName: 'Demo Advanced Trainer',
+        phoneNumber: '+919876543211',
+        gender: Gender.male,
+        dateOfBirth: '1992-08-20',
+        bio: 'Professional strength and conditioning coach with 4 years of experience guiding athletes in hypertrophy, powerlifting, and body transformation protocols.',
+        category: TrainerCategory.advancedTrainer,
+        verificationStatus: TrainerVerificationStatus.approved,
+        experienceYears: 4.0,
+        hourlyRate: 1200,
+        isProfileCompleted: true,
+        profileCompletionScore: 100,
+        isActive: true,
+        specialties: ['Strength & Conditioning', 'Hypertrophy', 'Nutrition Coaching'],
+        clientTypes: ['Athletes', 'Working Professionals', 'Intermediate Lifters'],
+        trainingGoals: ['Build Muscle & Strength', 'Fat Loss & Conditioning', 'Athletic Performance'],
+        trainingMethods: ['Periodized Strength', 'Progressive Overload', 'Functional Movement'],
+        languages: ['English', 'Hindi'],
+        trainingApproach: 'Evidence-based strength and conditioning with customized progression metrics and comprehensive nutritional guidance.',
+        professionalExperience: 'Head Trainer at Cult Fitness (4 years), worked with 150+ personal training clients, developed periodized hypertrophy programs.',
+        trainsAtHome: true,
+        trainsAtGym: true,
+        serviceAreas: ['Koramangala, Bengaluru', 'Indiranagar, Bengaluru', 'HSR Layout, Bengaluru'],
+        workingDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+        workingHours: '06:00 AM - 08:00 PM',
+        verifiedQualifications: [
+          VerifiedQualification(
+            id: 'cert_demo_advanced_01',
+            certificateName: '[DEMO TEST] Certified Strength & Conditioning Specialist (CSCS)',
+            courseName: 'Advanced Strength & Periodization Masterclass',
+            issuingOrganization: 'National Strength & Conditioning Association (Test Synthetic)',
+            yearOfCompletion: '2021',
+            qualificationDetails: 'Advanced professional credential with 4.0 years of elite strength conditioning coaching experience.',
+          ),
+          VerifiedQualification(
+            id: 'cert_demo_advanced_02',
+            certificateName: '[DEMO TEST] Precision Nutrition Level 1 (Pn1)',
+            courseName: 'Exercise Nutrition & Periodization',
+            issuingOrganization: 'Precision Nutrition (Test Synthetic)',
+            yearOfCompletion: '2022',
+            qualificationDetails: 'Sports nutrition, metabolic profiling, and body recomposition.',
+          ),
+        ],
+      );
+    }
+    return const TrainerProfileModel(
+      uid: demoStandardTrainerUid,
+      fullName: 'Demo Standard Trainer',
+      phoneNumber: '+919876543210',
+      gender: Gender.male,
+      dateOfBirth: '1995-05-15',
+      bio: 'Dedicated personal fitness coach specializing in strength fundamentals, fat loss, functional conditioning, and sustainable healthy lifestyle habits.',
+      category: TrainerCategory.trainer,
+      verificationStatus: TrainerVerificationStatus.approved,
+      experienceYears: 1.5,
+      hourlyRate: 500,
+      isProfileCompleted: true,
+      profileCompletionScore: 100,
+      isActive: true,
+      specialties: ['Strength Training', 'Fat Loss', 'Functional Fitness'],
+      clientTypes: ['Beginners', 'General Population', 'Weight Loss Clients'],
+      trainingGoals: ['Weight Loss', 'General Fitness', 'Core Strength'],
+      trainingMethods: ['Bodyweight Training', 'Circuit Training', 'Mobility Drills'],
+      languages: ['English', 'Hindi'],
+      trainingApproach: 'Encouraging, structured, and goal-oriented workouts tailored to beginner and intermediate athletes.',
+      professionalExperience: '1.5 years personal training at local fitness clubs.',
+      trainsAtHome: true,
+      trainsAtGym: true,
+      serviceAreas: ['Pune Central', 'Kothrud, Pune', 'Aundh, Pune'],
+      workingDays: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+      workingHours: '06:00 AM - 08:00 PM',
+      verifiedQualifications: [
+        VerifiedQualification(
+          id: 'cert_demo_standard_01',
+          certificateName: '[DEMO TEST] Certified Personal Trainer Level 1 (Beginner)',
+          courseName: 'Foundation in Personal Training',
+          issuingOrganization: 'TRAIN Z Fitness Academy (Test Synthetic)',
+          yearOfCompletion: '2024',
+          qualificationDetails: 'Synthetic demo qualification for Standard Trainer verification testing.',
+        ),
+      ],
+    );
+  }
+
+  /// Helper to enrich trainer profile model for designated demo accounts in development/test environments
+  TrainerProfileModel _enrichIfDemoAccount(TrainerProfileModel model, String uid) {
+    if (kReleaseMode) return model;
+    final currentEmail = currentUser?.email?.toLowerCase().trim();
+
+    if (isStandardDemoTrainer(email: currentEmail, uid: uid)) {
+      return model.copyWith(
+        verificationStatus: TrainerVerificationStatus.approved,
+        category: TrainerCategory.trainer,
+        isProfileCompleted: true,
+        profileCompletionScore: 100,
+        isActive: true,
+        verifiedQualifications: const [
+          VerifiedQualification(
+            id: 'cert_demo_standard_01',
+            certificateName: '[DEMO TEST] Certified Personal Trainer Level 1 (Beginner)',
+            courseName: 'Foundation in Personal Training',
+            issuingOrganization: 'TRAIN Z Fitness Academy (Test Synthetic)',
+            yearOfCompletion: '2024',
+            qualificationDetails: 'Synthetic demo qualification for Standard Trainer verification testing.',
+          ),
+        ],
+      );
+    }
+
+    if (isAdvancedDemoTrainer(email: currentEmail, uid: uid)) {
+      return model.copyWith(
+        verificationStatus: TrainerVerificationStatus.approved,
+        category: TrainerCategory.advancedTrainer,
+        experienceYears: model.experienceYears < 3.5 ? 4.0 : model.experienceYears,
+        isProfileCompleted: true,
+        profileCompletionScore: 100,
+        isActive: true,
+        verifiedQualifications: const [
+          VerifiedQualification(
+            id: 'cert_demo_advanced_01',
+            certificateName: '[DEMO TEST] Certified Strength & Conditioning Specialist (CSCS)',
+            courseName: 'Advanced Strength & Periodization Masterclass',
+            issuingOrganization: 'National Strength & Conditioning Association (Test Synthetic)',
+            yearOfCompletion: '2021',
+            qualificationDetails: 'Advanced professional credential with 4.0 years of elite strength conditioning coaching experience.',
+          ),
+          VerifiedQualification(
+            id: 'cert_demo_advanced_02',
+            certificateName: '[DEMO TEST] Precision Nutrition Level 1 (Pn1)',
+            courseName: 'Exercise Nutrition & Periodization',
+            issuingOrganization: 'Precision Nutrition (Test Synthetic)',
+            yearOfCompletion: '2022',
+            qualificationDetails: 'Sports nutrition, metabolic profiling, and body recomposition.',
+          ),
+        ],
+      );
+    }
+
+    return model;
   }
 
   /// Fetch strongly-typed TrainerProfileModel
   Future<TrainerProfileModel?> getTrainerProfile(String uid) async {
     if (uid.trim().isEmpty) return null;
-    final doc = await _firestore.collection(FirestoreCollections.trainerProfiles).doc(uid).get();
-    if (!doc.exists || doc.data() == null) return null;
-    return TrainerProfileModel.fromDocument(doc);
+    try {
+      final doc = await _firestore.collection(FirestoreCollections.trainerProfiles).doc(uid).get();
+      if (doc.exists && doc.data() != null) {
+        return _enrichIfDemoAccount(TrainerProfileModel.fromDocument(doc), uid);
+      }
+    } catch (e) {
+      debugPrint('Notice: Error fetching trainer profile: $e');
+    }
+
+    if (!kReleaseMode && isDemoTrainer(uid: uid)) {
+      return syntheticDemoProfile(uid);
+    }
+    return null;
   }
 
   /// Stream of current typed TrainerProfileModel from Firestore
@@ -316,7 +564,7 @@ class AuthService {
         .snapshots()
         .map((snapshot) {
       if (!snapshot.exists || snapshot.data() == null) return null;
-      return TrainerProfileModel.fromDocument(snapshot);
+      return _enrichIfDemoAccount(TrainerProfileModel.fromDocument(snapshot), uid);
     });
   }
 

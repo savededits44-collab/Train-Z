@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'trainer_certificate_model.dart';
 import 'user_model.dart';
 
 enum TrainerVerificationStatus {
@@ -61,11 +62,11 @@ enum TrainerCategory {
   String get requirementText {
     switch (this) {
       case TrainerCategory.trainer:
-        return 'Must have at least one beginner-level trainer certificate.';
+        return 'No certificate or minimum experience required. Standard platform packages apply.';
       case TrainerCategory.advancedTrainer:
         return 'Must have relevant professional trainer qualifications & at least 3.5 years of experience.';
       case TrainerCategory.professionalTrainer:
-        return 'Elite Master Coach credentials. Available in future platform release.';
+        return 'Coming Soon.';
     }
   }
 
@@ -74,17 +75,32 @@ enum TrainerCategory {
       case TrainerCategory.trainer:
         return 'Uses standard TRAIN Z platform packages.';
       case TrainerCategory.advancedTrainer:
-        return 'Can create custom training plans and set independent session rates.';
+        return 'Can create custom training plans and set independent session rates. Each custom plan requires Admin approval.';
       case TrainerCategory.professionalTrainer:
-        return 'Custom enterprise training packages.';
+        return 'Coming Soon.';
     }
   }
 
   bool get isAvailableAtLaunch => this != TrainerCategory.professionalTrainer;
 }
 
+class TrainerProfileCompletion {
+  final int score;
+  final List<String> missingFields;
+  final bool isComplete;
+
+  const TrainerProfileCompletion({
+    required this.score,
+    required this.missingFields,
+    required this.isComplete,
+  });
+}
+
 class TrainerProfileModel {
   final String uid;
+  final String? fullName;
+  final String? phoneNumber;
+  final Gender? gender;
   final String? bio;
   final List<String> specialties;
   final double experienceYears;
@@ -123,9 +139,17 @@ class TrainerProfileModel {
 
   // Profile completion
   final int profileCompletionScore; // 0-100
+  final bool isProfileCompleted;
+  final DateTime? submittedAt;
+
+  // Client-facing verified qualifications (sanitized metadata, zero file URLs)
+  final List<VerifiedQualification> verifiedQualifications;
 
   const TrainerProfileModel({
     required this.uid,
+    this.fullName,
+    this.phoneNumber,
+    this.gender,
     this.bio,
     this.specialties = const [],
     this.experienceYears = 0.0,
@@ -143,7 +167,7 @@ class TrainerProfileModel {
     this.totalReviews = 0,
     this.createdAt,
     this.updatedAt,
-    // New fields
+    // Profile fields
     this.photoUrl,
     this.dateOfBirth,
     this.languages = const [],
@@ -159,6 +183,9 @@ class TrainerProfileModel {
     this.workingDays = const [],
     this.workingHours,
     this.profileCompletionScore = 0,
+    this.isProfileCompleted = false,
+    this.submittedAt,
+    this.verifiedQualifications = const [],
   });
 
   bool get isApproved => verificationStatus == TrainerVerificationStatus.approved;
@@ -170,9 +197,232 @@ class TrainerProfileModel {
   bool get canBeBooked => isApproved && isActive;
   int get experienceYearsInt => experienceYears.floor();
 
+  /// Calculates profile completion (0 to 100%) and returns missing required fields.
+  TrainerProfileCompletion calculateCompletion({
+    String? name,
+    String? phone,
+    Gender? genderValue,
+  }) {
+    int score = 0;
+    final missing = <String>[];
+
+    // 1. Personal Profile Information (40%)
+    final hasPhoto = photoUrl != null && photoUrl!.trim().isNotEmpty;
+    if (hasPhoto) {
+      score += 10;
+    } else {
+      missing.add('Profile Photo');
+    }
+
+    final effectiveName = name ?? fullName;
+    final hasName = effectiveName != null && effectiveName.trim().isNotEmpty;
+    if (hasName) {
+      score += 10;
+    } else {
+      missing.add('Full Name');
+    }
+
+    final effectivePhone = phone ?? phoneNumber;
+    final hasPhone = effectivePhone != null && effectivePhone.trim().isNotEmpty;
+    if (hasPhone) {
+      score += 5;
+    } else {
+      missing.add('Phone Number');
+    }
+
+    final hasDob = dateOfBirth != null && dateOfBirth!.trim().isNotEmpty;
+    if (hasDob) {
+      score += 5;
+    } else {
+      missing.add('Date of Birth');
+    }
+
+    final effectiveGender = genderValue ?? gender;
+    final hasGender = effectiveGender != null;
+    if (hasGender) {
+      score += 5;
+    } else {
+      missing.add('Gender');
+    }
+
+    final hasBio = bio != null && bio!.trim().length >= 20;
+    if (hasBio) {
+      score += 5;
+    } else {
+      missing.add('Professional Biography (min. 20 chars)');
+    }
+
+    // 2. Professional Information (35%)
+    final minExp = isAdvancedTrainer ? 3.5 : 0.0;
+    final hasExp = experienceYears >= minExp && (experienceYears > 0 || isStandardTrainer);
+    if (hasExp) {
+      score += 10;
+    } else {
+      missing.add(isAdvancedTrainer ? 'Experience (min. 3.5 years for Advanced)' : 'Total Years of Experience');
+    }
+
+    final hasSpecs = specialties.isNotEmpty;
+    if (hasSpecs) {
+      score += 5;
+    } else {
+      missing.add('Training Specialisations');
+    }
+
+    final hasClients = clientTypes.isNotEmpty;
+    if (hasClients) {
+      score += 4;
+    } else {
+      missing.add('Types of Clients');
+    }
+
+    final hasGoals = trainingGoals.isNotEmpty;
+    if (hasGoals) {
+      score += 4;
+    } else {
+      missing.add('Fitness Goals');
+    }
+
+    final hasMethods = trainingMethods.isNotEmpty;
+    if (hasMethods) {
+      score += 4;
+    } else {
+      missing.add('Training Methods');
+    }
+
+    final hasLangs = languages.isNotEmpty;
+    if (hasLangs) {
+      score += 4;
+    } else {
+      missing.add('Languages Spoken');
+    }
+
+    final hasApproach = trainingApproach != null && trainingApproach!.trim().length >= 10;
+    if (hasApproach) {
+      score += 4;
+    } else {
+      missing.add('Training Approach Description');
+    }
+
+    // 3. Training Services (25%)
+    final hasLocationType = trainsAtHome || trainsAtGym || otherTrainingLocations.isNotEmpty;
+    if (hasLocationType) {
+      score += 8;
+    } else {
+      missing.add('Training Locations (Home, Gym, or Other)');
+    }
+
+    final hasAreas = serviceAreas.isNotEmpty;
+    if (hasAreas) {
+      score += 9;
+    } else {
+      missing.add('Service Areas (min. 1 area)');
+    }
+
+    final hasSchedule = workingDays.isNotEmpty && (workingHours != null && workingHours!.trim().isNotEmpty);
+    if (hasSchedule) {
+      score += 8;
+    } else {
+      missing.add('Working Schedule (Days & Hours)');
+    }
+
+    final finalScore = score.clamp(0, 100);
+    return TrainerProfileCompletion(
+      score: finalScore,
+      missingFields: missing,
+      isComplete: missing.isEmpty && finalScore == 100,
+    );
+  }
+
+  TrainerProfileModel copyWith({
+    String? uid,
+    String? fullName,
+    String? phoneNumber,
+    Gender? gender,
+    String? bio,
+    List<String>? specialties,
+    double? experienceYears,
+    String? cityId,
+    int? hourlyRate,
+    TrainerCategory? category,
+    TrainerVerificationStatus? verificationStatus,
+    List<String>? verificationDocuments,
+    List<String>? certificationDocuments,
+    String? adminReviewNotes,
+    DateTime? approvedAt,
+    String? approvedBy,
+    bool? isActive,
+    double? ratingAvg,
+    int? totalReviews,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? photoUrl,
+    String? dateOfBirth,
+    List<String>? languages,
+    List<String>? clientTypes,
+    List<String>? trainingGoals,
+    List<String>? trainingMethods,
+    String? trainingApproach,
+    String? professionalExperience,
+    bool? trainsAtHome,
+    bool? trainsAtGym,
+    List<String>? otherTrainingLocations,
+    List<String>? serviceAreas,
+    List<String>? workingDays,
+    String? workingHours,
+    int? profileCompletionScore,
+    bool? isProfileCompleted,
+    DateTime? submittedAt,
+    List<VerifiedQualification>? verifiedQualifications,
+  }) {
+    return TrainerProfileModel(
+      uid: uid ?? this.uid,
+      fullName: fullName ?? this.fullName,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      gender: gender ?? this.gender,
+      bio: bio ?? this.bio,
+      specialties: specialties ?? this.specialties,
+      experienceYears: experienceYears ?? this.experienceYears,
+      cityId: cityId ?? this.cityId,
+      hourlyRate: hourlyRate ?? this.hourlyRate,
+      category: category ?? this.category,
+      verificationStatus: verificationStatus ?? this.verificationStatus,
+      verificationDocuments: verificationDocuments ?? this.verificationDocuments,
+      certificationDocuments: certificationDocuments ?? this.certificationDocuments,
+      adminReviewNotes: adminReviewNotes ?? this.adminReviewNotes,
+      approvedAt: approvedAt ?? this.approvedAt,
+      approvedBy: approvedBy ?? this.approvedBy,
+      isActive: isActive ?? this.isActive,
+      ratingAvg: ratingAvg ?? this.ratingAvg,
+      totalReviews: totalReviews ?? this.totalReviews,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      photoUrl: photoUrl ?? this.photoUrl,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      languages: languages ?? this.languages,
+      clientTypes: clientTypes ?? this.clientTypes,
+      trainingGoals: trainingGoals ?? this.trainingGoals,
+      trainingMethods: trainingMethods ?? this.trainingMethods,
+      trainingApproach: trainingApproach ?? this.trainingApproach,
+      professionalExperience: professionalExperience ?? this.professionalExperience,
+      trainsAtHome: trainsAtHome ?? this.trainsAtHome,
+      trainsAtGym: trainsAtGym ?? this.trainsAtGym,
+      otherTrainingLocations: otherTrainingLocations ?? this.otherTrainingLocations,
+      serviceAreas: serviceAreas ?? this.serviceAreas,
+      workingDays: workingDays ?? this.workingDays,
+      workingHours: workingHours ?? this.workingHours,
+      profileCompletionScore: profileCompletionScore ?? this.profileCompletionScore,
+      isProfileCompleted: isProfileCompleted ?? this.isProfileCompleted,
+      submittedAt: submittedAt ?? this.submittedAt,
+      verifiedQualifications: verifiedQualifications ?? this.verifiedQualifications,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
+      if (fullName != null) 'fullName': fullName,
+      if (phoneNumber != null) 'phoneNumber': phoneNumber,
+      if (gender != null) 'gender': gender!.toFirestore(),
       'bio': bio,
       'specialties': specialties,
       'experienceYears': experienceYears,
@@ -188,6 +438,25 @@ class TrainerProfileModel {
       'isActive': isActive,
       'ratingAvg': ratingAvg,
       'totalReviews': totalReviews,
+      'photoUrl': photoUrl,
+      'dateOfBirth': dateOfBirth,
+      'languages': languages,
+      'clientTypes': clientTypes,
+      'trainingGoals': trainingGoals,
+      'trainingMethods': trainingMethods,
+      'trainingApproach': trainingApproach,
+      'professionalExperience': professionalExperience,
+      'trainsAtHome': trainsAtHome,
+      'trainsAtGym': trainsAtGym,
+      'otherTrainingLocations': otherTrainingLocations,
+      'serviceAreas': serviceAreas,
+      'workingDays': workingDays,
+      'workingHours': workingHours,
+      'profileCompletionScore': profileCompletionScore,
+      'isProfileCompleted': isProfileCompleted,
+      'submittedAt': submittedAt != null ? Timestamp.fromDate(submittedAt!) : null,
+      if (verifiedQualifications.isNotEmpty)
+        'verifiedQualifications': verifiedQualifications.map((q) => q.toMap()).toList(),
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -202,6 +471,9 @@ class TrainerProfileModel {
 
     return TrainerProfileModel(
       uid: uid,
+      fullName: map['fullName'] as String?,
+      phoneNumber: map['phoneNumber'] as String?,
+      gender: Gender.fromFirestore(map['gender']),
       bio: map['bio'] as String?,
       specialties: (map['specialties'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       experienceYears: (map['experienceYears'] as num?)?.toDouble() ?? 0.0,
@@ -219,6 +491,27 @@ class TrainerProfileModel {
       totalReviews: (map['totalReviews'] as num?)?.toInt() ?? 0,
       createdAt: parseTimestamp(map['createdAt']),
       updatedAt: parseTimestamp(map['updatedAt']),
+      photoUrl: map['photoUrl'] as String?,
+      dateOfBirth: map['dateOfBirth'] as String?,
+      languages: (map['languages'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      clientTypes: (map['clientTypes'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      trainingGoals: (map['trainingGoals'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      trainingMethods: (map['trainingMethods'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      trainingApproach: map['trainingApproach'] as String?,
+      professionalExperience: map['professionalExperience'] as String?,
+      trainsAtHome: map['trainsAtHome'] as bool? ?? false,
+      trainsAtGym: map['trainsAtGym'] as bool? ?? false,
+      otherTrainingLocations: (map['otherTrainingLocations'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      serviceAreas: (map['serviceAreas'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      workingDays: (map['workingDays'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      workingHours: map['workingHours'] as String?,
+      profileCompletionScore: (map['profileCompletionScore'] as num?)?.toInt() ?? 0,
+      isProfileCompleted: map['isProfileCompleted'] as bool? ?? false,
+      submittedAt: parseTimestamp(map['submittedAt']),
+      verifiedQualifications: (map['verifiedQualifications'] as List<dynamic>?)
+              ?.map((item) => VerifiedQualification.fromMap(Map<String, dynamic>.from(item as Map)))
+              .toList() ??
+          const [],
     );
   }
 
@@ -277,6 +570,8 @@ class TrainerDisplayModel {
   String get primarySpecialty => specialties.isNotEmpty ? specialties.first : 'Personal Trainer';
   String get displayLocation => serviceArea ?? (gymName != null && gymName!.isNotEmpty ? gymName! : (cityId ?? 'All Cities'));
   String get availabilityText => hasAvailableSlots ? 'Slots Available' : 'Fully Booked';
+  TrainerCategory get category => profile.category;
+  List<VerifiedQualification> get verifiedQualifications => profile.verifiedQualifications;
 
   TrainerDisplayModel copyWith({
     TrainerProfileModel? profile,

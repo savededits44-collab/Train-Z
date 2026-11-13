@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../services/firestore_service.dart';
-import '../../../../services/seed_service.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../shared/models/training_plan_model.dart';
 import '../../../../shared/models/user_model.dart';
@@ -10,9 +9,11 @@ import '../../../../widgets/app_widgets.dart';
 import 'client_booking_schedule_screen.dart';
 import 'client_payment_screen.dart';
 
-/// Screen allowing clients to view, compare and select a training package before booking a personal trainer.
-/// Fetches all 6 official packages from the Firestore `training_plans` collection with transparent
-/// pricing, 60-minute duration rules, validity expiry explanation, and 6-Month Transformation highlighting.
+/// Screen allowing clients to view, compare and select a training package for a personal trainer.
+/// Supports trainer category-based package display:
+/// - Standard Trainer: Displays the 6 predefined TRAIN Z packages with platform-controlled pricing.
+/// - Advanced Trainer: Displays only Admin-approved & published custom plans created by that trainer.
+/// - Professional Trainer: Displays "Coming Soon" with purchases disabled at launch.
 class ClientPackageSelectionScreen extends StatefulWidget {
   final TrainerDisplayModel? trainer;
   final Gender? clientGender;
@@ -30,14 +31,22 @@ class ClientPackageSelectionScreen extends StatefulWidget {
 }
 
 class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScreen> {
-  String? _selectedPlanId = 'plan_1_month'; // Default selection: 1 Month
+  // Starts with no package pre-selected. The client must explicitly choose a package.
+  String? _selectedPlanId;
   bool _showComparisonTable = false;
 
+  TrainerCategory get _trainerCategory =>
+      widget.trainer?.category ?? TrainerCategory.trainer;
+
+  bool get _isProfessionalTrainer =>
+      _trainerCategory == TrainerCategory.professionalTrainer;
+
   void _onProceed(TrainingPlanModel plan) {
+    if (!plan.isActive || !plan.isApproved) return;
     HapticFeedback.mediumImpact();
     final sf = scaleFactor(context);
 
-    // Show the next booking step sheet (No Razorpay payment or final booking confirmation here)
+    // Show transparent package summary and conditions before scheduling
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -79,7 +88,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Package Selected',
+                        'Package Summary',
                         style: TextStyle(
                           fontFamily: 'Syne',
                           fontSize: (18.0 * sf).clamp(16.0, 22.0),
@@ -88,7 +97,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                         ),
                       ),
                       Text(
-                        'Step 1 of 2 Complete',
+                        'Transparent Price & Session Breakdown',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: (11.0 * sf).clamp(10.0, 12.5),
@@ -114,26 +123,37 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
               ),
               child: Column(
                 children: [
+                  if (widget.trainer != null) ...[
+                    _buildSummaryRow('Selected Trainer', widget.trainer!.displayName),
+                    const SizedBox(height: 8),
+                    _buildSummaryRow(
+                      'Trainer Category',
+                      widget.trainer!.category == TrainerCategory.advancedTrainer
+                          ? 'Advanced Trainer'
+                          : 'Personal Trainer',
+                    ),
+                    const SizedBox(height: 8),
+                    _buildSummaryRow('Training Location', widget.trainer!.displayLocation),
+                    const Divider(height: 18, color: Color(0xFFE5E5E5)),
+                  ],
                   _buildSummaryRow('Selected Package', plan.title),
                   const SizedBox(height: 8),
-                  _buildSummaryRow('Session Count', '${plan.sessionsCount} Sessions (60 mins each)'),
+                  _buildSummaryRow('Package Type', plan.packageTypeLabel),
                   const SizedBox(height: 8),
-                  _buildSummaryRow('Total Price', '₹${plan.price} (₹${plan.pricePerSession.round()}/session)'),
+                  _buildSummaryRow('Session Count', '${plan.sessionsCount} Sessions (${plan.sessionDurationMinutes} mins each)'),
                   const SizedBox(height: 8),
-                  _buildSummaryRow('Validity Period', '${plan.validityDays} Days from activation'),
-                  if (widget.trainer != null) ...[
-                    const Divider(height: 20, color: Color(0xFFE5E5E5)),
-                    _buildSummaryRow('Assigned Trainer', widget.trainer!.displayName),
-                    const SizedBox(height: 6),
-                    _buildSummaryRow('Training Area', widget.trainer!.displayLocation),
-                  ],
+                  _buildSummaryRow('Total Price', '${plan.formattedPrice} (₹${plan.pricePerSession.round()}/session)'),
+                  const SizedBox(height: 8),
+                  _buildSummaryRow('Package Validity', '${plan.validityDays} Days from activation'),
+                  const SizedBox(height: 8),
+                  _buildSummaryRow('Session Duration', '${plan.sessionDurationMinutes} minutes per session'),
                 ],
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
-            // Next step instructions
+            // Important Conditions Notice
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -141,31 +161,44 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: const Color(0xFFFDE68A)),
               ),
-              child: Row(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.info_outline, size: 16, color: Color(0xFFD97706)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      widget.trainer != null
-                          ? 'Next Step: Pick your first 1-on-1 session date and time slot from ${widget.trainer!.displayName}\'s schedule.'
-                          : 'Next Step: Select an available personal trainer.',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                        color: const Color(0xFF92400E),
-                        height: 1.4,
+                  Row(
+                    children: [
+                      const Icon(Icons.shield_outlined, size: 15, color: Color(0xFFD97706)),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Important Package Conditions',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF92400E),
+                        ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '• Full 60-minute 1-on-1 personal training sessions.\n'
+                    '• 12-Hour Cancellation Rule: full session credit returned if cancelled >= 12h before start.\n'
+                    '• Package sessions are valid for ${plan.validityDays} days from activation.\n'
+                    '• Transparent pricing in Indian Rupees (₹) with zero hidden fees.',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: (10.5 * sf).clamp(9.5, 11.5),
+                      color: const Color(0xFF78350F),
+                      height: 1.45,
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
 
-            // Next Step Action Button
+            // Proceed Action Button
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(sheetContext); // Close sheet
@@ -225,9 +258,12 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
           label,
           style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey),
         ),
-        Text(
-          value,
-          style: const TextStyle(fontFamily: 'Syne', fontSize: 12.5, fontWeight: FontWeight.w700, color: kDark),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: const TextStyle(fontFamily: 'Syne', fontSize: 12.0, fontWeight: FontWeight.w700, color: kDark),
+          ),
         ),
       ],
     );
@@ -261,20 +297,21 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
         ),
         centerTitle: true,
         actions: [
-          // Comparison toggle button
-          IconButton(
-            icon: Icon(
-              _showComparisonTable ? Iconsax.cards : Iconsax.chart_square,
-              color: kDark,
-              size: 20,
+          if (!_isProfessionalTrainer) ...[
+            IconButton(
+              icon: Icon(
+                _showComparisonTable ? Iconsax.cards : Iconsax.chart_square,
+                color: kDark,
+                size: 20,
+              ),
+              tooltip: _showComparisonTable ? 'Show Cards View' : 'Compare Packages',
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                setState(() => _showComparisonTable = !_showComparisonTable);
+              },
             ),
-            tooltip: _showComparisonTable ? 'Show Cards View' : 'Compare All Packages',
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() => _showComparisonTable = !_showComparisonTable);
-            },
-          ),
-          const SizedBox(width: 6),
+            const SizedBox(width: 6),
+          ],
         ],
       ),
       body: SingleChildScrollView(
@@ -283,413 +320,469 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── 1. Trainer Connection Banner (If Opened from a Trainer Profile) ──
+            // ── 1. Trainer Header Banner ──
             if (trainer != null) ...[
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFEEEEEE)),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 26,
-                      backgroundColor: const Color(0xFF111111),
-                      backgroundImage: (trainer.photoUrl != null && trainer.photoUrl!.isNotEmpty)
-                          ? NetworkImage(trainer.photoUrl!)
-                          : null,
-                      child: (trainer.photoUrl == null || trainer.photoUrl!.isEmpty)
-                          ? Text(
-                              trainer.displayName.isNotEmpty
-                                  ? trainer.displayName[0].toUpperCase()
-                                  : 'C',
-                              style: const TextStyle(
-                                fontFamily: 'Syne',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: kLime,
-                              ),
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  trainer.displayName,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontFamily: 'Syne',
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w800,
-                                    color: kDark,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.verified, size: 15, color: Color(0xFF16A34A)),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            trainer.gymName ?? 'TRAIN Z Certified Coach',
-                            style: const TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 11.5,
-                              color: kGrey,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Row(
-                            children: [
-                              const Icon(Icons.star_rounded, size: 14, color: Color(0xFFD97706)),
-                              const SizedBox(width: 3),
-                              Text(
-                                '${trainer.ratingText} (${trainer.totalReviews} reviews)',
-                                style: const TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: kDark,
-                                ),
-                              ),
-                              const Text(' • ', style: TextStyle(color: kGrey)),
-                              Text(
-                                trainer.displayLocation,
-                                style: const TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 11,
-                                  color: kGrey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildTrainerHeaderCard(trainer, sf),
               const SizedBox(height: 18),
             ],
 
-            // ── Header & Description ──
+            // ── 2. Category-Specific Header & Explanation ──
+            _buildCategoryHeader(sf),
+
+            const SizedBox(height: 16),
+
+            // ── 3. Professional Trainer Coming Soon Guard ──
+            if (_isProfessionalTrainer) ...[
+              _buildProfessionalTrainerComingSoon(sf),
+              const SizedBox(height: 100),
+            ] else ...[
+              // ── 4. Package Stream & Selection ──
+              StreamBuilder<List<TrainingPlanModel>>(
+                stream: FirestoreService().streamPackagesForTrainer(widget.trainer),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40.0),
+                        child: CircularProgressIndicator(color: kDark),
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.error_outline, size: 40, color: Color(0xFFEF4444)),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Unable to load packages',
+                              style: TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '${snapshot.error}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+                            ),
+                            const SizedBox(height: 14),
+                            ElevatedButton(
+                              onPressed: () => setState(() {}),
+                              style: ElevatedButton.styleFrom(backgroundColor: kDark),
+                              child: const Text('Try Again', style: TextStyle(fontFamily: 'Syne', color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  final plans = snapshot.data ?? [];
+
+                  // Empty State for Advanced Trainer or Missing Plans
+                  if (plans.isEmpty) {
+                    return _buildEmptyPlansState(sf);
+                  }
+
+                  // ── Comparison Table View (When Toggled) ──
+                  if (_showComparisonTable) {
+                    return _buildComparisonTable(plans: plans, sf: sf);
+                  }
+
+                  // ── Package Cards Listing ──
+                  return Column(
+                    children: plans.map((plan) {
+                      final isSelected = _selectedPlanId == plan.id;
+                      final isTransformation = plan.isTransformationPackage;
+
+                      return _buildPackageCard(
+                        plan: plan,
+                        isSelected: isSelected,
+                        isTransformation: isTransformation,
+                        sf: sf,
+                        onTap: () {
+                          if (!plan.isActive || !plan.isApproved) return;
+                          HapticFeedback.selectionClick();
+                          setState(() {
+                            _selectedPlanId = plan.id;
+                          });
+                        },
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              // ── 5. Package Information, Rules & Guarantees ──
+              _buildPackageRulesSection(sf),
+
+              const SizedBox(height: 110), // Space for sticky bottom bar
+            ],
+          ],
+        ),
+      ),
+      bottomSheet: _isProfessionalTrainer ? null : _buildStickyBottomBar(sf),
+    );
+  }
+
+  Widget _buildTrainerHeaderCard(TrainerDisplayModel trainer, double sf) {
+    String categoryLabel;
+    Color categoryBg;
+    Color categoryText;
+
+    switch (trainer.category) {
+      case TrainerCategory.trainer:
+        categoryLabel = 'Trainer';
+        categoryBg = const Color(0xFFF3F4F6);
+        categoryText = kDark;
+        break;
+      case TrainerCategory.advancedTrainer:
+        categoryLabel = 'Advanced Trainer';
+        categoryBg = const Color(0xFFDCFCE7);
+        categoryText = const Color(0xFF15803D);
+        break;
+      case TrainerCategory.professionalTrainer:
+        categoryLabel = 'Professional Trainer • Coming Soon';
+        categoryBg = const Color(0xFFFEF3C7);
+        categoryText = const Color(0xFFB45309);
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: const Color(0xFF111111),
+            backgroundImage: (trainer.photoUrl != null && trainer.photoUrl!.isNotEmpty)
+                ? NetworkImage(trainer.photoUrl!)
+                : null,
+            child: (trainer.photoUrl == null || trainer.photoUrl!.isEmpty)
+                ? Text(
+                    trainer.displayName.isNotEmpty ? trainer.displayName[0].toUpperCase() : 'T',
+                    style: const TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: kLime,
+                    ),
+                  )
+                : null,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        trainer.displayName,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: kDark,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.verified, size: 15, color: Color(0xFF16A34A)),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  trainer.gymName ?? 'Certified Personal Trainer',
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 11.5,
+                    color: kGrey,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                  decoration: BoxDecoration(
+                    color: categoryBg,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    categoryLabel,
+                    style: TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: categoryText,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryHeader(double sf) {
+    String title;
+    String subtitle;
+
+    switch (_trainerCategory) {
+      case TrainerCategory.trainer:
+        title = 'Standard Platform Packages';
+        subtitle = 'Fixed platform pricing for 1-on-1 personal training. All sessions are 60 minutes with 12-hour cancellation protection.';
+        break;
+      case TrainerCategory.advancedTrainer:
+        title = 'Advanced Trainer Custom Plans';
+        subtitle = 'Custom training packages designed by ${widget.trainer?.displayName ?? "this Advanced Trainer"} and approved by TRAIN Z Admin.';
+        break;
+      case TrainerCategory.professionalTrainer:
+        title = 'Professional Trainer';
+        subtitle = 'Specialized elite coaching packages.';
+        break;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Syne',
+            fontSize: (19.0 * sf).clamp(17.0, 23.0),
+            fontWeight: FontWeight.w800,
+            color: kDark,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          subtitle,
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: (11.5 * sf).clamp(10.5, 13.0),
+            color: kGrey,
+            height: 1.45,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfessionalTrainerComingSoon(double sf) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFEF3C7),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.timer_outlined, size: 36, color: Color(0xFFD97706)),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Professional Trainer • Coming Soon',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Syne',
+              fontSize: (16.0 * sf).clamp(15.0, 18.0),
+              fontWeight: FontWeight.w800,
+              color: kDark,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Packages for Professional Trainers are coming soon and are unavailable for booking at launch. Please choose an available Standard or Advanced Trainer to book your training sessions.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: (11.5 * sf).clamp(10.5, 12.5),
+              color: kGrey,
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kDark,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: const Text(
+              'Explore Other Trainers',
+              style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kLime),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyPlansState(double sf) {
+    final isAdvanced = _trainerCategory == TrainerCategory.advancedTrainer;
+
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 24),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFEEEEEE)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Iconsax.box_remove, size: 44, color: Color(0xFF999999)),
+            const SizedBox(height: 14),
             Text(
-              'Select Your Training Block',
+              isAdvanced
+                  ? 'No training plans are currently available from this trainer.'
+                  : 'No packages available',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Syne',
-                fontSize: (20.0 * sf).clamp(18.0, 24.0),
+                fontSize: (15.5 * sf).clamp(14.5, 17.5),
                 fontWeight: FontWeight.w800,
                 color: kDark,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
-              'Fixed platform pricing for 1-on-1 personal training. All sessions are 60 minutes with 12-hour cancellation protection.',
+              isAdvanced
+                  ? 'This Advanced Trainer has not yet published any Admin-approved training plans. You can check back soon or browse other available trainers.'
+                  : 'Platform training packages will appear here once configured.',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Poppins',
-                fontSize: (11.5 * sf).clamp(10.5, 13.0),
+                fontSize: (11.5 * sf).clamp(10.5, 12.5),
                 color: kGrey,
                 height: 1.45,
               ),
             ),
-
-            const SizedBox(height: 16),
-
-            // ── 2. Firebase Integration: Stream training_plans collection ──
-            StreamBuilder<List<TrainingPlanModel>>(
-              stream: FirestoreService().streamTrainingPlans(),
-              builder: (context, snapshot) {
-                // Loading State
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40.0),
-                      child: CircularProgressIndicator(color: kDark),
-                    ),
-                  );
-                }
-
-                // Error State
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        children: [
-                          const Icon(Icons.error_outline, size: 40, color: Color(0xFFEF4444)),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Unable to load packages',
-                            style: TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            '${snapshot.error}',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
-                          ),
-                          const SizedBox(height: 14),
-                          ElevatedButton(
-                            onPressed: () => setState(() {}),
-                            style: ElevatedButton.styleFrom(backgroundColor: kDark),
-                            child: const Text('Try Again', style: TextStyle(fontFamily: 'Syne', color: Colors.white)),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
-                final plans = snapshot.data ?? [];
-
-                // Proper Setup Message if training_plans collection is empty in Firestore
-                if (plans.isEmpty) {
-                  return Center(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 24),
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFEEEEEE)),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Iconsax.box_remove, size: 44, color: Color(0xFF999999)),
-                          const SizedBox(height: 14),
-                          Text(
-                            'Packages Setup Required',
-                            style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontSize: (16.0 * sf).clamp(15.0, 18.0),
-                              fontWeight: FontWeight.w800,
-                              color: kDark,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'The Firestore "training_plans" collection has not yet been initialized. Please seed the database with platform packages to view available plans.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                              color: kGrey,
-                              height: 1.45,
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              HapticFeedback.lightImpact();
-                              await SeedService().seedTrainingPlans();
-                              setState(() {});
-                            },
-                            icon: const Icon(Icons.cloud_upload_outlined, size: 16, color: kDark),
-                            label: const Text(
-                              'Initialize Platform Packages',
-                              style: TextStyle(
-                                fontFamily: 'Syne',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                color: kDark,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: kLime,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
-                // Default initial selection if needed
-                if (_selectedPlanId == null || !plans.any((p) => p.id == _selectedPlanId)) {
-                  _selectedPlanId = plans.firstWhere((p) => p.popular, orElse: () => plans.first).id;
-                }
-
-                // ── 3. Package Comparison Table / Matrix View (When toggled) ──
-                if (_showComparisonTable) {
-                  return _buildComparisonTable(plans: plans, sf: sf);
-                }
-
-                // ── 4. Package Cards Listing (With 6-Month Transformation Highlight) ──
-                return Column(
-                  children: plans.map((plan) {
-                    final isSelected = _selectedPlanId == plan.id;
-                    final isTransformation = plan.isTransformationPackage;
-
-                    return _buildPackageCard(
-                      plan: plan,
-                      isSelected: isSelected,
-                      isTransformation: isTransformation,
-                      sf: sf,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        setState(() => _selectedPlanId = plan.id);
-                      },
-                    );
-                  }).toList(),
-                );
-              },
-            ),
-
-            const SizedBox(height: 20),
-
-            // ── 5. Package Information, Rules & Expiry Policies ──
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFEEEEEE)),
+            const SizedBox(height: 18),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kDark,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(Icons.shield_outlined, size: 16, color: Color(0xFF16A34A)),
-                      SizedBox(width: 8),
-                      Text(
-                        'PACKAGE RULES & GUARANTEES',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: kDark,
-                          letterSpacing: 1.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _buildPolicyRow(
-                    icon: Icons.timer_outlined,
-                    title: 'Full 60-Minute Sessions',
-                    subtitle: 'Every booking provides a full 60 minutes of intensive 1-on-1 personal training.',
-                    sf: sf,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildPolicyRow(
-                    icon: Icons.event_busy_outlined,
-                    title: 'Package Expiry & Duration',
-                    subtitle: 'Credits expire on the package end date (1d to 180d). Unused expired sessions cannot be carried forward.',
-                    sf: sf,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildPolicyRow(
-                    icon: Icons.replay_outlined,
-                    title: '12-Hour Cancellation Protection',
-                    subtitle: 'Cancel up to 12 hours before session start for 100% credit refund. Late cancellations forfeit credit.',
-                    sf: sf,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildPolicyRow(
-                    icon: Icons.verified_user_outlined,
-                    title: 'Certified Personal Trainers',
-                    subtitle: 'All platform trainers are verified for qualifications, background checks, and professional standards.',
-                    sf: sf,
-                  ),
-                ],
+              child: const Text(
+                'Explore Other Trainers',
+                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kLime),
               ),
             ),
-
-            const SizedBox(height: 110), // Space for sticky bottom bar
           ],
         ),
       ),
-      bottomSheet: Container(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: const Border(top: BorderSide(color: Color(0xFFEEEEEE))),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: StreamBuilder<List<TrainingPlanModel>>(
-            stream: FirestoreService().streamTrainingPlans(),
-            builder: (context, snapshot) {
-              final plans = snapshot.data ?? [];
-              if (plans.isEmpty) {
-                return const SizedBox(height: 50);
-              }
+    );
+  }
 
-              final selectedPlan = plans.firstWhere(
-                (p) => p.id == _selectedPlanId,
-                orElse: () => plans.first,
-              );
+  Widget _buildStickyBottomBar(double sf) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: const Border(top: BorderSide(color: Color(0xFFEEEEEE))),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: StreamBuilder<List<TrainingPlanModel>>(
+          stream: FirestoreService().streamPackagesForTrainer(widget.trainer),
+          builder: (context, snapshot) {
+            final plans = snapshot.data ?? [];
+            if (plans.isEmpty) {
+              return const SizedBox.shrink();
+            }
 
-              return Row(
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        selectedPlan.title,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 11,
-                          color: kGrey,
-                        ),
-                      ),
-                      Text(
-                        '₹${selectedPlan.price}',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                          fontWeight: FontWeight.w800,
-                          color: kDark,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _onProceed(selectedPlan),
-                      icon: const Icon(Iconsax.arrow_right_3, size: 16, color: kDark),
-                      label: const Text(
-                        'Continue to Booking',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w800,
-                          color: kDark,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kLime,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            final selectedPlan = plans.cast<TrainingPlanModel?>().firstWhere(
+                  (p) => p?.id == _selectedPlanId,
+                  orElse: () => null,
+                );
+
+            final hasSelection = selectedPlan != null;
+
+            return Row(
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hasSelection ? selectedPlan.title : 'No Package Selected',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 11,
+                        color: hasSelection ? kGrey : const Color(0xFF9CA3AF),
                       ),
                     ),
+                    Text(
+                      hasSelection ? selectedPlan.formattedPrice : 'Choose a package',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: (18.0 * sf).clamp(16.0, 22.0),
+                        fontWeight: FontWeight.w800,
+                        color: hasSelection ? kDark : const Color(0xFFCCCCCC),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: hasSelection ? () => _onProceed(selectedPlan) : null,
+                    icon: Icon(Iconsax.arrow_right_3, size: 16, color: hasSelection ? kDark : const Color(0xFF9CA3AF)),
+                    label: Text(
+                      hasSelection ? 'Review & Continue' : 'Select a Package',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: hasSelection ? kDark : const Color(0xFF9CA3AF),
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: hasSelection ? kLime : const Color(0xFFE5E7EB),
+                      disabledBackgroundColor: const Color(0xFFE5E7EB),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
-                ],
-              );
-            },
-          ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -705,6 +798,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
   }) {
     final pricePerSession = plan.pricePerSession.round();
     final savings = plan.savingsPercent;
+    final isCustom = plan.isCustom;
 
     if (isTransformation) {
       // ── Flagship 6-Month Transformation Card ──
@@ -736,7 +830,6 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Top highlight banner
                   Row(
                     children: [
                       Container(
@@ -751,7 +844,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                             Icon(Icons.workspace_premium, size: 14, color: kDark),
                             SizedBox(width: 4),
                             Text(
-                              'MAXIMUM TRANSFORMATION VALUE',
+                              'FLAGSHIP TRANSFORMATION',
                               style: TextStyle(
                                 fontFamily: 'Syne',
                                 fontSize: 9.5,
@@ -796,23 +889,24 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                           color: Colors.white,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF222222),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: kLime.withValues(alpha: 0.6)),
-                        ),
-                        child: Text(
-                          'Save $savings% per session',
-                          style: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 10.5,
-                            color: kLime,
-                            fontWeight: FontWeight.w700,
+                      if (savings > 0)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF222222),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: kLime.withValues(alpha: 0.6)),
+                          ),
+                          child: Text(
+                            'Save $savings% per session',
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10.5,
+                              color: kLime,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
 
@@ -837,7 +931,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '₹${plan.price}',
+                            plan.formattedPrice,
                             style: TextStyle(
                               fontFamily: 'Syne',
                               fontSize: (22.0 * sf).clamp(20.0, 26.0),
@@ -882,7 +976,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
       );
     }
 
-    // ── Standard & Popular Package Cards ──
+    // ── Standard & Custom Package Cards ──
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -913,40 +1007,26 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Top Tag & Type Badge
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Text(
-                            plan.title,
-                            style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontSize: (15.5 * sf).clamp(14.0, 17.5),
-                              fontWeight: FontWeight.w800,
-                              color: kDark,
-                            ),
-                          ),
-                          if (plan.popular) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: kDark,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Text(
-                                'MOST POPULAR',
-                                style: TextStyle(
-                                  fontFamily: 'Syne',
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w800,
-                                  color: kLime,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: isCustom ? const Color(0xFFEFF6FF) : const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        isCustom
+                            ? 'Advanced Trainer Custom Plan • Admin Verified'
+                            : 'TRAIN Z Platform Package',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                          color: isCustom ? const Color(0xFF1D4ED8) : kDark,
+                        ),
                       ),
                     ),
                     Container(
@@ -967,17 +1047,53 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                   ],
                 ),
 
-                const SizedBox(height: 6),
+                const SizedBox(height: 10),
 
-                Text(
-                  plan.description,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                    color: const Color(0xFF555555),
-                    height: 1.4,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      plan.title,
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: (16.0 * sf).clamp(14.5, 18.0),
+                        fontWeight: FontWeight.w800,
+                        color: kDark,
+                      ),
+                    ),
+                    if (plan.popular) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: kDark,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text(
+                          'MOST POPULAR',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: kLime,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
+
+                if (plan.description.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    plan.description,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                      color: const Color(0xFF555555),
+                      height: 1.4,
+                    ),
+                  ),
+                ],
 
                 const SizedBox(height: 12),
 
@@ -988,10 +1104,10 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '₹${plan.price}',
+                          plan.formattedPrice,
                           style: TextStyle(
                             fontFamily: 'Syne',
-                            fontSize: (18.0 * sf).clamp(16.0, 22.0),
+                            fontSize: (18.5 * sf).clamp(16.5, 22.0),
                             fontWeight: FontWeight.w800,
                             color: kDark,
                           ),
@@ -999,7 +1115,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                         Text(
                           savings > 0
                               ? '₹$pricePerSession/session (Save $savings%)'
-                              : '₹$pricePerSession/session',
+                              : '₹$pricePerSession/session • 60 mins',
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: (10.0 * sf).clamp(9.0, 11.5),
@@ -1094,6 +1210,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                 return DataRow(
                   selected: isSelected,
                   onSelectChanged: (_) {
+                    if (!plan.isActive || !plan.isApproved) return;
                     HapticFeedback.selectionClick();
                     setState(() => _selectedPlanId = plan.id);
                   },
@@ -1119,7 +1236,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                       ),
                     ),
                     DataCell(Text('${plan.sessionsCount}', style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5))),
-                    DataCell(Text('₹${plan.price}', style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 12))),
+                    DataCell(Text(plan.formattedPrice, style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 12))),
                     DataCell(Text('₹${plan.pricePerSession.round()}', style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFF15803D)))),
                     DataCell(Text('${plan.validityDays}d', style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5))),
                     DataCell(Text(plan.savingsPercent > 0 ? '${plan.savingsPercent}%' : '—', style: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w700, fontSize: 11.5))),
@@ -1127,6 +1244,66 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                 );
               }).toList(),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPackageRulesSection(double sf) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.shield_outlined, size: 16, color: Color(0xFF16A34A)),
+              SizedBox(width: 8),
+              Text(
+                'PACKAGE RULES & GUARANTEES',
+                style: TextStyle(
+                  fontFamily: 'Syne',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: kDark,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildPolicyRow(
+            icon: Icons.timer_outlined,
+            title: 'Full 60-Minute Sessions',
+            subtitle: 'Every booking provides a full 60 minutes of intensive 1-on-1 personal training.',
+            sf: sf,
+          ),
+          const SizedBox(height: 10),
+          _buildPolicyRow(
+            icon: Icons.event_busy_outlined,
+            title: 'Package Expiry & Validity',
+            subtitle: 'Credits expire on the package validity date (1d to 180d). Unused expired sessions cannot be carried forward.',
+            sf: sf,
+          ),
+          const SizedBox(height: 10),
+          _buildPolicyRow(
+            icon: Icons.replay_outlined,
+            title: '12-Hour Cancellation Protection',
+            subtitle: 'Cancel up to 12 hours before session start for 100% session credit return. Late cancellations (<12h) forfeit credit.',
+            sf: sf,
+          ),
+          const SizedBox(height: 10),
+          _buildPolicyRow(
+            icon: Icons.verified_user_outlined,
+            title: 'Verified Personal Trainers',
+            subtitle: 'All platform trainers are verified for qualifications, background checks, and professional standards.',
+            sf: sf,
           ),
         ],
       ),

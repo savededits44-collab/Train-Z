@@ -116,7 +116,7 @@ class TrainerCategoryCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  '3.5+ Yrs Exp',
+                                  '3.5+ Yrs Exp & Certified',
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontSize: 10,

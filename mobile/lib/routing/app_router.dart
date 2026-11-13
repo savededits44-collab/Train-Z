@@ -8,6 +8,8 @@ import '../screens/onboarding/client_onboarding.dart';
 import '../screens/onboarding/role_selection_screen.dart';
 import '../screens/onboarding/trainer_onboarding.dart';
 import '../screens/signup_screen.dart';
+import '../screens/trainer/trainer_availability_screen.dart';
+import '../screens/trainer/trainer_certificates_screen.dart';
 import '../screens/trainer/trainer_dashboard.dart';
 import '../screens/welcome_screen.dart';
 import '../splashscreen/splashscreen.dart';
@@ -41,10 +43,13 @@ class AppRouter {
   static const String clientBookingSchedule = '/client/booking-schedule';
   static const String clientBookingConfirmation = '/client/booking-confirmation';
   static const String clientPayment = '/client/payment';
+  static const String clientPaymentStatus = '/client/payment-status';
   static const String clientPaymentReceipt = '/client/payment-receipt';
   static const String clientPaymentHistory = '/client/payment-history';
   static const String clientMyBookings = '/client/my-bookings';
   static const String clientBookingDetail = '/client/booking-detail';
+  static const String clientChat = '/client/chat';
+  static const String clientNotifications = '/client/notifications';
 
   // Dedicated Trainer Routes
   static const String trainerLogin = '/trainer/login';
@@ -56,6 +61,8 @@ class AppRouter {
   static const String trainerApproved = '/trainer/approved';
   static const String trainerRejected = '/trainer/rejected';
   static const String trainerForgotPassword = '/trainer/forgot-password';
+  static const String trainerCertificates = '/trainer/certificates';
+  static const String trainerAvailability = '/trainer/availability';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -77,7 +84,10 @@ class AppRouter {
       case clientHome:
         return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
       case trainerDashboard:
-        return MaterialPageRoute(builder: (_) => const TrainerDashboard());
+        final trainerId = settings.arguments as String?;
+        return MaterialPageRoute(
+          builder: (_) => TrainerDashboard(trainerId: trainerId),
+        );
 
       // Client Feature Routes
       case clientLogin:
@@ -150,6 +160,22 @@ class AppRouter {
             clientPhone: args['clientPhone'] ?? '+91 98201 54321',
           ),
         );
+      case clientPaymentStatus:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientPaymentStatusScreen(
+            initialStatus: args['initialStatus'] ?? PaymentStatusType.success,
+            payment: args['payment'],
+            plan: args['plan'],
+            trainer: args['trainer'],
+            booking: args['booking'],
+            errorMessage: args['errorMessage'],
+            clientId: args['clientId'] ?? '',
+            clientName: args['clientName'] ?? 'TRAIN Z Athlete',
+            clientEmail: args['clientEmail'] ?? 'athlete@trainz.com',
+            clientPhone: args['clientPhone'] ?? '+91 98201 54321',
+          ),
+        );
       case clientPaymentReceipt:
         final args = settings.arguments as Map<String, dynamic>? ?? {};
         return MaterialPageRoute(
@@ -178,6 +204,17 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => ClientBookingDetailScreen(
             booking: args['booking'],
+          ),
+        );
+      case clientNotifications:
+        return MaterialPageRoute(
+          builder: (_) => const ClientNotificationsScreen(),
+        );
+      case clientChat:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientChatScreen(
+            conversation: args['conversation'],
           ),
         );
 
@@ -213,6 +250,22 @@ class AppRouter {
         final email = settings.arguments as String?;
         return MaterialPageRoute(
           builder: (_) => TrainerForgotPasswordScreen(initialEmail: email),
+        );
+      case trainerCertificates:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => TrainerCertificatesScreen(
+            trainerId: args?['trainerId'],
+            category: args?['category'],
+          ),
+        );
+      case trainerAvailability:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerAvailabilityScreen(
+            trainerId: trainerId,
+          ),
         );
 
       case adminDashboard:

@@ -272,6 +272,35 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                       color: const Color(0xFF555555),
                     ),
                   ),
+                  const SizedBox(height: 5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: trainer.category == TrainerCategory.advancedTrainer
+                          ? const Color(0xFFDCFCE7)
+                          : trainer.category == TrainerCategory.professionalTrainer
+                              ? const Color(0xFFFEF3C7)
+                              : const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      trainer.category == TrainerCategory.advancedTrainer
+                          ? 'Advanced Trainer'
+                          : trainer.category == TrainerCategory.professionalTrainer
+                              ? 'Professional Trainer • Coming Soon'
+                              : 'Trainer',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: trainer.category == TrainerCategory.advancedTrainer
+                            ? const Color(0xFF15803D)
+                            : trainer.category == TrainerCategory.professionalTrainer
+                                ? const Color(0xFFB45309)
+                                : kDark,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -427,40 +456,103 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
             const SizedBox(height: 22),
 
             // ── 4. Verified Qualifications & Certifications ──
-            _SectionHeading(title: 'VERIFIED CREDENTIALS & CERTIFICATIONS', sf: sf),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: trainer.certifications.map((cert) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF4F9F2),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: kLime.withValues(alpha: 0.6)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.verified_outlined, size: 15, color: Color(0xFF15803D)),
-                      const SizedBox(width: 6),
-                      Text(
-                        cert,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                          fontWeight: FontWeight.w600,
-                          color: kDark,
-                        ),
+            if (trainer.verifiedQualifications.isNotEmpty || trainer.certifications.isNotEmpty) ...[
+              _SectionHeading(title: 'VERIFIED CREDENTIALS & CERTIFICATIONS', sf: sf),
+              const SizedBox(height: 8),
+              if (trainer.verifiedQualifications.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: trainer.verifiedQualifications.map((vq) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF4F9F2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: kLime.withValues(alpha: 0.6)),
                       ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: 22),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Icon(Icons.verified_outlined, size: 16, color: Color(0xFF15803D)),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  vq.certificateName,
+                                  style: TextStyle(
+                                    fontFamily: 'Syne',
+                                    fontSize: (12.5 * sf).clamp(11.5, 14.0),
+                                    fontWeight: FontWeight.w700,
+                                    color: kDark,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${vq.courseName} • ${vq.issuingOrganization} (${vq.yearOfCompletion})',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                                    color: const Color(0xFF444444),
+                                  ),
+                                ),
+                                if (vq.qualificationDetails != null && vq.qualificationDetails!.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    vq.qualificationDetails!,
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: (10.5 * sf).clamp(9.5, 11.5),
+                                      color: const Color(0xFF666666),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                )
+              else
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: trainer.certifications.map((cert) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF4F9F2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: kLime.withValues(alpha: 0.6)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.verified_outlined, size: 15, color: Color(0xFF15803D)),
+                          const SizedBox(width: 6),
+                          Text(
+                            cert,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                              fontWeight: FontWeight.w600,
+                              color: kDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              const SizedBox(height: 22),
+            ],
 
             // ── 5. Specializations ──
             _SectionHeading(title: 'FITNESS SPECIALIZATIONS', sf: sf),
@@ -866,26 +958,35 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                 ],
               ),
               const SizedBox(width: 20),
-              // Prominent "Book Trainer" button taking client to package selection
+              // Prominent "Book Trainer" button (or "Coming Soon" for Professional Trainer)
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _navigateToPackageSelection(context),
-                  icon: const Icon(Iconsax.calendar_tick, size: 18, color: kDark),
-                  label: const Text(
-                    'Book Trainer',
-                    style: TextStyle(
-                      fontFamily: 'Syne',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: kDark,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kLime,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+                child: Builder(
+                  builder: (context) {
+                    final isProfessional = trainer.category == TrainerCategory.professionalTrainer;
+                    return ElevatedButton.icon(
+                      onPressed: () => _navigateToPackageSelection(context),
+                      icon: Icon(
+                        isProfessional ? Icons.timer_outlined : Iconsax.calendar_tick,
+                        size: 18,
+                        color: isProfessional ? const Color(0xFF92400E) : kDark,
+                      ),
+                      label: Text(
+                        isProfessional ? 'Coming Soon' : 'Book Trainer',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: isProfessional ? const Color(0xFF92400E) : kDark,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isProfessional ? const Color(0xFFFEF3C7) : kLime,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

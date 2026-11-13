@@ -127,26 +127,45 @@ void main() {
     });
   });
 
-  group('PROMPT 3A: Trainer Category Selection Rules', () {
-    test('Trainer (Standard) category requires beginner certificate confirmation', () {
-      // Missing certificate confirmation
-      expect(
-        TrainerAuthController.validateCategorySelectionStatic(
-          category: TrainerCategory.trainer,
-          experienceYears: 1.0,
-          hasConfirmedCertificate: false,
-        ),
-        'You must confirm possession of at least one beginner-level trainer certificate.',
-      );
-
-      // Confirmed certificate passes
+  group('Revised Trainer Eligibility Policy: Category Selection Rules', () {
+    test('Standard Trainer category requires NO certificates and NO minimum experience', () {
+      // 0.0 years and no certificate passes
       expect(
         TrainerAuthController.validateCategorySelectionStatic(
           category: TrainerCategory.trainer,
           experienceYears: 0.0,
+          hasConfirmedCertificate: false,
+        ),
+        isNull,
+      );
+
+      // Any experience and no certificate passes
+      expect(
+        TrainerAuthController.validateCategorySelectionStatic(
+          category: TrainerCategory.trainer,
+          experienceYears: 2.0,
+          hasConfirmedCertificate: false,
+        ),
+        isNull,
+      );
+
+      // Certificate confirmed also passes
+      expect(
+        TrainerAuthController.validateCategorySelectionStatic(
+          category: TrainerCategory.trainer,
+          experienceYears: 1.0,
           hasConfirmedCertificate: true,
         ),
         isNull,
+      );
+
+      expect(
+        TrainerCategory.trainer.requirementText,
+        'No certificate or minimum experience required. Standard platform packages apply.',
+      );
+      expect(
+        TrainerCategory.trainer.packageRuleText,
+        'Uses standard TRAIN Z platform packages.',
       );
     });
 
@@ -158,7 +177,7 @@ void main() {
           experienceYears: 2.0,
           hasConfirmedCertificate: true,
         ),
-        'Advanced Trainers must have at least 3.5 years of relevant coaching experience.',
+        'Advanced Trainers must have at least 3.5 years of relevant training experience.',
       );
 
       // 3.4 years (< 3.5) rejected
@@ -168,7 +187,7 @@ void main() {
           experienceYears: 3.4,
           hasConfirmedCertificate: true,
         ),
-        'Advanced Trainers must have at least 3.5 years of relevant coaching experience.',
+        'Advanced Trainers must have at least 3.5 years of relevant training experience.',
       );
 
       // 3.5 years exact qualifies
@@ -199,7 +218,16 @@ void main() {
           experienceYears: 4.0,
           hasConfirmedCertificate: false,
         ),
-        'You must confirm possession of relevant professional trainer qualifications.',
+        'You must confirm possession of relevant professional certificates and qualifications.',
+      );
+
+      expect(
+        TrainerCategory.advancedTrainer.requirementText,
+        'Must have relevant professional trainer qualifications & at least 3.5 years of experience.',
+      );
+      expect(
+        TrainerCategory.advancedTrainer.packageRuleText,
+        'Can create custom training plans and set independent session rates. Each custom plan requires Admin approval.',
       );
     });
 
@@ -216,6 +244,15 @@ void main() {
           hasConfirmedCertificate: true,
         ),
         'Professional Trainer category is Coming Soon and unavailable at launch.',
+      );
+
+      expect(
+        TrainerCategory.professionalTrainer.requirementText,
+        'Coming Soon.',
+      );
+      expect(
+        TrainerCategory.professionalTrainer.packageRuleText,
+        'Coming Soon.',
       );
     });
 
@@ -414,6 +451,153 @@ void main() {
           profile: approvedProfile,
         ),
         AppRouter.accountSuspended,
+      );
+    });
+  });
+
+  group('Revised Trainer Eligibility Policy & Certificate Privacy Invariants', () {
+    test('Standard Trainer profile setup and registration succeed without certificates', () {
+      // Standard trainer profile model with empty certification documents
+      const standardProfile = TrainerProfileModel(
+        uid: 'standard_trainer_1',
+        category: TrainerCategory.trainer,
+        experienceYears: 0.0,
+        certificationDocuments: [],
+        verificationStatus: TrainerVerificationStatus.pending,
+      );
+
+      expect(standardProfile.isStandardTrainer, isTrue);
+      expect(standardProfile.isAdvancedTrainer, isFalse);
+      expect(standardProfile.certificationDocuments, isEmpty);
+      expect(standardProfile.experienceYears, 0.0);
+
+      // Category validation succeeds without certificates
+      final err = TrainerAuthController.validateCategorySelectionStatic(
+        category: TrainerCategory.trainer,
+        experienceYears: 0.0,
+        hasConfirmedCertificate: false,
+      );
+      expect(err, isNull);
+    });
+
+    test('Admin approval is valid for Standard Trainers without certificates', () {
+      final approvedStandardTrainer = const TrainerProfileModel(
+        uid: 'standard_trainer_2',
+        category: TrainerCategory.trainer,
+        experienceYears: 1.0,
+        certificationDocuments: [],
+        verificationStatus: TrainerVerificationStatus.approved,
+        isActive: true,
+      );
+
+      expect(approvedStandardTrainer.isApproved, isTrue);
+      expect(approvedStandardTrainer.canBeBooked, isTrue);
+      expect(approvedStandardTrainer.certificationDocuments, isEmpty);
+    });
+
+    test('Advanced Trainer requires certificates and at least 3.5 years experience', () {
+      // Missing cert fails
+      expect(
+        TrainerAuthController.validateCategorySelectionStatic(
+          category: TrainerCategory.advancedTrainer,
+          experienceYears: 4.0,
+          hasConfirmedCertificate: false,
+        ),
+        'You must confirm possession of relevant professional certificates and qualifications.',
+      );
+
+      // Low experience fails
+      expect(
+        TrainerAuthController.validateCategorySelectionStatic(
+          category: TrainerCategory.advancedTrainer,
+          experienceYears: 2.5,
+          hasConfirmedCertificate: true,
+        ),
+        'Advanced Trainers must have at least 3.5 years of relevant training experience.',
+      );
+
+      // Valid experience and cert passes
+      expect(
+        TrainerAuthController.validateCategorySelectionStatic(
+          category: TrainerCategory.advancedTrainer,
+          experienceYears: 3.5,
+          hasConfirmedCertificate: true,
+        ),
+        isNull,
+      );
+    });
+
+    test('Certificate privacy: clients see verified qualification names, never raw documents', () {
+      const advancedProfile = TrainerProfileModel(
+        uid: 'adv_trainer_1',
+        category: TrainerCategory.advancedTrainer,
+        experienceYears: 5.0,
+        verificationStatus: TrainerVerificationStatus.approved,
+        certificationDocuments: [
+          'https://storage.googleapis.com/trainer_documents/adv_trainer_1/certifications/secret_cert.pdf',
+        ],
+      );
+
+      const displayModel = TrainerDisplayModel(
+        profile: advancedProfile,
+        uid: 'adv_trainer_1',
+        displayName: 'Aarav Sharma',
+        gender: Gender.male,
+        specialties: ['Hypertrophy', 'Strength'],
+        experienceYears: 5.0,
+        ratingAvg: 4.9,
+        totalReviews: 24,
+        hourlyRate: 1200,
+        certifications: ['Certified Personal Trainer (CSCS)', 'Sports Nutrition Specialist'],
+      );
+
+      // Display model presents human-readable verified credentials
+      expect(displayModel.certifications, contains('Certified Personal Trainer (CSCS)'));
+      expect(displayModel.certifications, contains('Sports Nutrition Specialist'));
+
+      // Raw private document URLs are never in certifications
+      for (final cert in displayModel.certifications) {
+        expect(cert, isNot(contains('.pdf')));
+        expect(cert, isNot(contains('storage.googleapis.com')));
+        expect(cert, isNot(contains('trainer_documents')));
+      }
+
+      // Standard trainer without verified certifications has empty cert list
+      const standardDisplayModel = TrainerDisplayModel(
+        profile: TrainerProfileModel(
+          uid: 'std_trainer_1',
+          category: TrainerCategory.trainer,
+          experienceYears: 1.0,
+          verificationStatus: TrainerVerificationStatus.approved,
+        ),
+        uid: 'std_trainer_1',
+        displayName: 'Rahul Patel',
+        gender: Gender.male,
+        specialties: ['General Fitness'],
+        experienceYears: 1.0,
+        ratingAvg: 5.0,
+        totalReviews: 5,
+        hourlyRate: 500,
+        certifications: [],
+      );
+
+      expect(standardDisplayModel.certifications, isEmpty);
+    });
+
+    test('Package rules: Standard trainers use fixed platform packages; Advanced can create custom plans', () {
+      expect(
+        TrainerCategory.trainer.packageRuleText,
+        'Uses standard TRAIN Z platform packages.',
+      );
+
+      expect(
+        TrainerCategory.advancedTrainer.packageRuleText,
+        'Can create custom training plans and set independent session rates. Each custom plan requires Admin approval.',
+      );
+
+      expect(
+        TrainerCategory.professionalTrainer.packageRuleText,
+        'Coming Soon.',
       );
     });
   });

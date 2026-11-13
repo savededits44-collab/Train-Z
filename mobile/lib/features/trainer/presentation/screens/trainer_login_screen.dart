@@ -3,7 +3,6 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../screens/trainer/trainer_dashboard.dart';
 import '../../../../widgets/app_widgets.dart';
 import '../../controllers/trainer_auth_controller.dart';
-import 'trainer_approved_screen.dart';
 import 'trainer_category_selection_screen.dart';
 import 'trainer_email_verification_screen.dart';
 import 'trainer_forgot_password_screen.dart';
@@ -97,19 +96,12 @@ class _TrainerLoginScreenState extends State<TrainerLoginScreen> {
 
         case TrainerAuthNavigationTarget.approved:
           final profile = _trainerAuthController.currentTrainerProfile;
-          if (profile != null) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => TrainerApprovedScreen(profile: profile),
-              ),
-            );
-          } else {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => const TrainerDashboard(),
-              ),
-            );
-          }
+          final uid = profile?.uid ?? _trainerAuthController.currentTrainerUser?.uid;
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => TrainerDashboard(trainerId: uid),
+            ),
+          );
           break;
 
         case TrainerAuthNavigationTarget.rejected:

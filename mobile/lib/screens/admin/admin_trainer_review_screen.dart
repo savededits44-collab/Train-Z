@@ -98,7 +98,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Please provide a reason for the rejection so the coach can resolve the issue:',
+              'Please provide a reason for the rejection so the trainer can resolve the issue:',
               style: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: kGrey),
             ),
             const SizedBox(height: 12),
@@ -134,7 +134,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text(
-                      'Coach application marked as Rejected.',
+                      'Trainer application marked as Rejected.',
                       style: TextStyle(fontFamily: 'Poppins'),
                     ),
                     backgroundColor: Color(0xFFE53935),
@@ -479,7 +479,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                 onTap: () => _showImageDialog(
                                   context,
                                   service.certificatePath!,
-                                  'Coach Certificate Document',
+                                  'Trainer Certificate Document',
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
@@ -539,7 +539,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                 onPressed: () => _showImageDialog(
                                   context,
                                   service.certificatePath!,
-                                  'Coach Certificate Document',
+                                  'Trainer Certificate Document',
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: kDark,
@@ -564,7 +564,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                               SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  'No certification document uploaded (Optional).',
+                                  'No certification document uploaded (Optional for Standard Trainers).',
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontSize: 12.5,
@@ -684,7 +684,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                           onPressed: () async {
                             HapticFeedback.heavyImpact();
                             await TrainerProfileService.instance.approveByAdmin(
-                              notes: 'Approved by Admin Team. Verified coaching identity.',
+                              notes: 'Approved by Admin Team. Verified trainer profile.',
                             );
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -695,7 +695,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                       SizedBox(width: 10),
                                       Expanded(
                                         child: Text(
-                                          'Coach approved! Eligible to deliver service on TrainZ.',
+                                          'Trainer approved! Eligible to deliver sessions on TrainZ.',
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             fontWeight: FontWeight.w600,

@@ -7,7 +7,7 @@ import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../shared/models/training_plan_model.dart';
 import '../../../../widgets/app_widgets.dart';
-import 'client_payment_receipt_screen.dart';
+import 'client_payment_status_screen.dart';
 
 /// Screen displaying the Payment Summary, Razorpay Checkout integration,
 /// backend signature verification, and sandbox testing capabilities.
@@ -126,10 +126,16 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => ClientPaymentReceiptScreen(
+          builder: (_) => ClientPaymentStatusScreen(
+            initialStatus: PaymentStatusType.success,
             payment: finalizedPayment,
+            plan: widget.plan,
             trainer: widget.trainer,
             booking: widget.booking,
+            clientId: widget.clientId,
+            clientName: widget.clientName,
+            clientEmail: widget.clientEmail,
+            clientPhone: widget.clientPhone,
           ),
         ),
       );
@@ -160,6 +166,25 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
           ? 'Payment cancelled or failed: ${response.message}'
           : 'Payment cancelled or dismissed. No credits were deducted.';
     });
+
+    final isCancelled = response.code == Razorpay.PAYMENT_CANCELLED;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ClientPaymentStatusScreen(
+          initialStatus: isCancelled ? PaymentStatusType.cancelled : PaymentStatusType.failed,
+          plan: widget.plan,
+          trainer: widget.trainer,
+          booking: widget.booking,
+          errorMessage: response.message,
+          clientId: widget.clientId,
+          clientName: widget.clientName,
+          clientEmail: widget.clientEmail,
+          clientPhone: widget.clientPhone,
+          onRetry: _handleStartPayment,
+        ),
+      ),
+    );
   }
 
   /// External Wallet Callback
@@ -208,10 +233,16 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => ClientPaymentReceiptScreen(
+          builder: (_) => ClientPaymentStatusScreen(
+            initialStatus: PaymentStatusType.success,
             payment: finalized,
+            plan: widget.plan,
             trainer: widget.trainer,
             booking: widget.booking,
+            clientId: widget.clientId,
+            clientName: widget.clientName,
+            clientEmail: widget.clientEmail,
+            clientPhone: widget.clientPhone,
           ),
         ),
       );

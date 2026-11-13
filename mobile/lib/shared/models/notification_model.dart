@@ -5,7 +5,7 @@ class NotificationModel {
   final String userId;
   final String title;
   final String body;
-  final String type; // e.g. 'BOOKING_CONFIRMED', 'CREDIT_ADDED', 'TRAINER_APPROVED'
+  final String type; // e.g. 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED', 'BOOKING_RESCHEDULED', 'UPCOMING_REMINDER', 'CHAT_MESSAGE', 'PAYMENT_CONFIRMED'
   final bool isRead;
   final Map<String, dynamic> data;
   final DateTime? createdAt;
@@ -20,6 +20,35 @@ class NotificationModel {
     this.data = const {},
     this.createdAt,
   });
+
+  String? get bookingId => data['bookingId'] as String? ?? data['relatedId'] as String?;
+  String? get conversationId => data['conversationId'] as String?;
+  String? get trainerId => data['trainerId'] as String?;
+  String? get trainerName => data['trainerName'] as String?;
+  bool get isBookingRelated => type.startsWith('BOOKING_') || type == 'UPCOMING_REMINDER';
+  bool get isChatRelated => type == 'CHAT_MESSAGE';
+
+  NotificationModel copyWith({
+    String? id,
+    String? userId,
+    String? title,
+    String? body,
+    String? type,
+    bool? isRead,
+    Map<String, dynamic>? data,
+    DateTime? createdAt,
+  }) {
+    return NotificationModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      type: type ?? this.type,
+      isRead: isRead ?? this.isRead,
+      data: data ?? this.data,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -58,4 +87,3 @@ class NotificationModel {
     return NotificationModel.fromMap(data, id: doc.id);
   }
 }
-

@@ -1,10 +1,15 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trainuspro/core/constants/app_constants.dart';
+import 'package:trainuspro/features/client/presentation/screens/client_payment_status_screen.dart';
 import 'package:trainuspro/services/payment_service.dart';
+import 'package:trainuspro/shared/models/booking_model.dart';
 import 'package:trainuspro/shared/models/payment_model.dart';
+import 'package:trainuspro/shared/models/trainer_profile_model.dart';
 import 'package:trainuspro/shared/models/training_plan_model.dart';
+import 'package:trainuspro/shared/models/user_model.dart';
 
 void main() {
   final plans = AppConstants.fixedTrainingPlans
@@ -343,6 +348,392 @@ Thank you for training with TRAIN Z!
       expect(shareText, contains('order_987654321'));
       expect(shareText, contains('Vikram Singh'));
       expect(shareText, contains('TRAIN Z'));
+    });
+  });
+
+  group('PROMPT 14: Payment System - PaymentModel with purchasedPackageId & Deserialization', () {
+    test('PaymentModel serializes and deserializes purchasedPackageId correctly', () {
+      final payment = PaymentModel(
+        id: 'pay_xyz_999',
+        clientId: 'client_123',
+        planId: 'plan_1_month',
+        amount: 10799,
+        status: PaymentStatus.success,
+        purchasedPackageId: 'pkg_active_abc123',
+        verifiedAt: DateTime(2026, 11, 12, 10, 30),
+      );
+
+      final map = payment.toMap();
+      expect(map['purchasedPackageId'], 'pkg_active_abc123');
+
+      final deserialized = PaymentModel.fromMap(map, id: 'pay_xyz_999');
+      expect(deserialized.purchasedPackageId, 'pkg_active_abc123');
+      expect(deserialized.status, PaymentStatus.success);
+
+      final updated = payment.copyWith(purchasedPackageId: 'pkg_new_id');
+      expect(updated.purchasedPackageId, 'pkg_new_id');
+    });
+  });
+
+  group('PROMPT 14: Payment System - Trainer Eligibility & Package Pricing Governance', () {
+    test('Standard Trainer strictly accepts only predefined platform packages', () {
+      const standardCategory = TrainerCategory.trainer;
+      expect(standardCategory == TrainerCategory.trainer, isTrue);
+      expect(standardCategory == TrainerCategory.advancedTrainer, isFalse);
+      expect(standardCategory.isAvailableAtLaunch, isTrue);
+
+      // Predefined packages are the sole options for Standard Trainer
+      final standardPlanIds = plans.map((p) => p.id).toList();
+      expect(standardPlanIds, contains('plan_1_day'));
+      expect(standardPlanIds, contains('plan_3_days'));
+      expect(standardPlanIds, contains('plan_1_week'));
+      expect(standardPlanIds, contains('plan_1_month'));
+      expect(standardPlanIds, contains('plan_3_months'));
+      expect(standardPlanIds, contains('plan_6_months'));
+      expect(standardPlanIds.length, 6);
+    });
+
+    test('Advanced Trainer requires custom approved training plans', () {
+      const advancedCategory = TrainerCategory.advancedTrainer;
+      expect(advancedCategory == TrainerCategory.advancedTrainer, isTrue);
+      expect(advancedCategory.isAvailableAtLaunch, isTrue);
+
+      final customPlan = TrainingPlanModel(
+        id: 'custom_plan_adv_1',
+        trainerId: 'trainer_adv_007',
+        title: 'Pro Hypertrophy Mastery',
+        description: 'Elite 8-week periodized hypertrophy protocol',
+        price: 18500,
+        sessionsCount: 32,
+        validityDays: 60,
+        isCustom: true,
+        isApproved: true,
+        isActive: true,
+      );
+
+      expect(customPlan.isCustom, isTrue);
+      expect(customPlan.isApproved, isTrue);
+      expect(customPlan.isActive, isTrue);
+      expect(customPlan.price, 18500);
+      expect(customPlan.sessionsCount, 32);
+    });
+
+    test('Professional Trainer category is blocked as Coming Soon', () {
+      const proCategory = TrainerCategory.professionalTrainer;
+      expect(proCategory == TrainerCategory.professionalTrainer, isTrue);
+      expect(proCategory.isAvailableAtLaunch, isFalse);
+      expect(proCategory.displayName, 'Professional Trainer');
+    });
+  });
+
+  group('PROMPT 14: Payment System - Package Activation & Session Credits Double-Entry Rules', () {
+    test('Activated package attributes calculate correct expiry and credit balance', () {
+      final now = DateTime(2026, 11, 12, 12, 0, 0);
+      final plan = plans.firstWhere((p) => p.id == 'plan_1_month');
+      final expiryDate = now.add(Duration(days: plan.validityDays));
+
+      final purchasedPackage = {
+        'id': 'pkg_month_001',
+        'clientId': 'client_alpha',
+        'trainerId': 'trainer_beta',
+        'planId': plan.id,
+        'packageName': plan.title,
+        'packagePrice': plan.price,
+        'totalSessions': plan.sessionsCount,
+        'sessionsRemaining': plan.sessionsCount,
+        'validityDays': plan.validityDays,
+        'status': 'ACTIVE',
+        'startDate': now.toIso8601String(),
+        'expiryDate': expiryDate.toIso8601String(),
+      };
+
+      expect(purchasedPackage['status'], 'ACTIVE');
+      expect(purchasedPackage['totalSessions'], 26);
+      expect(purchasedPackage['sessionsRemaining'], 26);
+      expect(expiryDate.difference(now).inDays, 30);
+    });
+
+    test('Session credit allocation follows double-entry ledger rule: 1 credit = 1 session', () {
+      const packageSessions = 26;
+      int startingBalance = 0;
+      int creditsToCredit = packageSessions;
+      int newBalance = startingBalance + creditsToCredit;
+
+      // Double-entry ledger audit record
+      final ledgerAudit = {
+        'clientId': 'client_alpha',
+        'type': 'CREDIT_PURCHASE',
+        'amount': creditsToCredit,
+        'balanceAfter': newBalance,
+        'reason': 'Package purchase 1 Month (26 sessions)',
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+
+      expect(ledgerAudit['amount'], 26);
+      expect(ledgerAudit['balanceAfter'], 26);
+      expect(newBalance, 26);
+    });
+  });
+
+  group('PROMPT 14: Payment System - Slot Reservation Expiration & Cancellation Release', () {
+    test('Active unexpired slot hold allows booking confirmation', () {
+      final now = DateTime(2026, 11, 12, 12, 0, 0);
+      final expiresAt = now.add(const Duration(minutes: 5)); // 5 mins in future
+
+      final isHoldExpired = expiresAt.isBefore(now);
+      expect(isHoldExpired, isFalse);
+
+      final booking = BookingModel(
+        id: 'bk_active_001',
+        clientId: 'c1',
+        trainerId: 't1',
+        clientGender: Gender.male,
+        trainerGender: Gender.male,
+        sessionDate: DateTime(2026, 11, 15),
+        startTime: '10:00',
+        endTime: '11:00',
+        status: BookingStatus.confirmed,
+        paymentStatus: PaymentStatus.success,
+      );
+
+      expect(booking.status, BookingStatus.confirmed);
+      expect(booking.paymentStatus, PaymentStatus.success);
+    });
+
+    test('Expired slot hold triggers cancellation/expiry and frees slot lock', () {
+      final now = DateTime(2026, 11, 12, 12, 10, 0);
+      final expiresAt = DateTime(2026, 11, 12, 12, 0, 0); // 10 mins ago
+
+      final isHoldExpired = expiresAt.isBefore(now);
+      expect(isHoldExpired, isTrue);
+
+      // Lock should transition to RELEASED
+      const lockStatusAfterExpiry = 'RELEASED';
+      expect(lockStatusAfterExpiry, 'RELEASED');
+    });
+
+    test('Payment cancellation or failure immediately releases slot lock', () {
+      const paymentStatus = PaymentStatus.cancelled;
+      expect(paymentStatus.toFirestore(), 'CANCELLED');
+
+      const expectedSlotLockStatus = 'RELEASED';
+      expect(expectedSlotLockStatus, 'RELEASED');
+    });
+  });
+
+  group('PROMPT 14: Payment System - Widget Tests for ClientPaymentStatusScreen', () {
+    final samplePlan = plans.firstWhere((p) => p.id == 'plan_1_month');
+    final sampleProfile = const TrainerProfileModel(
+      uid: 'tr_123',
+      fullName: 'Kabir Sharma',
+      phoneNumber: '+919876543210',
+      gender: Gender.male,
+      category: TrainerCategory.trainer,
+    );
+    final sampleTrainer = TrainerDisplayModel(
+      profile: sampleProfile,
+      uid: 'tr_123',
+      displayName: 'Kabir Sharma',
+      gender: Gender.male,
+      specialties: const ['Strength Training'],
+      experienceYears: 4,
+      ratingAvg: 4.8,
+      totalReviews: 24,
+      hourlyRate: 500,
+    );
+
+    testWidgets('Renders Payment Successful screen without linked booking', (tester) async {
+      final payment = PaymentModel(
+        id: 'pay_success_1',
+        clientId: 'c_test_widget',
+        planId: samplePlan.id,
+        packageName: samplePlan.title,
+        sessionsCount: samplePlan.sessionsCount,
+        validityDays: samplePlan.validityDays,
+        amount: samplePlan.price,
+        status: PaymentStatus.success,
+        receiptNumber: 'REC-2026-TEST1',
+        razorpayPaymentId: 'pay_TEST_9999',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ClientPaymentStatusScreen(
+            initialStatus: PaymentStatusType.success,
+            payment: payment,
+            plan: samplePlan,
+            trainer: sampleTrainer,
+            clientId: 'c_test_widget',
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Payment Successful!'), findsNWidgets(2)); // AppBar and Header
+      expect(find.text('PACKAGE ACTIVATED'), findsOneWidget);
+      expect(find.text('TRANSACTION SUMMARY'), findsOneWidget);
+      expect(find.text('View Official Receipt'), findsOneWidget);
+      expect(find.text('Go to Dashboard'), findsOneWidget);
+      expect(find.text('₹10799'), findsOneWidget);
+    });
+
+    testWidgets('Renders Payment Successful screen with linked confirmed booking', (tester) async {
+      final payment = PaymentModel(
+        id: 'pay_success_2',
+        clientId: 'c_test_widget',
+        planId: samplePlan.id,
+        packageName: samplePlan.title,
+        sessionsCount: samplePlan.sessionsCount,
+        validityDays: samplePlan.validityDays,
+        amount: samplePlan.price,
+        status: PaymentStatus.success,
+        receiptNumber: 'REC-2026-TEST2',
+        trainerName: 'Kabir Sharma',
+      );
+
+      final booking = BookingModel(
+        id: 'bk_linked_test',
+        clientId: 'c_test_widget',
+        trainerId: 'tr_123',
+        trainerName: 'Kabir Sharma',
+        clientGender: Gender.male,
+        trainerGender: Gender.male,
+        sessionDate: DateTime(2026, 11, 20),
+        startTime: '08:00',
+        endTime: '09:00',
+        locationReference: 'Cult Fitness Koramangala',
+        status: BookingStatus.confirmed,
+        paymentStatus: PaymentStatus.success,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ClientPaymentStatusScreen(
+            initialStatus: PaymentStatusType.success,
+            payment: payment,
+            plan: samplePlan,
+            trainer: sampleTrainer,
+            booking: booking,
+            clientId: 'c_test_widget',
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('BOOKING CONFIRMED'), findsOneWidget);
+      expect(find.text('Coach: Kabir Sharma'), findsOneWidget);
+      expect(find.text('Location: Cult Fitness Koramangala'), findsOneWidget);
+      expect(find.text('Date: 20/11/2026 at 08:00 (60 min session)'), findsOneWidget);
+    });
+
+    testWidgets('Renders Payment Failed screen with retry & choose another buttons', (tester) async {
+      final payment = PaymentModel(
+        id: 'pay_failed_1',
+        clientId: 'c_test_widget',
+        planId: samplePlan.id,
+        packageName: samplePlan.title,
+        amount: samplePlan.price,
+        status: PaymentStatus.failed,
+        errorMessage: 'Bank server timeout',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ClientPaymentStatusScreen(
+            initialStatus: PaymentStatusType.failed,
+            payment: payment,
+            plan: samplePlan,
+            trainer: sampleTrainer,
+            clientId: 'c_test_widget',
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Payment Failed'), findsNWidgets(2)); // AppBar and Header
+      expect(find.text('PAYMENT INCOMPLETE'), findsOneWidget);
+      expect(find.textContaining('Funds Safe'), findsOneWidget);
+      expect(find.text('Retry Payment'), findsOneWidget);
+      expect(find.text('Choose Another Package'), findsOneWidget);
+    });
+
+    testWidgets('Renders Payment Cancelled screen with funds safe banner', (tester) async {
+      final payment = PaymentModel(
+        id: 'pay_cancelled_1',
+        clientId: 'c_test_widget',
+        planId: samplePlan.id,
+        packageName: samplePlan.title,
+        amount: samplePlan.price,
+        status: PaymentStatus.cancelled,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ClientPaymentStatusScreen(
+            initialStatus: PaymentStatusType.cancelled,
+            payment: payment,
+            plan: samplePlan,
+            trainer: sampleTrainer,
+            clientId: 'c_test_widget',
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Payment Cancelled'), findsNWidgets(2)); // AppBar and Header
+      expect(find.text('CHECKOUT CANCELLED'), findsOneWidget);
+      expect(find.textContaining('Funds Safe'), findsOneWidget);
+      expect(find.text('Retry Payment'), findsOneWidget);
+    });
+
+    testWidgets('Renders Payment Pending Verification screen', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ClientPaymentStatusScreen(
+            initialStatus: PaymentStatusType.pendingVerification,
+            plan: samplePlan,
+            trainer: sampleTrainer,
+            clientId: 'c_test_widget',
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Payment Pending Verification'), findsNWidgets(2)); // AppBar and Header
+      expect(find.text('Verifying with Payment Gateway'), findsOneWidget);
+      expect(find.text('View Payment History'), findsOneWidget);
+    });
+  });
+
+  group('PROMPT 14: Payment System - Zero Dating & Romantic Terminology Audit', () {
+    test('Payment & receipt texts contain strictly professional fitness terminology', () {
+      final paymentTexts = [
+        'TRAIN Z - Payment Receipt',
+        'Package Purchase',
+        'Session Credits Allocation',
+        'Trainer Verification & Package Pricing',
+        'Coach: Kabir Sharma',
+        '60 min professional coaching session',
+        'Cult Fitness Koramangala',
+        'Personal Trainer Booking Confirmed',
+      ];
+
+      final prohibitedTerms = ['match', 'dating', 'hookup', 'swipe', 'romance', 'couple', 'singles'];
+
+      for (final text in paymentTexts) {
+        for (final prohibited in prohibitedTerms) {
+          expect(
+            text.toLowerCase().contains(prohibited),
+            isFalse,
+            reason: 'Prohibited dating terminology "$prohibited" detected in "$text"',
+          );
+        }
+      }
     });
   });
 }

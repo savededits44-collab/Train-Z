@@ -113,12 +113,43 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 5. training_plans Collection (Section 7: Fixed platform packages)
+    // 5. training_plans Collection
+    // Platform fixed packages and Advanced Trainer custom plans
     // ─────────────────────────────────────────────────────────────────────────
     match /training_plans/{planId} {
-      allow read: if isAuthenticated();
-      // Prices and session counts can only be managed by platform administrators
-      allow write: if isAdmin();
+      // Authenticated users can view approved active plans; Admins can view all;
+      // and trainers can view their own pending or published custom plans.
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        (resource.data.isActive == true && (!('isApproved' in resource.data) || resource.data.isApproved == true)) ||
+        (resource.data.trainerId == request.auth.uid)
+      );
+
+      // Only Admins or approved Advanced Trainers can create custom plans
+      // Advanced Trainer custom plans MUST start with isApproved == false (pending separate Admin review)
+      allow create: if isAuthenticated() && (
+        isAdmin() || (
+          request.resource.data.trainerId == request.auth.uid &&
+          request.resource.data.isApproved == false &&
+          exists(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)) &&
+          (get(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)).data.category == 'ADVANCED_TRAINER' ||
+           get(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)).data.category == 'ADVANCED') &&
+          get(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)).data.verificationStatus == 'APPROVED'
+        )
+      );
+
+      // Only Admins can approve (set isApproved == true) or modify fixed platform plans.
+      // Trainers can update their unapproved plans without self-approving.
+      allow update: if isAdmin() || (
+        isAuthenticated() &&
+        resource.data.trainerId == request.auth.uid &&
+        request.resource.data.trainerId == request.auth.uid &&
+        (!('isApproved' in request.resource.data) || request.resource.data.isApproved == resource.data.isApproved)
+      );
+
+      allow delete: if isAdmin() || (
+        isAuthenticated() && resource.data.trainerId == request.auth.uid
+      );
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -241,6 +272,114 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 15. conversations & messages Collections
+    // 1-on-1 private messaging strictly restricted to legitimate bookings
+    // ─────────────────────────────────────────────────────────────────────────
+    match /conversations/{convId} {
+      allow read: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid ||
+        resource.data.trainerId == request.auth.uid ||
+        isAdmin()
+      );
+
+      // Clients can create conversation only if a legitimate booking exists connecting them
+      allow create: if isAuthenticated() && (
+        isAdmin() ||
+        (
+          request.resource.data.clientId == request.auth.uid &&
+          request.resource.data.bookingId != null &&
+          exists(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)) &&
+          get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.clientId == request.auth.uid &&
+          get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.trainerId == request.resource.data.trainerId
+        )
+      );
+
+      // Only the client or trainer can update conversation metadata (last message, unread count)
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        (
+          (resource.data.clientId == request.auth.uid || resource.data.trainerId == request.auth.uid) &&
+          request.resource.data.clientId == resource.data.clientId &&
+          request.resource.data.trainerId == resource.data.trainerId
+        )
+      );
+
+      allow delete: if isAdmin();
+
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && (
+          isAdmin() ||
+          get(/databases/$(database)/documents/conversations/$(convId)).data.clientId == request.auth.uid ||
+          get(/databases/$(database)/documents/conversations/$(convId)).data.trainerId == request.auth.uid
+        );
+
+        allow create: if isAuthenticated() && (
+          isAdmin() ||
+          (
+            request.resource.data.senderId == request.auth.uid &&
+            (
+              get(/databases/$(database)/documents/conversations/$(convId)).data.clientId == request.auth.uid ||
+              get(/databases/$(database)/documents/conversations/$(convId)).data.trainerId == request.auth.uid
+            )
+          )
+        );
+
+        allow update: if isAuthenticated() && (
+          isAdmin() ||
+          get(/databases/$(database)/documents/conversations/$(convId)).data.clientId == request.auth.uid ||
+          get(/databases/$(database)/documents/conversations/$(convId)).data.trainerId == request.auth.uid
+        );
+
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 16. trainer_certificates Collection (Section 3 & 4: Private Certificates)
+    // Strictly accessible to Trainer owner and Admin. Clients have zero access.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /trainer_certificates/{certId} {
+      allow read: if isAuthenticated() && (
+        resource.data.trainerId == request.auth.uid || isAdmin()
+      );
+
+      // Trainers can upload certificates for Admin review.
+      // Must start with PENDING or NOT_SUBMITTED status (prevent frontend self-approval).
+      allow create: if isAuthenticated() && (
+        isAdmin() || (
+          request.resource.data.trainerId == request.auth.uid &&
+          (request.resource.data.verificationStatus == 'PENDING' ||
+           request.resource.data.verificationStatus == 'NOT_SUBMITTED')
+        )
+      );
+
+      // Trainers can update their certificates or replace rejected documents (resets to PENDING).
+      // Trainers CANNOT self-approve (cannot set status to VERIFIED/APPROVED).
+      // Verified certificates cannot be modified by trainers (audit protection).
+      allow update: if isAuthenticated() && (
+        isAdmin() || (
+          resource.data.trainerId == request.auth.uid &&
+          request.resource.data.trainerId == request.auth.uid &&
+          resource.data.verificationStatus != 'VERIFIED' &&
+          resource.data.verificationStatus != 'APPROVED' &&
+          (request.resource.data.verificationStatus == 'PENDING' ||
+           request.resource.data.verificationStatus == resource.data.verificationStatus)
+        )
+      );
+
+      // Verified certificates cannot be deleted by trainers (prevents accidental deletion
+      // of documents required for audit purposes). Only Admins can delete verified certificates.
+      allow delete: if isAdmin() || (
+        isAuthenticated() &&
+        resource.data.trainerId == request.auth.uid &&
+        resource.data.verificationStatus != 'VERIFIED' &&
+        resource.data.verificationStatus != 'APPROVED'
+      );
+    }
   }
 }
+
 

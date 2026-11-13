@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../../core/errors/app_exceptions.dart';
 import '../../../core/utils/validators.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/trainer_profile_service.dart';
 import '../../../shared/models/trainer_profile_model.dart';
 import '../../../shared/models/user_model.dart';
 
@@ -68,7 +69,7 @@ class TrainerAuthController extends ChangeNotifier {
   static String? validateCategorySelectionStatic({
     required TrainerCategory category,
     required double experienceYears,
-    required bool hasConfirmedCertificate,
+    bool hasConfirmedCertificate = false,
   }) {
     if (category == TrainerCategory.professionalTrainer) {
       return 'Professional Trainer category is Coming Soon and unavailable at launch.';
@@ -76,18 +77,16 @@ class TrainerAuthController extends ChangeNotifier {
 
     if (category == TrainerCategory.advancedTrainer) {
       if (experienceYears < 3.5) {
-        return 'Advanced Trainers must have at least 3.5 years of relevant coaching experience.';
+        return 'Advanced Trainers must have at least 3.5 years of relevant training experience.';
       }
       if (!hasConfirmedCertificate) {
-        return 'You must confirm possession of relevant professional trainer qualifications.';
+        return 'You must confirm possession of relevant professional certificates and qualifications.';
       }
     }
 
-    if (category == TrainerCategory.trainer) {
-      if (!hasConfirmedCertificate) {
-        return 'You must confirm possession of at least one beginner-level trainer certificate.';
-      }
-    }
+    // Standard Trainer (TrainerCategory.trainer):
+    // No certificate is required, no formal qualification is required, no minimum experience.
+    // Trainers can register and complete their profiles without uploading certificates.
 
     return null;
   }
@@ -111,7 +110,7 @@ class TrainerAuthController extends ChangeNotifier {
   String? validateCategorySelection({
     required TrainerCategory category,
     required double experienceYears,
-    required bool hasConfirmedCertificate,
+    bool hasConfirmedCertificate = false,
   }) {
     return validateCategorySelectionStatic(
       category: category,
@@ -134,7 +133,7 @@ class TrainerAuthController extends ChangeNotifier {
     required String confirmPassword,
     required TrainerCategory category,
     double experienceYears = 0.0,
-    required bool hasConfirmedCertificate,
+    bool hasConfirmedCertificate = false,
   }) async {
     _clearError();
 
@@ -259,7 +258,8 @@ class TrainerAuthController extends ChangeNotifier {
       _currentTrainerUser = userModel;
 
       // Email verification check
-      if (!user.emailVerified && !userModel.isEmailVerified) {
+      final isDemo = !kReleaseMode && AuthService.isDemoTrainer(email: email, uid: user.uid);
+      if (!isDemo && !user.emailVerified && !userModel.isEmailVerified) {
         _setLoading(false);
         return TrainerAuthNavigationTarget.verifyEmail;
       }
@@ -267,6 +267,9 @@ class TrainerAuthController extends ChangeNotifier {
       // Fetch trainer profile
       final trainerProfile = await _authService.getTrainerProfile(user.uid);
       _currentTrainerProfile = trainerProfile;
+      if (trainerProfile != null) {
+        TrainerProfileService.instance.populateFromModel(trainerProfile);
+      }
       _setLoading(false);
 
       if (trainerProfile == null) {
@@ -310,7 +313,10 @@ class TrainerAuthController extends ChangeNotifier {
       final updatedProfile = await _authService.getTrainerProfile(uid);
 
       if (updatedUser != null) _currentTrainerUser = updatedUser;
-      if (updatedProfile != null) _currentTrainerProfile = updatedProfile;
+      if (updatedProfile != null) {
+        _currentTrainerProfile = updatedProfile;
+        TrainerProfileService.instance.populateFromModel(updatedProfile);
+      }
 
       _setLoading(false);
       return updatedProfile;

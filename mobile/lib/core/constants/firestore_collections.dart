@@ -17,6 +17,9 @@ class FirestoreCollections {
   static const String purchasedPackages = 'purchased_packages';
   static const String platformSettings = 'platform_settings';
   static const String slotLocks = 'slot_locks';
+  static const String conversations = 'conversations';
+  static const String messages = 'messages';
+  static const String trainerCertificates = 'trainer_certificates';
 
   /// Subcollections
   static const String creditTransactions = 'transactions';
@@ -24,6 +27,7 @@ class FirestoreCollections {
 
   /// Storage buckets & directories
   static const String storageProfilePictures = 'profile_pictures';
+  static const String storageCertificates = 'certificates';
   static const String storageTrainerCertifications = 'trainer_documents/certifications';
   static const String storageTrainerVerifications = 'trainer_documents/verifications';
 }

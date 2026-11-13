@@ -61,6 +61,88 @@ class BookingService extends ChangeNotifier {
   List<BookingModel> get confirmedBookings =>
       _bookings.where((b) => b.status == BookingStatus.confirmed).toList();
 
+  /// Scoped query helpers for a specific trainer strictly isolating trainer data
+  List<BookingModel> bookingsForTrainer(String trainerId) {
+    if (trainerId.isEmpty) return const [];
+    return _bookings.where((b) => b.trainerId == trainerId).toList();
+  }
+
+  List<BookingModel> pendingBookingsForTrainer(String trainerId) {
+    if (trainerId.isEmpty) return const [];
+    return _bookings.where((b) {
+      if (b.trainerId != trainerId) return false;
+      if (b.status == BookingStatus.pending) return true;
+      if (b.status == BookingStatus.reserved && !b.isReservationExpired) return true;
+      return false;
+    }).toList();
+  }
+
+  List<BookingModel> confirmedBookingsForTrainer(String trainerId) {
+    if (trainerId.isEmpty) return const [];
+    return _bookings.where((b) => b.trainerId == trainerId && b.status == BookingStatus.confirmed).toList();
+  }
+
+  List<BookingModel> upcomingBookingsForTrainer(String trainerId) {
+    if (trainerId.isEmpty) return const [];
+    final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day);
+    final list = _bookings.where((b) =>
+      b.trainerId == trainerId &&
+      b.status == BookingStatus.confirmed &&
+      !b.sessionDate.isBefore(startOfToday)
+    ).toList();
+    list.sort((a, b) => a.sessionDate.compareTo(b.sessionDate));
+    return list;
+  }
+
+  List<BookingModel> todaySessionsForTrainer(String trainerId) {
+    if (trainerId.isEmpty) return const [];
+    final now = DateTime.now();
+    return _bookings.where((b) {
+      if (b.trainerId != trainerId) return false;
+      if (b.status != BookingStatus.confirmed && b.status != BookingStatus.completed) return false;
+      return b.sessionDate.year == now.year &&
+             b.sessionDate.month == now.month &&
+             b.sessionDate.day == now.day;
+    }).toList();
+  }
+
+  List<BookingModel> completedBookingsForTrainer(String trainerId) {
+    if (trainerId.isEmpty) return const [];
+    return _bookings.where((b) => b.trainerId == trainerId && b.status == BookingStatus.completed).toList();
+  }
+
+  int activeClientsCountForTrainer(String trainerId) {
+    if (trainerId.isEmpty) return 0;
+    final relevant = _bookings.where((b) =>
+      b.trainerId == trainerId &&
+      (b.status == BookingStatus.confirmed || b.status == BookingStatus.completed)
+    );
+    return relevant.map((b) => b.clientId.isNotEmpty ? b.clientId : b.displayClientName).toSet().length;
+  }
+
+  int earningsForTrainer(String trainerId) {
+    if (trainerId.isEmpty) return 0;
+    final sessions = _bookings.where((b) =>
+      b.trainerId == trainerId &&
+      (b.status == BookingStatus.confirmed || b.status == BookingStatus.completed)
+    );
+    int total = 0;
+    for (final s in sessions) {
+      if (s.packagePrice != null && s.packagePrice! > 0) {
+        if (s.totalSessions != null && s.totalSessions! > 0) {
+          final sessionRate = (s.packagePrice! / s.totalSessions!).round();
+          total += (s.sessionsCompleted ?? 1) * sessionRate;
+        } else {
+          total += s.packagePrice!;
+        }
+      } else {
+        total += TrainerProfileService.instance.hourlyRate;
+      }
+    }
+    return total;
+  }
+
   /// Confirmed or completed sessions scheduled for today
   List<BookingModel> get todayConfirmedBookings {
     final now = DateTime.now();

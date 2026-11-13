@@ -318,8 +318,8 @@ class _TrainerCategorySelectionScreenState
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
                             _selectedCategory == TrainerCategory.advancedTrainer
-                                ? 'I confirm I possess relevant professional trainer qualifications & at least 3.5 years of experience, and understand that Advanced status requires separate Admin verification.'
-                                : 'I confirm I possess at least one beginner-level trainer certificate and agree to the standard TRAIN Z package guidelines.',
+                                ? 'I confirm I possess relevant professional certificates and qualifications & at least 3.5 years of training experience. I understand that Advanced Trainer status requires Admin verification of private certificates.'
+                                : 'I agree to the standard TRAIN Z predefined package guidelines and platform terms.',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: (12.0 * sf).clamp(11.0, 13.0),

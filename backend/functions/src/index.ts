@@ -1,4 +1,5 @@
 import { onCall, onRequest, HttpsError } from 'firebase-functions/v2/https';
+import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
 import Razorpay from 'razorpay';
@@ -433,15 +434,441 @@ export const adminApproveTrainer = onCall(async (request) => {
   }
 
   const trainerRef = db.collection('trainer_profiles').doc(trainerId);
-  await trainerRef.update({
+  const trainerDoc = await trainerRef.get();
+  if (!trainerDoc.exists) {
+    throw new HttpsError('not-found', `Trainer profile not found: ${trainerId}`);
+  }
+
+  const trainerData = trainerDoc.data() || {};
+  const category = (trainerData.category || 'TRAINER').toUpperCase();
+
+  // Enforce Revised Trainer Eligibility Policy:
+  if (status === 'APPROVED') {
+    if (category === 'PROFESSIONAL_TRAINER' || category === 'PROFESSIONAL') {
+      throw new HttpsError(
+        'failed-precondition',
+        'Professional Trainer tier is Coming Soon and cannot be approved at this time.'
+      );
+    }
+
+    if (category === 'ADVANCED_TRAINER' || category === 'ADVANCED') {
+      // Advanced Trainer: relevant professional qualifications & min 3.5 years experience mandatory
+      const experienceYears = Number(trainerData.experienceYears || 0);
+      const certDocs = trainerData.certificationDocuments || [];
+      const certSnapshot = await db
+        .collection('trainer_certificates')
+        .where('trainerId', '==', trainerId)
+        .where('isArchived', '==', false)
+        .get();
+      const certs = request.data?.verifiedCertifications || trainerData.certifications || [];
+
+      if (experienceYears < 3.5) {
+        throw new HttpsError(
+          'failed-precondition',
+          'Advanced Trainer approval requires at least 3.5 years of relevant training experience.'
+        );
+      }
+
+      if (certDocs.length === 0 && certSnapshot.empty && certs.length === 0) {
+        throw new HttpsError(
+          'failed-precondition',
+          'Advanced Trainer approval requires submitted professional qualifications and certificates.'
+        );
+      }
+    }
+
+    if (category === 'TRAINER') {
+      // Standard Trainer: Must submit at least one beginner-level trainer certificate for Admin verification
+      const certDocs = trainerData.certificationDocuments || [];
+      const certSnapshot = await db
+        .collection('trainer_certificates')
+        .where('trainerId', '==', trainerId)
+        .where('isArchived', '==', false)
+        .get();
+
+      if (certDocs.length === 0 && certSnapshot.empty) {
+        throw new HttpsError(
+          'failed-precondition',
+          'Trainer approval requires at least one beginner-level trainer certificate submitted for verification.'
+        );
+      }
+    }
+  }
+
+  const updatePayload: Record<string, any> = {
     verificationStatus: status,
     adminReviewNotes: reviewNotes || null,
     approvedAt: status === 'APPROVED' ? admin.firestore.FieldValue.serverTimestamp() : null,
     approvedBy: status === 'APPROVED' ? request.auth.uid : null,
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
+  };
+
+  if (Array.isArray(request.data?.verifiedCertifications)) {
+    updatePayload.certifications = request.data.verifiedCertifications;
+    updatePayload.verifiedCertifications = request.data.verifiedCertifications;
+  }
+
+  // If approved, also sync any verified qualifications from trainer_certificates
+  if (status === 'APPROVED') {
+    const verifiedCertsSnapshot = await db
+      .collection('trainer_certificates')
+      .where('trainerId', '==', trainerId)
+      .where('verificationStatus', '==', 'VERIFIED')
+      .where('isArchived', '==', false)
+      .get();
+
+    if (!verifiedCertsSnapshot.empty) {
+      updatePayload.verifiedQualifications = verifiedCertsSnapshot.docs.map(doc => {
+        const d = doc.data();
+        return {
+          id: doc.id,
+          certificateName: d.certificateName || '',
+          courseName: d.courseName || '',
+          issuingOrganization: d.issuingOrganization || '',
+          yearOfCompletion: d.yearOfCompletion || '',
+          qualificationDetails: d.qualificationDetails || null,
+        };
+      });
+    }
+  }
+
+  await trainerRef.update(updatePayload);
 
   return { success: true, trainerId, status };
+});
+
+/**
+ * Admin action to review and verify/reject a submitted trainer certificate.
+ * When verified, syncs the sanitized VerifiedQualification to the trainer's public profile.
+ */
+export const adminVerifyCertificate = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  // Ensure caller is Admin
+  const adminDoc = await db.collection('users').doc(request.auth.uid).get();
+  if (!adminDoc.exists || adminDoc.data()?.role !== 'ADMIN') {
+    throw new HttpsError('permission-denied', 'Only platform Admins can verify trainer certificates.');
+  }
+
+  const { certificateId, status, reviewNotes, rejectionReason } = request.data || {};
+  if (!certificateId || !status) {
+    throw new HttpsError('invalid-argument', 'Missing certificateId or status.');
+  }
+
+  const normalizedStatus = String(status).toUpperCase();
+  const validStatuses = ['VERIFIED', 'REJECTED', 'RESUBMISSION_REQUIRED', 'PENDING'];
+  if (!validStatuses.includes(normalizedStatus)) {
+    throw new HttpsError('invalid-argument', `Invalid certificate status: ${status}`);
+  }
+
+  const certRef = db.collection('trainer_certificates').doc(certificateId);
+  const certDoc = await certRef.get();
+  if (!certDoc.exists) {
+    throw new HttpsError('not-found', `Certificate record not found: ${certificateId}`);
+  }
+
+  const certData = certDoc.data() || {};
+  const trainerId = certData.trainerId;
+
+  // Update certificate record
+  await certRef.update({
+    verificationStatus: normalizedStatus,
+    adminReviewNotes: reviewNotes || null,
+    rejectionReason: rejectionReason || null,
+    reviewedBy: request.auth.uid,
+    reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  // Now sync verified qualifications to trainer profile:
+  // Public profile contains ONLY sanitized verified qualifications (no private storage paths or file URLs)
+  const allVerifiedCerts = await db
+    .collection('trainer_certificates')
+    .where('trainerId', '==', trainerId)
+    .where('verificationStatus', '==', 'VERIFIED')
+    .where('isArchived', '==', false)
+    .get();
+
+  const verifiedQualifications = allVerifiedCerts.docs.map(doc => {
+    const d = doc.data();
+    return {
+      id: doc.id,
+      certificateName: d.certificateName || '',
+      courseName: d.courseName || '',
+      issuingOrganization: d.issuingOrganization || '',
+      yearOfCompletion: d.yearOfCompletion || '',
+      qualificationDetails: d.qualificationDetails || null,
+    };
+  });
+
+  const trainerProfileRef = db.collection('trainer_profiles').doc(trainerId);
+  const trainerProfileDoc = await trainerProfileRef.get();
+  if (trainerProfileDoc.exists) {
+    await trainerProfileRef.update({
+      verifiedQualifications,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  }
+
+  return { success: true, certificateId, status: normalizedStatus, trainerId };
+});
+
+/**
+ * Creates a custom training plan (Advanced Trainers only).
+ * Every custom training plan requires separate Admin approval before publication.
+ */
+export const createCustomTrainingPlan = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const uid = request.auth.uid;
+  const trainerDoc = await db.collection('trainer_profiles').doc(uid).get();
+  if (!trainerDoc.exists) {
+    throw new HttpsError('permission-denied', 'Only registered trainers can create training plans.');
+  }
+
+  const trainer = trainerDoc.data() || {};
+  const category = (trainer.category || 'TRAINER').toUpperCase();
+  const verificationStatus = (trainer.verificationStatus || 'PENDING').toUpperCase();
+
+  // Policy: Only approved Advanced Trainers can create custom plans and set their own prices
+  if (category !== 'ADVANCED_TRAINER' && category !== 'ADVANCED') {
+    throw new HttpsError(
+      'permission-denied',
+      'Only approved Advanced Trainers can create custom training plans. Standard Trainers use predefined TRAIN Z packages.'
+    );
+  }
+
+  if (verificationStatus !== 'APPROVED') {
+    throw new HttpsError(
+      'permission-denied',
+      'Trainer account must be verified and approved by Admin before creating custom plans.'
+    );
+  }
+
+  const { title, price, sessionsCount, validityDays, sessionDurationMinutes, description } = request.data || {};
+  if (!title || typeof price !== 'number' || price <= 0 || !sessionsCount || sessionsCount <= 0) {
+    throw new HttpsError('invalid-argument', 'Missing or invalid custom training plan parameters.');
+  }
+
+  // Every custom plan requires separate Admin approval before publication (isApproved: false)
+  const planRef = db.collection('training_plans').doc();
+  const planData = {
+    id: planRef.id,
+    trainerId: uid,
+    title: String(title).trim(),
+    price: Math.round(price),
+    sessions: Math.round(sessionsCount),
+    sessionsCount: Math.round(sessionsCount),
+    validityDays: validityDays ? Math.round(validityDays) : 30,
+    sessionDurationMinutes: sessionDurationMinutes ? Math.round(sessionDurationMinutes) : 60,
+    description: String(description || '').trim(),
+    isCustom: true,
+    isApproved: false, // Requires separate Admin approval before publication
+    isActive: false, // Inactive until approved
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  await planRef.set(planData);
+  return { success: true, planId: planRef.id, plan: planData };
+});
+
+/**
+ * Admin approval / publication for custom training plans.
+ */
+export const adminApproveCustomTrainingPlan = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const isAdminCaller = await verifyIsAdmin(request.auth.uid);
+  if (!isAdminCaller) {
+    throw new HttpsError('permission-denied', 'Only platform administrators can approve custom training plans.');
+  }
+
+  const { planId, approve, adminNotes } = request.data || {};
+  if (!planId || typeof approve !== 'boolean') {
+    throw new HttpsError('invalid-argument', 'Missing planId or approve parameter.');
+  }
+
+  const planRef = db.collection('training_plans').doc(planId);
+  const planDoc = await planRef.get();
+  if (!planDoc.exists) {
+    throw new HttpsError('not-found', `Training plan not found: ${planId}`);
+  }
+
+  await planRef.update({
+    isApproved: approve,
+    isActive: approve,
+    adminNotes: adminNotes || null,
+    approvedBy: approve ? request.auth.uid : null,
+    approvedAt: approve ? admin.firestore.FieldValue.serverTimestamp() : null,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { success: true, planId, isApproved: approve };
+});
+
+/**
+ * Administrative routine to unblock any existing Standard Trainer accounts
+ * that had certificate-related review notes under the old policy.
+ */
+export const adminUnblockStandardTrainers = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+  const isAdminCaller = await verifyIsAdmin(request.auth.uid);
+  if (!isAdminCaller) {
+    throw new HttpsError('permission-denied', 'Only administrators can run unblock routine.');
+  }
+
+  const snap = await db.collection('trainer_profiles')
+    .where('category', 'in', ['TRAINER', 'trainer'])
+    .get();
+
+  let unblockedCount = 0;
+  const batch = db.batch();
+
+  for (const doc of snap.docs) {
+    const data = doc.data();
+    const notes = (data.adminReviewNotes || '').toLowerCase();
+    if (notes.includes('certificate') || notes.includes('qualification')) {
+      batch.update(doc.ref, {
+        adminReviewNotes: 'Eligibility updated per revised Standard Trainer policy (no certificates required).',
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      unblockedCount++;
+    }
+  }
+
+  if (unblockedCount > 0) {
+    await batch.commit();
+  }
+
+  return { success: true, unblockedCount };
+});
+
+/**
+ * Validates and submits a completed trainer profile for Admin review.
+ * Authoritatively prevents incomplete profiles from being submitted.
+ */
+export const submitTrainerProfileForReview = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const uid = request.auth.uid;
+  const userDoc = await db.collection('users').doc(uid).get();
+  if (!userDoc.exists) {
+    throw new HttpsError('not-found', 'User record not found.');
+  }
+
+  const userData = userDoc.data() || {};
+  if (userData.role !== 'TRAINER') {
+    throw new HttpsError('permission-denied', 'Only trainer accounts can submit trainer profiles.');
+  }
+
+  const trainerRef = db.collection('trainer_profiles').doc(uid);
+  const trainerDoc = await trainerRef.get();
+  if (!trainerDoc.exists) {
+    throw new HttpsError('not-found', 'Trainer profile record not found.');
+  }
+
+  const trainerData = trainerDoc.data() || {};
+  const category = (trainerData.category || 'TRAINER').toUpperCase();
+  const isAdvanced = category === 'ADVANCED_TRAINER' || category === 'ADVANCED';
+
+  // Strict completeness verification
+  const missing: string[] = [];
+
+  const name = userData.displayName || trainerData.fullName;
+  if (!name || String(name).trim().length === 0) missing.push('Full Name');
+
+  const phone = userData.phoneNumber || trainerData.mobileNumber;
+  if (!phone || String(phone).trim().length === 0) missing.push('Phone Number');
+
+  const dob = userData.dateOfBirth || trainerData.dateOfBirth;
+  if (!dob || String(dob).trim().length === 0) missing.push('Date of Birth');
+
+  const gender = userData.gender || trainerData.gender;
+  if (!gender || String(gender).trim().length === 0) missing.push('Gender');
+
+  const photo = userData.photoUrl || trainerData.photoUrl;
+  if (!photo || String(photo).trim().length === 0) missing.push('Profile Photo');
+
+  const bio = trainerData.bio;
+  if (!bio || String(bio).trim().length < 20) missing.push('Professional Biography (min. 20 chars)');
+
+  const experienceYears = Number(trainerData.experienceYears || 0);
+  if (isAdvanced && experienceYears < 3.5) {
+    missing.push('Experience (min. 3.5 years required for Advanced Trainer)');
+  }
+
+  const specialties = trainerData.specialties || [];
+  if (!Array.isArray(specialties) || specialties.length === 0) missing.push('Training Specialisations');
+
+  const clientTypes = trainerData.clientTypes || [];
+  if (!Array.isArray(clientTypes) || clientTypes.length === 0) missing.push('Types of Clients');
+
+  const goals = trainerData.trainingGoals || [];
+  if (!Array.isArray(goals) || goals.length === 0) missing.push('Fitness Goals');
+
+  const methods = trainerData.trainingMethods || [];
+  if (!Array.isArray(methods) || methods.length === 0) missing.push('Training Methods');
+
+  const languages = trainerData.languages || [];
+  if (!Array.isArray(languages) || languages.length === 0) missing.push('Languages Spoken');
+
+  const approach = trainerData.trainingApproach;
+  if (!approach || String(approach).trim().length < 10) missing.push('Training Approach Description');
+
+  if (isAdvanced) {
+    const profExp = trainerData.professionalExperience;
+    if (!profExp || String(profExp).trim().length < 10) {
+      missing.push('Detailed Professional Experience (mandatory for Advanced Trainers)');
+    }
+  }
+
+  const hasLocation = trainerData.trainsAtHome === true ||
+                      trainerData.trainsAtGym === true ||
+                      (Array.isArray(trainerData.otherTrainingLocations) && trainerData.otherTrainingLocations.length > 0);
+  if (!hasLocation) missing.push('Training Service Locations (Home, Gym, or Other)');
+
+  const areas = trainerData.serviceAreas || [];
+  if (!Array.isArray(areas) || areas.length === 0) missing.push('Service Areas (min. 1 area)');
+
+  const days = trainerData.workingDays || [];
+  const hours = trainerData.workingHours;
+  if (!Array.isArray(days) || days.length === 0 || !hours || String(hours).trim().length === 0) {
+    missing.push('Working Schedule (Days & Hours)');
+  }
+
+  if (missing.length > 0) {
+    throw new HttpsError(
+      'failed-precondition',
+      `Cannot submit incomplete profile. Missing: ${missing.join(', ')}`
+    );
+  }
+
+  // Update profile to completed and pending review
+  await trainerRef.update({
+    isProfileCompleted: true,
+    profileCompletionScore: 100,
+    verificationStatus: 'PENDING',
+    submittedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  await db.collection('users').doc(uid).update({
+    onboarded: true,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { success: true, isComplete: true, score: 100 };
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -488,6 +915,32 @@ const FIXED_PACKAGES: Record<string, { price: number; sessionsCount: number; val
   plan_6_months: { price: 52999, sessionsCount: 150, validityDays: 180, title: '6-Month Transformation' },
 };
 
+async function getAuthoritativePackageInfo(packageId: string, trainerId?: string): Promise<{ price: number; sessionsCount: number; validityDays: number; title: string } | null> {
+  if (FIXED_PACKAGES[packageId]) {
+    return FIXED_PACKAGES[packageId];
+  }
+  try {
+    const planSnap = await db.collection('training_plans').doc(packageId).get();
+    if (planSnap.exists) {
+      const data = planSnap.data()!;
+      // Custom plans must be approved, active, and match trainerId if specified
+      if (data.isApproved === true && data.isActive === true) {
+        if (!trainerId || !data.trainerId || data.trainerId === trainerId) {
+          return {
+            price: Number(data.price),
+            sessionsCount: Number(data.sessionsCount),
+            validityDays: Number(data.validityDays),
+            title: String(data.title || 'Custom Training Plan'),
+          };
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching training plan in getAuthoritativePackageInfo:', err);
+  }
+  return null;
+}
+
 const RESERVATION_HOLD_MINUTES = 15;
 
 export const reserveBookingSlot = onCall(async (request) => {
@@ -521,9 +974,9 @@ export const reserveBookingSlot = onCall(async (request) => {
   }
 
   // Authoritative package validation
-  const planInfo = FIXED_PACKAGES[packageId];
+  const planInfo = await getAuthoritativePackageInfo(packageId, trainerId);
   if (!planInfo) {
-    throw new HttpsError('invalid-argument', `Unknown training package: ${packageId}.`);
+    throw new HttpsError('invalid-argument', `Unknown or unapproved training package: ${packageId}.`);
   }
 
   const dateKey = sessionDate.toISOString().slice(0, 10);
@@ -553,6 +1006,12 @@ export const reserveBookingSlot = onCall(async (request) => {
     const trainerProfileData = trainerProfileSnap.data()!;
     if (trainerProfileData.verificationStatus !== 'APPROVED' || !trainerProfileData.isActive) {
       throw new HttpsError('failed-precondition', 'Trainer is not currently approved or active.');
+    }
+
+    // Launch policy: Professional Trainer is Coming Soon
+    const trainerCat = String(trainerProfileData.category || '').toUpperCase();
+    if (trainerCat === 'PROFESSIONAL_TRAINER' || trainerCat === 'PROFESSIONAL') {
+      throw new HttpsError('failed-precondition', 'Professional Trainer packages are coming soon and unavailable for booking at launch.');
     }
 
     // 3. Fetch Trainer Gender
@@ -966,9 +1425,69 @@ export const createRazorpayOrder = onCall(async (request) => {
     throw new HttpsError('invalid-argument', 'Package ID is required.');
   }
 
-  const planInfo = FIXED_PACKAGES[packageId];
+  // 1. Trainer Category & Eligibility Validation
+  if (trainerId) {
+    const trainerSnap = await db.collection('trainer_profiles').doc(trainerId).get();
+    if (!trainerSnap.exists) {
+      throw new HttpsError('not-found', 'Trainer profile not found.');
+    }
+    const trainerData = trainerSnap.data()!;
+    if (trainerData.verificationStatus !== 'APPROVED' || !trainerData.isActive) {
+      throw new HttpsError('failed-precondition', 'Trainer is not currently approved or active.');
+    }
+
+    const category = (trainerData.category || 'TRAINER').toUpperCase();
+    if (category === 'PROFESSIONAL_TRAINER' || category === 'PROFESSIONAL') {
+      throw new HttpsError(
+        'failed-precondition',
+        'Professional Trainer tier is Coming Soon and unavailable for purchase at launch.'
+      );
+    }
+
+    if (category === 'TRAINER') {
+      // Standard Trainer: Must use predefined TRAIN Z packages
+      if (!FIXED_PACKAGES[packageId]) {
+        throw new HttpsError(
+          'failed-precondition',
+          'Standard Trainers use predefined TRAIN Z platform packages only.'
+        );
+      }
+    } else if (category === 'ADVANCED_TRAINER' || category === 'ADVANCED') {
+      // Advanced Trainer: Must use their approved and published custom plan
+      const planSnap = await db.collection('training_plans').doc(packageId).get();
+      if (!planSnap.exists) {
+        throw new HttpsError('not-found', 'Custom training plan not found.');
+      }
+      const planData = planSnap.data()!;
+      if (planData.trainerId !== trainerId) {
+        throw new HttpsError('permission-denied', 'Custom training plan does not belong to the selected trainer.');
+      }
+      if (planData.isApproved !== true || planData.isActive !== true) {
+        throw new HttpsError('failed-precondition', 'Custom training plan is not approved and active.');
+      }
+    }
+  }
+
+  // 2. Active temporary slot reservation validation (if linked)
+  if (bookingId) {
+    const bookingSnap = await db.collection('bookings').doc(bookingId).get();
+    if (!bookingSnap.exists) {
+      throw new HttpsError('not-found', 'Linked booking reservation not found.');
+    }
+    const bookingData = bookingSnap.data()!;
+    if (bookingData.clientId !== clientId) {
+      throw new HttpsError('permission-denied', 'Booking reservation does not belong to this client.');
+    }
+    const bookingExpiresAt: admin.firestore.Timestamp = bookingData.expiresAt;
+    if (bookingExpiresAt && bookingExpiresAt.toMillis() < Date.now()) {
+      throw new HttpsError('deadline-exceeded', 'Your temporary slot reservation has expired. Please select a new slot.');
+    }
+  }
+
+  // 3. Authoritative Package Pricing (Never trust frontend price)
+  const planInfo = await getAuthoritativePackageInfo(packageId, trainerId);
   if (!planInfo) {
-    throw new HttpsError('invalid-argument', `Unknown package ID: ${packageId}.`);
+    throw new HttpsError('invalid-argument', `Unknown or unapproved package ID: ${packageId}.`);
   }
 
   const amountInPaise = planInfo.price * 100;
@@ -1059,11 +1578,13 @@ async function finalizePaymentAndGrantCredits(
         status: 'SUCCESS',
         receiptNumber: payment.receiptNumber,
         bookingId: payment.bookingId,
+        purchasedPackageId: payment.purchasedPackageId,
       };
     }
 
     const clientId = payment.clientId;
     const sessionsCount = payment.sessionsCount || 1;
+    const validityDays = payment.validityDays || 30;
 
     // 1. Double-entry session credits ledger update
     const creditDocRef = db.collection('session_credits').doc(clientId);
@@ -1106,21 +1627,62 @@ async function finalizePaymentAndGrantCredits(
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // 2. Confirm linked booking reservation (if present)
+    // 2. Activate package record in purchased_packages
+    const packageDocRef = db.collection('purchased_packages').doc();
+    const purchaseDate = new Date();
+    const expiryDate = new Date(purchaseDate.getTime() + validityDays * 24 * 60 * 60 * 1000);
+
+    const clientUserSnap = await transaction.get(db.collection('users').doc(clientId));
+    const clientData = clientUserSnap.exists ? clientUserSnap.data()! : {};
+
+    transaction.set(packageDocRef, {
+      id: packageDocRef.id,
+      clientId,
+      clientName: clientData.displayName || 'TRAIN Z Athlete',
+      clientPhone: clientData.phoneNumber || null,
+      clientPhotoUrl: clientData.photoUrl || null,
+      trainerId: payment.trainerId || '',
+      trainerName: payment.trainerName || 'Assigned Coach',
+      trainerPhotoUrl: null,
+      packageId: payment.packageId,
+      packageName: payment.packageName,
+      price: payment.amount,
+      purchaseDate: admin.firestore.Timestamp.fromDate(purchaseDate),
+      startDate: admin.firestore.Timestamp.fromDate(purchaseDate),
+      expiryDate: admin.firestore.Timestamp.fromDate(expiryDate),
+      totalDays: validityDays,
+      totalSessions: sessionsCount,
+      completedSessions: 0,
+      paymentStatus: 'COMPLETED',
+      paymentTransactionId: razorpayPaymentId,
+      status: 'ACTIVE',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // 3. Confirm linked booking reservation (if present and not expired)
+    let confirmedBookingId: string | null = null;
     if (payment.bookingId) {
       const bookingRef = db.collection('bookings').doc(payment.bookingId);
       const bookingSnap = await transaction.get(bookingRef);
 
       if (bookingSnap.exists) {
         const booking = bookingSnap.data()!;
-        if (booking.status === 'RESERVED' || booking.status === 'PENDING') {
+        const bookingExpiresAt: admin.firestore.Timestamp = booking.expiresAt;
+        const isExpired = bookingExpiresAt && bookingExpiresAt.toMillis() < Date.now();
+
+        if (!isExpired && (booking.status === 'RESERVED' || booking.status === 'PENDING')) {
           transaction.update(bookingRef, {
             status: 'CONFIRMED',
             paymentStatus: 'COMPLETED',
             paymentTransactionId: razorpayPaymentId,
+            packageId: payment.packageId,
+            purchasedPackageId: packageDocRef.id,
             confirmedAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
+
+          confirmedBookingId = payment.bookingId;
 
           const dateKey = booking.sessionDate.toDate().toISOString().slice(0, 10);
           const safeTimeKey = (booking.startTime || '').replace(/[^a-zA-Z0-9]/g, '');
@@ -1135,17 +1697,24 @@ async function finalizePaymentAndGrantCredits(
             },
             { merge: true }
           );
+        } else if (isExpired && booking.status === 'RESERVED') {
+          // If expired before payment, release slot lock and mark booking expired
+          transaction.update(bookingRef, {
+            status: 'EXPIRED',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
         }
       }
     }
 
-    // 3. Mark payment record as SUCCESS
+    // 4. Mark payment record as SUCCESS
     transaction.update(paymentRef, {
       status: 'SUCCESS',
       razorpayPaymentId,
       razorpaySignature,
       paymentMethod: paymentMethod || 'ONLINE',
       creditsGranted: true,
+      purchasedPackageId: packageDocRef.id,
       verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
@@ -1156,7 +1725,8 @@ async function finalizePaymentAndGrantCredits(
       paymentDocId,
       status: 'SUCCESS',
       receiptNumber: payment.receiptNumber,
-      bookingId: payment.bookingId,
+      bookingId: confirmedBookingId,
+      purchasedPackageId: packageDocRef.id,
       creditsGranted: sessionsCount,
     };
   });
@@ -1220,12 +1790,43 @@ export const recordRazorpayPaymentFailure = onCall(async (request) => {
     throw new HttpsError('invalid-argument', 'Payment doc ID is required.');
   }
 
-  await db.collection('payments').doc(paymentDocId).update({
+  const paymentRef = db.collection('payments').doc(paymentDocId);
+  const paymentDoc = await paymentRef.get();
+
+  await paymentRef.update({
     status: 'FAILED',
     errorCode: errorCode || 'PAYMENT_CANCELLED_OR_FAILED',
     errorMessage: errorDescription || 'Payment checkout was cancelled or failed.',
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
+
+  // Release temporary slot reservation if attached and held
+  if (paymentDoc.exists) {
+    const paymentData = paymentDoc.data()!;
+    if (paymentData.bookingId) {
+      const bookingRef = db.collection('bookings').doc(paymentData.bookingId);
+      const bookingDoc = await bookingRef.get();
+      if (bookingDoc.exists) {
+        const b = bookingDoc.data()!;
+        if (b.status === 'RESERVED') {
+          await bookingRef.update({
+            status: 'CANCELLED',
+            cancellationReason: 'Payment cancelled or failed during checkout',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+
+          // Release slot lock
+          const dateKey = b.sessionDate.toDate().toISOString().slice(0, 10);
+          const safeTimeKey = (b.startTime || '').replace(/[^a-zA-Z0-9]/g, '');
+          const slotLockId = `${b.trainerId}_${dateKey}_${safeTimeKey}`;
+          await db.collection('slot_locks').doc(slotLockId).update({
+            status: 'RELEASED',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
+      }
+    }
+  }
 
   return { success: true, status: 'FAILED' };
 });
@@ -1286,3 +1887,527 @@ export const razorpayWebhook = onRequest(async (req, res) => {
 
   res.status(200).json({ status: 'ok' });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 15. Real-Time FCM Push Notification Triggers
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Triggers whenever an in-app notification is created.
+ * Dispatches high-priority FCM push notification to all valid registered device tokens
+ * for booking confirmations, cancellations, rescheduling, session reminders, and payments.
+ */
+export const onNotificationCreated = onDocumentCreated(
+  'notifications/{notifId}',
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
+    const data = snap.data();
+    const userId = data.userId;
+    if (!userId) return;
+
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (!userDoc.exists) return;
+
+    const userData = userDoc.data() || {};
+    const tokens: string[] = [];
+
+    if (Array.isArray(userData.fcmTokens)) {
+      tokens.push(...userData.fcmTokens.filter((t: any) => typeof t === 'string' && t.length > 0));
+    } else if (userData.fcmToken && typeof userData.fcmToken === 'string') {
+      tokens.push(userData.fcmToken);
+    }
+
+    if (tokens.length === 0) return;
+
+    const title = data.title || 'TRAIN Z Notification';
+    const body = data.body || '';
+    const type = data.type || 'GENERAL';
+    const extraData = data.data || {};
+
+    const payloadData: Record<string, string> = {
+      type: String(type),
+      click_action: 'FLUTTER_NOTIFICATION_CLICK',
+    };
+
+    for (const key of Object.keys(extraData)) {
+      if (extraData[key] !== undefined && extraData[key] !== null) {
+        payloadData[key] = String(extraData[key]);
+      }
+    }
+
+    try {
+      const response = await admin.messaging().sendEachForMulticast({
+        tokens,
+        notification: {
+          title,
+          body,
+        },
+        data: payloadData,
+        android: {
+          priority: 'high',
+          notification: {
+            sound: 'default',
+            channelId: 'trainz_notifications',
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: 'default',
+              badge: 1,
+            },
+          },
+        },
+      });
+
+      // Cleanup invalid or expired tokens
+      const tokensToRemove: string[] = [];
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          const errCode = resp.error?.code;
+          if (
+            errCode === 'messaging/invalid-registration-token' ||
+            errCode === 'messaging/registration-token-not-registered'
+          ) {
+            tokensToRemove.push(tokens[idx]);
+          }
+        }
+      });
+
+      if (tokensToRemove.length > 0) {
+        await db.collection('users').doc(userId).update({
+          fcmTokens: admin.firestore.FieldValue.arrayRemove(...tokensToRemove),
+        });
+      }
+    } catch (err) {
+      console.error('Error dispatching push notification for in-app notification:', err);
+    }
+  }
+);
+
+/**
+ * Triggers whenever a new chat message is created in a 1-on-1 trainer-client conversation.
+ * Dispatches an instant FCM push notification to the recipient.
+ */
+export const onChatMessageCreated = onDocumentCreated(
+  'conversations/{convId}/messages/{msgId}',
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
+    const msgData = snap.data();
+    const receiverId = msgData.receiverId;
+    const senderId = msgData.senderId;
+    const senderName = msgData.senderName || 'Your Trainer';
+    const text = msgData.text || '';
+    const convId = event.params.convId;
+
+    if (!receiverId || !text) return;
+
+    const receiverDoc = await db.collection('users').doc(receiverId).get();
+    if (!receiverDoc.exists) return;
+
+    const userData = receiverDoc.data() || {};
+    const tokens: string[] = [];
+
+    if (Array.isArray(userData.fcmTokens)) {
+      tokens.push(...userData.fcmTokens.filter((t: any) => typeof t === 'string' && t.length > 0));
+    } else if (userData.fcmToken && typeof userData.fcmToken === 'string') {
+      tokens.push(userData.fcmToken);
+    }
+
+    if (tokens.length === 0) return;
+
+    try {
+      const response = await admin.messaging().sendEachForMulticast({
+        tokens,
+        notification: {
+          title: senderName,
+          body: text,
+        },
+        data: {
+          type: 'CHAT_MESSAGE',
+          conversationId: convId,
+          senderId: senderId || '',
+          senderName,
+          click_action: 'FLUTTER_NOTIFICATION_CLICK',
+        },
+        android: {
+          priority: 'high',
+          notification: {
+            sound: 'default',
+            channelId: 'trainz_messages',
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: 'default',
+              badge: 1,
+            },
+          },
+        },
+      });
+
+      const tokensToRemove: string[] = [];
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          const errCode = resp.error?.code;
+          if (
+            errCode === 'messaging/invalid-registration-token' ||
+            errCode === 'messaging/registration-token-not-registered'
+          ) {
+            tokensToRemove.push(tokens[idx]);
+          }
+        }
+      });
+
+      if (tokensToRemove.length > 0) {
+        await db.collection('users').doc(receiverId).update({
+          fcmTokens: admin.firestore.FieldValue.arrayRemove(...tokensToRemove),
+        });
+      }
+    } catch (err) {
+      console.error('Error dispatching chat push notification:', err);
+    }
+  }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. Trainer Availability & Calendar Management
+// ─────────────────────────────────────────────────────────────────────────────
+
+function parseTimeToMinutes(timeStr: string): number {
+  const clean = (timeStr || '').trim().toUpperCase();
+  const parts = clean.split(' ');
+  const [hStr, mStr] = (parts[0] || '0:0').split(':');
+  let hour = parseInt(hStr, 10) || 0;
+  const minute = mStr ? parseInt(mStr, 10) || 0 : 0;
+  const isPm = parts[1] === 'PM';
+  const isAm = parts[1] === 'AM';
+  if (isPm && hour !== 12) hour += 12;
+  if (isAm && hour === 12) hour = 0;
+  return hour * 60 + minute;
+}
+
+function formatMinutesToTime(minutes: number): string {
+  const totalMin = ((minutes % 1440) + 1440) % 1440;
+  let hour = Math.floor(totalMin / 60);
+  const minute = totalMin % 60;
+  const period = hour >= 12 ? 'PM' : 'AM';
+  if (hour === 0) hour = 12;
+  else if (hour > 12) hour -= 12;
+  const h = hour.toString().padStart(2, '0');
+  const m = minute.toString().padStart(2, '0');
+  return `${h}:${m} ${period}`;
+}
+
+export const validateAndSaveTrainerAvailability = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const { trainerId, days, timezone } = request.data || {};
+  if (!trainerId || !Array.isArray(days)) {
+    throw new HttpsError('invalid-argument', 'Missing trainerId or days array.');
+  }
+
+  const isAdmin = await verifyIsAdmin(request.auth.uid);
+  if (request.auth.uid !== trainerId && !isAdmin) {
+    throw new HttpsError('permission-denied', 'You may only update your own availability.');
+  }
+
+  // Validate each day's windows
+  const sanitizedDays = [];
+  const activeWorkingDays: string[] = [];
+  const dayShortNames = ['', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+
+  for (const day of days) {
+    const dayOfWeek = parseInt(day.dayOfWeek, 10);
+    if (dayOfWeek < 1 || dayOfWeek > 7) {
+      throw new HttpsError('invalid-argument', `Invalid day of week: ${day.dayOfWeek}. Must be 1 (Mon) to 7 (Sun).`);
+    }
+
+    const isEnabled = Boolean(day.isEnabled);
+    const windows = Array.isArray(day.windows) ? day.windows : [];
+    const parsedWindows: Array<{ start: string; end: string; startMinutes: number; endMinutes: number }> = [];
+
+    if (isEnabled && windows.length > 0) {
+      activeWorkingDays.push(dayShortNames[dayOfWeek]);
+    }
+
+    for (const w of windows) {
+      const startMin = parseTimeToMinutes(w.start);
+      const endMin = parseTimeToMinutes(w.end);
+
+      // Duration rule: At least 60 minutes for each session window
+      if (endMin < startMin + 60) {
+        throw new HttpsError(
+          'invalid-argument',
+          `Window ${w.start} - ${w.end} must be at least 60 minutes.`
+        );
+      }
+
+      parsedWindows.push({
+        start: formatMinutesToTime(startMin),
+        end: formatMinutesToTime(endMin),
+        startMinutes: startMin,
+        endMinutes: endMin,
+      });
+    }
+
+    // Overlap prevention within the same day
+    parsedWindows.sort((a, b) => a.startMinutes - b.startMinutes);
+    for (let i = 0; i < parsedWindows.length - 1; i++) {
+      if (parsedWindows[i].endMinutes > parsedWindows[i + 1].startMinutes) {
+        throw new HttpsError(
+          'invalid-argument',
+          `Overlapping availability windows detected: ${parsedWindows[i].start}-${parsedWindows[i].end} and ${parsedWindows[i + 1].start}-${parsedWindows[i + 1].end}.`
+        );
+      }
+    }
+
+    sanitizedDays.push({
+      dayOfWeek,
+      isEnabled,
+      windows: parsedWindows.map((pw) => ({ start: pw.start, end: pw.end })),
+    });
+  }
+
+  const effectiveTimezone = (timezone || 'Asia/Kolkata').trim();
+
+  // Save to trainer_availability collection
+  const availabilityDocId = `${trainerId}_weekly`;
+  await db.collection('trainer_availability').doc(availabilityDocId).set(
+    {
+      id: availabilityDocId,
+      trainerId,
+      timezone: effectiveTimezone,
+      days: sanitizedDays,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
+
+  // Sync workingDays into trainer_profiles for public discovery
+  if (activeWorkingDays.length > 0) {
+    await db.collection('trainer_profiles').doc(trainerId).set(
+      {
+        workingDays: activeWorkingDays,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }
+
+  return { success: true, trainerId, daysCount: sanitizedDays.length };
+});
+
+export const setTrainerDateOverride = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const { trainerId, date, isBlocked, windows, reason } = request.data || {};
+  if (!trainerId || !date) {
+    throw new HttpsError('invalid-argument', 'Missing trainerId or date parameter.');
+  }
+
+  const isAdmin = await verifyIsAdmin(request.auth.uid);
+  if (request.auth.uid !== trainerId && !isAdmin) {
+    throw new HttpsError('permission-denied', 'You may only set date overrides for your own schedule.');
+  }
+
+  // Check if date format is valid YYYY-MM-DD
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw new HttpsError('invalid-argument', 'Date must be formatted as YYYY-MM-DD.');
+  }
+
+  const blocked = Boolean(isBlocked);
+  let warningMessage: string | null = null;
+
+  // Check for existing confirmed bookings on that date
+  const bookingsSnap = await db
+    .collection('bookings')
+    .where('trainerId', '==', trainerId)
+    .where('status', 'in', ['confirmed', 'CONFIRMED', 'rescheduled', 'RESCHEDULED'])
+    .get();
+
+  const confirmedOnDate = bookingsSnap.docs.filter((doc) => {
+    const data = doc.data();
+    const sDate = data.sessionDate;
+    let sDateStr = '';
+    if (sDate && typeof sDate.toDate === 'function') {
+      sDateStr = sDate.toDate().toISOString().substring(0, 10);
+    } else if (typeof sDate === 'string') {
+      sDateStr = sDate.substring(0, 10);
+    }
+    return sDateStr === date;
+  });
+
+  if (blocked && confirmedOnDate.length > 0) {
+    warningMessage = `Date ${date} has been blocked for new bookings. You have ${confirmedOnDate.length} existing confirmed booking(s) on this date which remain confirmed and cannot be cancelled automatically.`;
+  }
+
+  const sanitizedWindows: Array<{ start: string; end: string }> = [];
+  if (!blocked && Array.isArray(windows)) {
+    const parsed = [];
+    for (const w of windows) {
+      const startMin = parseTimeToMinutes(w.start);
+      const endMin = parseTimeToMinutes(w.end);
+      if (endMin < startMin + 60) {
+        throw new HttpsError('invalid-argument', `Window ${w.start} - ${w.end} must be at least 60 minutes.`);
+      }
+      parsed.push({
+        start: formatMinutesToTime(startMin),
+        end: formatMinutesToTime(endMin),
+        startMin,
+        endMin,
+      });
+    }
+    parsed.sort((a, b) => a.startMin - b.endMin);
+    for (let i = 0; i < parsed.length - 1; i++) {
+      if (parsed[i].endMin > parsed[i + 1].startMin) {
+        throw new HttpsError('invalid-argument', 'Custom date windows cannot overlap.');
+      }
+    }
+    for (const p of parsed) {
+      sanitizedWindows.push({ start: p.start, end: p.end });
+    }
+  }
+
+  const overrideDocId = `${trainerId}_override_${date}`;
+  await db.collection('trainer_availability').doc(overrideDocId).set({
+    id: overrideDocId,
+    trainerId,
+    date,
+    isBlocked: blocked,
+    windows: sanitizedWindows,
+    reason: (reason || '').trim(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return {
+    success: true,
+    trainerId,
+    date,
+    isBlocked: blocked,
+    warning: warningMessage,
+  };
+});
+
+export const getTrainerAvailableSlots = onCall(async (request) => {
+  const { trainerId, dateStr, currentClientId } = request.data || {};
+  if (!trainerId || !dateStr) {
+    throw new HttpsError('invalid-argument', 'Missing trainerId or dateStr parameter.');
+  }
+
+  // 1. Check Date Override
+  const overrideDoc = await db.collection('trainer_availability').doc(`${trainerId}_override_${dateStr}`).get();
+  if (overrideDoc.exists && overrideDoc.data()?.isBlocked === true) {
+    return { slots: [], isBlocked: true, reason: overrideDoc.data()?.reason || 'Date blocked by trainer.' };
+  }
+
+  // 2. Fetch Weekly Availability
+  const weeklyDoc = await db.collection('trainer_availability').doc(`${trainerId}_weekly`).get();
+  const dateObj = new Date(dateStr);
+  // JS day: 0 = Sun, 1 = Mon ... convert to 1 (Mon) .. 7 (Sun)
+  const jsDay = dateObj.getDay();
+  const dayOfWeek = jsDay === 0 ? 7 : jsDay;
+
+  let windows: Array<{ start: string; end: string }> = [];
+
+  if (overrideDoc.exists && Array.isArray(overrideDoc.data()?.windows) && overrideDoc.data()!.windows.length > 0) {
+    windows = overrideDoc.data()!.windows;
+  } else if (weeklyDoc.exists && Array.isArray(weeklyDoc.data()?.days)) {
+    const dayConfig = weeklyDoc.data()!.days.find((d: any) => d.dayOfWeek === dayOfWeek);
+    if (dayConfig && dayConfig.isEnabled) {
+      windows = dayConfig.windows || [];
+    }
+  } else {
+    // Default fallback working hours: 06:00 AM - 12:00 PM, 04:00 PM - 08:00 PM
+    windows = [
+      { start: '06:00 AM', end: '12:00 PM' },
+      { start: '04:00 PM', end: '08:00 PM' },
+    ];
+  }
+
+  // Generate 60-min slots
+  const slots: Array<{ start: string; end: string }> = [];
+  for (const w of windows) {
+    let curr = parseTimeToMinutes(w.start);
+    const end = parseTimeToMinutes(w.end);
+    while (curr + 60 <= end) {
+      slots.push({
+        start: formatMinutesToTime(curr),
+        end: formatMinutesToTime(curr + 60),
+      });
+      curr += 60;
+    }
+  }
+
+  // 3. Query existing bookings on that date
+  const bookingsSnap = await db
+    .collection('bookings')
+    .where('trainerId', '==', trainerId)
+    .where('status', 'in', ['confirmed', 'CONFIRMED', 'rescheduled', 'RESCHEDULED'])
+    .get();
+
+  const confirmedStarts = new Set<string>();
+  for (const doc of bookingsSnap.docs) {
+    const b = doc.data();
+    let bDateStr = '';
+    if (b.sessionDate && typeof b.sessionDate.toDate === 'function') {
+      bDateStr = b.sessionDate.toDate().toISOString().substring(0, 10);
+    } else if (typeof b.sessionDate === 'string') {
+      bDateStr = b.sessionDate.substring(0, 10);
+    }
+    if (bDateStr === dateStr && b.startTime) {
+      confirmedStarts.add(b.startTime.trim().toUpperCase());
+    }
+  }
+
+  // 4. Query slot locks on that date
+  const locksSnap = await db
+    .collection('slot_locks')
+    .where('trainerId', '==', trainerId)
+    .where('date', '==', dateStr)
+    .get();
+
+  const reservedStarts = new Set<string>();
+  const now = new Date();
+  for (const doc of locksSnap.docs) {
+    const lock = doc.data();
+    const exp = lock.expiresAt?.toDate ? lock.expiresAt.toDate() : new Date(lock.expiresAt);
+    if (lock.status === 'RESERVED' && exp > now) {
+      if (!currentClientId || lock.clientId !== currentClientId) {
+        reservedStarts.add((lock.startTime || '').trim().toUpperCase());
+      }
+    }
+  }
+
+  // Check if past for today
+  const todayStr = new Date().toISOString().substring(0, 10);
+  const isToday = dateStr === todayStr;
+  const currentMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+
+  const resultSlots = slots.map((s) => {
+    const upperStart = s.start.toUpperCase();
+    const isBooked = confirmedStarts.has(upperStart);
+    const isReserved = !isBooked && reservedStarts.has(upperStart);
+    const isPast = isToday && parseTimeToMinutes(s.start) <= currentMinutes;
+    return {
+      start: s.start,
+      end: s.end,
+      isBooked,
+      isReserved,
+      isPast,
+      isAvailable: !isBooked && !isReserved && !isPast,
+    };
+  });
+
+  return { slots: resultSlots, isBlocked: false };
+});
+

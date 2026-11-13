@@ -58,6 +58,7 @@ class AppTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
+  final int maxLines;
 
   const AppTextField({
     super.key,
@@ -68,6 +69,7 @@ class AppTextField extends StatelessWidget {
     this.keyboardType,
     this.suffixIcon,
     this.validator,
+    this.maxLines = 1,
   });
 
   @override
@@ -81,6 +83,7 @@ class AppTextField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       obscureText: obscure,
+      maxLines: obscure ? 1 : maxLines,
       keyboardType: keyboardType,
       validator: validator,
       style: TextStyle(

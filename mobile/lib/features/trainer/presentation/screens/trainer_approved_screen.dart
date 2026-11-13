@@ -163,7 +163,7 @@ class TrainerApprovedScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                      builder: (_) => const TrainerDashboard(),
+                      builder: (_) => TrainerDashboard(trainerId: profile.uid),
                     ),
                     (route) => false,
                   );

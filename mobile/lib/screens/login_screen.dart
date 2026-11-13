@@ -5,6 +5,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../features/client/client_feature.dart';
 import '../features/trainer/trainer_feature.dart';
 import '../services/auth_service.dart';
+import '../services/trainer_profile_service.dart';
 import '../shared/models/trainer_profile_model.dart';
 import '../widgets/app_widgets.dart';
 import 'onboarding/role_selection_screen.dart';
@@ -63,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen>
     if (!mounted) return;
     if (isOnboarded && role != null) {
       if (role.toLowerCase() == 'trainer') {
-        final uid = FirebaseAuth.instance.currentUser?.uid;
+        final uid = AuthService().currentUser?.uid;
         if (uid != null) {
           AuthService().getTrainerProfile(uid).then((prof) {
             if (!mounted) return;
@@ -76,8 +77,9 @@ class _LoginScreenState extends State<LoginScreen>
                 MaterialPageRoute(builder: (_) => TrainerRejectedScreen(profile: prof)),
               );
             } else {
+              TrainerProfileService.instance.populateFromModel(prof);
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const TrainerDashboard()),
+                MaterialPageRoute(builder: (_) => TrainerDashboard(trainerId: uid)),
               );
             }
           });

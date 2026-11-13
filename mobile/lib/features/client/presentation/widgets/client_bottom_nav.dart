@@ -7,11 +7,13 @@ import '../../../../widgets/app_widgets.dart';
 class ClientBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
+  final int unreadMessageCount;
 
   const ClientBottomNav({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    this.unreadMessageCount = 0,
   });
 
   @override
@@ -69,10 +71,28 @@ class ClientBottomNav extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        isSelected ? item['activeIcon'] as IconData : item['icon'] as IconData,
-                        size: (20.0 * sf).clamp(18.0, 22.0),
-                        color: isSelected ? kLime : const Color(0xFF888888),
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Icon(
+                            isSelected ? item['activeIcon'] as IconData : item['icon'] as IconData,
+                            size: (20.0 * sf).clamp(18.0, 22.0),
+                            color: isSelected ? kLime : const Color(0xFF888888),
+                          ),
+                          if (index == 3 && unreadMessageCount > 0)
+                            Positioned(
+                              top: -2,
+                              right: -4,
+                              child: Container(
+                                padding: const EdgeInsets.all(2.5),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFDC2626),
+                                  shape: BoxShape.circle,
+                                ),
+                                constraints: const BoxConstraints(minWidth: 10, minHeight: 10),
+                              ),
+                            ),
+                        ],
                       ),
                       if (isSelected) ...[
                         const SizedBox(width: 6),

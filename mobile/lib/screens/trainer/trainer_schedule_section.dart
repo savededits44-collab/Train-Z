@@ -5,6 +5,7 @@ import '../../services/booking_service.dart';
 import '../../shared/models/booking_model.dart';
 import '../../widgets/app_widgets.dart';
 import '../../widgets/trainer_animations.dart';
+import 'trainer_availability_screen.dart';
 
 enum ScheduleViewMode { daily, weekly, monthly }
 enum PackageFilter { all, active, expiringSoon, pendingRequests }
@@ -283,6 +284,37 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
           ),
         ),
         const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const TrainerAvailabilityScreen()),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: kDark,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Iconsax.calendar_edit, size: 14, color: kLime),
+                const SizedBox(width: 4),
+                Text(
+                  'Working Hours',
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: (10.5 * sf).clamp(9.5, 12.0),
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
