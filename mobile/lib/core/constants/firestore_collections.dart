@@ -25,6 +25,11 @@ class FirestoreCollections {
   static const String deletionRequests = 'deletion_requests';
   static const String userSettings = 'settings';
   static const String deletionAudits = 'deletion_audits';
+  static const String trainerEarnings = 'trainer_earnings';
+  static const String trainerPayouts = 'trainer_payouts';
+  static const String trainerClientNotes = 'trainer_client_notes';
+  static const String trainerClientProgress = 'trainer_client_progress';
+  static const String accountDeletionRequests = 'account_deletion_requests';
 
   /// Subcollections
   static const String creditTransactions = 'transactions';

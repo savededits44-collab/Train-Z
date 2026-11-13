@@ -74,16 +74,22 @@ class _TrainerCategorySelectionScreenState
 
     setState(() => _isLoading = true);
 
-    final success = await _trainerAuthController.registerTrainer(
-      name: widget.fullName,
-      email: widget.email,
-      phoneNumber: widget.phoneNumber,
-      password: widget.password,
-      confirmPassword: widget.confirmPassword,
-      category: _selectedCategory,
-      experienceYears: experienceYears,
-      hasConfirmedCertificate: _hasConfirmedCertificate,
-    );
+    final success = widget.password.isEmpty
+        ? await _trainerAuthController.assignCategoryForCurrentTrainer(
+            category: _selectedCategory,
+            experienceYears: experienceYears,
+            hasConfirmedCertificate: _hasConfirmedCertificate,
+          )
+        : await _trainerAuthController.registerTrainer(
+            name: widget.fullName,
+            email: widget.email,
+            phoneNumber: widget.phoneNumber,
+            password: widget.password,
+            confirmPassword: widget.confirmPassword,
+            category: _selectedCategory,
+            experienceYears: experienceYears,
+            hasConfirmedCertificate: _hasConfirmedCertificate,
+          );
 
     if (!mounted) return;
     setState(() => _isLoading = false);

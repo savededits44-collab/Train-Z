@@ -315,6 +315,106 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email.trim());
   }
 
+  /// Change password for email/password authenticated user.
+  /// Requires re-authenticating with [currentPassword] before updating to [newPassword].
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    if (newPassword.trim().length < 6) {
+      throw const AuthException('New password must be at least 6 characters.');
+    }
+
+    final user = currentUser;
+    if (user == null) {
+      throw const AuthException('No authenticated user session found.');
+    }
+
+    final email = user.email;
+    if (email != null && email.isNotEmpty) {
+      try {
+        final cred = EmailAuthProvider.credential(
+          email: email,
+          password: currentPassword.trim(),
+        );
+        await user.reauthenticateWithCredential(cred);
+      } catch (e) {
+        throw AuthException('Current password incorrect or reauthentication failed: $e');
+      }
+    }
+
+    await user.updatePassword(newPassword.trim());
+  }
+
+  /// Reauthenticates current user session with password
+  Future<void> reauthenticate(String password) async {
+    final user = currentUser;
+    if (user == null) {
+      throw const AuthException('No authenticated user session found.');
+    }
+    final email = user.email;
+    if (email == null || email.isEmpty) return;
+
+    final cred = EmailAuthProvider.credential(
+      email: email,
+      password: password.trim(),
+    );
+    await user.reauthenticateWithCredential(cred);
+  }
+
+  /// Updates email address with Firebase Authentication verification
+  Future<void> updateEmailAddress(String newEmail) async {
+    final cleanEmail = newEmail.trim().toLowerCase();
+    if (!cleanEmail.contains('@') || !cleanEmail.contains('.')) {
+      throw const AuthException('Please provide a valid email address.');
+    }
+
+    final user = currentUser;
+    if (user == null) {
+      throw const AuthException('No authenticated user session found.');
+    }
+
+    try {
+      await user.verifyBeforeUpdateEmail(cleanEmail);
+    } catch (e) {
+      debugPrint('Notice: Email verification trigger: $e');
+    }
+
+    await _firestore.collection(FirestoreCollections.users).doc(user.uid).set({
+      'email': cleanEmail,
+      'isEmailVerified': false,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  /// Updates phone number in users and trainer_profiles
+  Future<void> updatePhoneNumber(String newPhone) async {
+    final clean = newPhone.trim();
+    if (clean.length < 10) {
+      throw const AuthException('Phone number must have at least 10 digits.');
+    }
+
+    final user = currentUser;
+    if (user == null) {
+      throw const AuthException('No authenticated user session found.');
+    }
+
+    final batch = _firestore.batch();
+    final userRef = _firestore.collection(FirestoreCollections.users).doc(user.uid);
+    batch.set(userRef, {
+      'phoneNumber': clean,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    final trainerRef = _firestore.collection(FirestoreCollections.trainerProfiles).doc(user.uid);
+    batch.set(trainerRef, {
+      'mobileNumber': clean,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    await batch.commit();
+  }
+
   /// Sign out from both Firebase and Google session and securely clear in-memory caches
   Future<void> signOut() async {
     _cachedRole = null;
@@ -693,6 +793,32 @@ class AuthService {
       'ratingAvg': 5.0,
       'totalReviews': 0,
       'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    await batch.commit();
+  }
+
+  /// Initialize or update category and experience for an existing authenticated trainer
+  Future<void> initializeTrainerProfile({
+    required String uid,
+    required TrainerCategory category,
+    double experienceYears = 0.0,
+  }) async {
+    final batch = _firestore.batch();
+    final userRef = _firestore.collection(FirestoreCollections.users).doc(uid);
+    batch.set(userRef, {
+      'role': 'TRAINER',
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    final trainerProfileRef = _firestore.collection(FirestoreCollections.trainerProfiles).doc(uid);
+    batch.set(trainerProfileRef, {
+      'uid': uid,
+      'category': category.toFirestore(),
+      'experienceYears': experienceYears,
+      'verificationStatus': 'PENDING',
+      'isActive': true,
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 

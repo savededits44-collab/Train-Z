@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../services/trainer_availability_service.dart';
@@ -58,7 +59,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
     _tabController = TabController(length: 2, vsync: this);
     _trainerId = widget.trainerId ??
         FirebaseAuth.instance.currentUser?.uid ??
-        'trainer_demo_user';
+        (kReleaseMode ? '' : 'trainer_demo_user');
     _loadAvailability();
   }
 

@@ -12,7 +12,6 @@ import 'package:trainuspro/services/support_service.dart';
 import 'package:trainuspro/shared/models/booking_model.dart';
 import 'package:trainuspro/shared/models/client_profile_model.dart';
 import 'package:trainuspro/shared/models/notification_preferences_model.dart';
-import 'package:trainuspro/shared/models/session_credit_model.dart';
 import 'package:trainuspro/shared/models/support_ticket_model.dart';
 import 'package:trainuspro/shared/models/trainer_profile_model.dart';
 import 'package:trainuspro/shared/models/training_plan_model.dart';

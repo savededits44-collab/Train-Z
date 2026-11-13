@@ -102,6 +102,9 @@ class BookingModel {
   final DateTime? reservedAt;
   final DateTime? expiresAt;
   final DateTime? confirmedAt;
+  final String? cancellationReason;
+  final DateTime? completedAt;
+  final String? completedBy;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -148,6 +151,9 @@ class BookingModel {
     this.reservedAt,
     this.expiresAt,
     this.confirmedAt,
+    this.cancellationReason,
+    this.completedAt,
+    this.completedBy,
     this.createdAt,
     this.updatedAt,
   });
@@ -440,6 +446,9 @@ class BookingModel {
     DateTime? reservedAt,
     DateTime? expiresAt,
     DateTime? confirmedAt,
+    String? cancellationReason,
+    DateTime? completedAt,
+    String? completedBy,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -486,6 +495,9 @@ class BookingModel {
       reservedAt: reservedAt ?? this.reservedAt,
       expiresAt: expiresAt ?? this.expiresAt,
       confirmedAt: confirmedAt ?? this.confirmedAt,
+      cancellationReason: cancellationReason ?? this.cancellationReason,
+      completedAt: completedAt ?? this.completedAt,
+      completedBy: completedBy ?? this.completedBy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -538,6 +550,9 @@ class BookingModel {
       'reservedAt': reservedAt != null ? Timestamp.fromDate(reservedAt!) : null,
       'expiresAt': expiresAt != null ? Timestamp.fromDate(expiresAt!) : null,
       'confirmedAt': confirmedAt != null ? Timestamp.fromDate(confirmedAt!) : null,
+      'cancellationReason': cancellationReason,
+      'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
+      'completedBy': completedBy,
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -593,6 +608,9 @@ class BookingModel {
       reservedAt: parseTimestamp(map['reservedAt']),
       expiresAt: parseTimestamp(map['expiresAt']),
       confirmedAt: parseTimestamp(map['confirmedAt']),
+      cancellationReason: map['cancellationReason'] as String?,
+      completedAt: parseTimestamp(map['completedAt']),
+      completedBy: map['completedBy'] as String?,
       createdAt: parseTimestamp(map['createdAt']),
       updatedAt: parseTimestamp(map['updatedAt']),
     );

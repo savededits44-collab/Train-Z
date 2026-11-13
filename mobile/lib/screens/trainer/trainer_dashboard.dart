@@ -2,25 +2,31 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../../features/client/presentation/screens/client_chat_screen.dart';
 import '../../features/trainer/presentation/screens/trainer_pending_approval_screen.dart';
 import '../../features/trainer/presentation/screens/trainer_rejected_screen.dart';
 import '../../services/auth_service.dart';
 import '../../services/booking_service.dart';
-import '../../services/chat_service.dart';
 import '../../services/notification_service.dart';
 import '../../services/trainer_profile_service.dart';
 import '../../shared/models/booking_model.dart';
-import '../../shared/models/conversation_model.dart';
 import '../../shared/models/notification_model.dart';
 import '../../widgets/app_widgets.dart';
 import '../../widgets/logout_dialog.dart';
 import '../../widgets/notifications_bottom_sheet.dart';
 import '../../widgets/trainer_animations.dart';
 import 'trainer_availability_screen.dart';
+import 'trainer_bookings_screen.dart';
 import 'trainer_certificates_screen.dart';
+import 'trainer_clients_screen.dart';
+import 'trainer_earnings_screen.dart';
+import 'trainer_messages_screen.dart';
+import 'trainer_notification_preferences_screen.dart';
+import 'trainer_notifications_screen.dart';
+import 'trainer_package_management_screen.dart';
 import 'trainer_profile_setup_screen.dart';
+import 'trainer_reviews_screen.dart';
 import 'trainer_schedule_section.dart';
+import 'trainer_settings_screen.dart';
 
 class TrainerDashboard extends StatefulWidget {
   final String? trainerId;
@@ -64,7 +70,35 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
             AuthService().currentUser?.uid ??
             '';
 
-        // Requirement 7: Account Status and Access Control
+        // Security & Status Protection: Pending, Rejected, or Suspended Accounts
+        if (profileService.isSuspended) {
+          return const Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: Padding(
+                padding: EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.block, size: 64, color: Colors.red),
+                    SizedBox(height: 16),
+                    Text(
+                      'Account Suspended',
+                      style: TextStyle(fontFamily: 'Syne', fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Your coach account has been suspended by platform administration. Please contact support@trainz.fit.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontFamily: 'Poppins', fontSize: 14, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
         if (profileService.isPendingApproval) {
           return const TrainerPendingApprovalScreen();
         }
@@ -91,7 +125,7 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
             onGoToSchedule: () => setState(() => _tab = 2),
           ),
           _TrainerScheduleTab(sf: sf),
-          _TrainerProfileTab(sf: sf, onLogout: _onLogout),
+          _TrainerProfileTab(sf: sf, trainerId: uid, onLogout: _onLogout),
         ];
 
         return Scaffold(
@@ -240,7 +274,15 @@ class _TrainerHomeTab extends StatelessWidget {
 
                           // Notifications Bell with Live Counter Badge
                           TrainerPressScale(
-                            onTap: () => NotificationsBottomSheet.show(context),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => TrainerNotificationsScreen(
+                                    trainerId: effectiveUid,
+                                  ),
+                                ),
+                              );
+                            },
                             child: Stack(
                               clipBehavior: Clip.none,
                               children: [
@@ -525,8 +567,8 @@ class _TrainerHomeTab extends StatelessWidget {
                 TrainerFadeSlide(
                   delayMs: 140,
                   child: isAdvanced
-                      ? _AdvancedTrainerCard(sf: sf)
-                      : _StandardTrainerPackageModelCard(sf: sf),
+                      ? _AdvancedTrainerCard(sf: sf, trainerId: effectiveUid)
+                      : _StandardTrainerPackageModelCard(sf: sf, trainerId: effectiveUid),
                 ),
 
                 SizedBox(height: (h * 0.025).clamp(16, 24)),
@@ -570,14 +612,30 @@ class _TrainerHomeTab extends StatelessWidget {
                             title: 'My Bookings',
                             subtitle: 'Scheduled sessions',
                             sf: sf,
-                            onTap: onGoToSchedule,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => TrainerBookingsScreen(
+                                    trainerId: effectiveUid,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           _QuickActionButton(
                             icon: Iconsax.message,
                             title: 'Messages',
                             subtitle: 'Booked client chats',
                             sf: sf,
-                            onTap: () => _showMessagesSheet(context, effectiveUid, sf),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => TrainerMessagesScreen(
+                                    trainerId: effectiveUid,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           _QuickActionButton(
                             icon: Iconsax.wallet_money,
@@ -603,6 +661,52 @@ class _TrainerHomeTab extends StatelessWidget {
                                   builder: (_) => TrainerCertificatesScreen(
                                     trainerId: effectiveUid,
                                     category: profileService.category,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          _QuickActionButton(
+                            icon: Iconsax.box_1,
+                            title: 'Training Packages',
+                            subtitle: isAdvanced ? 'Custom plans & rates' : 'Platform fixed plans',
+                            sf: sf,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => TrainerPackageManagementScreen(
+                                    trainerId: effectiveUid,
+                                    isAdvanced: isAdvanced,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          _QuickActionButton(
+                            icon: Iconsax.star,
+                            title: 'Client Reviews',
+                            subtitle: 'Ratings & feedback',
+                            sf: sf,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => TrainerReviewsScreen(
+                                    trainerId: effectiveUid,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          _QuickActionButton(
+                            icon: Iconsax.people,
+                            title: 'My Clients',
+                            subtitle: 'Profiles & training notes',
+                            sf: sf,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => TrainerClientsScreen(
+                                    trainerId: effectiveUid,
                                   ),
                                 ),
                               );
@@ -1140,7 +1244,8 @@ class _StatusChip extends StatelessWidget {
 
 class _StandardTrainerPackageModelCard extends StatelessWidget {
   final double sf;
-  const _StandardTrainerPackageModelCard({required this.sf});
+  final String? trainerId;
+  const _StandardTrainerPackageModelCard({required this.sf, this.trainerId});
 
   @override
   Widget build(BuildContext context) {
@@ -1248,6 +1353,35 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
                   .toList(),
             ),
           ),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => TrainerPackageManagementScreen(
+                    trainerId: trainerId,
+                    isAdvanced: false,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Iconsax.eye, size: 14, color: kDark),
+            label: const Text(
+              'View Package Details',
+              style: TextStyle(
+                fontFamily: 'Syne',
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: kDark,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kLime,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
         ],
       ),
     );
@@ -1256,7 +1390,8 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
 
 class _AdvancedTrainerCard extends StatelessWidget {
   final double sf;
-  const _AdvancedTrainerCard({required this.sf});
+  final String? trainerId;
+  const _AdvancedTrainerCard({required this.sf, this.trainerId});
 
   @override
   Widget build(BuildContext context) {
@@ -1350,7 +1485,7 @@ class _AdvancedTrainerCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           ElevatedButton.icon(
-            onPressed: () => _showAdvancedCustomPlanSheet(context, sf),
+            onPressed: () => _showAdvancedCustomPlanSheet(context, sf, trainerId: trainerId),
             icon: const Icon(Iconsax.add_circle, size: 15, color: kDark),
             label: const Text(
               'Manage Custom Plans',
@@ -1372,6 +1507,109 @@ class _AdvancedTrainerCard extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showAdvancedCustomPlanSheet(BuildContext context, double sf, {String? trainerId}) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) => Container(
+      padding: const EdgeInsets.all(22),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: const Color(0xFFDDDDDD), borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF8E1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFFFB300)),
+                  ),
+                  child: const Icon(Iconsax.star, color: Color(0xFFE65100)),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Custom Training Plans',
+                        style: TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w800, color: kDark),
+                      ),
+                      Text(
+                        'Advanced Trainer Privileges',
+                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'As an approved Advanced Trainer, you have the privilege to create tailored training plans with custom session counts and pricing.\n\nMandatory Platform Policy:\nEvery custom training plan requires separate TRAIN Z Admin verification and approval before it can be published to clients. Unpublished, draft, or pending plans will remain private to your account.',
+              style: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: Color(0xFF4E342E), height: 1.45),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Got It', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => TrainerPackageManagementScreen(
+                            trainerId: trainerId,
+                            isAdvanced: true,
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kDark,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Open Manager', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _QuickActionButton extends StatelessWidget {
@@ -1898,7 +2136,9 @@ void _showBookingDetailSheet(BuildContext context, BookingModel booking, double 
             _DetailInfoRow(
               icon: Iconsax.location,
               label: 'Training Location',
-              value: booking.meetingLocation ?? 'Personal Training Location',
+              value: (booking.status == BookingStatus.confirmed)
+                  ? (booking.meetingLocation ?? 'Personal Training Location')
+                  : 'Location address hidden until booking is confirmed',
             ),
             _DetailInfoRow(
               icon: Iconsax.box,
@@ -1912,6 +2152,31 @@ void _showBookingDetailSheet(BuildContext context, BookingModel booking, double 
                 value: booking.notes!,
               ),
             const SizedBox(height: 20),
+            if (booking.status == BookingStatus.confirmed) ...[
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => TrainerBookingsScreen(
+                          trainerId: booking.trainerId,
+                          initialTab: BookingFilterTab.upcoming,
+                        ),
+                      ),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: kDark),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Manage in Bookings', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark)),
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -2104,125 +2369,41 @@ void _showEarningsDetailSheet(BuildContext context, double sf, int totalEarnings
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.of(ctx).pop(),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  final effectiveUid = completed.isNotEmpty
+                      ? completed.first.trainerId
+                      : (upcoming.isNotEmpty ? upcoming.first.trainerId : '');
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => TrainerEarningsScreen(trainerId: effectiveUid),
+                    ),
+                  );
+                },
+                icon: const Icon(Iconsax.wallet_3, size: 16, color: kDark),
+                label: const Text(
+                  'View Detailed Earnings & Payouts',
+                  style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark),
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: kDark,
+                  backgroundColor: kLime,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Close', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white)),
               ),
             ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-void _showMessagesSheet(BuildContext context, String trainerId, double sf) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (ctx) => Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
-      padding: const EdgeInsets.all(22),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(color: const Color(0xFFDDDDDD), borderRadius: BorderRadius.circular(2)),
-              ),
-            ),
-            const SizedBox(height: 18),
-            const Text(
-              'Client Messages',
-              style: TextStyle(fontFamily: 'Syne', fontSize: 18, fontWeight: FontWeight.w800, color: kDark),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Direct messaging is restricted to legitimate bookings on TRAIN Z.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: StreamBuilder<List<ConversationModel>>(
-                stream: ChatService.instance.streamTrainerConversations(trainerId),
-                builder: (context, snapshot) {
-                  final list = snapshot.data ?? [];
-                  if (list.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Iconsax.message_remove, size: 40, color: kGrey.withValues(alpha: 0.5)),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Messages',
-                            style: TextStyle(fontFamily: 'Syne', fontSize: 15, fontWeight: FontWeight.w700, color: kDark),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Your conversations with booked clients will appear here.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  return ListView.separated(
-                    itemCount: list.length,
-                    separatorBuilder: (_, _) => const Divider(height: 1),
-                    itemBuilder: (context, index) {
-                      final conv = list[index];
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          backgroundColor: kDark,
-                          child: Text(
-                            conv.clientName.isNotEmpty ? conv.clientName[0].toUpperCase() : 'C',
-                            style: const TextStyle(color: Colors.white, fontFamily: 'Syne', fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                        title: Text(
-                          conv.clientName,
-                          style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark),
-                        ),
-                        subtitle: Text(
-                          conv.lastMessage.isNotEmpty ? conv.lastMessage : 'New booking conversation',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
-                        ),
-                        trailing: conv.trainerUnreadCount > 0
-                            ? Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: const BoxDecoration(color: Color(0xFFDC2626), shape: BoxShape.circle),
-                                child: Text('${conv.trainerUnreadCount}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
-                              )
-                            : const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: kGrey),
-                        onTap: () {
-                          Navigator.of(ctx).pop();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => ClientChatScreen(conversation: conv)),
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: kDark),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Close', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark)),
               ),
             ),
           ],
@@ -2301,85 +2482,6 @@ void _showCompletedSessionsSheet(BuildContext context, List<BookingModel> comple
   );
 }
 
-void _showAdvancedCustomPlanSheet(BuildContext context, double sf) {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.transparent,
-    builder: (ctx) => Container(
-      padding: const EdgeInsets.all(22),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(color: const Color(0xFFDDDDDD), borderRadius: BorderRadius.circular(2)),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF8E1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFFFB300)),
-                  ),
-                  child: Icon(Iconsax.star, color: const Color(0xFFE65100)),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Custom Training Plans',
-                        style: TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w800, color: kDark),
-                      ),
-                      Text(
-                        'Advanced Trainer Privileges',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'As an approved Advanced Trainer, you have the privilege to create tailored training plans with custom session counts and pricing.\n\nMandatory Platform Policy:\nEvery custom training plan requires separate TRAIN Z Admin verification and approval before it can be published to clients. Unpublished, draft, or pending plans will remain private to your account.\n\nThe Plan Builder tool will be available in the upcoming release.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: Color(0xFF4E342E), height: 1.45),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kDark,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('Got It', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
 String _formatSessionDate(DateTime dt) {
   final now = DateTime.now();
   if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
@@ -2426,10 +2528,12 @@ class _TrainerScheduleTab extends StatelessWidget {
 // ── Trainer Profile Tab with Log Out ──────────────────────────────────────────
 class _TrainerProfileTab extends StatelessWidget {
   final double sf;
+  final String? trainerId;
   final VoidCallback onLogout;
 
   const _TrainerProfileTab({
     required this.sf,
+    this.trainerId,
     required this.onLogout,
   });
 
@@ -2491,7 +2595,23 @@ class _TrainerProfileTab extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    IconButton(
+                      tooltip: 'Settings & Account',
+                      icon: Icon(
+                        Iconsax.setting_2,
+                        color: kDark,
+                        size: (22.0 * sf).clamp(18.0, 26.0),
+                      ),
+                      onPressed: () {
+                        final effectiveUid = trainerId ?? AuthService().currentUser?.uid;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => TrainerSettingsScreen(trainerId: effectiveUid),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
@@ -2911,6 +3031,19 @@ class _TrainerProfileTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _CoachProfileTile(
+                  icon: Iconsax.setting_2,
+                  label: 'Settings & Account Management',
+                  sf: sf,
+                  onTap: () {
+                    final effectiveUid = trainerId ?? AuthService().currentUser?.uid;
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => TrainerSettingsScreen(trainerId: effectiveUid),
+                      ),
+                    );
+                  },
+                ),
+                _CoachProfileTile(
                   icon: Iconsax.user_edit,
                   label: 'Edit Coach Profile & Photo',
                   sf: sf,
@@ -2926,25 +3059,53 @@ class _TrainerProfileTab extends StatelessWidget {
                   icon: Iconsax.card,
                   label: 'Payout & Earnings',
                   sf: sf,
-                  onTap: () {},
+                  onTap: () {
+                    final effectiveUid = trainerId ?? AuthService().currentUser?.uid;
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => TrainerEarningsScreen(trainerId: effectiveUid),
+                      ),
+                    );
+                  },
                 ),
                 _CoachProfileTile(
                   icon: Iconsax.calendar_edit,
                   label: 'Availability & Slots',
                   sf: sf,
-                  onTap: () {},
+                  onTap: () {
+                    final effectiveUid = trainerId ?? AuthService().currentUser?.uid;
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => TrainerAvailabilityScreen(trainerId: effectiveUid),
+                      ),
+                    );
+                  },
                 ),
                 _CoachProfileTile(
                   icon: Iconsax.notification,
                   label: 'Notification Settings',
                   sf: sf,
-                  onTap: () {},
+                  onTap: () {
+                    final effectiveUid = trainerId ?? AuthService().currentUser?.uid;
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => TrainerNotificationPreferencesScreen(trainerId: effectiveUid),
+                      ),
+                    );
+                  },
                 ),
                 _CoachProfileTile(
                   icon: Iconsax.shield_tick,
                   label: 'Security & Certifications',
                   sf: sf,
-                  onTap: () {},
+                  onTap: () {
+                    final effectiveUid = trainerId ?? AuthService().currentUser?.uid;
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => TrainerCertificatesScreen(trainerId: effectiveUid),
+                      ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 28),
@@ -3200,465 +3361,10 @@ class _TrainerClientsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    final hPad = (w * 0.072).clamp(18.0, 32.0);
-
-    return SafeArea(
-      child: ListenableBuilder(
-        listenable: BookingService.instance,
-        builder: (context, _) {
-          final effectiveUid = trainerId ?? AuthService().currentUser?.uid ?? '';
-          final accepted = effectiveUid.isNotEmpty
-              ? BookingService.instance.confirmedBookingsForTrainer(effectiveUid)
-              : BookingService.instance.confirmedBookings;
-          final uniqueClientsCount =
-              accepted.map((b) => b.displayClientName).toSet().length;
-
-          return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: hPad),
-            child: TrainerFadeSlide(
-              delayMs: 30,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-
-                // Top Header Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'My Clients',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: (22.0 * sf).clamp(18.0, 28.0),
-                          fontWeight: FontWeight.w800,
-                          color: kDark,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: accepted.isNotEmpty
-                            ? const Color(0xFFE8F5E9)
-                            : kField,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        accepted.isNotEmpty
-                            ? '$uniqueClientsCount Accepted ${uniqueClientsCount == 1 ? "Client" : "Clients"}'
-                            : '0 Clients',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: accepted.isNotEmpty ? const Color(0xFF2E7D32) : kGrey,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Athletes whose session requests have been accepted by you.',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: (12.0 * sf).clamp(10.5, 13.5),
-                    color: kGrey,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                if (accepted.isEmpty)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: kField,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: kBorder),
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Iconsax.people,
-                          size: 44,
-                          color: Color(0xFFCCCCCC),
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          'No accepted clients yet',
-                          style: TextStyle(
-                            fontFamily: 'Syne',
-                            fontSize: (15.0 * sf).clamp(13.0, 17.0),
-                            fontWeight: FontWeight.w700,
-                            color: kDark,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'When you accept a session request from an athlete, they will immediately appear here.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: (11.5 * sf).clamp(10.0, 13.0),
-                            color: kGrey,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        ElevatedButton.icon(
-                          onPressed: onGoToSchedule,
-                          icon: const Icon(Iconsax.calendar_tick, size: 16, color: kDark),
-                          label: const Text(
-                            'View Session Requests',
-                            style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontWeight: FontWeight.w700,
-                              color: kDark,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: kLime,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  ...accepted.map((b) => _AcceptedClientCard(booking: b, sf: sf)),
-
-                const SizedBox(height: 36),
-              ],
-            ),
-          ),
-        );
-      },
-    ),
-  );
-}
-}
-
-class _AcceptedClientCard extends StatelessWidget {
-  final BookingModel booking;
-  final double sf;
-
-  const _AcceptedClientCard({
-    required this.booking,
-    required this.sf,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final b = booking;
-
-    return TrainerPressScale(
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: EdgeInsets.all((16.0 * sf).clamp(12.0, 20.0)),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: kLime.withValues(alpha: 0.6), width: 1.2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Client Avatar + Name + Active Status Badge
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: const BoxDecoration(
-                  color: kDark,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    b.displayClientName.isNotEmpty ? b.displayClientName[0].toUpperCase() : 'C',
-                    style: const TextStyle(
-                      fontFamily: 'Syne',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: kLime,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      b.displayClientName,
-                      style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontSize: (15.5 * sf).clamp(14.0, 18.0),
-                        fontWeight: FontWeight.w700,
-                        color: kDark,
-                      ),
-                    ),
-                    if (b.clientPhone != null && b.clientPhone!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Iconsax.call, size: 12, color: kGrey),
-                          const SizedBox(width: 4),
-                          Text(
-                            b.clientPhone!,
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: (11.5 * sf).clamp(10.0, 12.5),
-                              color: kGrey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.check_circle_rounded, color: Color(0xFF2E7D32), size: 13),
-                    SizedBox(width: 4),
-                    Text(
-                      'Accepted',
-                      style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF2E7D32),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-
-          // Accepted Session Details
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: kField,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Iconsax.clock, size: 14, color: kDark),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        '${b.startTime} - ${b.endTime}  •  ${_formatDate(b.sessionDate)}',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: (12.0 * sf).clamp(10.5, 13.0),
-                          fontWeight: FontWeight.w600,
-                          color: kDark,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Iconsax.weight, size: 14, color: kGrey),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        b.displayWorkoutType,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: (11.5 * sf).clamp(10.0, 12.5),
-                          color: kDark,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (b.meetingLocation != null && b.meetingLocation!.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Icon(Iconsax.building, size: 14, color: kGrey),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          b.meetingLocation!,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: (11.5 * sf).clamp(10.0, 12.5),
-                            color: kGrey,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          // Package Progress & Health Section
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: kBorder),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      b.resolvedPackageName,
-                      style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontSize: (12.5 * sf).clamp(11.0, 14.0),
-                        fontWeight: FontWeight.w700,
-                        color: kDark,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E9),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        '✓ Paid',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF2E7D32),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                // Sessions Progress
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Sessions: ${b.resolvedSessionsCompleted}/${b.resolvedTotalSessions} Completed',
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, fontWeight: FontWeight.w600, color: kDark),
-                    ),
-                    Text(
-                      '${b.resolvedTotalSessions - b.resolvedSessionsCompleted} Left',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: b.packageHealthStatus == 'red' ? const Color(0xFFDC2626) : kGrey,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: b.resolvedTotalSessions > 0
-                        ? (b.resolvedSessionsCompleted / b.resolvedTotalSessions).clamp(0.0, 1.0)
-                        : 0.0,
-                    backgroundColor: kField,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      b.packageHealthStatus == 'red'
-                          ? const Color(0xFFDC2626)
-                          : (b.packageHealthStatus == 'orange' ? const Color(0xFFF59E0B) : kDark),
-                    ),
-                    minHeight: 6,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Days Progress
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Validity: ${b.resolvedDaysCompleted}/${b.resolvedTotalDays} Days',
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: kGrey),
-                    ),
-                    Text(
-                      '${b.resolvedDaysRemaining} Days Left',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
-                        color: b.packageHealthStatus == 'red' ? const Color(0xFFDC2626) : kGrey,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          if (b.notes != null && b.notes!.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Text(
-              'Goals / Notes: "${b.notes}"',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: (11.0 * sf).clamp(9.5, 12.0),
-                fontStyle: FontStyle.italic,
-                color: kGrey,
-              ),
-            ),
-          ],
-        ],
-      ),
-    ),
-  );
-}
-
-  String _formatDate(DateTime dt) {
-    final now = DateTime.now();
-    if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
-      return 'Today';
-    }
-    final tomorrow = now.add(const Duration(days: 1));
-    if (dt.year == tomorrow.year && dt.month == tomorrow.month && dt.day == tomorrow.day) {
-      return 'Tomorrow';
-    }
-    const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[dt.month]} ${dt.day}';
+    final effectiveUid = trainerId ?? AuthService().currentUser?.uid ?? '';
+    return TrainerClientsScreen(
+      trainerId: effectiveUid,
+      showAppBar: false,
+    );
   }
 }

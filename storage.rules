@@ -20,7 +20,7 @@ service firebase.storage {
     // ─────────────────────────────────────────────────────────────────────────
     // 1. Profile Pictures
     // ─────────────────────────────────────────────────────────────────────────
-    match /profile_pictures/{userId}/{fileName} {
+    match /profile_pictures/{userId}/{allPaths=**} {
       // Authenticated users can view profile pictures
       allow read: if isAuthenticated();
 
@@ -35,8 +35,8 @@ service firebase.storage {
     // ─────────────────────────────────────────────────────────────────────────
     // 2. Trainer Certifications (Private)
     // ─────────────────────────────────────────────────────────────────────────
-    match /trainer_documents/{trainerId}/certifications/{fileName} {
-      // Section 9: Private trainer documents must not be publicly accessible
+    match /trainer_documents/{trainerId}/certifications/{allPaths=**} {
+      // Private trainer documents must not be publicly accessible
       allow read: if isOwner(trainerId) || isAdmin();
 
       allow write: if isOwner(trainerId)
@@ -49,8 +49,8 @@ service firebase.storage {
     // ─────────────────────────────────────────────────────────────────────────
     // 3. Trainer Verification Documents (Govt ID, CPR, Degrees) (Private)
     // ─────────────────────────────────────────────────────────────────────────
-    match /trainer_documents/{trainerId}/verifications/{fileName} {
-      // Section 9: Private trainer documents must not be publicly accessible
+    match /trainer_documents/{trainerId}/verifications/{allPaths=**} {
+      // Private trainer documents must not be publicly accessible
       allow read: if isOwner(trainerId) || isAdmin();
 
       allow write: if isOwner(trainerId)
@@ -64,7 +64,7 @@ service firebase.storage {
     // 4. Private Trainer Certificates (Strictly restricted to Owner and Admin)
     // Full certificates stored privately. Clients never have access to raw files.
     // ─────────────────────────────────────────────────────────────────────────
-    match /certificates/{trainerId}/{fileName} {
+    match /certificates/{trainerId}/{allPaths=**} {
       allow read: if isOwner(trainerId) || isAdmin();
 
       allow write: if isOwner(trainerId)

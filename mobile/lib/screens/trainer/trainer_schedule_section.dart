@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../services/auth_service.dart';
 import '../../services/booking_service.dart';
 import '../../shared/models/booking_model.dart';
 import '../../widgets/app_widgets.dart';
 import '../../widgets/trainer_animations.dart';
 import 'trainer_availability_screen.dart';
+import 'trainer_bookings_screen.dart';
 
 enum ScheduleViewMode { daily, weekly, monthly }
 enum PackageFilter { all, active, expiringSoon, pendingRequests }
@@ -254,103 +256,144 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
   // ───────────────────────────────────────────────────────────────────────────
 
   Widget _buildHeader(double sf, int pendingCount) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Client Schedule',
-                style: TextStyle(
-                  fontFamily: 'Syne',
-                  fontSize: (22.0 * sf).clamp(18.0, 26.0),
-                  fontWeight: FontWeight.w800,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Client Schedule',
+                    style: TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: (22.0 * sf).clamp(18.0, 26.0),
+                      fontWeight: FontWeight.w800,
+                      color: kDark,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Track client packages, remaining sessions, and schedule.',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: (11.5 * sf).clamp(10.0, 13.0),
+                      color: kGrey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: pendingCount > 0 ? const Color(0xFFFFF3E0) : const Color(0xFFE8F5E9),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: pendingCount > 0 ? const Color(0xFFFFB300) : const Color(0xFF81C784),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (pendingCount > 0)
+                    const TrainerLivePulseDot(color: Color(0xFFFF9800), size: 7)
+                  else
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF2E7D32),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  const SizedBox(width: 6),
+                  Text(
+                    pendingCount > 0 ? '$pendingCount New' : 'Live Sync',
+                    style: TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: (10.5 * sf).clamp(9.5, 12.0),
+                      fontWeight: FontWeight.w700,
+                      color: pendingCount > 0 ? const Color(0xFFE65100) : const Color(0xFF2E7D32),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                final uid = AuthService().currentUser?.uid ?? '';
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => TrainerBookingsScreen(trainerId: uid)),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  color: kLime,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Iconsax.calendar_tick, size: 14, color: kDark),
+                    const SizedBox(width: 5),
+                    Text(
+                      'All Bookings',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                        fontWeight: FontWeight.w700,
+                        color: kDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const TrainerAvailabilityScreen()),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
                   color: kDark,
-                  letterSpacing: -0.5,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Iconsax.calendar_edit, size: 14, color: kLime),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Working Hours',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: (11.0 * sf).clamp(10.0, 12.5),
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                'Track client packages, remaining sessions, and schedule.',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: (11.5 * sf).clamp(10.0, 13.0),
-                  color: kGrey,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const TrainerAvailabilityScreen()),
-            );
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: kDark,
-              borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Iconsax.calendar_edit, size: 14, color: kLime),
-                const SizedBox(width: 4),
-                Text(
-                  'Working Hours',
-                  style: TextStyle(
-                    fontFamily: 'Syne',
-                    fontSize: (10.5 * sf).clamp(9.5, 12.0),
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: pendingCount > 0 ? const Color(0xFFFFF3E0) : const Color(0xFFE8F5E9),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: pendingCount > 0 ? const Color(0xFFFFB300) : const Color(0xFF81C784),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (pendingCount > 0)
-                const TrainerLivePulseDot(color: Color(0xFFFF9800), size: 7)
-              else
-                Container(
-                  width: 7,
-                  height: 7,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF2E7D32),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              const SizedBox(width: 6),
-              Text(
-                pendingCount > 0 ? '$pendingCount New' : 'Live Sync',
-                style: TextStyle(
-                  fontFamily: 'Syne',
-                  fontSize: (10.5 * sf).clamp(9.5, 12.0),
-                  fontWeight: FontWeight.w700,
-                  color: pendingCount > 0 ? const Color(0xFFE65100) : const Color(0xFF2E7D32),
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
       ],
     );
@@ -1292,7 +1335,9 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                   const Icon(Iconsax.location, size: 12, color: kGrey),
                   const SizedBox(width: 4),
                   Text(
-                    b.meetingLocation ?? 'Standard Gym Studio',
+                    b.status == BookingStatus.confirmed
+                        ? (b.meetingLocation ?? 'Standard Gym Studio')
+                        : 'Location hidden until confirmed',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -1858,12 +1903,23 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Iconsax.location, size: 14, color: kGrey),
+                        Icon(
+                          b.status == BookingStatus.confirmed ? Iconsax.location : Iconsax.lock,
+                          size: 14,
+                          color: b.status == BookingStatus.confirmed ? kGrey : const Color(0xFFD97706),
+                        ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            b.meetingLocation ?? 'Standard Gym Studio',
-                            style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey),
+                            b.status == BookingStatus.confirmed
+                                ? (b.meetingLocation ?? 'Standard Gym Studio')
+                                : 'Location address hidden until booking is confirmed',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 11.5,
+                              color: b.status == BookingStatus.confirmed ? kGrey : const Color(0xFFD97706),
+                              fontStyle: b.status == BookingStatus.confirmed ? FontStyle.normal : FontStyle.italic,
+                            ),
                           ),
                         ),
                       ],

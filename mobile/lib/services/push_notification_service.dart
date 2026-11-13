@@ -10,6 +10,13 @@ import '../features/client/presentation/screens/client_chat_screen.dart';
 import '../features/client/presentation/screens/client_notifications_screen.dart';
 import '../features/client/presentation/screens/client_payment_history_screen.dart';
 import '../features/client/presentation/screens/client_support_tickets_screen.dart';
+import '../screens/trainer/trainer_bookings_screen.dart';
+import '../screens/trainer/trainer_certificates_screen.dart';
+import '../screens/trainer/trainer_conversation_screen.dart';
+import '../screens/trainer/trainer_earnings_screen.dart';
+import '../screens/trainer/trainer_notifications_screen.dart';
+import '../screens/trainer/trainer_package_management_screen.dart';
+import '../screens/trainer/trainer_reviews_screen.dart';
 import '../shared/models/conversation_model.dart';
 import 'firestore_service.dart';
 import 'notification_service.dart';
@@ -94,7 +101,7 @@ class PushNotificationService {
       // ignore: deprecated_member_use
       _currentToken ??= await fcm.getToken();
       if (_currentToken != null) {
-        debugPrint('FCM Device Token retrieved: $_currentToken');
+        debugPrint('FCM Device Token registered (length: ${_currentToken!.length})');
         _syncTokenWithCurrentUser(_currentToken!);
       }
 
@@ -228,53 +235,128 @@ class PushNotificationService {
     final nav = navigatorKey.currentState;
     if (nav == null) return;
 
-    final type = data['type'] as String? ?? '';
+    final type = (data['type'] as String? ?? '').toUpperCase();
     final bookingId = data['bookingId'] as String? ?? data['relatedId'] as String?;
     final conversationId = data['conversationId'] as String?;
+    final currentUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final trainerId = data['trainerId'] as String? ?? '';
+
+    final isTrainerTarget = (trainerId.isNotEmpty && trainerId == currentUid) ||
+        data['isTrainer'] == true ||
+        data['recipientRole'] == 'trainer' ||
+        type.startsWith('PACKAGE_') ||
+        type.startsWith('PAYOUT_') ||
+        type.startsWith('EARNINGS_') ||
+        type.startsWith('REVIEW_') ||
+        type.startsWith('CERTIFICATE_');
 
     // 1. Chat Message routing
     if (type == 'CHAT_MESSAGE' || (conversationId != null && conversationId.isNotEmpty)) {
       final convId = conversationId ?? '';
-      final trainerId = data['trainerId'] as String? ?? '';
       final trainerName = data['trainerName'] as String? ?? 'Trainer';
       final trainerPhotoUrl = data['trainerPhotoUrl'] as String?;
-      final clientUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+      final clientName = data['clientName'] as String? ?? data['senderName'] as String? ?? 'Athlete';
 
-      nav.push(
-        MaterialPageRoute(
-          builder: (_) => ClientChatScreen(
-            conversation: ConversationModel(
-              id: convId.isNotEmpty ? convId : ConversationModel.generateId(clientUid, trainerId),
-              clientId: clientUid,
-              trainerId: trainerId,
-              trainerName: trainerName,
-              trainerPhotoUrl: trainerPhotoUrl,
-              clientName: FirebaseAuth.instance.currentUser?.displayName ?? 'Athlete',
+      final isTrainer = trainerId == currentUid || isTrainerTarget;
+      final clientId = isTrainer ? (data['clientId'] as String? ?? data['senderId'] as String? ?? '') : currentUid;
+
+      final conv = ConversationModel(
+        id: convId.isNotEmpty ? convId : ConversationModel.generateId(clientId, trainerId),
+        clientId: clientId,
+        trainerId: trainerId,
+        trainerName: trainerName,
+        trainerPhotoUrl: trainerPhotoUrl,
+        clientName: isTrainer ? clientName : (FirebaseAuth.instance.currentUser?.displayName ?? 'Athlete'),
+      );
+
+      if (isTrainer) {
+        nav.push(
+          MaterialPageRoute(
+            builder: (_) => TrainerConversationScreen(
+              conversation: conv,
+              trainerId: currentUid,
             ),
           ),
+        );
+      } else {
+        nav.push(
+          MaterialPageRoute(
+            builder: (_) => ClientChatScreen(conversation: conv),
+          ),
+        );
+      }
+      return;
+    }
+
+    // 2. Reviews Routing
+    if (type.startsWith('REVIEW_') || type == 'REVIEW') {
+      nav.push(
+        MaterialPageRoute(
+          builder: (_) => TrainerReviewsScreen(trainerId: currentUid),
         ),
       );
       return;
     }
 
-    // 2. Booking related routing
-    if (bookingId != null && bookingId.isNotEmpty) {
-      try {
-        final booking = await FirestoreService().getBooking(bookingId);
-        if (booking != null) {
-          nav.push(
-            MaterialPageRoute(
-              builder: (_) => ClientBookingDetailScreen(booking: booking),
-            ),
-          );
-          return;
+    // 3. Packages & Custom Plans Routing
+    if (type.startsWith('PACKAGE_')) {
+      nav.push(
+        MaterialPageRoute(
+          builder: (_) => TrainerPackageManagementScreen(trainerId: currentUid),
+        ),
+      );
+      return;
+    }
+
+    // 4. Earnings & Payouts Routing
+    if (type.startsWith('PAYOUT_') || type.startsWith('EARNINGS_')) {
+      nav.push(
+        MaterialPageRoute(
+          builder: (_) => TrainerEarningsScreen(trainerId: currentUid),
+        ),
+      );
+      return;
+    }
+
+    // 5. Verification & Certificates Routing
+    if (type.startsWith('CERTIFICATE_') || type.startsWith('VERIFICATION_')) {
+      nav.push(
+        MaterialPageRoute(
+          builder: (_) => TrainerCertificatesScreen(trainerId: currentUid),
+        ),
+      );
+      return;
+    }
+
+    // 6. Booking related routing
+    if (bookingId != null && bookingId.isNotEmpty || type.startsWith('BOOKING_')) {
+      if (isTrainerTarget) {
+        nav.push(
+          MaterialPageRoute(
+            builder: (_) => TrainerBookingsScreen(trainerId: currentUid),
+          ),
+        );
+        return;
+      }
+
+      if (bookingId != null && bookingId.isNotEmpty) {
+        try {
+          final booking = await FirestoreService().getBooking(bookingId);
+          if (booking != null) {
+            nav.push(
+              MaterialPageRoute(
+                builder: (_) => ClientBookingDetailScreen(booking: booking),
+              ),
+            );
+            return;
+          }
+        } catch (e) {
+          debugPrint('Error navigating to booking: $e');
         }
-      } catch (e) {
-        debugPrint('Error navigating to booking: $e');
       }
     }
 
-    // 3. Support ticket routing
+    // 7. Support ticket routing
     final ticketId = data['ticketId'] as String? ?? data['supportTicketId'] as String?;
     if (type.startsWith('SUPPORT_') || ticketId != null) {
       final user = FirebaseAuth.instance.currentUser;
@@ -293,9 +375,9 @@ class PushNotificationService {
       return;
     }
 
-    // 4. Payment / package routing
+    // 8. Payment / package routing
     final paymentId = data['paymentId'] as String?;
-    if (type.startsWith('PAYMENT_') || type.startsWith('PACKAGE_') || paymentId != null) {
+    if (type.startsWith('PAYMENT_') || (!isTrainerTarget && type.startsWith('PACKAGE_')) || paymentId != null) {
       final user = FirebaseAuth.instance.currentUser;
       final currentUid = user?.uid ?? '';
       nav.push(
@@ -306,7 +388,7 @@ class PushNotificationService {
       return;
     }
 
-    // 5. Account security routing
+    // 9. Account security routing
     if (type.contains('SECURITY')) {
       final user = FirebaseAuth.instance.currentUser;
       final currentUid = user?.uid ?? '';
@@ -324,12 +406,20 @@ class PushNotificationService {
       return;
     }
 
-    // 6. Fallback: navigate to Notification Centre
-    nav.push(
-      MaterialPageRoute(
-        builder: (_) => const ClientNotificationsScreen(),
-      ),
-    );
+    // 10. Fallback: navigate to Notification Centre
+    if (isTrainerTarget) {
+      nav.push(
+        MaterialPageRoute(
+          builder: (_) => TrainerNotificationsScreen(trainerId: currentUid),
+        ),
+      );
+    } else {
+      nav.push(
+        MaterialPageRoute(
+          builder: (_) => const ClientNotificationsScreen(),
+        ),
+      );
+    }
   }
 
   void dispose() {

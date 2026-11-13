@@ -110,7 +110,37 @@ class BookingService extends ChangeNotifier {
 
   List<BookingModel> completedBookingsForTrainer(String trainerId) {
     if (trainerId.isEmpty) return const [];
-    return _bookings.where((b) => b.trainerId == trainerId && b.status == BookingStatus.completed).toList();
+    final list = _bookings.where((b) => b.trainerId == trainerId && b.status == BookingStatus.completed).toList();
+    list.sort((a, b) => b.sessionDate.compareTo(a.sessionDate));
+    return list;
+  }
+
+  List<BookingModel> cancelledBookingsForTrainer(String trainerId) {
+    if (trainerId.isEmpty) return const [];
+    final list = _bookings.where((b) => b.trainerId == trainerId && b.isCancelled).toList();
+    list.sort((a, b) => b.sessionDate.compareTo(a.sessionDate));
+    return list;
+  }
+
+  /// Scoped live stream of bookings for a specific trainer
+  Stream<List<BookingModel>> streamBookingsForTrainer(String trainerId) {
+    if (trainerId.isEmpty) return Stream.value([]);
+    final firestore = _firestore;
+    if (firestore != null) {
+      return firestore
+          .collection(FirestoreCollections.bookings)
+          .where('trainerId', isEqualTo: trainerId)
+          .snapshots()
+          .map((snapshot) {
+        final list = snapshot.docs.map((doc) => BookingModel.fromDocument(doc)).toList();
+        list.sort((a, b) => a.sessionDate.compareTo(b.sessionDate));
+        return list;
+      }).handleError((err) {
+        debugPrint('Notice: Error streaming trainer bookings: $err');
+        return bookingsForTrainer(trainerId);
+      });
+    }
+    return _streamController.stream.map((_) => bookingsForTrainer(trainerId));
   }
 
   int activeClientsCountForTrainer(String trainerId) {
@@ -432,6 +462,13 @@ class BookingService extends ChangeNotifier {
     _notify();
   }
 
+  /// Reset in-memory bookings for tests
+  @visibleForTesting
+  void resetForTest() {
+    _bookings.clear();
+    _notify();
+  }
+
   void _notify() {
     _streamController.add(List.unmodifiable(_bookings));
     notifyListeners();
@@ -585,50 +622,8 @@ class BookingService extends ChangeNotifier {
   }
 
   /// Trainer marks a session as completed / records attendance
-  Future<void> markSessionCompleted(String bookingId) async {
-    final index = _bookings.indexWhere((b) => b.id == bookingId);
-    BookingModel? target;
-    if (index >= 0) {
-      final current = _bookings[index];
-      final currentCompleted = current.sessionsCompleted ?? current.resolvedSessionsCompleted;
-      final updated = current.copyWith(
-        status: BookingStatus.completed,
-        sessionsCompleted: currentCompleted + 1,
-        updatedAt: DateTime.now(),
-      );
-      _bookings[index] = updated;
-      target = updated;
-      _notify();
-    }
-
-    try {
-      await _firestore
-          ?.collection(FirestoreCollections.bookings)
-          .doc(bookingId)
-          .set({
-        'status': 'COMPLETED',
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      if (target != null) {
-        await NotificationService.instance.sendNotification(
-          userId: target.clientId,
-          title: 'Workout Completed! 💪',
-          body: 'Great workout with Coach ${target.displayTrainerName}! Your session has been marked completed.',
-          type: 'WORKOUT_COMPLETED',
-          relatedId: bookingId,
-        );
-        if (target.packageId != null) {
-          ClientPackageService.instance.incrementCompletedSession(target.packageId!);
-        }
-        await CreditService.instance.consumeCreditForCompletedSession(
-          clientId: target.clientId,
-          bookingId: bookingId,
-        );
-      }
-    } catch (e) {
-      debugPrint('Notice: Booking complete updated in local state: $e');
-    }
+  Future<void> markSessionCompleted(String bookingId, {String? sessionNotes}) async {
+    await completeSession(bookingId: bookingId, sessionNotes: sessionNotes);
   }
 
   /// Reschedule booking date and time in real-time
@@ -690,6 +685,92 @@ class BookingService extends ChangeNotifier {
     }
   }
 
+  /// Complete a confirmed booking session (Trainer-side operation)
+  /// Consumes 1 session credit from the client's session_credits ledger,
+  /// updates package completed sessions, releases slot locks, and notifies client.
+  Future<void> completeSession({
+    required String bookingId,
+    String? sessionNotes,
+  }) async {
+    final index = _bookings.indexWhere((b) => b.id == bookingId);
+    if (index < 0) {
+      throw StateError('Booking not found: $bookingId');
+    }
+    final booking = _bookings[index];
+    if (booking.status == BookingStatus.completed) {
+      throw StateError('This session has already been marked as completed.');
+    }
+    if (booking.status != BookingStatus.confirmed) {
+      throw StateError('Only confirmed bookings can be completed.');
+    }
+
+    final now = DateTime.now();
+    final currentCompleted = booking.sessionsCompleted ?? booking.resolvedSessionsCompleted;
+    final updated = booking.copyWith(
+      status: BookingStatus.completed,
+      sessionsCompleted: currentCompleted + 1,
+      completedAt: now,
+      completedBy: booking.trainerId,
+      notes: sessionNotes != null && sessionNotes.trim().isNotEmpty
+          ? '${booking.notes != null ? "${booking.notes}\n" : ""}[Session Completed: $sessionNotes]'
+          : booking.notes,
+      updatedAt: now,
+    );
+    _bookings[index] = updated;
+    _notify();
+
+    final firestore = _firestore;
+    if (firestore != null) {
+      try {
+        final bookingRef = firestore.collection(FirestoreCollections.bookings).doc(bookingId);
+        await bookingRef.set({
+          'status': 'COMPLETED',
+          'completedAt': FieldValue.serverTimestamp(),
+          'completedBy': booking.trainerId,
+          'updatedAt': FieldValue.serverTimestamp(),
+          if (sessionNotes != null && sessionNotes.trim().isNotEmpty)
+            'trainerSessionNotes': sessionNotes.trim(),
+        }, SetOptions(merge: true));
+
+        // Release slot lock
+        final dateStr = '${booking.sessionDate.year.toString().padLeft(4, '0')}-${booking.sessionDate.month.toString().padLeft(2, '0')}-${booking.sessionDate.day.toString().padLeft(2, '0')}';
+        final safeTime = booking.startTime.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+        final lockDocId = '${booking.trainerId}_${dateStr}_$safeTime';
+        await firestore.collection(FirestoreCollections.slotLocks).doc(lockDocId).delete();
+
+        // Increment completed sessions on package if present
+        if (booking.packageId != null && booking.packageId!.isNotEmpty) {
+          try {
+            ClientPackageService.instance.incrementCompletedSession(booking.packageId!);
+          } catch (_) {}
+          final pkgRef = firestore.collection(FirestoreCollections.purchasedPackages).doc(booking.packageId);
+          await pkgRef.set({
+            'completedSessions': FieldValue.increment(1),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        }
+
+        try {
+          await CreditService.instance.consumeCreditForCompletedSession(
+            clientId: booking.clientId,
+            bookingId: bookingId,
+          );
+        } catch (_) {}
+
+        // Send notification to client
+        await NotificationService.instance.sendNotification(
+          userId: booking.clientId,
+          title: 'Session Completed 🎉',
+          body: 'Your personal training session with ${booking.displayTrainerName} on ${_formatDate(booking.sessionDate)} has been completed.',
+          type: 'SESSION_COMPLETED',
+          relatedId: bookingId,
+        );
+      } catch (e) {
+        debugPrint('Notice: Error in completeSession: $e');
+      }
+    }
+  }
+
   /// Cancel booking in real-time (by client or trainer)
   Future<void> cancelBooking({
     required String bookingId,
@@ -701,8 +782,12 @@ class BookingService extends ChangeNotifier {
     BookingModel? target;
     if (index >= 0) {
       final current = _bookings[index];
+      if (current.isCancelled) {
+        throw StateError('Booking $bookingId is already cancelled');
+      }
       final updated = current.copyWith(
         status: newStatus,
+        cancellationReason: reason,
         notes: reason != null && reason.trim().isNotEmpty
             ? '${current.notes != null ? "${current.notes}\n" : ""}[Cancelled by ${isTrainer ? "Trainer" : "Client"}: $reason]'
             : current.notes,

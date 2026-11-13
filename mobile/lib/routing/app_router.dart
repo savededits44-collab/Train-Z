@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../features/client/client_feature.dart';
 import '../features/trainer/trainer_feature.dart';
 import '../services/auth_service.dart';
+import '../shared/models/trainer_client_model.dart';
 import '../shared/models/trainer_profile_model.dart';
 import '../shared/models/user_model.dart';
 import '../screens/admin/admin_trainer_review_screen.dart';
@@ -10,9 +11,27 @@ import '../screens/onboarding/client_onboarding.dart';
 import '../screens/onboarding/role_selection_screen.dart';
 import '../screens/onboarding/trainer_onboarding.dart';
 import '../screens/signup_screen.dart';
+import '../screens/trainer/trainer_account_deletion_screen.dart';
+import '../screens/trainer/trainer_account_security_screen.dart';
 import '../screens/trainer/trainer_availability_screen.dart';
+import '../screens/trainer/trainer_bookings_screen.dart';
 import '../screens/trainer/trainer_certificates_screen.dart';
+import '../screens/trainer/trainer_client_detail_screen.dart';
+import '../screens/trainer/trainer_clients_screen.dart';
+import '../screens/trainer/trainer_conversation_screen.dart';
 import '../screens/trainer/trainer_dashboard.dart';
+import '../screens/trainer/trainer_earnings_screen.dart';
+import '../screens/trainer/trainer_help_support_screen.dart';
+import '../screens/trainer/trainer_legal_screen.dart';
+import '../screens/trainer/trainer_messages_screen.dart';
+import '../screens/trainer/trainer_notification_preferences_screen.dart';
+import '../screens/trainer/trainer_notifications_screen.dart';
+import '../screens/trainer/trainer_package_management_screen.dart';
+import '../screens/trainer/trainer_personal_info_screen.dart';
+import '../screens/trainer/trainer_privacy_documents_screen.dart';
+import '../screens/trainer/trainer_profile_setup_screen.dart';
+import '../screens/trainer/trainer_reviews_screen.dart';
+import '../screens/trainer/trainer_settings_screen.dart';
 import '../screens/welcome_screen.dart';
 import '../splashscreen/splashscreen.dart';
 
@@ -76,6 +95,24 @@ class AppRouter {
   static const String trainerForgotPassword = '/trainer/forgot-password';
   static const String trainerCertificates = '/trainer/certificates';
   static const String trainerAvailability = '/trainer/availability';
+  static const String trainerBookings = '/trainer/bookings';
+  static const String trainerEarnings = '/trainer/earnings';
+  static const String trainerReviews = '/trainer/reviews';
+  static const String trainerClients = '/trainer/clients';
+  static const String trainerClientDetail = '/trainer/client-detail';
+  static const String trainerMessages = '/trainer/messages';
+  static const String trainerConversation = '/trainer/conversation';
+  static const String trainerNotifications = '/trainer/notifications';
+  static const String trainerNotificationPreferences = '/trainer/notification-preferences';
+  static const String trainerSettings = '/trainer/settings';
+  static const String trainerPersonalInfo = '/trainer/personal-info';
+  static const String trainerAccountSecurity = '/trainer/account-security';
+  static const String trainerPrivacyDocuments = '/trainer/privacy-documents';
+  static const String trainerHelpSupport = '/trainer/help-support';
+  static const String trainerLegal = '/trainer/legal';
+  static const String trainerAccountDeletion = '/trainer/account-deletion';
+  static const String trainerPackages = '/trainer/packages';
+  static const String trainerProfileSetup = '/trainer/profile-setup';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -384,6 +421,131 @@ class AppRouter {
           builder: (_) => TrainerAvailabilityScreen(
             trainerId: trainerId,
           ),
+        );
+      case trainerCategorySelection:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => TrainerCategorySelectionScreen(
+            fullName: args?['fullName'] ?? 'Trainer',
+            email: args?['email'] ?? '',
+            phoneNumber: args?['phoneNumber'] ?? '',
+            password: args?['password'] ?? '',
+            confirmPassword: args?['confirmPassword'] ?? '',
+          ),
+        );
+      case trainerRegistrationSuccess:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => TrainerRegistrationSuccessScreen(
+            fullName: args?['fullName'] ?? 'Trainer',
+            email: args?['email'] ?? '',
+            category: args?['category'] ?? TrainerCategory.trainer,
+            experienceYears: (args?['experienceYears'] as num?)?.toDouble() ?? 0.0,
+          ),
+        );
+      case trainerBookings:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerBookingsScreen(trainerId: trainerId),
+        );
+      case trainerEarnings:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerEarningsScreen(trainerId: trainerId),
+        );
+      case trainerReviews:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerReviewsScreen(trainerId: trainerId),
+        );
+      case trainerClients:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerClientsScreen(trainerId: trainerId),
+        );
+      case trainerClientDetail:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => TrainerClientDetailScreen(
+            client: args['client'] as TrainerClientModel,
+            trainerId: args['trainerId'] as String?,
+          ),
+        );
+      case trainerMessages:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerMessagesScreen(trainerId: trainerId),
+        );
+      case trainerConversation:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => TrainerConversationScreen(
+            conversation: args['conversation'],
+            trainerId: args['trainerId'] as String?,
+          ),
+        );
+      case trainerNotifications:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerNotificationsScreen(trainerId: trainerId),
+        );
+      case trainerNotificationPreferences:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerNotificationPreferencesScreen(trainerId: trainerId),
+        );
+      case trainerSettings:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerSettingsScreen(trainerId: trainerId),
+        );
+      case trainerPersonalInfo:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerPersonalInfoScreen(trainerId: trainerId),
+        );
+      case trainerAccountSecurity:
+        return MaterialPageRoute(
+          builder: (_) => const TrainerAccountSecurityScreen(),
+        );
+      case trainerPrivacyDocuments:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerPrivacyDocumentsScreen(trainerId: trainerId),
+        );
+      case trainerHelpSupport:
+        return MaterialPageRoute(
+          builder: (_) => const TrainerHelpSupportScreen(),
+        );
+      case trainerLegal:
+        return MaterialPageRoute(
+          builder: (_) => const TrainerLegalScreen(),
+        );
+      case trainerAccountDeletion:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerAccountDeletionScreen(trainerId: trainerId),
+        );
+      case trainerPackages:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
+        return MaterialPageRoute(
+          builder: (_) => TrainerPackageManagementScreen(trainerId: trainerId),
+        );
+      case trainerProfileSetup:
+        return MaterialPageRoute(
+          builder: (_) => const TrainerProfileSetupScreen(),
         );
 
       case adminDashboard:

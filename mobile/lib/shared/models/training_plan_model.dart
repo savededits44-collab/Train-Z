@@ -1,5 +1,56 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Package approval status for trainer custom packages
+enum PackageApprovalStatus {
+  draft,
+  pending,
+  approved,
+  rejected;
+
+  static PackageApprovalStatus fromString(String? val, {bool isApproved = false}) {
+    if (val == null) {
+      return isApproved ? PackageApprovalStatus.approved : PackageApprovalStatus.pending;
+    }
+    switch (val.toUpperCase().trim()) {
+      case 'APPROVED':
+        return PackageApprovalStatus.approved;
+      case 'REJECTED':
+        return PackageApprovalStatus.rejected;
+      case 'DRAFT':
+        return PackageApprovalStatus.draft;
+      case 'PENDING':
+      default:
+        return isApproved ? PackageApprovalStatus.approved : PackageApprovalStatus.pending;
+    }
+  }
+
+  String get displayName {
+    switch (this) {
+      case PackageApprovalStatus.draft:
+        return 'Draft';
+      case PackageApprovalStatus.pending:
+        return 'Pending Approval';
+      case PackageApprovalStatus.approved:
+        return 'Approved';
+      case PackageApprovalStatus.rejected:
+        return 'Rejected';
+    }
+  }
+
+  String get toDbValue {
+    switch (this) {
+      case PackageApprovalStatus.draft:
+        return 'DRAFT';
+      case PackageApprovalStatus.pending:
+        return 'PENDING';
+      case PackageApprovalStatus.approved:
+        return 'APPROVED';
+      case PackageApprovalStatus.rejected:
+        return 'REJECTED';
+    }
+  }
+}
+
 class TrainingPlanModel {
   final String id;
   final String title;
@@ -13,8 +64,12 @@ class TrainingPlanModel {
   final String? trainerId; // null or empty for platform-controlled fixed packages
   final String? trainerName;
   final bool isApproved; // Platform plans are pre-approved; custom plans require Admin approval
+  final PackageApprovalStatus approvalStatus;
+  final String? adminRejectionReason;
+  final bool isDeleted;
   final bool isCustom;
   final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   const TrainingPlanModel({
     required this.id,
@@ -29,8 +84,12 @@ class TrainingPlanModel {
     this.trainerId,
     this.trainerName,
     this.isApproved = true,
+    this.approvalStatus = PackageApprovalStatus.approved,
+    this.adminRejectionReason,
+    this.isDeleted = false,
     this.isCustom = false,
     this.createdAt,
+    this.updatedAt,
   });
 
   /// Single session base rate in INR
@@ -181,8 +240,12 @@ class TrainingPlanModel {
       'trainerId': trainerId,
       'trainerName': trainerName,
       'isApproved': isApproved,
+      'approvalStatus': approvalStatus.toDbValue,
+      'adminRejectionReason': adminRejectionReason,
+      'isDeleted': isDeleted,
       'isCustom': isCustom,
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
+      'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : FieldValue.serverTimestamp(),
     };
   }
 
@@ -196,6 +259,11 @@ class TrainingPlanModel {
     final tId = map['trainerId'] as String?;
     final hasTrainer = tId != null && tId.trim().isNotEmpty;
     final isCustomVal = (map['isCustom'] as bool?) ?? hasTrainer;
+    final isApprovedVal = (map['isApproved'] as bool?) ?? !hasTrainer;
+    final approvalStatusStr = map['approvalStatus'] as String?;
+    final approvalStatusVal = PackageApprovalStatus.fromString(approvalStatusStr, isApproved: isApprovedVal);
+    final rejectionReason = (map['adminRejectionReason'] ?? map['adminNotes']) as String?;
+    final isDel = (map['isDeleted'] as bool?) ?? false;
 
     return TrainingPlanModel(
       id: id,
@@ -209,9 +277,13 @@ class TrainingPlanModel {
       isActive: map['isActive'] as bool? ?? true,
       trainerId: tId,
       trainerName: map['trainerName'] as String?,
-      isApproved: (map['isApproved'] as bool?) ?? !hasTrainer, // Platform plans are approved by default
+      isApproved: isApprovedVal,
+      approvalStatus: approvalStatusVal,
+      adminRejectionReason: rejectionReason,
+      isDeleted: isDel,
       isCustom: isCustomVal,
       createdAt: parseTimestamp(map['createdAt']),
+      updatedAt: parseTimestamp(map['updatedAt']),
     );
   }
 
@@ -228,8 +300,12 @@ class TrainingPlanModel {
     String? trainerId,
     String? trainerName,
     bool? isApproved,
+    PackageApprovalStatus? approvalStatus,
+    String? adminRejectionReason,
+    bool? isDeleted,
     bool? isCustom,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return TrainingPlanModel(
       id: id ?? this.id,
@@ -244,8 +320,12 @@ class TrainingPlanModel {
       trainerId: trainerId ?? this.trainerId,
       trainerName: trainerName ?? this.trainerName,
       isApproved: isApproved ?? this.isApproved,
+      approvalStatus: approvalStatus ?? this.approvalStatus,
+      adminRejectionReason: adminRejectionReason ?? this.adminRejectionReason,
+      isDeleted: isDeleted ?? this.isDeleted,
       isCustom: isCustom ?? this.isCustom,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 

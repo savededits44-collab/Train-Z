@@ -197,7 +197,7 @@ export const cancelBookingWithCredit = onCall(async (request) => {
   }
 
   const callerUid = request.auth.uid;
-  const { bookingId } = request.data || {};
+  const { bookingId, reason } = request.data || {};
 
   if (!bookingId) {
     throw new HttpsError('invalid-argument', 'Booking ID is required.');
@@ -224,7 +224,7 @@ export const cancelBookingWithCredit = onCall(async (request) => {
       throw new HttpsError('permission-denied', 'Not authorized to cancel this booking.');
     }
 
-    const sessionDate: Date = booking.sessionDate.toDate();
+    const sessionDate: Date = booking.sessionDate.toDate ? booking.sessionDate.toDate() : new Date(booking.sessionDate);
     const now = new Date();
 
     // Calculate cancellation window using actual session start time and date
@@ -245,6 +245,10 @@ export const cancelBookingWithCredit = onCall(async (request) => {
     const creditRef = db.collection('session_credits').doc(booking.clientId);
     const creditSnap = await transaction.get(creditRef);
     const creditData = creditSnap.data() || { availableBalance: 0, totalReserved: 1, totalReturned: 0, totalForfeited: 0 };
+
+    // Pre-fetch earnings record if session was already completed or had earnings created
+    const earningRef = db.collection('trainer_earnings').doc(`earn_${bookingId}`);
+    const earningSnap = await transaction.get(earningRef);
 
     const newReserved = Math.max(0, (creditData.totalReserved || 1) - 1);
     const txRef = creditRef.collection('transactions').doc();
@@ -272,7 +276,7 @@ export const cancelBookingWithCredit = onCall(async (request) => {
         type: 'RETURN',
         count: 1,
         bookingId,
-        reason: `Credit returned: session cancelled by ${isTrainer ? 'Trainer' : 'Platform'}`,
+        reason: `Credit returned: session cancelled by ${isTrainer ? 'Trainer' : 'Platform'}${reason ? ` (${reason})` : ''}`,
         balanceAfter: newAvailable,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
       });
@@ -334,21 +338,23 @@ export const cancelBookingWithCredit = onCall(async (request) => {
     const slotLockRef = db.collection('slot_locks').doc(slotLockId);
     transaction.delete(slotLockRef);
 
-    // Create notification for client
+    // Create notification for client/trainer
+    const notifRecipientId = isTrainer ? booking.clientId : booking.trainerId;
     const notifRef = db.collection('notifications').doc();
     transaction.set(notifRef, {
       id: notifRef.id,
-      userId: booking.clientId,
+      userId: notifRecipientId,
       title: returnedCredit ? 'Booking Cancelled (Credit Returned)' : 'Booking Cancelled (Credit Forfeited)',
       body: returnedCredit
-        ? `Your session with ${booking.trainerName || 'Trainer'} was cancelled. 1 session credit has been returned to your account.`
-        : `Your session with ${booking.trainerName || 'Trainer'} was cancelled less than 12h prior. 1 session credit was forfeited per platform policy.`,
+        ? `Session with ${booking.trainerName || 'Trainer'} was cancelled.${reason ? ` Reason: ${reason}` : ''} 1 session credit has been returned to your account.`
+        : `Session with ${booking.trainerName || 'Trainer'} was cancelled less than 12h prior. 1 session credit was forfeited per platform policy.`,
       type: 'BOOKING_CANCELLED',
       isRead: false,
       data: {
         bookingId,
         returnedCredit,
         status: newStatus,
+        reason: reason || null,
       },
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
@@ -371,11 +377,218 @@ export const cancelBookingWithCredit = onCall(async (request) => {
 
     transaction.update(bookingRef, {
       status: newStatus,
-      cancellationReason: isTrainer ? 'CANCELLED_BY_TRAINER' : (hoursUntil >= CANCELLATION_WINDOW_HOURS ? 'CLIENT_EARLY_CANCELLATION' : 'CLIENT_LATE_CANCELLATION'),
+      cancellationReason: reason || (isTrainer ? 'CANCELLED_BY_TRAINER' : (hoursUntil >= CANCELLATION_WINDOW_HOURS ? 'CLIENT_EARLY_CANCELLATION' : 'CLIENT_LATE_CANCELLATION')),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    // Synchronize refund/reversal with trainer earnings ledger if applicable
+    if (earningSnap.exists) {
+      transaction.update(earningRef, {
+        payoutStatus: 'REFUNDED',
+        status: 'REFUNDED',
+        refundReason: reason || (isTrainer ? 'Cancelled by trainer' : 'Cancelled by client'),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
     return { bookingId, status: newStatus, returnedCredit };
+  });
+});
+
+/**
+ * 2A. Complete Booking Session (Trainer only)
+ * Consumes 1 session credit from the client's session_credits ledger,
+ * updates purchased_packages completed session counter, releases slot lock,
+ * and notifies the client. Enforces duplicate completion prevention.
+ */
+export const completeBookingSession = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const trainerUid = request.auth.uid;
+  const { bookingId, sessionNotes } = request.data || {};
+
+  if (!bookingId) {
+    throw new HttpsError('invalid-argument', 'Booking ID is required.');
+  }
+
+  return await db.runTransaction(async (transaction) => {
+    const bookingRef = db.collection('bookings').doc(bookingId);
+    const bookingSnap = await transaction.get(bookingRef);
+
+    if (!bookingSnap.exists) {
+      throw new HttpsError('not-found', 'Booking not found.');
+    }
+
+    const booking = bookingSnap.data()!;
+
+    // 1. Authorize: Must belong to the calling trainer
+    if (booking.trainerId !== trainerUid) {
+      throw new HttpsError('permission-denied', 'You are not authorized to complete this session.');
+    }
+
+    // 2. Prevent duplicate completion
+    if (booking.status === 'COMPLETED') {
+      throw new HttpsError('failed-precondition', 'This booking has already been marked as completed.');
+    }
+
+    // 3. Status check: Must be CONFIRMED
+    if (booking.status !== 'CONFIRMED') {
+      throw new HttpsError(
+        'failed-precondition',
+        `Cannot complete booking with status "${booking.status}". Only CONFIRMED bookings can be completed.`
+      );
+    }
+
+    // 4. Session date check (cannot complete future dates more than 1 day in advance)
+    const sessionDate: Date = booking.sessionDate.toDate ? booking.sessionDate.toDate() : new Date(booking.sessionDate);
+    const now = new Date();
+    // Allow completion on session date or after (with 4 hour pre-session window for ongoing sessions)
+    const sessionTimeLimit = new Date(sessionDate.getTime() - 4 * 60 * 60 * 1000);
+    if (now < sessionTimeLimit) {
+      throw new HttpsError(
+        'failed-precondition',
+        'Cannot mark session as completed before the scheduled training time.'
+      );
+    }
+
+    // 5. Pre-fetch all necessary documents before writes (Firestore transaction constraint)
+    const creditRef = db.collection('session_credits').doc(booking.clientId);
+    const creditSnap = await transaction.get(creditRef);
+
+    const pkgRef = booking.packageId ? db.collection('purchased_packages').doc(booking.packageId) : null;
+    const pkgSnap = pkgRef ? await transaction.get(pkgRef) : null;
+
+    const settingsRef = db.collection('platform_settings').doc('general');
+    const settingsSnap = await transaction.get(settingsRef);
+
+    const earningRef = db.collection('trainer_earnings').doc(`earn_${bookingId}`);
+    const earningSnap = await transaction.get(earningRef);
+
+    // 6. Calculate authoritative commission & net earnings from platform configuration
+    const platformFeePercent = settingsSnap.exists && typeof settingsSnap.data()?.platformFeePercent === 'number'
+      ? settingsSnap.data()!.platformFeePercent
+      : 15;
+
+    let grossAmount = 500;
+    if (booking.packagePrice && booking.totalSessions && booking.totalSessions > 0) {
+      grossAmount = Math.round(booking.packagePrice / booking.totalSessions);
+    } else if (booking.hourlyRate) {
+      grossAmount = Number(booking.hourlyRate);
+    }
+    const commissionAmount = Math.round(grossAmount * (platformFeePercent / 100));
+    const netAmount = grossAmount - commissionAmount;
+
+    // 7. Update session_credits double-entry ledger
+    const creditData = creditSnap.data() || {
+      availableBalance: 0,
+      totalReserved: 1,
+      totalConsumed: 0,
+    };
+
+    const newReserved = Math.max(0, (creditData.totalReserved || 1) - 1);
+    const newConsumed = (creditData.totalConsumed || 0) + 1;
+
+    transaction.update(creditRef, {
+      totalReserved: newReserved,
+      totalConsumed: newConsumed,
+      lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    const txRef = creditRef.collection('transactions').doc();
+    transaction.set(txRef, {
+      id: txRef.id,
+      clientId: booking.clientId,
+      type: 'CONSUME',
+      count: 1,
+      bookingId,
+      reason: `Session completed with Trainer (${booking.trainerName || 'Coach'})`,
+      balanceAfter: creditData.availableBalance,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // 8. Update booking status
+    transaction.update(bookingRef, {
+      status: 'COMPLETED',
+      completedAt: admin.firestore.FieldValue.serverTimestamp(),
+      completedBy: trainerUid,
+      trainerSessionNotes: sessionNotes || null,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // 9. Update purchased_packages if applicable
+    if (pkgRef && pkgSnap && pkgSnap.exists) {
+      const pkgData = pkgSnap.data()!;
+      const updatedCompleted = (pkgData.completedSessions || 0) + 1;
+      const total = pkgData.totalSessions || 1;
+      const pkgUpdate: Record<string, any> = {
+        completedSessions: updatedCompleted,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+      if (updatedCompleted >= total) {
+        pkgUpdate.status = 'COMPLETED';
+      }
+      transaction.update(pkgRef, pkgUpdate);
+    }
+
+    // 10. Authoritative Trainer Earnings Entry (Idempotent: doc ID earn_${bookingId})
+    if (!earningSnap.exists) {
+      transaction.set(earningRef, {
+        id: `earn_${bookingId}`,
+        bookingId,
+        bookingRef: `#${bookingId.length >= 8 ? bookingId.substring(0, 8).toUpperCase() : bookingId.toUpperCase()}`,
+        trainerId: trainerUid,
+        clientId: booking.clientId,
+        clientName: booking.clientName || 'Client',
+        packageName: booking.packageName || booking.workoutType || 'Personal Training',
+        sessionDate: booking.sessionDate,
+        startTime: booking.startTime || '08:00',
+        endTime: booking.endTime || '09:00',
+        durationMinutes: 60,
+        grossAmount,
+        commissionRatePercent: platformFeePercent,
+        commissionAmount,
+        netAmount,
+        payoutStatus: 'ELIGIBLE_FOR_PAYOUT',
+        status: 'COMPLETED',
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    // 11. Release slot lock
+    const dateKey = sessionDate.toISOString().slice(0, 10);
+    const safeTimeKey = (booking.startTime || '').replace(/[^a-zA-Z0-9]/g, '');
+    const slotLockId = `${booking.trainerId}_${dateKey}_${safeTimeKey}`;
+    const slotLockRef = db.collection('slot_locks').doc(slotLockId);
+    transaction.delete(slotLockRef);
+
+    // 12. Send notification to client
+    const notifRef = db.collection('notifications').doc();
+    transaction.set(notifRef, {
+      id: notifRef.id,
+      userId: booking.clientId,
+      title: 'Session Completed 🎉',
+      body: `Your personal training session with ${booking.trainerName || 'your coach'} on ${dateKey} has been completed.`,
+      type: 'SESSION_COMPLETED',
+      isRead: false,
+      data: {
+        bookingId,
+        completedAt: new Date().toISOString(),
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return {
+      success: true,
+      bookingId,
+      status: 'COMPLETED',
+      grossAmount,
+      commissionAmount,
+      netAmount,
+      commissionRatePercent: platformFeePercent,
+    };
   });
 });
 
@@ -725,16 +938,19 @@ export const createCustomTrainingPlan = onCall(async (request) => {
     );
   }
 
-  const { title, price, sessionsCount, validityDays, sessionDurationMinutes, description } = request.data || {};
+  const { title, price, sessionsCount, validityDays, sessionDurationMinutes, description, approvalStatus } = request.data || {};
   if (!title || typeof price !== 'number' || price <= 0 || !sessionsCount || sessionsCount <= 0) {
     throw new HttpsError('invalid-argument', 'Missing or invalid custom training plan parameters.');
   }
+
+  const initialStatus = approvalStatus === 'DRAFT' ? 'DRAFT' : 'PENDING';
 
   // Every custom plan requires separate Admin approval before publication (isApproved: false)
   const planRef = db.collection('training_plans').doc();
   const planData = {
     id: planRef.id,
     trainerId: uid,
+    trainerName: trainer.fullName || trainer.name || null,
     title: String(title).trim(),
     price: Math.round(price),
     sessions: Math.round(sessionsCount),
@@ -745,12 +961,141 @@ export const createCustomTrainingPlan = onCall(async (request) => {
     isCustom: true,
     isApproved: false, // Requires separate Admin approval before publication
     isActive: false, // Inactive until approved
+    approvalStatus: initialStatus,
+    adminRejectionReason: null,
+    isDeleted: false,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   };
 
   await planRef.set(planData);
   return { success: true, planId: planRef.id, plan: planData };
+});
+
+/**
+ * Updates a custom training plan (Advanced Trainers only).
+ * If the plan was previously approved, editing it resets approvalStatus to 'PENDING',
+ * isApproved to false, and isActive to false, triggering a mandatory reapproval process.
+ * Existing purchases by clients are preserved and completely protected.
+ */
+export const updateCustomTrainingPlan = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const uid = request.auth.uid;
+  const { planId, title, price, sessionsCount, validityDays, sessionDurationMinutes, description, submitForApproval } = request.data || {};
+
+  if (!planId) {
+    throw new HttpsError('invalid-argument', 'Missing planId parameter.');
+  }
+
+  const planRef = db.collection('training_plans').doc(planId);
+  const planDoc = await planRef.get();
+  if (!planDoc.exists) {
+    throw new HttpsError('not-found', `Training plan not found: ${planId}`);
+  }
+
+  const existingPlan = planDoc.data()!;
+  if (existingPlan.trainerId !== uid) {
+    throw new HttpsError('permission-denied', 'You can only update your own custom training plans.');
+  }
+
+  const trainerDoc = await db.collection('trainer_profiles').doc(uid).get();
+  if (!trainerDoc.exists) {
+    throw new HttpsError('permission-denied', 'Trainer profile not found.');
+  }
+  const trainer = trainerDoc.data() || {};
+  const category = (trainer.category || 'TRAINER').toUpperCase();
+  const verificationStatus = (trainer.verificationStatus || 'PENDING').toUpperCase();
+
+  if (category !== 'ADVANCED_TRAINER' && category !== 'ADVANCED') {
+    throw new HttpsError(
+      'permission-denied',
+      'Only approved Advanced Trainers can manage custom training plans.'
+    );
+  }
+  if (verificationStatus !== 'APPROVED') {
+    throw new HttpsError(
+      'permission-denied',
+      'Trainer account must be verified and approved by Admin.'
+    );
+  }
+
+  if (title !== undefined && (!String(title).trim())) {
+    throw new HttpsError('invalid-argument', 'Title cannot be empty.');
+  }
+  if (price !== undefined && (typeof price !== 'number' || price <= 0)) {
+    throw new HttpsError('invalid-argument', 'Price must be a positive number in INR.');
+  }
+  if (sessionsCount !== undefined && (typeof sessionsCount !== 'number' || sessionsCount <= 0)) {
+    throw new HttpsError('invalid-argument', 'Sessions count must be greater than zero.');
+  }
+  if (validityDays !== undefined && (typeof validityDays !== 'number' || validityDays <= 0)) {
+    throw new HttpsError('invalid-argument', 'Validity days must be greater than zero.');
+  }
+
+  // Any update to an approved package or resubmission resets approval
+  const nextStatus = submitForApproval === false ? 'DRAFT' : 'PENDING';
+
+  const updateData: Record<string, any> = {
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    isApproved: false, // Re-triggers approval
+    isActive: false,   // Cannot be published until re-approved
+    approvalStatus: nextStatus,
+    adminRejectionReason: null, // Clear any previous rejection note on edit
+  };
+
+  if (title !== undefined) updateData.title = String(title).trim();
+  if (price !== undefined) updateData.price = Math.round(price);
+  if (sessionsCount !== undefined) {
+    updateData.sessions = Math.round(sessionsCount);
+    updateData.sessionsCount = Math.round(sessionsCount);
+  }
+  if (validityDays !== undefined) updateData.validityDays = Math.round(validityDays);
+  if (sessionDurationMinutes !== undefined) updateData.sessionDurationMinutes = Math.round(sessionDurationMinutes);
+  if (description !== undefined) updateData.description = String(description).trim();
+
+  await planRef.update(updateData);
+  return { success: true, planId, updatedFields: updateData };
+});
+
+/**
+ * Deletes or archives a custom training plan (Advanced Trainers only).
+ * Preserves all existing purchases in purchased_packages with original snapshot terms intact.
+ */
+export const deleteCustomTrainingPlan = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const uid = request.auth.uid;
+  const { planId } = request.data || {};
+  if (!planId) {
+    throw new HttpsError('invalid-argument', 'Missing planId parameter.');
+  }
+
+  const planRef = db.collection('training_plans').doc(planId);
+  const planDoc = await planRef.get();
+  if (!planDoc.exists) {
+    throw new HttpsError('not-found', `Training plan not found: ${planId}`);
+  }
+
+  const existingPlan = planDoc.data()!;
+  if (existingPlan.trainerId !== uid) {
+    throw new HttpsError('permission-denied', 'You can only delete your own custom training plans.');
+  }
+
+  // Mark isDeleted: true and isActive: false.
+  // Existing client purchases in purchased_packages and booking records remain 100% valid and untouched.
+  await planRef.update({
+    isDeleted: true,
+    isActive: false,
+    deletedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { success: true, planId, message: 'Custom training plan deleted successfully. Past purchases remain protected.' };
 });
 
 /**
@@ -766,7 +1111,7 @@ export const adminApproveCustomTrainingPlan = onCall(async (request) => {
     throw new HttpsError('permission-denied', 'Only platform administrators can approve custom training plans.');
   }
 
-  const { planId, approve, adminNotes } = request.data || {};
+  const { planId, approve, adminNotes, rejectionReason } = request.data || {};
   if (!planId || typeof approve !== 'boolean') {
     throw new HttpsError('invalid-argument', 'Missing planId or approve parameter.');
   }
@@ -777,10 +1122,14 @@ export const adminApproveCustomTrainingPlan = onCall(async (request) => {
     throw new HttpsError('not-found', `Training plan not found: ${planId}`);
   }
 
+  const reason = rejectionReason || adminNotes || null;
+
   await planRef.update({
     isApproved: approve,
     isActive: approve,
-    adminNotes: adminNotes || null,
+    approvalStatus: approve ? 'APPROVED' : 'REJECTED',
+    adminNotes: reason,
+    adminRejectionReason: !approve ? reason : null,
     approvedBy: approve ? request.auth.uid : null,
     approvedAt: approve ? admin.firestore.FieldValue.serverTimestamp() : null,
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -2526,12 +2875,20 @@ export const onChatMessageCreated = onDocumentCreated(
 
     if (tokens.length === 0) return;
 
+    // Respect notification preferences if configured
+    if (userData.notificationPreferences && userData.notificationPreferences.messages === false) {
+      return;
+    }
+
     try {
+      // Privacy protection: sanitize and limit notification body to prevent lock-screen content leaks
+      const sanitizedPreview = text.length > 60 ? `${text.substring(0, 57)}...` : text;
+
       const response = await admin.messaging().sendEachForMulticast({
         tokens,
         notification: {
           title: senderName,
-          body: text,
+          body: sanitizedPreview,
         },
         data: {
           type: 'CHAT_MESSAGE',
@@ -3406,4 +3763,454 @@ export const checkUpcomingSessionReminders = onCall(async (request) => {
 
   return { success: true, remindersSent };
 });
+
+/**
+ * 8. Trainer Earnings & Payout Summary
+ * Computes authoritative financial metrics directly from Firestore:
+ * Total gross revenue, platform commission, net earnings, pending payout, and total paid out.
+ */
+export const getTrainerEarningsSummary = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const trainerUid = request.auth.uid;
+
+  // 1. Fetch platform settings for commission
+  const settingsSnap = await db.collection('platform_settings').doc('general').get();
+  const platformFeePercent = settingsSnap.exists && typeof settingsSnap.data()?.platformFeePercent === 'number'
+    ? settingsSnap.data()!.platformFeePercent
+    : null;
+
+  // 2. Fetch trainer earnings transactions
+  const earningsSnap = await db.collection('trainer_earnings')
+    .where('trainerId', '==', trainerUid)
+    .get();
+
+  // 3. Fetch trainer payout records
+  const payoutsSnap = await db.collection('trainer_payouts')
+    .where('trainerId', '==', trainerUid)
+    .get();
+
+  let totalGross = 0;
+  let totalCommission = 0;
+  let netEarnings = 0;
+  let pendingPayout = 0;
+  let totalPaidOut = 0;
+  let completedCount = 0;
+
+  earningsSnap.forEach((doc) => {
+    const data = doc.data();
+    if (data.status === 'COMPLETED') {
+      completedCount++;
+      const gross = typeof data.grossAmount === 'number' ? data.grossAmount : 0;
+      const comm = typeof data.commissionAmount === 'number' ? data.commissionAmount : 0;
+      const net = typeof data.netAmount === 'number' ? data.netAmount : (gross - comm);
+
+      totalGross += gross;
+      totalCommission += comm;
+      netEarnings += net;
+
+      if (data.payoutStatus === 'ELIGIBLE_FOR_PAYOUT' || data.payoutStatus === 'PAYOUT_PENDING') {
+        pendingPayout += net;
+      }
+    }
+  });
+
+  payoutsSnap.forEach((doc) => {
+    const data = doc.data();
+    if (data.status === 'PAID') {
+      totalPaidOut += typeof data.amount === 'number' ? data.amount : 0;
+    }
+  });
+
+  return {
+    totalGrossRevenue: totalGross,
+    totalCommission,
+    netEarnings,
+    pendingPayout,
+    totalPaidOut,
+    completedSessionsCount: completedCount,
+    commissionRatePercent: platformFeePercent,
+    isCommissionConfigured: platformFeePercent !== null && platformFeePercent !== undefined,
+  };
+});
+
+/**
+ * 9A. Submit Trainer Review Response
+ * Allows authenticated trainers to post one professional public reply to an eligible review.
+ */
+export const submitTrainerReviewResponse = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const trainerUid = request.auth.uid;
+  const { reviewId, responseText } = request.data || {};
+
+  if (!reviewId || typeof reviewId !== 'string') {
+    throw new HttpsError('invalid-argument', 'Review ID is required.');
+  }
+
+  const cleaned = (responseText || '').trim();
+  if (cleaned.length < 3 || cleaned.length > 500) {
+    throw new HttpsError(
+      'invalid-argument',
+      'Response content must be between 3 and 500 characters.'
+    );
+  }
+
+  const lower = cleaned.toLowerCase();
+  const prohibitedWords = ['abuse', 'scam', 'fraud', 'hate', 'idiot', 'fake'];
+  for (const word of prohibitedWords) {
+    if (lower.includes(word)) {
+      throw new HttpsError(
+        'invalid-argument',
+        'Response contains language that violates professional communication guidelines.'
+      );
+    }
+  }
+
+  const reviewRef = db.collection('reviews').doc(reviewId);
+  const reviewSnap = await reviewRef.get();
+
+  if (!reviewSnap.exists) {
+    throw new HttpsError('not-found', 'Review not found.');
+  }
+
+  const review = reviewSnap.data()!;
+  if (review.trainerId !== trainerUid) {
+    throw new HttpsError(
+      'permission-denied',
+      'You are not authorized to respond to a review belonging to another trainer.'
+    );
+  }
+
+  await reviewRef.update({
+    trainerResponse: cleaned,
+    trainerRespondedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  // Notify client
+  if (review.clientId) {
+    const notifRef = db.collection('notifications').doc();
+    await notifRef.set({
+      id: notifRef.id,
+      userId: review.clientId,
+      title: 'Trainer Responded to Your Review 💬',
+      body: 'Your coach has posted a public response to your review.',
+      type: 'REVIEW_RESPONSE',
+      isRead: false,
+      data: {
+        reviewId,
+        trainerId: trainerUid,
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  }
+
+  return { success: true, reviewId, trainerResponse: cleaned };
+});
+
+/**
+ * 9B. Delete Trainer Review Response
+ */
+export const deleteTrainerReviewResponse = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const trainerUid = request.auth.uid;
+  const { reviewId } = request.data || {};
+
+  if (!reviewId) {
+    throw new HttpsError('invalid-argument', 'Review ID is required.');
+  }
+
+  const reviewRef = db.collection('reviews').doc(reviewId);
+  const reviewSnap = await reviewRef.get();
+
+  if (!reviewSnap.exists) {
+    throw new HttpsError('not-found', 'Review not found.');
+  }
+
+  const review = reviewSnap.data()!;
+  if (review.trainerId !== trainerUid) {
+    throw new HttpsError('permission-denied', 'Not authorized to modify this review response.');
+  }
+
+  await reviewRef.update({
+    trainerResponse: admin.firestore.FieldValue.delete(),
+    trainerRespondedAt: admin.firestore.FieldValue.delete(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { success: true, reviewId };
+});
+
+/**
+ * 9C. Report Client Review for Admin Moderation
+ */
+export const reportClientReview = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const trainerUid = request.auth.uid;
+  const { reviewId, reason, details } = request.data || {};
+
+  if (!reviewId || !reason) {
+    throw new HttpsError('invalid-argument', 'Review ID and reason are required.');
+  }
+
+  const reviewRef = db.collection('reviews').doc(reviewId);
+  const reviewSnap = await reviewRef.get();
+
+  if (!reviewSnap.exists) {
+    throw new HttpsError('not-found', 'Review not found.');
+  }
+
+  const review = reviewSnap.data()!;
+  if (review.trainerId !== trainerUid) {
+    throw new HttpsError('permission-denied', 'You can only report reviews on your own profile.');
+  }
+
+  const reportDocId = `${trainerUid}_${reviewId}`;
+  const reportRef = db.collection('review_reports').doc(reportDocId);
+  const reportSnap = await reportRef.get();
+
+  if (reportSnap.exists) {
+    throw new HttpsError('already-exists', 'You have already submitted a report for this review.');
+  }
+
+  await reportRef.set({
+    id: reportDocId,
+    reviewId,
+    trainerId: trainerUid,
+    reporterId: trainerUid,
+    reason: String(reason).trim(),
+    details: details ? String(details).trim() : null,
+    status: 'PENDING',
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  await reviewRef.update({
+    isReported: true,
+    reportReason: String(reason).trim(),
+    reportedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { success: true, reportId: reportDocId };
+});
+
+/**
+ * 10A. Add Private Trainer Client Note
+ * Ensures trainer is authenticated, has a legitimate booking connection with the client,
+ * rejects medical/diagnostic statements, and writes to trainer_client_notes.
+ */
+export const addTrainerClientNote = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const trainerUid = request.auth.uid;
+  const { clientId, title, content, category, sessionDate } = request.data || {};
+
+  if (!clientId || !content || typeof content !== 'string' || content.trim().length === 0) {
+    throw new HttpsError('invalid-argument', 'Client ID and non-empty content are required.');
+  }
+
+  // Validate legitimate booking relationship
+  const bookingCheck = await db.collection('bookings')
+    .where('trainerId', '==', trainerUid)
+    .where('clientId', '==', clientId)
+    .limit(1)
+    .get();
+
+  if (bookingCheck.empty) {
+    throw new HttpsError('permission-denied', 'You can only maintain notes for clients with valid bookings.');
+  }
+
+  // Medical claim disclaimer check
+  const textCheck = `${title || ''} ${content}`.toLowerCase();
+  const prohibitedMedical = ['diagnosis', 'prescribe', 'prescription', 'cure disease', 'medical treatment'];
+  for (const term of prohibitedMedical) {
+    if (textCheck.includes(term)) {
+      throw new HttpsError('invalid-argument', 'Training notes must not contain medical diagnoses or advice.');
+    }
+  }
+
+  const noteId = `note_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  const noteData = {
+    id: noteId,
+    trainerId: trainerUid,
+    clientId,
+    title: (title && String(title).trim().length > 0) ? String(title).trim() : 'Coaching Observation',
+    content: String(content).trim(),
+    category: category || 'Observation',
+    sessionDate: sessionDate ? admin.firestore.Timestamp.fromDate(new Date(sessionDate)) : null,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  await db.collection('trainer_client_notes').doc(noteId).set(noteData);
+  return { success: true, noteId, note: noteData };
+});
+
+/**
+ * 10B. Delete Private Trainer Client Note
+ * Enforces trainer ownership.
+ */
+export const deleteTrainerClientNote = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const trainerUid = request.auth.uid;
+  const { noteId } = request.data || {};
+
+  if (!noteId) {
+    throw new HttpsError('invalid-argument', 'Note ID is required.');
+  }
+
+  const noteRef = db.collection('trainer_client_notes').doc(noteId);
+  const noteSnap = await noteRef.get();
+
+  if (!noteSnap.exists) {
+    throw new HttpsError('not-found', 'Note not found.');
+  }
+
+  if (noteSnap.data()?.trainerId !== trainerUid) {
+    throw new HttpsError('permission-denied', 'You are not authorized to delete this note.');
+  }
+
+  await noteRef.delete();
+  return { success: true, noteId };
+});
+
+/**
+ * 10C. Record Trainer Client Progress Milestone
+ */
+export const recordTrainerClientProgress = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const trainerUid = request.auth.uid;
+  const { clientId, title, notes, category, achievedDate } = request.data || {};
+
+  if (!clientId || !title || typeof title !== 'string' || title.trim().length === 0) {
+    throw new HttpsError('invalid-argument', 'Client ID and title are required.');
+  }
+
+  // Validate legitimate booking relationship
+  const bookingCheck = await db.collection('bookings')
+    .where('trainerId', '==', trainerUid)
+    .where('clientId', '==', clientId)
+    .limit(1)
+    .get();
+
+  if (bookingCheck.empty) {
+    throw new HttpsError('permission-denied', 'You can only record progress for clients with valid bookings.');
+  }
+
+  const progressId = `prog_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  const progressData = {
+    id: progressId,
+    trainerId: trainerUid,
+    clientId,
+    title: String(title).trim(),
+    notes: notes ? String(notes).trim() : '',
+    category: category || 'Milestone',
+    achievedDate: achievedDate ? admin.firestore.Timestamp.fromDate(new Date(achievedDate)) : admin.firestore.FieldValue.serverTimestamp(),
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  await db.collection('trainer_client_progress').doc(progressId).set(progressData);
+  return { success: true, progressId, progress: progressData };
+});
+
+/**
+ * 11. Trainer Account Deletion Request
+ * Validates that trainer has no active upcoming sessions and no pending unsettled payouts.
+ * Creates an audit record in account_deletion_requests, flags user as DELETION_REQUESTED,
+ * deactivates the profile, and preserves required financial/booking audit history.
+ */
+export const requestTrainerAccountDeletion = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const trainerUid = request.auth.uid;
+  const { reason } = request.data || {};
+
+  // 1. Guard against active scheduled sessions
+  const activeBookingsSnap = await db.collection('bookings')
+    .where('trainerId', '==', trainerUid)
+    .where('status', 'in', ['CONFIRMED', 'RESERVED', 'IN_PROGRESS'])
+    .limit(10)
+    .get();
+
+  if (!activeBookingsSnap.empty) {
+    throw new HttpsError(
+      'failed-precondition',
+      'Cannot request account deletion: You have active scheduled training sessions. Please complete or resolve all upcoming sessions first.'
+    );
+  }
+
+  // 2. Guard against pending / unsettled payouts
+  const pendingPayoutsSnap = await db.collection('trainer_payouts')
+    .where('trainerId', '==', trainerUid)
+    .where('status', '==', 'PENDING')
+    .limit(1)
+    .get();
+
+  if (!pendingPayoutsSnap.empty) {
+    throw new HttpsError(
+      'failed-precondition',
+      'Cannot request account deletion: You have pending payouts in processing. Please wait until payouts are fully settled.'
+    );
+  }
+
+  // 3. Record deletion request while preserving financial and audit records
+  const requestId = `del_${trainerUid}_${Date.now()}`;
+  const deletionRecord = {
+    id: requestId,
+    userId: trainerUid,
+    role: 'TRAINER',
+    reason: reason ? String(reason).trim() : 'Requested by trainer',
+    status: 'PENDING_REVIEW',
+    preserveFinancialRecords: true,
+    preserveBookingHistory: true,
+    requestedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  const batch = db.batch();
+  batch.set(db.collection('account_deletion_requests').doc(requestId), deletionRecord);
+
+  // Deactivate trainer profile
+  const profileRef = db.collection('trainer_profiles').doc(trainerUid);
+  batch.set(profileRef, {
+    isActive: false,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+
+  // Update user account status
+  const userRef = db.collection('users').doc(trainerUid);
+  batch.set(userRef, {
+    status: 'DELETION_REQUESTED',
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+
+  await batch.commit();
+
+  return {
+    success: true,
+    requestId,
+    message: 'Your account deletion request has been submitted. Your profile has been deactivated while preserving required legal and financial transaction records.',
+  };
+});
+
 

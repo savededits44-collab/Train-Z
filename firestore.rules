@@ -61,8 +61,8 @@ service cloud.firestore {
       // Section 4: Users cannot modify their own role or status
       allow update: if isAdmin() || (
         isOwner(userId) &&
-        (!('role' in request.resource.data) || request.resource.data.role == resource.data.role) &&
-        (!('status' in request.resource.data) || request.resource.data.status == resource.data.status)
+        (!('role' in resource.data) || ('role' in request.resource.data && request.resource.data.role == resource.data.role)) &&
+        (!('status' in resource.data) || ('status' in request.resource.data && request.resource.data.status == resource.data.status))
       );
 
       allow delete: if isAdmin();
@@ -91,6 +91,8 @@ service cloud.firestore {
     // 2. client_profiles Collection (Strictly private to Client Owner & Admin)
     // ─────────────────────────────────────────────────────────────────────────
     match /client_profiles/{clientId} {
+      // Client profile details (fitness goals, health history, personal contacts)
+      // are strictly private to the Client and platform Admins.
       allow read: if isOwner(clientId) || isAdmin();
       allow write: if isOwner(clientId) || isAdmin();
     }
@@ -105,20 +107,39 @@ service cloud.firestore {
         resource.data.isActive == true
       );
 
-      // Trainers start with PENDING verification status
+      // Trainers start with PENDING verification status. Cannot self-approve, self-verify, or choose unreleased tiers
       allow create: if isOwner(trainerId) && (
-        !('verificationStatus' in request.resource.data) ||
-        request.resource.data.verificationStatus == 'PENDING'
+        (!('verificationStatus' in request.resource.data) || request.resource.data.verificationStatus == 'PENDING') &&
+        (!('category' in request.resource.data) || (
+          request.resource.data.category != 'PROFESSIONAL_TRAINER' &&
+          request.resource.data.category != 'PROFESSIONAL'
+        )) &&
+        !('approvedAt' in request.resource.data) &&
+        !('approvedBy' in request.resource.data) &&
+        !('adminReviewNotes' in request.resource.data) &&
+        !('verifiedQualifications' in request.resource.data) &&
+        (!('rating' in request.resource.data) || request.resource.data.rating == 0) &&
+        (!('reviewCount' in request.resource.data) || request.resource.data.reviewCount == 0)
       );
 
-      // Section 4 & 6: Only admins can approve or modify verification fields, approval status, and trainer category
+      // Section 4 & 6: Only admins can approve or modify verification fields, approval status, category, verified qualifications, and ratings
       allow update: if isAdmin() || (
         isOwner(trainerId) &&
         (!('verificationStatus' in request.resource.data) || request.resource.data.verificationStatus == resource.data.verificationStatus) &&
         (!('category' in request.resource.data) || request.resource.data.category == resource.data.category) &&
         (!('approvedAt' in request.resource.data) || request.resource.data.approvedAt == resource.data.approvedAt) &&
         (!('approvedBy' in request.resource.data) || request.resource.data.approvedBy == resource.data.approvedBy) &&
-        (!('adminReviewNotes' in request.resource.data) || request.resource.data.adminReviewNotes == resource.data.adminReviewNotes)
+        (!('adminReviewNotes' in request.resource.data) || request.resource.data.adminReviewNotes == resource.data.adminReviewNotes) &&
+        (!('verifiedQualifications' in request.resource.data) || (
+          'verifiedQualifications' in resource.data &&
+          request.resource.data.verifiedQualifications == resource.data.verifiedQualifications
+        )) &&
+        (!('rating' in request.resource.data) || (
+          'rating' in resource.data && request.resource.data.rating == resource.data.rating
+        )) &&
+        (!('reviewCount' in request.resource.data) || (
+          'reviewCount' in resource.data && request.resource.data.reviewCount == resource.data.reviewCount
+        ))
       );
 
       allow delete: if isAdmin();
@@ -138,10 +159,10 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────────────────
     match /training_plans/{planId} {
       // Authenticated users can view approved active plans; Admins can view all;
-      // and trainers can view their own pending or published custom plans.
+      // and trainers can view their own pending, draft, or published custom plans.
       allow read: if isAuthenticated() && (
         isAdmin() ||
-        (resource.data.isActive == true && (!('isApproved' in resource.data) || resource.data.isApproved == true)) ||
+        (resource.data.isActive == true && resource.data.isApproved == true && (!('isDeleted' in resource.data) || resource.data.isDeleted == false)) ||
         (resource.data.trainerId == request.auth.uid)
       );
 
@@ -151,6 +172,7 @@ service cloud.firestore {
         isAdmin() || (
           request.resource.data.trainerId == request.auth.uid &&
           request.resource.data.isApproved == false &&
+          (!('approvalStatus' in request.resource.data) || request.resource.data.approvalStatus in ['PENDING', 'DRAFT', 'pending', 'draft']) &&
           exists(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)) &&
           (get(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)).data.category == 'ADVANCED_TRAINER' ||
            get(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)).data.category == 'ADVANCED') &&
@@ -159,12 +181,17 @@ service cloud.firestore {
       );
 
       // Only Admins can approve (set isApproved == true) or modify fixed platform plans.
-      // Trainers can update their unapproved plans without self-approving.
+      // Trainers can update their own plans, but any update resets isApproved == false and requires reapproval.
       allow update: if isAdmin() || (
         isAuthenticated() &&
         resource.data.trainerId == request.auth.uid &&
         request.resource.data.trainerId == request.auth.uid &&
-        (!('isApproved' in request.resource.data) || request.resource.data.isApproved == resource.data.isApproved)
+        request.resource.data.isApproved == false &&
+        (!('approvalStatus' in request.resource.data) || request.resource.data.approvalStatus in ['PENDING', 'DRAFT', 'pending', 'draft']) &&
+        exists(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)) &&
+        (get(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)).data.category == 'ADVANCED_TRAINER' ||
+         get(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)).data.category == 'ADVANCED') &&
+        get(/databases/$(database)/documents/trainer_profiles/$(request.auth.uid)).data.verificationStatus == 'APPROVED'
       );
 
       allow delete: if isAdmin() || (
@@ -176,7 +203,7 @@ service cloud.firestore {
     // 6. bookings Collection (Strict Participant & Admin Access Only)
     // ─────────────────────────────────────────────────────────────────────────
     match /bookings/{bookingId} {
-      // Clients can only read their own bookings; Trainers can only read their assigned bookings
+      // Enforce ownership: Only the assigned client, assigned trainer, or Admin can read
       allow read: if isAuthenticated() && (
         resource.data.clientId == request.auth.uid ||
         resource.data.trainerId == request.auth.uid ||
@@ -191,19 +218,30 @@ service cloud.firestore {
         get(/databases/$(database)/documents/trainer_profiles/$(request.resource.data.trainerId)).data.verificationStatus == 'APPROVED' &&
         get(/databases/$(database)/documents/trainer_profiles/$(request.resource.data.trainerId)).data.isActive == true;
 
-      // Clients and trainers can update session notes/rescheduling/cancellations; Clients cannot self-confirm
+      // Update: client or trainer can update non-payment fields
+      // Prevents trainers from manually marking unpaid/unconfirmed bookings as confirmed or completed,
+      // and prevents tampering with creditTransactionId or payment records.
       allow update: if isAuthenticated() && (
         isAdmin() || (
           (resource.data.clientId == request.auth.uid || resource.data.trainerId == request.auth.uid) &&
           request.resource.data.clientId == resource.data.clientId &&
           request.resource.data.trainerId == resource.data.trainerId &&
+          request.resource.data.paymentStatus == resource.data.paymentStatus &&
+          (!('paymentTransactionId' in request.resource.data) || request.resource.data.paymentTransactionId == resource.data.paymentTransactionId) &&
+          (!('creditTransactionId' in request.resource.data) || request.resource.data.creditTransactionId == resource.data.creditTransactionId) &&
           (!('packagePrice' in request.resource.data) || request.resource.data.packagePrice == resource.data.packagePrice) &&
-          (!('status' in request.resource.data) ||
-           request.resource.data.status == resource.data.status ||
-           request.resource.data.status == 'CANCELLED' ||
-           request.resource.data.status == 'CANCELLED_CLIENT_EARLY' ||
-           request.resource.data.status == 'RESCHEDULED' ||
-           resource.data.trainerId == request.auth.uid)
+          (!('totalSessions' in request.resource.data) || request.resource.data.totalSessions == resource.data.totalSessions) &&
+          (!('packageId' in request.resource.data) || request.resource.data.packageId == resource.data.packageId) &&
+          (!('clientGender' in request.resource.data) || request.resource.data.clientGender == resource.data.clientGender) &&
+          (!('trainerGender' in request.resource.data) || request.resource.data.trainerGender == resource.data.trainerGender) &&
+          // Status transitions:
+          // 1. Maintain identical status (e.g. updating notes or location)
+          // 2. Cancellation by client or trainer
+          // 3. Rescheduling
+          // 4. Completion of a CONFIRMED session by the assigned trainer
+          (resource.data.status == request.resource.data.status ||
+           request.resource.data.status in ['CANCELLED', 'CANCELLED_TRAINER', 'CANCELLED_CLIENT_EARLY', 'REJECTED', 'RESCHEDULED'] ||
+           (resource.data.status == 'CONFIRMED' && request.resource.data.status == 'COMPLETED' && resource.data.trainerId == request.auth.uid))
         )
       );
 
@@ -245,11 +283,15 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────────────────
     match /trainer_availability/{availId} {
       allow read: if isAuthenticated();
-      allow write: if isAdmin() || (
-        isAuthenticated() && (
-          (resource != null && resource.data.trainerId == request.auth.uid) ||
-          (request.resource != null && request.resource.data.trainerId == request.auth.uid)
-        )
+      allow create: if isAuthenticated() && request.resource.data.trainerId == request.auth.uid;
+      allow update: if isAdmin() || (
+        isAuthenticated() &&
+        resource.data.trainerId == request.auth.uid &&
+        request.resource.data.trainerId == request.auth.uid
+      );
+      allow delete: if isAdmin() || (
+        isAuthenticated() &&
+        resource.data.trainerId == request.auth.uid
       );
     }
 
@@ -267,15 +309,21 @@ service cloud.firestore {
                     exists(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)) &&
                     get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.clientId == request.auth.uid &&
                     get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.status == 'COMPLETED';
-      allow update: if isAuthenticated() && (
-        isAdmin() ||
+      // Client can update their review; Admin can moderate;
+      // Trainer can ONLY submit/edit trainerResponse without altering rating, comment, or client fields
+      allow update: if isAdmin() ||
+        isOwner(resource.data.clientId) ||
         (
-          isOwner(resource.data.clientId) &&
+          isAuthenticated() &&
+          resource.data.trainerId == request.auth.uid &&
           request.resource.data.clientId == resource.data.clientId &&
-          request.resource.data.bookingId == resource.data.bookingId
-        )
-      );
-      allow delete: if isAdmin();
+          request.resource.data.trainerId == resource.data.trainerId &&
+          request.resource.data.bookingId == resource.data.bookingId &&
+          request.resource.data.rating == resource.data.rating &&
+          request.resource.data.comment == resource.data.comment &&
+          request.resource.data.isPublic == resource.data.isPublic
+        );
+      allow delete: if isOwner(resource.data.clientId) || isAdmin();
     }
 
     // Review Reports (Abuse / Harassment Flagging)
@@ -290,7 +338,14 @@ service cloud.firestore {
     match /notifications/{notifId} {
       allow read, delete: if isOwner(resource.data.userId) || isAdmin();
       allow create: if isAuthenticated();
-      allow update: if isOwner(resource.data.userId);
+      // Users can mark notifications as read, but cannot reassign userId or tamper with message contents
+      allow update: if isAdmin() || (
+        isOwner(resource.data.userId) &&
+        request.resource.data.userId == resource.data.userId &&
+        request.resource.data.title == resource.data.title &&
+        request.resource.data.body == resource.data.body &&
+        request.resource.data.type == resource.data.type
+      );
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -368,15 +423,20 @@ service cloud.firestore {
         isAdmin()
       );
 
-      // Clients can create conversation only if a legitimate booking exists connecting them
+      // Clients or Trainers can create conversation only if legitimately connected
       allow create: if isAuthenticated() && (
         isAdmin() ||
         (
-          request.resource.data.clientId == request.auth.uid &&
-          request.resource.data.bookingId != null &&
-          exists(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)) &&
-          get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.clientId == request.auth.uid &&
-          get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.trainerId == request.resource.data.trainerId
+          (request.resource.data.clientId == request.auth.uid || request.resource.data.trainerId == request.auth.uid) &&
+          (
+            request.resource.data.bookingId == null ||
+            request.resource.data.bookingId == '' ||
+            !exists(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)) ||
+            (
+              get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.clientId == request.resource.data.clientId &&
+              get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.trainerId == request.resource.data.trainerId
+            )
+          )
         )
       );
 
@@ -411,10 +471,17 @@ service cloud.firestore {
           )
         );
 
+        // Tamper protection: participants can only mark message as read; text and senderId are immutable
         allow update: if isAuthenticated() && (
           isAdmin() ||
-          get(/databases/$(database)/documents/conversations/$(convId)).data.clientId == request.auth.uid ||
-          get(/databases/$(database)/documents/conversations/$(convId)).data.trainerId == request.auth.uid
+          (
+            (
+              get(/databases/$(database)/documents/conversations/$(convId)).data.clientId == request.auth.uid ||
+              get(/databases/$(database)/documents/conversations/$(convId)).data.trainerId == request.auth.uid
+            ) &&
+            request.resource.data.text == resource.data.text &&
+            request.resource.data.senderId == resource.data.senderId
+          )
         );
 
         allow delete: if isAdmin();
@@ -462,6 +529,95 @@ service cloud.firestore {
         resource.data.verificationStatus != 'VERIFIED' &&
         resource.data.verificationStatus != 'APPROVED'
       );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 17. trainer_earnings Collection
+    // Trainers can only view their own earnings. Writes strictly reserved to Admin & Cloud Functions.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /trainer_earnings/{earningId} {
+      allow read: if isAuthenticated() && (
+        resource.data.trainerId == request.auth.uid || isAdmin()
+      );
+      // Authoritative calculations: Trainers cannot write, modify, or delete earnings records
+      allow write: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 18. trainer_payouts Collection
+    // Trainers can only view their own payout history. Writes strictly reserved to Admin & Cloud Functions.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /trainer_payouts/{payoutId} {
+      allow read: if isAuthenticated() && (
+        resource.data.trainerId == request.auth.uid || isAdmin()
+      );
+      // Payout records can only be created or updated by Admin / backend services
+      allow write: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 19. review_reports Collection
+    // Trainers can report policy violations to Admins. Duplicate protection via deterministic docId.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /review_reports/{reportId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.reporterId == request.auth.uid);
+      allow create: if isAuthenticated() &&
+        request.resource.data.reporterId == request.auth.uid &&
+        request.resource.data.trainerId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 20. trainer_client_notes Collection (Section 3: Private Training Notes)
+    // Notes are strictly visible to the Trainer who authored them and Admins.
+    // Clients have zero access to private training notes.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /trainer_client_notes/{noteId} {
+      allow read: if isAuthenticated() && (
+        resource.data.trainerId == request.auth.uid || isAdmin()
+      );
+      allow create: if isAuthenticated() &&
+        request.resource.data.trainerId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        isAdmin() || (
+          resource.data.trainerId == request.auth.uid &&
+          request.resource.data.trainerId == request.auth.uid
+        )
+      );
+      allow delete: if isAuthenticated() && (
+        resource.data.trainerId == request.auth.uid || isAdmin()
+      );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 21. trainer_client_progress Collection (Section 4: Training Milestones & Progress)
+    // Progress records are visible to the authoring Trainer and Admins.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /trainer_client_progress/{progressId} {
+      allow read: if isAuthenticated() && (
+        resource.data.trainerId == request.auth.uid || isAdmin()
+      );
+      allow create: if isAuthenticated() &&
+        request.resource.data.trainerId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        isAdmin() || (
+          resource.data.trainerId == request.auth.uid &&
+          request.resource.data.trainerId == request.auth.uid
+        )
+      );
+      allow delete: if isAuthenticated() && (
+        resource.data.trainerId == request.auth.uid || isAdmin()
+      );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 22. account_deletion_requests Collection
+    // Users can submit account deletion requests. Preserves required financial records.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /account_deletion_requests/{requestId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
     }
   }
 }

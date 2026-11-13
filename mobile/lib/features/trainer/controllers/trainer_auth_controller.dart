@@ -194,6 +194,50 @@ class TrainerAuthController extends ChangeNotifier {
     }
   }
 
+  /// Assigns category and experience for an already-authenticated trainer user.
+  Future<bool> assignCategoryForCurrentTrainer({
+    required TrainerCategory category,
+    double experienceYears = 0.0,
+    bool hasConfirmedCertificate = false,
+  }) async {
+    _clearError();
+    final categoryError = validateCategorySelection(
+      category: category,
+      experienceYears: experienceYears,
+      hasConfirmedCertificate: hasConfirmedCertificate,
+    );
+    if (categoryError != null) {
+      _setError(categoryError);
+      return false;
+    }
+
+    final uid = _authService.currentUser?.uid;
+    if (uid == null) {
+      _setError('User session expired. Please log in again.');
+      return false;
+    }
+
+    _setLoading(true);
+    try {
+      await _authService.initializeTrainerProfile(
+        uid: uid,
+        category: category,
+        experienceYears: experienceYears,
+      );
+      _currentTrainerUser = await _authService.getUserModel(uid);
+      _currentTrainerProfile = await _authService.getTrainerProfile(uid);
+      if (_currentTrainerProfile != null) {
+        TrainerProfileService.instance.populateFromModel(_currentTrainerProfile!);
+      }
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setLoading(false);
+      _setError('Failed to save category. Please try again.');
+      return false;
+    }
+  }
+
   // ───────────────────────────────────────────────────────────────────────────
   // Trainer Login
   // ───────────────────────────────────────────────────────────────────────────

@@ -113,6 +113,7 @@ class TrainerProfileService extends ChangeNotifier {
   bool get isPendingApproval => _isProfileCompleted && _verificationStatus == TrainerVerificationStatus.pending;
   bool get isApproved => _isProfileCompleted && _verificationStatus == TrainerVerificationStatus.approved;
   bool get isRejected => _isProfileCompleted && _verificationStatus == TrainerVerificationStatus.rejected;
+  bool get isSuspended => _verificationStatus == TrainerVerificationStatus.suspended;
   bool get isAdvancedTrainer => _category == TrainerCategory.advancedTrainer;
 
   /// Sets test profile in memory for unit and widget testing

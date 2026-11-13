@@ -11,7 +11,11 @@ class ReviewModel {
   final double rating; // 1.0 - 5.0
   final String comment;
   final List<String> categories; // e.g. ["Punctual & Prepared", "Technique & Form"]
+  final String? packageName;
+  final DateTime? sessionDate;
   final bool isPublic;
+  final String? trainerResponse;
+  final DateTime? trainerRespondedAt;
   final bool isReported;
   final String? reportReason;
   final DateTime? reportedAt;
@@ -28,7 +32,11 @@ class ReviewModel {
     required this.rating,
     required this.comment,
     this.categories = const [],
+    this.packageName,
+    this.sessionDate,
     this.isPublic = true,
+    this.trainerResponse,
+    this.trainerRespondedAt,
     this.isReported = false,
     this.reportReason,
     this.reportedAt,
@@ -38,10 +46,23 @@ class ReviewModel {
 
   String get ratingText => rating.toStringAsFixed(1);
 
+  int get stars => rating.round().clamp(1, 5);
+
+  String get displayClientName =>
+      (clientName.trim().isNotEmpty) ? clientName : 'Verified Athlete';
+
+  bool get hasResponse => trainerResponse != null && trainerResponse!.trim().isNotEmpty;
+
   String get formattedDate {
     if (createdAt == null) return 'Recent';
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return '${createdAt!.day} ${months[createdAt!.month - 1]} ${createdAt!.year}';
+  }
+
+  String get formattedResponseDate {
+    if (trainerRespondedAt == null) return 'Recent';
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${trainerRespondedAt!.day} ${months[trainerRespondedAt!.month - 1]} ${trainerRespondedAt!.year}';
   }
 
   ReviewModel copyWith({
@@ -54,7 +75,12 @@ class ReviewModel {
     double? rating,
     String? comment,
     List<String>? categories,
+    String? packageName,
+    DateTime? sessionDate,
     bool? isPublic,
+    String? trainerResponse,
+    DateTime? trainerRespondedAt,
+    bool clearResponse = false,
     bool? isReported,
     String? reportReason,
     DateTime? reportedAt,
@@ -71,7 +97,11 @@ class ReviewModel {
       rating: rating ?? this.rating,
       comment: comment ?? this.comment,
       categories: categories ?? this.categories,
+      packageName: packageName ?? this.packageName,
+      sessionDate: sessionDate ?? this.sessionDate,
       isPublic: isPublic ?? this.isPublic,
+      trainerResponse: clearResponse ? null : (trainerResponse ?? this.trainerResponse),
+      trainerRespondedAt: clearResponse ? null : (trainerRespondedAt ?? this.trainerRespondedAt),
       isReported: isReported ?? this.isReported,
       reportReason: reportReason ?? this.reportReason,
       reportedAt: reportedAt ?? this.reportedAt,
@@ -91,7 +121,11 @@ class ReviewModel {
       'rating': rating,
       'comment': comment,
       'categories': categories,
+      'packageName': packageName,
+      'sessionDate': sessionDate != null ? Timestamp.fromDate(sessionDate!) : null,
       'isPublic': isPublic,
+      'trainerResponse': trainerResponse,
+      'trainerRespondedAt': trainerRespondedAt != null ? Timestamp.fromDate(trainerRespondedAt!) : null,
       'isReported': isReported,
       'reportReason': reportReason,
       'reportedAt': reportedAt != null ? Timestamp.fromDate(reportedAt!) : null,
@@ -122,7 +156,11 @@ class ReviewModel {
       rating: (map['rating'] as num?)?.toDouble() ?? 5.0,
       comment: map['comment'] as String? ?? '',
       categories: categoriesList,
+      packageName: map['packageName'] as String?,
+      sessionDate: parseTimestamp(map['sessionDate']),
       isPublic: map['isPublic'] as bool? ?? true,
+      trainerResponse: map['trainerResponse'] as String?,
+      trainerRespondedAt: parseTimestamp(map['trainerRespondedAt']),
       isReported: map['isReported'] as bool? ?? false,
       reportReason: map['reportReason'] as String?,
       reportedAt: parseTimestamp(map['reportedAt']),

@@ -1,5 +1,41 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Categories for organizing Trainer notifications.
+enum NotificationCategory {
+  all,
+  bookings,
+  messages,
+  sessions,
+  packages,
+  earnings,
+  reviews,
+  support,
+  announcements;
+
+  String get displayName {
+    switch (this) {
+      case NotificationCategory.all:
+        return 'All';
+      case NotificationCategory.bookings:
+        return 'Bookings';
+      case NotificationCategory.messages:
+        return 'Messages';
+      case NotificationCategory.sessions:
+        return 'Sessions';
+      case NotificationCategory.packages:
+        return 'Packages';
+      case NotificationCategory.earnings:
+        return 'Earnings & Payouts';
+      case NotificationCategory.reviews:
+        return 'Reviews';
+      case NotificationCategory.support:
+        return 'Support';
+      case NotificationCategory.announcements:
+        return 'Announcements';
+    }
+  }
+}
+
 class NotificationModel {
   final String id;
   final String userId;
@@ -28,6 +64,9 @@ class NotificationModel {
   String? get ticketId => data['ticketId'] as String? ?? data['supportTicketId'] as String?;
   String? get paymentId => data['paymentId'] as String?;
   String? get receiptNumber => data['receiptNumber'] as String?;
+  String? get packageId => data['packageId'] as String?;
+  String? get payoutId => data['payoutId'] as String?;
+  String? get reviewId => data['reviewId'] as String?;
 
   bool get isBookingRelated =>
       type.startsWith('BOOKING_') || type == 'UPCOMING_REMINDER';
@@ -107,6 +146,63 @@ class NotificationModel {
     }
 
     return null;
+  }
+
+  /// Maps the string [type] into a [NotificationCategory].
+  NotificationCategory get categoryEnum {
+    final t = type.toUpperCase();
+    if (t.startsWith('BOOKING_')) {
+      return NotificationCategory.bookings;
+    }
+    if (t == 'CHAT_MESSAGE' || t == 'MESSAGE') {
+      return NotificationCategory.messages;
+    }
+    if (t.contains('REMINDER') || t.startsWith('SESSION_')) {
+      return NotificationCategory.sessions;
+    }
+    if (t.startsWith('PACKAGE_')) {
+      return NotificationCategory.packages;
+    }
+    if (t.startsWith('PAYOUT_') || t.startsWith('EARNINGS_') || t == 'PAYMENT_CONFIRMED' || t == 'PAYOUT') {
+      return NotificationCategory.earnings;
+    }
+    if (t.startsWith('REVIEW_') || t == 'REVIEW') {
+      return NotificationCategory.reviews;
+    }
+    if (t.startsWith('SUPPORT_') || t == 'SUPPORT') {
+      return NotificationCategory.support;
+    }
+    if (t == 'ANNOUNCEMENT' || t == 'PLATFORM_ANNOUNCEMENT' || t == 'GENERAL') {
+      return NotificationCategory.announcements;
+    }
+    return NotificationCategory.announcements;
+  }
+
+  NotificationCategory get trainerCategory => categoryEnum;
+
+  /// Formatted date and time string.
+  String get formattedDate {
+    if (createdAt == null) return '';
+    final now = DateTime.now();
+    final diff = now.difference(createdAt!);
+
+    if (diff.inSeconds < 60) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24 && createdAt!.day == now.day) {
+      final hour = createdAt!.hour.toString().padLeft(2, '0');
+      final min = createdAt!.minute.toString().padLeft(2, '0');
+      return 'Today, $hour:$min';
+    }
+    if (diff.inDays == 1 || (diff.inHours < 48 && createdAt!.day == now.subtract(const Duration(days: 1)).day)) {
+      final hour = createdAt!.hour.toString().padLeft(2, '0');
+      final min = createdAt!.minute.toString().padLeft(2, '0');
+      return 'Yesterday, $hour:$min';
+    }
+
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final hour = createdAt!.hour.toString().padLeft(2, '0');
+    final min = createdAt!.minute.toString().padLeft(2, '0');
+    return '${createdAt!.day} ${months[createdAt!.month - 1]} ${createdAt!.year}, $hour:$min';
   }
 
   NotificationModel copyWith({

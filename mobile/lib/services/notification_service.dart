@@ -55,9 +55,104 @@ class NotificationService extends ChangeNotifier {
     _notify();
   }
 
-  List<NotificationModel> get notifications => List.unmodifiable(_notifications);
+  // Testing support
+  bool _isTestMode = false;
+  final List<NotificationModel> _testNotifications = [];
+
+  List<NotificationModel> get notifications => List.unmodifiable(_isTestMode ? _testNotifications : _notifications);
   Stream<List<NotificationModel>> get stream => _streamController.stream;
-  int get unreadCount => _notifications.where((n) => !n.isRead).length;
+  int get unreadCount => (_isTestMode ? _testNotifications : _notifications).where((n) => !n.isRead).length;
+
+  @visibleForTesting
+  void resetForTest() {
+    _isTestMode = true;
+    _testNotifications.clear();
+    _recentNotificationCache.clear();
+  }
+
+  @visibleForTesting
+  void setTestNotifications(List<NotificationModel> items) {
+    _isTestMode = true;
+    _testNotifications
+      ..clear()
+      ..addAll(items);
+    _streamController.add(List.unmodifiable(_testNotifications));
+    notifyListeners();
+  }
+
+  /// Streams notifications specifically for a trainer.
+  Stream<List<NotificationModel>> streamNotificationsForTrainer(String trainerId) async* {
+    if (_isTestMode) {
+      List<NotificationModel> getList() {
+        final list = _testNotifications.where((n) => n.userId == trainerId).toList();
+        list.sort((a, b) {
+          final aTime = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final bTime = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+          return bTime.compareTo(aTime);
+        });
+        return List.unmodifiable(list);
+      }
+
+      yield getList();
+      await for (final _ in _streamController.stream) {
+        yield getList();
+      }
+      return;
+    }
+
+    if (_firestore == null || trainerId.trim().isEmpty) {
+      yield notifications.where((n) => n.userId == trainerId).toList();
+      await for (final _ in _streamController.stream) {
+        yield notifications.where((n) => n.userId == trainerId).toList();
+      }
+      return;
+    }
+
+    yield* _firestore!
+        .collection(FirestoreCollections.notifications)
+        .where('userId', isEqualTo: trainerId)
+        .snapshots()
+        .map((snap) {
+      final items = snap.docs.map((d) => NotificationModel.fromDocument(d)).toList();
+      items.sort((a, b) {
+        final aTime = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bTime = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return bTime.compareTo(aTime);
+      });
+      return items;
+    });
+  }
+
+  /// Filters a notification list by category.
+  List<NotificationModel> filterByCategory(
+    List<NotificationModel> list,
+    NotificationCategory category,
+  ) {
+    if (category == NotificationCategory.all) return list;
+    return list.where((n) => n.categoryEnum == category).toList();
+  }
+
+  /// Deletes a single notification.
+  Future<void> deleteNotification(String notificationId) async {
+    if (_isTestMode) {
+      _testNotifications.removeWhere((n) => n.id == notificationId);
+      _streamController.add(List.unmodifiable(_testNotifications));
+      notifyListeners();
+      return;
+    }
+
+    _notifications.removeWhere((n) => n.id == notificationId);
+    _notify();
+
+    try {
+      await _firestore
+          ?.collection(FirestoreCollections.notifications)
+          .doc(notificationId)
+          .delete();
+    } catch (e) {
+      debugPrint('Notice: Error deleting notification: $e');
+    }
+  }
 
   void _initAuthListener() {
     try {
@@ -174,6 +269,16 @@ class NotificationService extends ChangeNotifier {
 
   /// Marks a specific notification as read
   Future<void> markAsRead(String notificationId) async {
+    if (_isTestMode) {
+      final idx = _testNotifications.indexWhere((n) => n.id == notificationId);
+      if (idx >= 0) {
+        _testNotifications[idx] = _testNotifications[idx].copyWith(isRead: true);
+        _streamController.add(List.unmodifiable(_testNotifications));
+        notifyListeners();
+      }
+      return;
+    }
+
     final idx = _notifications.indexWhere((n) => n.id == notificationId);
     if (idx >= 0) {
       final current = _notifications[idx];
@@ -200,23 +305,17 @@ class NotificationService extends ChangeNotifier {
     }
   }
 
-  /// Dismisses or permanently deletes a specific notification
-  Future<void> deleteNotification(String notificationId) async {
-    _notifications.removeWhere((n) => n.id == notificationId);
-    _notify();
-
-    try {
-      await _firestore
-          ?.collection(FirestoreCollections.notifications)
-          .doc(notificationId)
-          .delete();
-    } catch (e) {
-      debugPrint('Notice: Error deleting notification: $e');
-    }
-  }
-
   /// Marks all unread notifications as read
   Future<void> markAllAsRead() async {
+    if (_isTestMode) {
+      for (int i = 0; i < _testNotifications.length; i++) {
+        _testNotifications[i] = _testNotifications[i].copyWith(isRead: true);
+      }
+      _streamController.add(List.unmodifiable(_testNotifications));
+      notifyListeners();
+      return;
+    }
+
     final unread = _notifications.where((n) => !n.isRead).toList();
     for (int i = 0; i < _notifications.length; i++) {
       final current = _notifications[i];
