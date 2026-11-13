@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../core/constants/firestore_collections.dart';
 import '../core/errors/app_exceptions.dart';
 import '../shared/models/booking_model.dart';
@@ -16,6 +18,7 @@ import 'booking_service.dart';
 import 'credit_service.dart';
 import 'notification_service.dart';
 import 'location_service.dart';
+import 'review_service.dart';
 import 'trainer_availability_service.dart';
 
 /// Core Firestore data access service for TRAIN Z shared features.
@@ -31,6 +34,15 @@ class FirestoreService {
       return _firestoreInstance!;
     } catch (_) {
       return FirebaseFirestore.instance;
+    }
+  }
+
+  String? get _currentAuthUid {
+    try {
+      if (Firebase.apps.isEmpty) return null;
+      return FirebaseAuth.instance.currentUser?.uid;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -288,17 +300,25 @@ class FirestoreService {
     return TrainerProfileModel.fromDocument(doc);
   }
 
-  /// Get client profile
+  /// Get client profile (Restricted to authenticated owner or admin)
   Future<ClientProfileModel?> getClientProfile(String clientId) async {
     if (clientId.trim().isEmpty) return null;
+    final currentUid = _currentAuthUid;
+    if (currentUid != null && currentUid.isNotEmpty && currentUid != clientId) {
+      return null;
+    }
     final doc = await _firestore.collection(FirestoreCollections.clientProfiles).doc(clientId).get();
     if (!doc.exists) return null;
     return ClientProfileModel.fromDocument(doc);
   }
 
-  /// Stream client profile in real time
+  /// Stream client profile in real time (Restricted to authenticated owner or admin)
   Stream<ClientProfileModel?> streamClientProfile(String clientId) {
     if (clientId.trim().isEmpty) return Stream.value(null);
+    final currentUid = _currentAuthUid;
+    if (currentUid != null && currentUid.isNotEmpty && currentUid != clientId) {
+      return Stream.value(null);
+    }
     return _firestore
         .collection(FirestoreCollections.clientProfiles)
         .doc(clientId)
@@ -445,9 +465,13 @@ class FirestoreService {
     }
   }
 
-  /// Streams bookings for a client
+  /// Streams bookings for a client (Strictly restricted to authenticated client owner)
   Stream<List<BookingModel>> streamClientBookings(String clientId) {
     if (clientId.trim().isEmpty) return Stream.value(<BookingModel>[]);
+    final currentUid = _currentAuthUid;
+    if (currentUid != null && currentUid.isNotEmpty && currentUid != clientId) {
+      return Stream.value(<BookingModel>[]);
+    }
     try {
       return _firestore
           .collection(FirestoreCollections.bookings)
@@ -469,9 +493,10 @@ class FirestoreService {
     }
   }
 
-  /// Streams a single booking document by ID in real time
+  /// Streams a single booking document by ID in real time (Restricted to booking participants)
   Stream<BookingModel?> streamBooking(String bookingId) {
     if (bookingId.trim().isEmpty) return Stream.value(null);
+    final currentUid = _currentAuthUid;
     try {
       return _firestore
           .collection(FirestoreCollections.bookings)
@@ -479,11 +504,21 @@ class FirestoreService {
           .snapshots()
           .map((snap) {
             if (!snap.exists) return null;
-            return BookingModel.fromDocument(snap);
+            final booking = BookingModel.fromDocument(snap);
+            if (currentUid != null && currentUid.isNotEmpty) {
+              if (booking.clientId != currentUid && booking.trainerId != currentUid) {
+                return null;
+              }
+            }
+            return booking;
           })
           .handleError((_) {
             try {
-              return BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+              final b = BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+              if (currentUid != null && currentUid.isNotEmpty) {
+                if (b.clientId != currentUid && b.trainerId != currentUid) return null;
+              }
+              return b;
             } catch (_) {
               return null;
             }
@@ -491,6 +526,9 @@ class FirestoreService {
     } catch (_) {
       try {
         final b = BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+        if (currentUid != null && currentUid.isNotEmpty) {
+          if (b.clientId != currentUid && b.trainerId != currentUid) return Stream.value(null);
+        }
         return Stream.value(b);
       } catch (_) {
         return Stream.value(null);
@@ -498,22 +536,35 @@ class FirestoreService {
     }
   }
 
-  /// Gets a single booking document by ID
+  /// Gets a single booking document by ID (Restricted to booking participants)
   Future<BookingModel?> getBooking(String bookingId) async {
     if (bookingId.trim().isEmpty) return null;
+    final currentUid = _currentAuthUid;
     try {
       final doc = await _firestore.collection(FirestoreCollections.bookings).doc(bookingId).get();
       if (!doc.exists) {
         try {
-          return BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+          final b = BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+          if (currentUid != null && currentUid.isNotEmpty) {
+            if (b.clientId != currentUid && b.trainerId != currentUid) return null;
+          }
+          return b;
         } catch (_) {
           return null;
         }
       }
-      return BookingModel.fromDocument(doc);
+      final booking = BookingModel.fromDocument(doc);
+      if (currentUid != null && currentUid.isNotEmpty) {
+        if (booking.clientId != currentUid && booking.trainerId != currentUid) return null;
+      }
+      return booking;
     } catch (_) {
       try {
-        return BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+        final b = BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+        if (currentUid != null && currentUid.isNotEmpty) {
+          if (b.clientId != currentUid && b.trainerId != currentUid) return null;
+        }
+        return b;
       } catch (_) {
         return null;
       }
@@ -1160,13 +1211,7 @@ class FirestoreService {
 
   /// Streams public reviews for a trainer
   Stream<List<ReviewModel>> streamTrainerReviews(String trainerId) {
-    return _firestore
-        .collection(FirestoreCollections.reviews)
-        .where('trainerId', isEqualTo: trainerId)
-        .where('isPublic', isEqualTo: true)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snap) => snap.docs.map((d) => ReviewModel.fromDocument(d)).toList());
+    return ReviewService.instance.streamTrainerReviews(trainerId);
   }
 
   // ───────────────────────────────────────────────────────────────────────────

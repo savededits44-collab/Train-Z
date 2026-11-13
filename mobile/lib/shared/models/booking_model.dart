@@ -209,6 +209,10 @@ class BookingModel {
   /// Whether credit was forfeited upon cancellation (<12h)
   bool get isCreditForfeited => status == BookingStatus.cancelledClientLate;
 
+  /// Formatted date in DD/MM/YYYY format
+  String get formattedDate =>
+      '${sessionDate.day.toString().padLeft(2, '0')}/${sessionDate.month.toString().padLeft(2, '0')}/${sessionDate.year}';
+
   /// Display string for status chip
   String get displayStatus {
     switch (status) {

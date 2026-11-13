@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../services/firestore_service.dart';
+import '../../../../services/review_service.dart';
 import '../../../../shared/models/review_model.dart';
 import '../../../../shared/models/trainer_availability_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
@@ -34,6 +35,15 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
   int _selectedDateOffset = 0; // 0 = Today, 1 = Tomorrow, etc.
 
   void _navigateToPackageSelection(BuildContext context) {
+    if (widget.trainer.category == TrainerCategory.professionalTrainer) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Professional Trainer packages are coming soon!'),
+          backgroundColor: Color(0xFF1E293B),
+        ),
+      );
+      return;
+    }
     HapticFeedback.mediumImpact();
     Navigator.push(
       context,
@@ -43,6 +53,143 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
           clientGender: widget.clientGender,
           clientId: widget.clientId,
         ),
+      ),
+    );
+  }
+
+  Future<void> _showReportReviewDialog(BuildContext context, ReviewModel review) async {
+    String selectedReason = 'Inappropriate or Offensive Language';
+    final detailsController = TextEditingController();
+    bool isReporting = false;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEE2E2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.flag, color: Color(0xFFDC2626), size: 18),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Report Review',
+                    style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Help keep TRAIN Z a professional training community. Please tell us why you are reporting this review:',
+                  style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF4B5563)),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedReason,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    labelText: 'Reason',
+                    labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Inappropriate or Offensive Language',
+                      child: Text('Inappropriate or Offensive Language', style: TextStyle(fontSize: 12)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Harassment or Spam',
+                      child: Text('Harassment or Spam', style: TextStyle(fontSize: 12)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'False or Misleading Information',
+                      child: Text('False or Misleading Information', style: TextStyle(fontSize: 12)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Privacy Violation',
+                      child: Text('Privacy Violation', style: TextStyle(fontSize: 12)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Other',
+                      child: Text('Other Policy Violation', style: TextStyle(fontSize: 12)),
+                    ),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      setDialogState(() => selectedReason = val);
+                    }
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: detailsController,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    hintText: 'Additional details (optional)...',
+                    hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFF9CA3AF)),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  ),
+                  style: const TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: Color(0xFF6B7280))),
+              ),
+              ElevatedButton(
+                onPressed: isReporting
+                    ? null
+                    : () async {
+                        setDialogState(() => isReporting = true);
+                        try {
+                          await ReviewService.instance.reportReview(
+                            reviewId: review.id,
+                            reporterId: widget.clientId,
+                            reason: selectedReason,
+                            details: detailsController.text,
+                          );
+                          if (context.mounted) {
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Report submitted. Thank you for keeping our community safe.'),
+                                backgroundColor: Color(0xFF16A34A),
+                              ),
+                            );
+                          }
+                        } catch (_) {
+                          setDialogState(() => isReporting = false);
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFDC2626),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: isReporting
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Text('Submit Report', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -821,102 +968,302 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
             const SizedBox(height: 24),
 
             // ── 9. Verified Client Reviews ──
-            _SectionHeading(
-              title: 'VERIFIED CLIENT REVIEWS (${trainer.totalReviews})',
-              sf: sf,
-            ),
-            const SizedBox(height: 10),
-
             StreamBuilder<List<ReviewModel>>(
-              stream: FirestoreService().streamTrainerReviews(trainer.uid),
+              stream: ReviewService.instance.streamTrainerReviews(trainer.uid),
               builder: (context, reviewSnap) {
                 final reviews = reviewSnap.data ?? [];
-
-                if (reviews.isEmpty) {
-                  return Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFB),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFEEEEEE)),
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(Iconsax.star, size: 28, color: Color(0xFFB0B0B0)),
-                        const SizedBox(height: 8),
-                        Text(
-                          'No written reviews yet',
-                          style: TextStyle(
-                            fontFamily: 'Syne',
-                            fontSize: (13.5 * sf).clamp(12.5, 15.0),
-                            fontWeight: FontWeight.w700,
-                            color: kDark,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Be the first client to book a session and leave a review for this trainer!',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
-                        ),
-                      ],
-                    ),
-                  );
-                }
+                final reviewCount = reviews.length;
+                final avgRating = reviewCount > 0
+                    ? ((reviews.fold<double>(0.0, (acc, r) => acc + r.rating) / reviewCount) * 10).round() / 10
+                    : trainer.ratingAvg;
 
                 return Column(
-                  children: reviews.take(5).map((r) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFEEEEEE)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: List.generate(
-                                  r.rating.round().clamp(1, 5),
-                                  (i) => const Icon(Icons.star_rounded, size: 15, color: Color(0xFFD97706)),
-                                ),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SectionHeading(
+                      title: 'VERIFIED CLIENT REVIEWS ($reviewCount)',
+                      sf: sf,
+                    ),
+                    const SizedBox(height: 10),
+
+                    if (reviews.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9FAFB),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFEEEEEE)),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Iconsax.star, size: 28, color: Color(0xFFB0B0B0)),
+                            const SizedBox(height: 8),
+                            Text(
+                              'No written reviews yet',
+                              style: TextStyle(
+                                fontFamily: 'Syne',
+                                fontSize: (13.5 * sf).clamp(12.5, 15.0),
+                                fontWeight: FontWeight.w700,
+                                color: kDark,
                               ),
-                              Row(
-                                children: const [
-                                  Icon(Icons.verified, size: 13, color: Color(0xFF16A34A)),
-                                  SizedBox(width: 4),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Be the first athlete to complete a session and leave a review for this trainer!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+                            ),
+                          ],
+                        ),
+                      )
+                    else ...[
+                      // Aggregate Rating Summary Banner
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9FAFB),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFEEEEEE)),
+                        ),
+                        child: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: [
+                                    Text(
+                                      avgRating.toStringAsFixed(1),
+                                      style: TextStyle(
+                                        fontFamily: 'Syne',
+                                        fontSize: (28.0 * sf).clamp(24.0, 32.0),
+                                        fontWeight: FontWeight.w800,
+                                        color: kDark,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '/ 5.0',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF6B7280),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: List.generate(
+                                    5,
+                                    (i) => Icon(
+                                      i < avgRating.round() ? Icons.star_rounded : Icons.star_outline_rounded,
+                                      size: 16,
+                                      color: const Color(0xFFD97706),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 16),
+                            Container(width: 1, height: 44, color: const Color(0xFFE5E7EB)),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   Text(
-                                    'Verified Athlete',
+                                    '$reviewCount Verified Athlete ${reviewCount == 1 ? 'Review' : 'Reviews'}',
+                                    style: TextStyle(
+                                      fontFamily: 'Syne',
+                                      fontSize: (12.5 * sf).clamp(11.5, 13.5),
+                                      fontWeight: FontWeight.w700,
+                                      color: kDark,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Ratings submitted following verified 60-minute training sessions.',
                                     style: TextStyle(
                                       fontFamily: 'Poppins',
-                                      fontSize: 10.5,
-                                      color: Color(0xFF16A34A),
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: (10.0 * sf).clamp(9.0, 11.0),
+                                      color: const Color(0xFF6B7280),
                                     ),
                                   ),
                                 ],
                               ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // List of Review Cards
+                      ...reviews.take(10).map((r) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: const Color(0xFFEEEEEE)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.02),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '"${r.comment}"',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                              color: const Color(0xFF333333),
-                              height: 1.4,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor: kDark,
+                                    backgroundImage: r.clientPhotoUrl != null && r.clientPhotoUrl!.isNotEmpty
+                                        ? NetworkImage(r.clientPhotoUrl!)
+                                        : null,
+                                    child: r.clientPhotoUrl == null || r.clientPhotoUrl!.isEmpty
+                                        ? Text(
+                                            r.clientName.isNotEmpty ? r.clientName[0].toUpperCase() : 'A',
+                                            style: const TextStyle(
+                                              fontFamily: 'Syne',
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w800,
+                                              color: kLime,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          r.clientName,
+                                          style: TextStyle(
+                                            fontFamily: 'Syne',
+                                            fontSize: (12.5 * sf).clamp(11.5, 13.5),
+                                            fontWeight: FontWeight.w700,
+                                            color: kDark,
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.verified, size: 11, color: Color(0xFF16A34A)),
+                                            const SizedBox(width: 3),
+                                            const Text(
+                                              'Verified Athlete',
+                                              style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontSize: 9.5,
+                                                color: Color(0xFF16A34A),
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              '• ${r.formattedDate}',
+                                              style: const TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontSize: 9.5,
+                                                color: Color(0xFF9CA3AF),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFFBEB),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: const Color(0xFFFDE68A)),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.star_rounded, size: 13, color: Color(0xFFD97706)),
+                                            const SizedBox(width: 2),
+                                            Text(
+                                              r.ratingText,
+                                              style: const TextStyle(
+                                                fontFamily: 'Syne',
+                                                fontSize: 10.5,
+                                                fontWeight: FontWeight.w700,
+                                                color: Color(0xFF92400E),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      IconButton(
+                                        icon: const Icon(Icons.flag_outlined, size: 15, color: Color(0xFF9CA3AF)),
+                                        tooltip: 'Report Review',
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                                        onPressed: () => _showReportReviewDialog(context, r),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              if (r.categories.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 4,
+                                  children: r.categories.map((cat) {
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF3F4F6),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        cat,
+                                        style: const TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF374151),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                              const SizedBox(height: 8),
+                              Text(
+                                '"${r.comment}"',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: (11.5 * sf).clamp(10.5, 12.5),
+                                  color: const Color(0xFF333333),
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }),
+                    ],
+                  ],
                 );
               },
             ),

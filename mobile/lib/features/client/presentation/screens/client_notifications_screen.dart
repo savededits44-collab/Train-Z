@@ -7,12 +7,15 @@ import '../../../../services/notification_service.dart';
 import '../../../../shared/models/conversation_model.dart';
 import '../../../../shared/models/notification_model.dart';
 import '../../../../widgets/app_widgets.dart';
+import 'client_account_security_screen.dart';
 import 'client_booking_detail_screen.dart';
 import 'client_chat_screen.dart';
+import 'client_payment_history_screen.dart';
+import 'client_support_tickets_screen.dart';
 
 /// Comprehensive Client Notification Centre for TRAIN Z.
 /// Displays real-time updates for bookings, session reminders, trainer messages,
-/// and payment confirmations with deep navigation and mark-as-read functionality.
+/// package & payment records, reviews, support updates, and platform announcements.
 class ClientNotificationsScreen extends StatefulWidget {
   const ClientNotificationsScreen({super.key});
 
@@ -22,7 +25,20 @@ class ClientNotificationsScreen extends StatefulWidget {
 
 class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
   final NotificationService _notificationService = NotificationService.instance;
-  int _selectedFilterIndex = 0; // 0 = All, 1 = Unread
+
+  String _selectedCategory = 'All';
+  bool _showOnlyUnread = false;
+
+  static const List<String> _categories = [
+    'All',
+    'Bookings',
+    'Sessions and reminders',
+    'Trainer messages',
+    'Packages and payments',
+    'Reviews and feedback',
+    'Support updates',
+    'Platform announcements',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +48,16 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
       listenable: _notificationService,
       builder: (context, _) {
         final allNotifs = _notificationService.notifications;
-        final unreadNotifs = allNotifs.where((n) => !n.isRead).toList();
-        final displayList = _selectedFilterIndex == 0 ? allNotifs : unreadNotifs;
-        final unreadCount = unreadNotifs.length;
+        final unreadTotal = allNotifs.where((n) => !n.isRead).length;
+
+        // Apply filters
+        var filteredList = allNotifs;
+        if (_selectedCategory != 'All') {
+          filteredList = filteredList.where((n) => n.category == _selectedCategory).toList();
+        }
+        if (_showOnlyUnread) {
+          filteredList = filteredList.where((n) => !n.isRead).toList();
+        }
 
         return Scaffold(
           backgroundColor: const Color(0xFFF9FAFB),
@@ -56,7 +79,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
               ),
             ),
             actions: [
-              if (unreadCount > 0)
+              if (unreadTotal > 0)
                 TextButton(
                   onPressed: () {
                     HapticFeedback.lightImpact();
@@ -75,33 +98,130 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
               const SizedBox(width: 8),
             ],
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(48),
+              preferredSize: const Size.fromHeight(88),
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                child: Row(
+                child: Column(
                   children: [
-                    _buildFilterChip('All (${allNotifs.length})', 0, sf),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Unread ($unreadCount)', 1, sf),
+                    // Row 1: Unread toggle & total counter
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${filteredList.length} ${filteredList.length == 1 ? "notification" : "notifications"}',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF6B7280),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              setState(() => _showOnlyUnread = !_showOnlyUnread);
+                            },
+                            borderRadius: BorderRadius.circular(20),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: _showOnlyUnread ? const Color(0xFF2563EB) : const Color(0xFFF3F4F6),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _showOnlyUnread ? Icons.check_circle : Icons.circle_outlined,
+                                    size: 13,
+                                    color: _showOnlyUnread ? Colors.white : const Color(0xFF6B7280),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    'Unread ($unreadTotal)',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: (10.5 * sf).clamp(9.5, 11.5),
+                                      fontWeight: _showOnlyUnread ? FontWeight.w600 : FontWeight.w500,
+                                      color: _showOnlyUnread ? Colors.white : const Color(0xFF4B5563),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Row 2: Horizontal scrollable categories
+                    SizedBox(
+                      height: 44,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: _categories.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (context, idx) {
+                          final cat = _categories[idx];
+                          final isSelected = _selectedCategory == cat;
+
+                          // Count for this category
+                          final catCount = cat == 'All'
+                              ? allNotifs.length
+                              : allNotifs.where((n) => n.category == cat).length;
+                          final chipLabel = cat == 'All'
+                              ? 'All (${allNotifs.length})'
+                              : (catCount > 0 ? '$cat ($catCount)' : cat);
+
+                          return InkWell(
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              setState(() => _selectedCategory = cat);
+                            },
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: isSelected ? kDark : const Color(0xFFF3F4F6),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                chipLabel,
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                  color: isSelected ? kLime : const Color(0xFF4B5563),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
           ),
-          body: displayList.isEmpty
-              ? _buildEmptyState(sf, isUnreadFilter: _selectedFilterIndex == 1)
+          body: filteredList.isEmpty
+              ? _buildEmptyState(sf)
               : ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   physics: const BouncingScrollPhysics(),
-                  itemCount: displayList.length,
+                  itemCount: filteredList.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
-                    final item = displayList[index];
-                    return _buildNotificationCard(item, sf);
+                    final item = filteredList[index];
+                    return _buildDismissibleNotificationCard(item, sf);
                   },
                 ),
         );
@@ -109,30 +229,34 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, int index, double sf) {
-    final isSelected = _selectedFilterIndex == index;
-    return InkWell(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        setState(() => _selectedFilterIndex = index);
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? kDark : const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: (11.5 * sf).clamp(10.5, 12.5),
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? kLime : const Color(0xFF4B5563),
+  Widget _buildDismissibleNotificationCard(NotificationModel notif, double sf) {
+    return Dismissible(
+      key: Key(notif.id),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) {
+        HapticFeedback.mediumImpact();
+        _notificationService.deleteNotification(notif.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Notification removed',
+              style: TextStyle(fontFamily: 'Poppins', fontSize: 12),
+            ),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
           ),
+        );
+      },
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFDC2626),
+          borderRadius: BorderRadius.circular(14),
         ),
+        child: const Icon(Icons.delete_outline, color: Colors.white, size: 22),
       ),
+      child: _buildNotificationCard(notif, sf),
     );
   }
 
@@ -173,6 +297,29 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
         iconBg = const Color(0xFFECFDF5);
         iconColor = const Color(0xFF059669);
         break;
+      case 'PAYMENT_FAILED':
+        icon = Iconsax.card_remove;
+        iconBg = const Color(0xFFFEE2E2);
+        iconColor = const Color(0xFFDC2626);
+        break;
+      case 'SUPPORT_TICKET_UPDATE':
+      case 'SUPPORT_RESPONSE':
+        icon = Iconsax.ticket;
+        iconBg = const Color(0xFFECFEFF);
+        iconColor = const Color(0xFF0891B2);
+        break;
+      case 'REVIEW_REQUEST':
+      case 'REVIEW_RECEIVED':
+        icon = Iconsax.star;
+        iconBg = const Color(0xFFFFFBEB);
+        iconColor = const Color(0xFFD97706);
+        break;
+      case 'SECURITY_ALERT':
+      case 'ACCOUNT_SECURITY':
+        icon = Iconsax.shield_tick;
+        iconBg = const Color(0xFFEEF2FF);
+        iconColor = const Color(0xFF4F46E5);
+        break;
       default:
         icon = Iconsax.info_circle;
         iconBg = const Color(0xFFF3F4F6);
@@ -180,6 +327,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
     }
 
     final dateStr = notif.createdAt != null ? _formatDateTime(notif.createdAt!) : 'Recent update';
+    final ref = notif.referenceLabel;
 
     return InkWell(
       onTap: () => _handleNotificationTap(notif),
@@ -187,7 +335,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: notif.isRead ? Colors.white : const Color(0xFFFFFFFF),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: notif.isRead ? const Color(0xFFEEEEEE) : kDark.withValues(alpha: 0.18),
@@ -253,34 +401,45 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
+
+                  // Reference label chip & action button row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        dateStr,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: (9.5 * sf).clamp(9.0, 10.5),
-                          color: const Color(0xFF9CA3AF),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      if (notif.isBookingRelated || notif.isChatRelated)
-                        Row(
-                          children: [
-                            Text(
-                              notif.isChatRelated ? 'Open Chat' : 'View Booking',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: (10.0 * sf).clamp(9.5, 11.0),
-                                fontWeight: FontWeight.w600,
-                                color: kDark,
+                      Row(
+                        children: [
+                          if (ref != null) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3F4F6),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: const Color(0xFFE5E7EB)),
+                              ),
+                              child: Text(
+                                ref,
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: (9.0 * sf).clamp(8.5, 10.0),
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF4B5563),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 2),
-                            const Icon(Icons.chevron_right, size: 14, color: kDark),
+                            const SizedBox(width: 8),
                           ],
-                        ),
+                          Text(
+                            dateStr,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: (9.5 * sf).clamp(9.0, 10.5),
+                              color: const Color(0xFF9CA3AF),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      _buildActionIndicator(notif, sf),
                     ],
                   ),
                 ],
@@ -292,6 +451,42 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
     );
   }
 
+  Widget _buildActionIndicator(NotificationModel notif, double sf) {
+    String label = '';
+    if (notif.isChatRelated) {
+      label = 'Open Chat';
+    } else if (notif.isBookingRelated) {
+      label = 'View Booking';
+    } else if (notif.isSupportRelated || notif.ticketId != null) {
+      label = 'View Ticket';
+    } else if (notif.isPaymentRelated || notif.paymentId != null) {
+      label = 'View Receipt';
+    } else if (notif.type.contains('SECURITY')) {
+      label = 'Security';
+    }
+
+    if (label.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: (10.0 * sf).clamp(9.5, 11.0),
+            fontWeight: FontWeight.w600,
+            color: kDark,
+          ),
+        ),
+        const SizedBox(width: 2),
+        const Icon(Icons.chevron_right, size: 14, color: kDark),
+      ],
+    );
+  }
+
   Future<void> _handleNotificationTap(NotificationModel notif) async {
     HapticFeedback.lightImpact();
     if (!notif.isRead) {
@@ -300,16 +495,15 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
 
     if (!mounted) return;
 
+    final user = FirebaseAuth.instance.currentUser;
+    final currentUid = user?.uid ?? '';
+    final clientName = user?.displayName ?? 'Athlete';
+    final clientEmail = user?.email ?? '';
+    final isEmailVerified = user?.emailVerified ?? false;
+
     // 1. Chat navigation
     if (notif.isChatRelated || notif.conversationId != null) {
       final convId = notif.conversationId ?? '';
-      String currentUid = '';
-      String clientName = 'Athlete';
-      try {
-        final user = FirebaseAuth.instance.currentUser;
-        currentUid = user?.uid ?? '';
-        clientName = user?.displayName ?? 'Athlete';
-      } catch (_) {}
       final trainerId = notif.trainerId ?? '';
       final trainerName = notif.trainerName ?? 'Personal Trainer';
 
@@ -342,14 +536,72 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
               builder: (_) => ClientBookingDetailScreen(booking: booking),
             ),
           );
+          return;
         }
       } catch (e) {
         debugPrint('Error navigating to booking: $e');
       }
     }
+
+    if (!mounted) return;
+
+    // 3. Support ticket navigation
+    if (notif.isSupportRelated || notif.ticketId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ClientSupportTicketsScreen(
+            clientId: currentUid,
+            clientName: clientName,
+            clientEmail: clientEmail,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // 4. Payment / Package navigation
+    if (notif.isPaymentRelated || notif.paymentId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ClientPaymentHistoryScreen(clientId: currentUid),
+        ),
+      );
+      return;
+    }
+
+    // 5. Account Security navigation
+    if (notif.type.contains('SECURITY')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ClientAccountSecurityScreen(
+            clientId: currentUid,
+            userEmail: clientEmail,
+            isEmailVerified: isEmailVerified,
+          ),
+        ),
+      );
+      return;
+    }
   }
 
-  Widget _buildEmptyState(double sf, {required bool isUnreadFilter}) {
+  Widget _buildEmptyState(double sf) {
+    String title = 'No Notifications Yet';
+    String description =
+        'You will receive real-time updates for booking confirmations, reminders, and trainer messages here.';
+
+    if (_showOnlyUnread) {
+      title = 'All Caught Up';
+      description = _selectedCategory == 'All'
+          ? 'You have read all your notifications.'
+          : 'You have no unread notifications under "$_selectedCategory".';
+    } else if (_selectedCategory != 'All') {
+      title = 'No $_selectedCategory';
+      description = 'You have no notifications in this category yet.';
+    }
+
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
@@ -358,19 +610,19 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF3F4F6),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isUnreadFilter ? Iconsax.tick_circle : Iconsax.notification_bing,
+                _showOnlyUnread ? Iconsax.tick_circle : Iconsax.notification_bing,
                 size: 42,
                 color: kDark,
               ),
             ),
             const SizedBox(height: 18),
             Text(
-              isUnreadFilter ? 'All Caught Up' : 'No Notifications Yet',
+              title,
               style: TextStyle(
                 fontFamily: 'Syne',
                 fontSize: (16.0 * sf).clamp(15.0, 18.0),
@@ -380,9 +632,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              isUnreadFilter
-                  ? 'You have read all your notifications.'
-                  : 'You will receive real-time updates for booking confirmations, reminders, and trainer messages here.',
+              description,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Poppins',

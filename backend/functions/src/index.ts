@@ -144,6 +144,45 @@ export const createBookingWithCredit = onCall(async (request) => {
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    // In-app notification for Client
+    const clientNotifRef = db.collection('notifications').doc();
+    const bRef = bookingRef.id.slice(0, 8).toUpperCase();
+    transaction.set(clientNotifRef, {
+      id: clientNotifRef.id,
+      userId: clientId,
+      title: 'Booking Confirmed!',
+      body: `Your training session on ${startTime} - ${endTime} is confirmed. Ref: #${bRef}`,
+      type: 'BOOKING_CONFIRMED',
+      isRead: false,
+      data: {
+        bookingId: bookingRef.id,
+        bookingReference: bRef,
+        trainerId,
+        startTime,
+        endTime,
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // In-app notification for Trainer
+    const trainerNotifRef = db.collection('notifications').doc();
+    transaction.set(trainerNotifRef, {
+      id: trainerNotifRef.id,
+      userId: trainerId,
+      title: 'New Session Booked',
+      body: `You have a confirmed training session on ${startTime} - ${endTime}. Ref: #${bRef}`,
+      type: 'BOOKING_CONFIRMED',
+      isRead: false,
+      data: {
+        bookingId: bookingRef.id,
+        bookingReference: bRef,
+        clientId,
+        startTime,
+        endTime,
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
     return { bookingId: bookingRef.id, status: 'CONFIRMED', creditBalance: newAvailable };
   });
 });
@@ -1171,6 +1210,10 @@ export const confirmBookingPayment = onCall(async (request) => {
 
     const booking = bookingSnap.data()!;
 
+    if (booking.clientId !== request.auth!.uid) {
+      throw new HttpsError('permission-denied', 'Only the athlete who made this booking can confirm it.');
+    }
+
     if (booking.status === 'CONFIRMED' && booking.paymentStatus === 'COMPLETED') {
       return { success: true, bookingId, status: 'CONFIRMED', paymentStatus: 'COMPLETED' };
     }
@@ -1244,6 +1287,11 @@ export const releaseBookingReservation = onCall(async (request) => {
     }
 
     const booking = bookingSnap.data()!;
+
+    if (booking.clientId !== request.auth!.uid && booking.trainerId !== request.auth!.uid) {
+      throw new HttpsError('permission-denied', 'You are not authorized to release this booking reservation.');
+    }
+
     if (booking.status === 'CONFIRMED') {
       throw new HttpsError('failed-precondition', 'Cannot release an already confirmed booking.');
     }
@@ -1268,7 +1316,6 @@ export const releaseBookingReservation = onCall(async (request) => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 // ─────────────────────────────────────────────────────────────────────────────
 // 8. Reschedule Booking (Atomic Double-Booking Protected Slot Move)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1443,6 +1490,236 @@ export const cancelBooking = onCall(async (request) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 9b. Reviews & Ratings System (Session Review Submission & Moderation)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const submitSessionReview = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated to submit a review.');
+  }
+
+  const { bookingId, rating, comment, categories } = request.data || {};
+  if (!bookingId || rating === undefined || rating === null || !comment) {
+    throw new HttpsError('invalid-argument', 'Missing required review fields: bookingId, rating, or comment.');
+  }
+
+  const numRating = Number(rating);
+  if (isNaN(numRating) || numRating < 1.0 || numRating > 5.0) {
+    throw new HttpsError('invalid-argument', 'Rating must be a numeric value between 1.0 and 5.0.');
+  }
+
+  const trimmedComment = String(comment).trim();
+  if (trimmedComment.length < 5) {
+    throw new HttpsError('invalid-argument', 'Written review feedback must be at least 5 characters long.');
+  }
+
+  const uid = request.auth.uid;
+  const bookingRef = db.collection('bookings').doc(bookingId);
+  const reviewRef = db.collection('reviews').doc(bookingId);
+
+  const result = await db.runTransaction(async (transaction) => {
+    const bookingSnap = await transaction.get(bookingRef);
+    if (!bookingSnap.exists) {
+      throw new HttpsError('not-found', 'Booking record not found.');
+    }
+
+    const booking = bookingSnap.data()!;
+    if (booking.clientId !== uid) {
+      throw new HttpsError('permission-denied', 'Only the athlete who completed this session can submit a review.');
+    }
+
+    if (booking.status !== 'COMPLETED') {
+      throw new HttpsError('failed-precondition', 'Reviews can only be submitted for successfully completed training sessions.');
+    }
+
+    const reviewSnap = await transaction.get(reviewRef);
+    const isUpdate = reviewSnap.exists;
+
+    // Fetch client display name (mask for privacy, e.g. "Rahul S.")
+    const clientUserSnap = await transaction.get(db.collection('users').doc(uid));
+    let clientDisplayName = 'Verified Athlete';
+    let clientPhotoUrl: string | null = null;
+    if (clientUserSnap.exists) {
+      const uData = clientUserSnap.data()!;
+      clientPhotoUrl = uData.photoUrl || null;
+      const rawName = (uData.displayName || uData.name || '').trim();
+      if (rawName.length > 0) {
+        const parts = rawName.split(' ');
+        if (parts.length > 1) {
+          clientDisplayName = `${parts[0]} ${parts[1][0].toUpperCase()}.`;
+        } else {
+          clientDisplayName = parts[0];
+        }
+      }
+    }
+
+    const cleanCategories = Array.isArray(categories)
+      ? categories.filter((c: any) => typeof c === 'string').slice(0, 5)
+      : [];
+
+    const reviewData: any = {
+      id: bookingId,
+      bookingId: bookingId,
+      clientId: uid,
+      trainerId: booking.trainerId,
+      clientName: clientDisplayName,
+      clientPhotoUrl: clientPhotoUrl,
+      rating: Math.round(numRating * 10) / 10,
+      comment: trimmedComment,
+      categories: cleanCategories,
+      isPublic: true,
+      isReported: false,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (!isUpdate) {
+      reviewData.createdAt = admin.firestore.FieldValue.serverTimestamp();
+    }
+
+    transaction.set(reviewRef, reviewData, { merge: true });
+
+    return {
+      success: true,
+      isUpdate,
+      reviewId: bookingId,
+      trainerId: booking.trainerId as string,
+    };
+  });
+
+  // Recalculate trainer aggregate rating & count from genuine eligible reviews
+  const trainerId = result.trainerId;
+  const allReviewsSnap = await db.collection('reviews')
+    .where('trainerId', '==', trainerId)
+    .where('isPublic', '==', true)
+    .get();
+
+  let sum = 0;
+  let count = 0;
+  for (const doc of allReviewsSnap.docs) {
+    const r = doc.data();
+    if (!r.isReported) {
+      sum += (r.rating || 5.0);
+      count++;
+    }
+  }
+
+  const avgRating = count > 0 ? Math.round((sum / count) * 10) / 10 : 5.0;
+
+  await Promise.all([
+    db.collection('trainer_profiles').doc(trainerId).set({
+      ratingAvg: avgRating,
+      totalReviews: count,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true }),
+    db.collection('users').doc(trainerId).set({
+      ratingAvg: avgRating,
+      totalReviews: count,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true }),
+  ]);
+
+  // Send in-app notification to trainer
+  try {
+    const notifRef = db.collection('notifications').doc();
+    await notifRef.set({
+      id: notifRef.id,
+      userId: trainerId,
+      title: 'New Session Review ★',
+      body: `An athlete left a ${numRating.toFixed(1)}-star review for your session.`,
+      type: 'REVIEW_RECEIVED',
+      isRead: false,
+      data: {
+        bookingId,
+        rating: numRating,
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (_) {}
+
+  return {
+    success: true,
+    reviewId: result.reviewId,
+    ratingAvg: avgRating,
+    totalReviews: count,
+  };
+});
+
+export const reportSessionReview = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated to report a review.');
+  }
+
+  const { reviewId, reason, details } = request.data || {};
+  if (!reviewId || !reason) {
+    throw new HttpsError('invalid-argument', 'Review ID and report reason are required.');
+  }
+
+  const uid = request.auth.uid;
+  const reviewRef = db.collection('reviews').doc(reviewId);
+  const reviewSnap = await reviewRef.get();
+
+  if (!reviewSnap.exists) {
+    throw new HttpsError('not-found', 'Review not found.');
+  }
+
+  const review = reviewSnap.data()!;
+
+  // Log report in review_reports collection for Admin moderation dashboard
+  const reportRef = db.collection('review_reports').doc();
+  await reportRef.set({
+    id: reportRef.id,
+    reviewId,
+    reportedBy: uid,
+    trainerId: review.trainerId,
+    bookingId: review.bookingId,
+    reason: String(reason).trim(),
+    details: details ? String(details).trim() : null,
+    status: 'PENDING_MODERATION',
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  // Mark review as reported so it can be moderated
+  await reviewRef.update({
+    isReported: true,
+    reportReason: String(reason).trim(),
+    reportedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  // Recalculate trainer aggregate rating without the reported review
+  const allReviewsSnap = await db.collection('reviews')
+    .where('trainerId', '==', review.trainerId)
+    .where('isPublic', '==', true)
+    .get();
+
+  let sum = 0;
+  let count = 0;
+  for (const doc of allReviewsSnap.docs) {
+    const r = doc.data();
+    if (!r.isReported && doc.id !== reviewId) {
+      sum += (r.rating || 5.0);
+      count++;
+    }
+  }
+
+  const avgRating = count > 0 ? Math.round((sum / count) * 10) / 10 : 5.0;
+
+  await Promise.all([
+    db.collection('trainer_profiles').doc(review.trainerId).set({
+      ratingAvg: avgRating,
+      totalReviews: count,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true }),
+    db.collection('users').doc(review.trainerId).set({
+      ratingAvg: avgRating,
+      totalReviews: count,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true }),
+  ]);
+
+  return { success: true, reportId: reportRef.id };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 10. Razorpay Payment Gateway Integration
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1475,6 +1752,18 @@ export const createRazorpayOrder = onCall(async (request) => {
 
   if (!packageId) {
     throw new HttpsError('invalid-argument', 'Package ID is required.');
+  }
+
+  // Validate booking ownership if bookingId is provided
+  if (bookingId) {
+    const bookingDoc = await db.collection('bookings').doc(bookingId).get();
+    if (!bookingDoc.exists) {
+      throw new HttpsError('not-found', 'Associated booking not found.');
+    }
+    const bookingData = bookingDoc.data()!;
+    if (bookingData.clientId !== clientId) {
+      throw new HttpsError('permission-denied', 'You cannot create a payment order for another athlete\'s booking.');
+    }
   }
 
   // 1. Trainer Category & Eligibility Validation
@@ -1771,6 +2060,44 @@ async function finalizePaymentAndGrantCredits(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    // 5. In-app payment confirmed notification
+    const payNotifRef = db.collection('notifications').doc();
+    transaction.set(payNotifRef, {
+      id: payNotifRef.id,
+      userId: clientId,
+      title: 'Payment Successful',
+      body: `Your payment of ₹${payment.amount} for ${payment.packageName} was successful. ${sessionsCount} sessions added to your balance.`,
+      type: 'PAYMENT_CONFIRMED',
+      isRead: false,
+      data: {
+        paymentId: paymentDocId,
+        receiptNumber: payment.receiptNumber || '',
+        purchasedPackageId: packageDocRef.id,
+        amount: String(payment.amount),
+        packageName: String(payment.packageName),
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // If a reservation was confirmed, also dispatch booking notification
+    if (confirmedBookingId) {
+      const bookNotifRef = db.collection('notifications').doc();
+      const bRef = confirmedBookingId.slice(0, 8).toUpperCase();
+      transaction.set(bookNotifRef, {
+        id: bookNotifRef.id,
+        userId: clientId,
+        title: 'Booking Confirmed!',
+        body: `Your training session for ${payment.packageName} has been confirmed. Ref: #${bRef}`,
+        type: 'BOOKING_CONFIRMED',
+        isRead: false,
+        data: {
+          bookingId: confirmedBookingId,
+          bookingReference: bRef,
+        },
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
     return {
       alreadyFinalized: false,
       success: true,
@@ -1797,6 +2124,17 @@ export const verifyRazorpayPayment = onCall(async (request) => {
 
   if (!paymentDocId || !razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
     throw new HttpsError('invalid-argument', 'Missing payment verification credentials.');
+  }
+
+  // 0. Enforce Caller Ownership of Payment Record
+  const paymentRef = db.collection('payments').doc(paymentDocId);
+  const paymentSnap = await paymentRef.get();
+  if (!paymentSnap.exists) {
+    throw new HttpsError('not-found', 'Payment record not found.');
+  }
+  const paymentData = paymentSnap.data()!;
+  if (paymentData.clientId !== request.auth.uid) {
+    throw new HttpsError('permission-denied', 'You are not authorized to verify this payment record.');
   }
 
   // 1. Signature Verification with HMAC SHA256
@@ -1844,6 +2182,13 @@ export const recordRazorpayPaymentFailure = onCall(async (request) => {
 
   const paymentRef = db.collection('payments').doc(paymentDocId);
   const paymentDoc = await paymentRef.get();
+  if (!paymentDoc.exists) {
+    throw new HttpsError('not-found', 'Payment record not found.');
+  }
+  const paymentData = paymentDoc.data()!;
+  if (paymentData.clientId !== request.auth.uid) {
+    throw new HttpsError('permission-denied', 'You are not authorized to modify this payment record.');
+  }
 
   await paymentRef.update({
     status: 'FAILED',
@@ -1879,6 +2224,23 @@ export const recordRazorpayPaymentFailure = onCall(async (request) => {
       }
     }
   }
+
+  // In-app payment failed notification
+  const failNotifRef = db.collection('notifications').doc();
+  await failNotifRef.set({
+    id: failNotifRef.id,
+    userId: paymentData.clientId,
+    title: 'Payment Unsuccessful',
+    body: `Payment for ${paymentData.packageName || 'training package'} could not be processed. ${errorDescription || 'Please try again.'}`,
+    type: 'PAYMENT_FAILED',
+    isRead: false,
+    data: {
+      paymentId: paymentDocId,
+      errorCode: errorCode || 'FAILED',
+      packageName: paymentData.packageName || 'Package',
+    },
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
 
   return { success: true, status: 'FAILED' };
 });
@@ -1978,12 +2340,76 @@ export const onNotificationCreated = onDocumentCreated(
     const type = data.type || 'GENERAL';
     const extraData = data.data || {};
 
+    // Deduplication check: if push was already dispatched at message creation
+    if (extraData.fcmDispatched === 'true' || extraData.fcmDispatched === true) {
+      return;
+    }
+
+    const cleanType = String(type).trim().toUpperCase();
+    const isMandatory =
+      cleanType.includes('SECURITY') ||
+      cleanType.includes('PASSWORD') ||
+      cleanType.includes('AUTH') ||
+      cleanType.includes('LOGIN') ||
+      cleanType.includes('DELETION') ||
+      cleanType === 'PAYMENT_CONFIRMED' ||
+      cleanType === 'PAYMENT_FAILED' ||
+      cleanType === 'TRANSACTION_RECEIPT';
+
+    // Respect client notification preferences
+    if (!isMandatory) {
+      let prefDoc = await db.collection('users').doc(userId).collection('settings').doc('notifications').get();
+      if (!prefDoc.exists) {
+        prefDoc = await db.collection('users').doc(userId).collection('settings').doc('notification_preferences').get();
+      }
+      if (prefDoc.exists) {
+        const prefs = prefDoc.data() || {};
+        if ((cleanType.startsWith('BOOKING_') || cleanType === 'BOOKING_UPDATE') && prefs.bookingUpdates === false) {
+          return;
+        }
+        if ((cleanType.includes('REMINDER') || cleanType === 'SESSION_REMINDER') && prefs.sessionReminders === false) {
+          return;
+        }
+        if ((cleanType.startsWith('PAYMENT_') || cleanType.startsWith('PACKAGE_') || cleanType.includes('CREDIT_')) && prefs.paymentUpdates === false) {
+          return;
+        }
+        if ((cleanType.includes('CHAT') || cleanType.includes('MESSAGE')) && prefs.trainerMessages === false) {
+          return;
+        }
+        if ((cleanType.includes('REVIEW') || cleanType.includes('RATING') || cleanType.includes('FEEDBACK')) && prefs.reviewsAndFeedback === false) {
+          return;
+        }
+        if ((cleanType.startsWith('SUPPORT_') || cleanType === 'SUPPORT_TICKET_UPDATE') && prefs.supportUpdates === false) {
+          return;
+        }
+        if ((cleanType.includes('ANNOUNCEMENT') || cleanType.includes('MARKETING') || cleanType.includes('PROMO')) && prefs.platformAnnouncements === false) {
+          return;
+        }
+      }
+    }
+
+    // Security & privacy sanitize: never leak private addresses or payment credentials in push payload
+    const prohibitedPayloadKeys = new Set([
+      'meetingLocation',
+      'privateAddress',
+      'address',
+      'creditCard',
+      'cardNumber',
+      'razorpaySignature',
+      'signature',
+      'cvv',
+      'password',
+      'token',
+      'fcmDispatched',
+    ]);
+
     const payloadData: Record<string, string> = {
       type: String(type),
       click_action: 'FLUTTER_NOTIFICATION_CLICK',
     };
 
     for (const key of Object.keys(extraData)) {
+      if (prohibitedPayloadKeys.has(key)) continue;
       if (extraData[key] !== undefined && extraData[key] !== null) {
         payloadData[key] = String(extraData[key]);
       }
@@ -2057,6 +2483,34 @@ export const onChatMessageCreated = onDocumentCreated(
     const convId = event.params.convId;
 
     if (!receiverId || !text) return;
+
+    // 1. Create in-app notification doc for the recipient
+    const notifRef = db.collection('notifications').doc();
+    await notifRef.set({
+      id: notifRef.id,
+      userId: receiverId,
+      title: senderName,
+      body: text.length > 90 ? text.substring(0, 87) + '...' : text,
+      type: 'CHAT_MESSAGE',
+      isRead: false,
+      data: {
+        conversationId: convId,
+        senderId: senderId || '',
+        trainerId: senderId || '',
+        trainerName: senderName,
+        fcmDispatched: 'true', // Prevents double push in onNotificationCreated
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // 2. Check if recipient has disabled trainer messages in preferences
+    let prefDoc = await db.collection('users').doc(receiverId).collection('settings').doc('notifications').get();
+    if (!prefDoc.exists) {
+      prefDoc = await db.collection('users').doc(receiverId).collection('settings').doc('notification_preferences').get();
+    }
+    if (prefDoc.exists && prefDoc.data()?.trainerMessages === false) {
+      return; // Suppress FCM push per user preference
+    }
 
     const receiverDoc = await db.collection('users').doc(receiverId).get();
     if (!receiverDoc.exists) return;
@@ -2461,5 +2915,495 @@ export const getTrainerAvailableSlots = onCall(async (request) => {
   });
 
   return { slots: resultSlots, isBlocked: false };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 15. Client Support & Complaints System
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const submitSupportTicket = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated to submit a support request.');
+  }
+
+  const { category, subject, description, bookingId, bookingReference, attachmentUrl, attachmentName } = request.data || {};
+  if (!category || !subject || !description) {
+    throw new HttpsError('invalid-argument', 'Category, subject, and description are required.');
+  }
+
+  const trimmedSubject = String(subject).trim();
+  if (trimmedSubject.length < 3) {
+    throw new HttpsError('invalid-argument', 'Subject must be at least 3 characters long.');
+  }
+
+  const trimmedDescription = String(description).trim();
+  if (trimmedDescription.length < 10) {
+    throw new HttpsError('invalid-argument', 'Description must be at least 10 characters long.');
+  }
+
+  const uid = request.auth.uid;
+  const userDoc = await db.collection('users').doc(uid).get();
+  const userData = userDoc.exists ? userDoc.data()! : {};
+  const clientName = userData.displayName || userData.name || 'Athlete';
+  const clientEmail = userData.email || null;
+
+  // Generate ticket number TKT-XXXXXX
+  const now = new Date();
+  const millisPart = now.getTime().toString(36).toUpperCase();
+  const ticketNumber = `TKT-${millisPart.slice(-6).padStart(6, '0')}`;
+  const ticketId = `tkt_${now.getTime()}_${uid.substring(0, 5)}`;
+
+  const ticketRef = db.collection('support_tickets').doc(ticketId);
+  const msgRef = ticketRef.collection('messages').doc();
+
+  const ticketData = {
+    id: ticketId,
+    ticketNumber,
+    clientId: uid,
+    clientName,
+    clientEmail,
+    category: String(category).trim().toUpperCase(),
+    subject: trimmedSubject,
+    description: trimmedDescription,
+    bookingId: bookingId ? String(bookingId).trim() : null,
+    bookingReference: bookingReference ? String(bookingReference).trim() : null,
+    attachmentUrl: attachmentUrl ? String(attachmentUrl).trim() : null,
+    attachmentName: attachmentName ? String(attachmentName).trim() : null,
+    status: 'SUBMITTED',
+    lastMessage: trimmedDescription,
+    lastMessageSender: 'CLIENT',
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  const initialMessage = {
+    id: msgRef.id,
+    ticketId,
+    senderId: uid,
+    senderType: 'CLIENT',
+    senderName: clientName,
+    message: trimmedDescription,
+    attachmentUrl: attachmentUrl ? String(attachmentUrl).trim() : null,
+    attachmentName: attachmentName ? String(attachmentName).trim() : null,
+    isRead: true,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  const batch = db.batch();
+  batch.set(ticketRef, ticketData);
+  batch.set(msgRef, initialMessage);
+  await batch.commit();
+
+  // Send in-app notification confirming ticket receipt
+  try {
+    const notifRef = db.collection('notifications').doc();
+    await notifRef.set({
+      id: notifRef.id,
+      userId: uid,
+      title: 'Support Request Received',
+      body: `Ticket #${ticketNumber} has been received. Our team will review it shortly.`,
+      type: 'SUPPORT_TICKET_UPDATE',
+      isRead: false,
+      data: {
+        ticketId,
+        ticketNumber,
+        status: 'SUBMITTED',
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (_) {}
+
+  return {
+    success: true,
+    ticketId,
+    ticketNumber,
+  };
+});
+
+export const sendSupportTicketMessage = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated to send a message.');
+  }
+
+  const { ticketId, message, attachmentUrl, attachmentName } = request.data || {};
+  if (!ticketId) {
+    throw new HttpsError('invalid-argument', 'Ticket ID is required.');
+  }
+
+  const trimmedMessage = message ? String(message).trim() : '';
+  if (!trimmedMessage && !attachmentUrl) {
+    throw new HttpsError('invalid-argument', 'Message or attachment is required.');
+  }
+
+  const uid = request.auth.uid;
+  const ticketRef = db.collection('support_tickets').doc(ticketId);
+  const ticketSnap = await ticketRef.get();
+
+  if (!ticketSnap.exists) {
+    throw new HttpsError('not-found', 'Support ticket not found.');
+  }
+
+  const ticket = ticketSnap.data()!;
+  if (ticket.clientId !== uid) {
+    throw new HttpsError('permission-denied', 'Only the ticket owner can reply to this support ticket.');
+  }
+
+  if (ticket.status === 'CLOSED') {
+    throw new HttpsError('failed-precondition', 'Cannot reply to a closed ticket. Please submit a new request.');
+  }
+
+  const userDoc = await db.collection('users').doc(uid).get();
+  const userData = userDoc.exists ? userDoc.data()! : {};
+  const senderName = userData.displayName || userData.name || 'Athlete';
+
+  const msgRef = ticketRef.collection('messages').doc();
+  const messageData = {
+    id: msgRef.id,
+    ticketId,
+    senderId: uid,
+    senderType: 'CLIENT',
+    senderName,
+    message: trimmedMessage,
+    attachmentUrl: attachmentUrl ? String(attachmentUrl).trim() : null,
+    attachmentName: attachmentName ? String(attachmentName).trim() : null,
+    isRead: true,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  const batch = db.batch();
+  batch.set(msgRef, messageData);
+  batch.update(ticketRef, {
+    lastMessage: trimmedMessage || 'Sent an attachment',
+    lastMessageSender: 'CLIENT',
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    ...(ticket.status === 'RESOLVED' ? { status: 'IN_PROGRESS' } : {}),
+  });
+  await batch.commit();
+
+  return { success: true, messageId: msgRef.id };
+});
+
+export const updateSupportTicketStatus = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const { ticketId, status, supportNote } = request.data || {};
+  if (!ticketId || !status) {
+    throw new HttpsError('invalid-argument', 'Ticket ID and status are required.');
+  }
+
+  const validStatuses = ['SUBMITTED', 'UNDER_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+  const upperStatus = String(status).trim().toUpperCase();
+  if (!validStatuses.includes(upperStatus)) {
+    throw new HttpsError('invalid-argument', `Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+  }
+
+  const uid = request.auth.uid;
+  const ticketRef = db.collection('support_tickets').doc(ticketId);
+  const ticketSnap = await ticketRef.get();
+
+  if (!ticketSnap.exists) {
+    throw new HttpsError('not-found', 'Support ticket not found.');
+  }
+
+  const ticket = ticketSnap.data()!;
+  // Non-admins can only mark their own ticket as CLOSED
+  const userDoc = await db.collection('users').doc(uid).get();
+  const isAdmin = userDoc.exists && userDoc.data()!.role === 'ADMIN';
+
+  if (!isAdmin) {
+    if (ticket.clientId !== uid) {
+      throw new HttpsError('permission-denied', 'Not authorized to update this support ticket.');
+    }
+    if (upperStatus !== 'CLOSED') {
+      throw new HttpsError('permission-denied', 'Clients may only mark their own support tickets as CLOSED.');
+    }
+  }
+
+  const batch = db.batch();
+  const updateData: any = {
+    status: upperStatus,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  if (upperStatus === 'RESOLVED') {
+    updateData.resolvedAt = admin.firestore.FieldValue.serverTimestamp();
+  } else if (upperStatus === 'CLOSED') {
+    updateData.closedAt = admin.firestore.FieldValue.serverTimestamp();
+  }
+
+  if (supportNote && String(supportNote).trim().length > 0) {
+    const msgRef = ticketRef.collection('messages').doc();
+    batch.set(msgRef, {
+      id: msgRef.id,
+      ticketId,
+      senderId: uid,
+      senderType: 'SUPPORT',
+      senderName: 'TRAIN Z Support Specialist',
+      message: String(supportNote).trim(),
+      isRead: false,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    updateData.lastMessage = String(supportNote).trim();
+    updateData.lastMessageSender = 'SUPPORT';
+  }
+
+  batch.update(ticketRef, updateData);
+  await batch.commit();
+
+  // Send status update notification to client
+  try {
+    const notifRef = db.collection('notifications').doc();
+    await notifRef.set({
+      id: notifRef.id,
+      userId: ticket.clientId,
+      title: `Support Ticket #${ticket.ticketNumber} Update`,
+      body: `Status has been updated to "${upperStatus.replace('_', ' ')}".`,
+      type: 'SUPPORT_TICKET_UPDATE',
+      isRead: false,
+      data: {
+        ticketId,
+        ticketNumber: ticket.ticketNumber,
+        status: upperStatus,
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (_) {}
+
+  return { success: true, status: upperStatus };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 27. Client Account Deletion & Anonymization (Compliant with Data Laws)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const requestClientAccountDeletion = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated to request account deletion.');
+  }
+
+  const uid = request.auth.uid;
+  const { reason } = request.data || {};
+
+  // 1. Fetch user to verify existence and role
+  const userDocRef = db.collection('users').doc(uid);
+  const userSnap = await userDocRef.get();
+  if (!userSnap.exists) {
+    throw new HttpsError('not-found', 'User account record not found.');
+  }
+
+  const userData = userSnap.data()!;
+  if (userData.role !== 'CLIENT') {
+    throw new HttpsError('failed-precondition', 'Account deletion flow here applies exclusively to Client accounts.');
+  }
+
+  // 2. Cancel any pending or confirmed upcoming bookings
+  const bookingsSnap = await db.collection('bookings')
+    .where('clientId', '==', uid)
+    .where('status', 'in', ['PENDING', 'CONFIRMED'])
+    .get();
+
+  const batch = db.batch();
+  for (const bDoc of bookingsSnap.docs) {
+    batch.update(bDoc.ref, {
+      status: 'CANCELLED',
+      cancellationReason: 'Athlete Account Deletion',
+      cancelledBy: 'CLIENT',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  }
+
+  // 3. Anonymize user profile in users collection
+  batch.update(userDocRef, {
+    displayName: 'Deleted Athlete',
+    email: `deleted_${uid.slice(0, 8)}@trainz.deleted`,
+    phoneNumber: null,
+    photoUrl: null,
+    status: 'DELETED',
+    deletedAt: admin.firestore.FieldValue.serverTimestamp(),
+    deletionReason: reason ? String(reason).trim() : 'Athlete voluntary account closure',
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  // 4. Clear sensitive private fields from client_profiles collection
+  const clientProfileRef = db.collection('client_profiles').doc(uid);
+  const clientProfileSnap = await clientProfileRef.get();
+  if (clientProfileSnap.exists) {
+    batch.update(clientProfileRef, {
+      privateAddress: null,
+      emergencyContact: null,
+      dateOfBirth: null,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  }
+
+  // 5. Create statutory compliance audit record (preserves auditability for tax/financial transactions)
+  const auditRef = db.collection('deletion_audits').doc(uid);
+  batch.set(auditRef, {
+    userId: uid,
+    role: 'CLIENT',
+    deletedAt: admin.firestore.FieldValue.serverTimestamp(),
+    reason: reason ? String(reason).trim() : 'Athlete voluntary account closure',
+    cancelledBookingsCount: bookingsSnap.size,
+    statutoryRetentionNotice: 'Payment and invoice transactions retained per Section 35 of CGST Act / statutory financial auditing requirements.',
+  });
+
+  // 6. Record in deletion_requests collection
+  const delReqRef = db.collection('deletion_requests').doc(uid);
+  batch.set(delReqRef, {
+    userId: uid,
+    status: 'PROCESSED',
+    reason: reason ? String(reason).trim() : 'Athlete voluntary account closure',
+    requestedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  await batch.commit();
+
+  // 7. Delete profile images from Firebase Storage
+  try {
+    const bucket = admin.storage().bucket();
+    await bucket.deleteFiles({ prefix: `profile_pictures/${uid}/` });
+  } catch (err) {
+    console.warn(`Could not delete storage files for ${uid}:`, err);
+  }
+
+  // 8. Delete user from Firebase Auth
+  try {
+    await admin.auth().deleteUser(uid);
+  } catch (err) {
+    console.warn(`Could not delete auth user for ${uid}:`, err);
+  }
+
+  return {
+    success: true,
+    message: 'Athlete account deleted and personal records successfully anonymized.',
+  };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 28. Client Notification Preferences Update
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const updateClientNotificationPreferences = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const uid = request.auth.uid;
+  const {
+    bookingUpdates = true,
+    sessionReminders = true,
+    paymentUpdates = true,
+    trainerMessages = true,
+    reviewsAndFeedback = true,
+    supportUpdates = true,
+    platformAnnouncements = false,
+  } = request.data || {};
+
+  const payload = {
+    bookingUpdates: Boolean(bookingUpdates),
+    sessionReminders: Boolean(sessionReminders),
+    paymentUpdates: Boolean(paymentUpdates),
+    trainerMessages: Boolean(trainerMessages),
+    reviewsAndFeedback: Boolean(reviewsAndFeedback),
+    supportUpdates: Boolean(supportUpdates),
+    platformAnnouncements: Boolean(platformAnnouncements),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  const userSettingsCol = db.collection('users').doc(uid).collection('settings');
+  await Promise.all([
+    userSettingsCol.doc('notifications').set(payload, { merge: true }),
+    userSettingsCol.doc('notification_preferences').set(payload, { merge: true }),
+  ]);
+
+  return { success: true };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 29. Automated Upcoming Session & Expiration Reminders
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const checkUpcomingSessionReminders = onCall(async (request) => {
+  // Allow authenticated users or admin to trigger checking
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Must be authenticated to run reminder check.');
+  }
+
+  const now = new Date();
+  const next24h = new Date(now.getTime() + 25 * 60 * 60 * 1000);
+
+  // 1. Check confirmed bookings in the next 24 hours
+  const bookingsSnap = await db
+    .collection('bookings')
+    .where('status', '==', 'CONFIRMED')
+    .where('sessionDate', '>=', admin.firestore.Timestamp.fromDate(now))
+    .where('sessionDate', '<=', admin.firestore.Timestamp.fromDate(next24h))
+    .get();
+
+  let remindersSent = 0;
+
+  for (const doc of bookingsSnap.docs) {
+    const booking = doc.data();
+    const sessionDate: Date = booking.sessionDate.toDate();
+    let exactTime = new Date(sessionDate);
+
+    if (booking.startTime) {
+      const match = String(booking.startTime).trim().match(/(\d+):(\d+)\s*(AM|PM)?/i);
+      if (match) {
+        let hour = parseInt(match[1], 10);
+        const min = parseInt(match[2], 10);
+        const period = match[3] ? match[3].toUpperCase() : '';
+        if (period === 'PM' && hour < 12) hour += 12;
+        if (period === 'AM' && hour === 12) hour = 0;
+        exactTime.setHours(hour, min, 0, 0);
+      }
+    }
+
+    const hoursUntil = (exactTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+    let reminderWindow = '';
+    let reminderLabel = '';
+
+    if (hoursUntil >= 11 && hoursUntil <= 13) {
+      reminderWindow = '12h';
+      reminderLabel = 'in 12 hours';
+    } else if (hoursUntil >= 1.5 && hoursUntil <= 2.5) {
+      reminderWindow = '2h';
+      reminderLabel = 'in 2 hours';
+    } else if (hoursUntil >= 0.5 && hoursUntil <= 1.2) {
+      reminderWindow = '1h';
+      reminderLabel = 'in 1 hour';
+    }
+
+    if (reminderWindow) {
+      const lockKey = `reminder_${reminderWindow}_${doc.id}`;
+      const notifRef = db.collection('notifications').doc(lockKey);
+      const existing = await notifRef.get();
+
+      if (!existing.exists) {
+        const bRef = doc.id.slice(0, 8).toUpperCase();
+        await notifRef.set({
+          id: lockKey,
+          userId: booking.clientId,
+          title: 'Upcoming Training Session',
+          body: `Your session with ${booking.trainerName || 'Coach'} starts ${reminderLabel} (${booking.startTime || ''}). Ref: #${bRef}`,
+          type: 'UPCOMING_REMINDER',
+          isRead: false,
+          data: {
+            bookingId: doc.id,
+            bookingReference: bRef,
+            reminderWindow,
+            startTime: booking.startTime || '',
+            trainerName: booking.trainerName || '',
+          },
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        remindersSent++;
+      }
+    }
+  }
+
+  return { success: true, remindersSent };
 });
 

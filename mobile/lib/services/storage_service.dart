@@ -8,6 +8,7 @@ import '../core/errors/app_exceptions.dart';
 class StorageService {
   static final StorageService _instance = StorageService._internal();
   factory StorageService() => _instance;
+  static StorageService get instance => _instance;
   StorageService._internal();
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -177,6 +178,50 @@ class StorageService {
     }
 
     return downloadUrl;
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Client Support Ticket Attachments (Screenshots & Documents)
+  // ───────────────────────────────────────────────────────────────────────────
+
+  /// Uploads support complaint screenshot or document to:
+  /// support_attachments/{ticketId}/{fileName}
+  /// Strictly restricted: readable ONLY by the client owner and ADMIN.
+  Future<String> uploadSupportAttachment({
+    required String ticketId,
+    required String clientId,
+    required File file,
+  }) async {
+    final bytes = await file.length();
+    if (bytes > 5 * 1024 * 1024) {
+      throw const StorageException(
+        'Attachment exceeds the 5MB size limit.',
+        code: 'FILE_TOO_LARGE',
+      );
+    }
+
+    final ext = file.path.split('.').last.toLowerCase();
+    if (!['jpg', 'jpeg', 'png', 'webp', 'pdf'].contains(ext)) {
+      throw const StorageException(
+        'Invalid attachment type. Only JPG, PNG, WebP, and PDF documents are allowed.',
+        code: 'INVALID_FILE_TYPE',
+      );
+    }
+
+    final fileName = 'attach_${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final storagePath = '${FirestoreCollections.storageSupportAttachments}/$ticketId/$fileName';
+    final ref = _storage.ref().child(storagePath);
+
+    final metadata = SettableMetadata(
+      contentType: _resolveDocMime(ext),
+      customMetadata: {
+        'ticketId': ticketId,
+        'clientId': clientId,
+      },
+    );
+
+    final uploadTask = await ref.putFile(file, metadata);
+    return await uploadTask.ref.getDownloadURL();
   }
 
   // ───────────────────────────────────────────────────────────────────────────

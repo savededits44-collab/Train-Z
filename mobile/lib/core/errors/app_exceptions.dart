@@ -83,3 +83,18 @@ class ReservationExpiredException extends TrainZException {
 class StorageException extends TrainZException {
   const StorageException(super.message, {super.code, super.details});
 }
+
+/// Review submission, validation, or moderation errors
+class ReviewException extends TrainZException {
+  const ReviewException(super.message, {super.code = 'REVIEW_ERROR', super.details});
+}
+
+/// Client support, complaint submission, and ticket management errors
+class SupportException extends TrainZException {
+  const SupportException(super.message, {super.code = 'SUPPORT_ERROR', super.details});
+}
+
+/// Client account settings, security, and profile preference errors
+class SettingsException extends TrainZException {
+  const SettingsException(super.message, {super.code = 'SETTINGS_ERROR', super.details});
+}

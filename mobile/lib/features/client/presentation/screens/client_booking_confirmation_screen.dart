@@ -2,11 +2,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../../../services/credit_service.dart';
 import '../../../../services/firestore_service.dart';
+import '../../../../services/notification_service.dart';
 import '../../../../shared/models/booking_model.dart';
+import '../../../../shared/models/session_credit_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../shared/models/training_plan_model.dart';
 import '../../../../widgets/app_widgets.dart';
+import 'client_home_screen.dart';
 import 'client_payment_screen.dart';
 
 /// Screen displaying the temporary reservation status or final confirmed booking.
@@ -35,6 +39,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
   Timer? _countdownTimer;
   int _secondsLeft = 900; // 15 mins default
   bool _isCancelling = false;
+  bool _isConfirmingWithCredit = false;
   String? _statusMessage;
 
   @override
@@ -93,6 +98,51 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
         ),
       ),
     );
+  }
+
+  /// Confirms the reserved slot immediately using an existing session credit
+  Future<void> _handleConfirmWithCredit() async {
+    if (_isConfirmingWithCredit || _isCancelling) return;
+    setState(() {
+      _isConfirmingWithCredit = true;
+      _statusMessage = null;
+    });
+    HapticFeedback.mediumImpact();
+
+    try {
+      final txId = await CreditService.instance.reserveCreditForBooking(
+        clientId: _currentBooking.clientId,
+        bookingId: _currentBooking.id,
+      );
+
+      final confirmed = await _firestoreService.confirmBookingPayment(
+        bookingId: _currentBooking.id,
+        paymentTransactionId: 'CREDIT_$txId',
+      );
+
+      try {
+        await NotificationService.instance.sendNotification(
+          userId: _currentBooking.clientId,
+          title: 'Session Confirmed! 📅',
+          body: 'Your 60-minute training session on ${_currentBooking.formattedDate} at ${_currentBooking.startTime} with ${_currentBooking.displayTrainerName} is confirmed.',
+          type: 'BOOKING_CONFIRMED',
+          relatedId: _currentBooking.id,
+        );
+      } catch (_) {}
+
+      if (!mounted) return;
+      _countdownTimer?.cancel();
+      setState(() {
+        _currentBooking = confirmed;
+        _isConfirmingWithCredit = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isConfirmingWithCredit = false;
+        _statusMessage = 'Failed to confirm booking with credit: $e';
+      });
+    }
   }
 
   /// Releases the temporary slot reservation immediately if client cancels or backs out
@@ -249,7 +299,15 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () => Navigator.popUntil(context, (r) => r.isFirst),
+                          onPressed: () {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ClientHomeScreen(initialTab: 0),
+                              ),
+                              (r) => false,
+                            );
+                          },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Color(0xFFE5E5E5)),
                             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -263,7 +321,13 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                         flex: 2,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.popUntil(context, (r) => r.isFirst);
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ClientHomeScreen(initialTab: 2),
+                              ),
+                              (r) => false,
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: kDark,
@@ -291,49 +355,111 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                           child: const Text('Select Another Slot', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800)),
                         ),
                       )
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isCancelling ? null : _handleProceedToPayment,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: kDark,
-                                foregroundColor: kLime,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                elevation: 0,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Iconsax.card_tick, size: 18, color: kLime),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Pay ₹${widget.plan.price} & Confirm',
-                                    style: TextStyle(
-                                      fontFamily: 'Syne',
-                                      fontSize: (14.5 * sf).clamp(13.0, 16.5),
-                                      fontWeight: FontWeight.w800,
-                                      color: kLime,
+                    : StreamBuilder<SessionCreditModel?>(
+                        stream: CreditService.instance.streamClientCredits(_currentBooking.clientId),
+                        builder: (context, creditSnap) {
+                          final creditModel = creditSnap.data;
+                          final hasCredit = creditModel != null && creditModel.availableBalance >= 1;
+
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (hasCredit) ...[
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: (_isCancelling || _isConfirmingWithCredit) ? null : _handleConfirmWithCredit,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: kLime,
+                                      foregroundColor: kDark,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                      elevation: 0,
+                                    ),
+                                    child: _isConfirmingWithCredit
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(strokeWidth: 2, color: kDark),
+                                          )
+                                        : Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(Iconsax.ticket, size: 18, color: kDark),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                'Confirm with 1 Credit (${creditModel.availableBalance} Available)',
+                                                style: TextStyle(
+                                                  fontFamily: 'Syne',
+                                                  fontSize: (14.0 * sf).clamp(12.5, 16.0),
+                                                  fontWeight: FontWeight.w800,
+                                                  color: kDark,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton(
+                                    onPressed: (_isCancelling || _isConfirmingWithCredit) ? null : _handleProceedToPayment,
+                                    style: OutlinedButton.styleFrom(
+                                      side: const BorderSide(color: Color(0xFFD1D5DB)),
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    child: Text(
+                                      'Pay ₹${widget.plan.price} Online Instead',
+                                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.w600, color: kDark),
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: _isCancelling ? null : _handleCancelReservation,
-                            child: _isCancelling
-                                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                                : const Text(
-                                    'Cancel & Release Slot',
-                                    style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFFDC2626), fontWeight: FontWeight.w600),
+                                ),
+                              ] else ...[
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: (_isCancelling || _isConfirmingWithCredit) ? null : _handleProceedToPayment,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: kDark,
+                                      foregroundColor: kLime,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                      elevation: 0,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Iconsax.card_tick, size: 18, color: kLime),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Pay ₹${widget.plan.price} & Confirm',
+                                          style: TextStyle(
+                                            fontFamily: 'Syne',
+                                            fontSize: (14.5 * sf).clamp(13.0, 16.5),
+                                            fontWeight: FontWeight.w800,
+                                            color: kLime,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                          ),
-                        ],
+                                ),
+                              ],
+                              const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: (_isCancelling || _isConfirmingWithCredit) ? null : _handleCancelReservation,
+                                child: _isCancelling
+                                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                                    : const Text(
+                                        'Cancel & Release Slot',
+                                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFFDC2626), fontWeight: FontWeight.w600),
+                                      ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
           ),
         ),

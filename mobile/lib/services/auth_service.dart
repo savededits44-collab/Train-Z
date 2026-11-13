@@ -7,12 +7,19 @@ import '../core/errors/app_exceptions.dart';
 import '../shared/models/trainer_certificate_model.dart';
 import '../shared/models/trainer_profile_model.dart';
 import '../shared/models/user_model.dart';
+import 'booking_service.dart';
+import 'client_settings_service.dart';
+import 'credit_service.dart';
+import 'notification_service.dart';
+import 'review_service.dart';
+import 'support_service.dart';
 
 /// Single, unified authentication service for TRAIN Z (both Clients and Trainers).
 /// Roles and permissions are strictly decoupled from public authentication tokens.
 class AuthService {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
+  static AuthService get instance => _instance;
   AuthService._internal();
 
   FirebaseAuth? _authInstance;
@@ -36,6 +43,9 @@ class AuthService {
       return null;
     }
   }
+
+  UserRole? _cachedRole;
+  UserRole? get currentRole => _cachedRole;
 
   Stream<User?> get authStateChanges {
     try {
@@ -188,6 +198,7 @@ class AuthService {
       } catch (_) {
         // Non-blocking; user can re-trigger verification manually
       }
+      await getUserModel(user.uid);
     }
 
     return credential;
@@ -213,6 +224,7 @@ class AuthService {
         'lastLoginAt': FieldValue.serverTimestamp(),
         'isEmailVerified': user.emailVerified,
       }, SetOptions(merge: true));
+      await getUserModel(user.uid);
     }
 
     return credential;
@@ -303,12 +315,23 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email.trim());
   }
 
-  /// Sign out from both Firebase and Google session
+  /// Sign out from both Firebase and Google session and securely clear in-memory caches
   Future<void> signOut() async {
+    _cachedRole = null;
     await Future.wait([
       _auth.signOut(),
       _googleSignIn.signOut(),
     ]);
+
+    // Securely clear sensitive in-memory session caches to prevent cross-account leaks
+    try {
+      BookingService.instance.clearBookings();
+      ClientSettingsService.instance.resetMockStore();
+      CreditService().resetMockCredits();
+      SupportService.instance.resetMockTickets();
+      ReviewService.instance.resetMockReviews();
+      NotificationService.instance.clearCache();
+    } catch (_) {}
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -330,13 +353,16 @@ class AuthService {
       if (doc.exists && doc.data() != null) {
         final model = UserModel.fromDocument(doc);
         if (!kReleaseMode && isDemoTrainer(uid: uid, email: model.email)) {
-          return model.copyWith(
+          final demoModel = model.copyWith(
             role: UserRole.trainer,
             status: UserStatus.active,
             isEmailVerified: true,
             isOnboarded: true,
           );
+          _cachedRole = UserRole.trainer;
+          return demoModel;
         }
+        _cachedRole = model.role;
         return model;
       }
     } catch (e) {
@@ -344,6 +370,7 @@ class AuthService {
     }
 
     if (!kReleaseMode && isDemoTrainer(uid: uid)) {
+      _cachedRole = UserRole.trainer;
       return syntheticDemoUser(uid);
     }
     return null;

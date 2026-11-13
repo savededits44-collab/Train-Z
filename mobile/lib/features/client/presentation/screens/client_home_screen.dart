@@ -9,10 +9,12 @@ import '../../../../services/credit_service.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../services/location_service.dart';
 import '../../../../services/notification_service.dart';
+import '../../../../services/support_service.dart';
 import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/client_profile_model.dart';
 import '../../../../shared/models/conversation_model.dart';
 import '../../../../shared/models/session_credit_model.dart';
+import '../../../../shared/models/support_ticket_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../shared/models/training_plan_model.dart';
 import '../../../../shared/models/user_model.dart';
@@ -25,21 +27,25 @@ import '../widgets/client_trainer_card.dart';
 import '../widgets/client_upcoming_session_card.dart';
 import '../widgets/trainer_filter_sheet.dart';
 import 'client_chat_screen.dart';
+import 'client_help_support_screen.dart';
 import 'client_my_bookings_screen.dart';
 import 'client_notifications_screen.dart';
 import 'client_profile_setup_screen.dart';
+import 'client_settings_screen.dart';
+import 'client_support_tickets_screen.dart';
 
 /// Comprehensive Client Home Dashboard for TRAIN Z.
 /// Features 5 main navigation tabs: Home, Find Trainer, Bookings, Messages, Profile.
 class ClientHomeScreen extends StatefulWidget {
-  const ClientHomeScreen({super.key});
+  final int initialTab;
+  const ClientHomeScreen({super.key, this.initialTab = 0});
 
   @override
   State<ClientHomeScreen> createState() => _ClientHomeScreenState();
 }
 
 class _ClientHomeScreenState extends State<ClientHomeScreen> {
-  int _currentTab = 0;
+  late int _currentTab;
   final TextEditingController _homeSearchController = TextEditingController();
   final TextEditingController _findTrainerSearchController = TextEditingController();
   final ScrollController _homeScrollController = ScrollController();
@@ -55,6 +61,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   @override
   void initState() {
     super.initState();
+    _currentTab = widget.initialTab;
     _findTrainerScrollController.addListener(_onFindTrainerScroll);
   }
 
@@ -2096,24 +2103,46 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   color: kDark,
                 ),
               ),
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const ClientProfileSetupScreen(isEditMode: true),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Iconsax.setting_2, size: 20, color: kDark),
+                    tooltip: 'Settings',
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ClientSettingsScreen(
+                            clientId: uid,
+                            clientName: displayName,
+                            clientEmail: clientUser?.email,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 4),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const ClientProfileSetupScreen(isEditMode: true),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Iconsax.edit_2, size: 14, color: kDark),
+                    label: const Text(
+                      'Edit',
+                      style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark, fontSize: 12),
                     ),
-                  );
-                },
-                icon: const Icon(Iconsax.edit_2, size: 14, color: kDark),
-                label: const Text(
-                  'Edit',
-                  style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark, fontSize: 12),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFFCCCCCC)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFCCCCCC)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -2344,6 +2373,158 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             ),
             const SizedBox(height: 20),
           ],
+
+          // ── Support & Help Center ──
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFEEEEEE)),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Iconsax.info_circle, size: 20, color: kDark),
+                  ),
+                  title: const Text(
+                    'Help & Support Center',
+                    style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+                  ),
+                  subtitle: const Text(
+                    'FAQs, booking guides, and policy information',
+                    style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF6B7280)),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF9CA3AF)),
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ClientHelpSupportScreen(
+                          clientId: uid,
+                          clientName: displayName,
+                          clientEmail: clientUser?.email,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const Divider(height: 1, indent: 56, endIndent: 16, color: Color(0xFFF3F4F6)),
+                StreamBuilder<List<SupportTicketModel>>(
+                  stream: SupportService.instance.streamClientTickets(uid),
+                  builder: (context, snap) {
+                    final tickets = snap.data ?? [];
+                    final activeCount = tickets.where((t) => t.isActive).length;
+
+                    return ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9FAFB),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Iconsax.ticket, size: 20, color: kDark),
+                      ),
+                      title: const Text(
+                        'Support Requests & Complaints',
+                        style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+                      ),
+                      subtitle: Text(
+                        activeCount > 0 ? '$activeCount active request${activeCount == 1 ? '' : 's'}' : 'Track your tickets and complaints',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 11,
+                          color: activeCount > 0 ? const Color(0xFF2563EB) : const Color(0xFF6B7280),
+                          fontWeight: activeCount > 0 ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (activeCount > 0)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                              margin: const EdgeInsets.only(right: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2563EB),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '$activeCount',
+                                style: const TextStyle(fontFamily: 'Poppins', fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white),
+                              ),
+                            ),
+                          const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF9CA3AF)),
+                        ],
+                      ),
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ClientSupportTicketsScreen(
+                              clientId: uid,
+                              clientName: displayName,
+                              clientEmail: clientUser?.email,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // ── Settings & Account Preferences ──
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFEEEEEE)),
+            ),
+            child: ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Iconsax.setting_2, size: 20, color: kDark),
+              ),
+              title: const Text(
+                'Settings & Account Management',
+                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+              ),
+              subtitle: const Text(
+                'Security, notifications, privacy & account controls',
+                style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF6B7280)),
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF9CA3AF)),
+              onTap: () {
+                HapticFeedback.lightImpact();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ClientSettingsScreen(
+                      clientId: uid,
+                      clientName: displayName,
+                      clientEmail: clientUser?.email,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 20),
 
           // Sign Out Action
           SizedBox(

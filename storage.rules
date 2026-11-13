@@ -73,6 +73,33 @@ service firebase.storage {
 
       allow delete: if isOwner(trainerId) || isAdmin();
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 5. Support Ticket Attachments & Screenshots (Strictly Private)
+    // Accessible only to the submitting Client and Admin.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /support_attachments/{ticketId}/{fileName} {
+      allow read: if isAuthenticated() && (
+        (resource.metadata != null && resource.metadata.clientId == request.auth.uid) ||
+        isAdmin()
+      );
+
+      allow write: if isAuthenticated()
+                   && request.resource.size < 5 * 1024 * 1024
+                   && (request.resource.contentType.matches('image/.*') || request.resource.contentType == 'application/pdf')
+                   && request.resource.metadata != null
+                   && request.resource.metadata.clientId == request.auth.uid;
+
+      allow delete: if isAdmin() || (isAuthenticated() && resource.metadata != null && resource.metadata.clientId == request.auth.uid);
+    }
+
+    match /support_attachments/{userId}/{fileName} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isOwner(userId)
+                   && request.resource.size < 5 * 1024 * 1024
+                   && (request.resource.contentType.matches('image/.*') || request.resource.contentType == 'application/pdf');
+      allow delete: if isOwner(userId) || isAdmin();
+    }
   }
 }
 

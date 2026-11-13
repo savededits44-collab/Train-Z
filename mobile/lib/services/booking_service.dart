@@ -6,6 +6,7 @@ import '../core/constants/firestore_collections.dart';
 import '../shared/models/booking_model.dart';
 import '../shared/models/user_model.dart';
 import 'client_package_service.dart';
+import 'credit_service.dart';
 import 'notification_service.dart';
 import 'trainer_profile_service.dart';
 
@@ -412,6 +413,14 @@ class BookingService extends ChangeNotifier {
     }
   }
 
+  /// Clears in-memory bookings and active subscriptions on user sign-out to prevent data leaks
+  void clearBookings() {
+    _firestoreSub?.cancel();
+    _firestoreSub = null;
+    _bookings.clear();
+    _notify();
+  }
+
   /// Add or update booking in real-time memory and broadcast to all trainer screens immediately
   void addOrUpdateBooking(BookingModel booking) {
     final index = _bookings.indexWhere((b) => b.id == booking.id);
@@ -612,6 +621,10 @@ class BookingService extends ChangeNotifier {
         if (target.packageId != null) {
           ClientPackageService.instance.incrementCompletedSession(target.packageId!);
         }
+        await CreditService.instance.consumeCreditForCompletedSession(
+          clientId: target.clientId,
+          bookingId: bookingId,
+        );
       }
     } catch (e) {
       debugPrint('Notice: Booking complete updated in local state: $e');

@@ -48,7 +48,8 @@ service cloud.firestore {
     // 1. users Collection
     // ─────────────────────────────────────────────────────────────────────────
     match /users/{userId} {
-      allow read: if isAuthenticated();
+      // Clients can only read their own user record; Admins can read all; Trainers can be read publicly for booking/discovery
+      allow read: if isOwner(userId) || isAdmin() || (resource.data.role == 'TRAINER');
 
       // Section 2 & 4: Public users cannot self-assign ADMIN role
       allow create: if isOwner(userId) && (
@@ -65,13 +66,32 @@ service cloud.firestore {
       );
 
       allow delete: if isAdmin();
+
+      // User Settings Subcollection (Notification Preferences, Privacy)
+      match /settings/{settingId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 2. client_profiles Collection
+    // Deletion Requests & Audits (Statutory Compliance)
+    // ─────────────────────────────────────────────────────────────────────────
+    match /deletion_requests/{requestId} {
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+    }
+
+    match /deletion_audits/{auditId} {
+      allow read: if isAdmin();
+      allow write: if false; // Cloud Functions / Admin SDK only
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 2. client_profiles Collection (Strictly private to Client Owner & Admin)
     // ─────────────────────────────────────────────────────────────────────────
     match /client_profiles/{clientId} {
-      allow read: if isOwner(clientId) || isTrainer() || isAdmin();
+      allow read: if isOwner(clientId) || isAdmin();
       allow write: if isOwner(clientId) || isAdmin();
     }
 
@@ -153,10 +173,15 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 6. bookings Collection
+    // 6. bookings Collection (Strict Participant & Admin Access Only)
     // ─────────────────────────────────────────────────────────────────────────
     match /bookings/{bookingId} {
-      allow read: if isAuthenticated();
+      // Clients can only read their own bookings; Trainers can only read their assigned bookings
+      allow read: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid ||
+        resource.data.trainerId == request.auth.uid ||
+        isAdmin()
+      );
 
       // Section 5: Gender Matching Enforcement & Section 6: Approved Trainer
       allow create: if isAuthenticated() &&
@@ -166,10 +191,20 @@ service cloud.firestore {
         get(/databases/$(database)/documents/trainer_profiles/$(request.resource.data.trainerId)).data.verificationStatus == 'APPROVED' &&
         get(/databases/$(database)/documents/trainer_profiles/$(request.resource.data.trainerId)).data.isActive == true;
 
+      // Clients and trainers can update session notes/rescheduling/cancellations; Clients cannot self-confirm
       allow update: if isAuthenticated() && (
-        resource.data.clientId == request.auth.uid ||
-        resource.data.trainerId == request.auth.uid ||
-        isAdmin()
+        isAdmin() || (
+          (resource.data.clientId == request.auth.uid || resource.data.trainerId == request.auth.uid) &&
+          request.resource.data.clientId == resource.data.clientId &&
+          request.resource.data.trainerId == resource.data.trainerId &&
+          (!('packagePrice' in request.resource.data) || request.resource.data.packagePrice == resource.data.packagePrice) &&
+          (!('status' in request.resource.data) ||
+           request.resource.data.status == resource.data.status ||
+           request.resource.data.status == 'CANCELLED' ||
+           request.resource.data.status == 'CANCELLED_CLIENT_EARLY' ||
+           request.resource.data.status == 'RESCHEDULED' ||
+           resource.data.trainerId == request.auth.uid)
+        )
       );
 
       allow delete: if isAdmin();
@@ -219,15 +254,34 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 10. reviews Collection
+    // 10. reviews Collection (Verified Session Eligibility Required)
     // ─────────────────────────────────────────────────────────────────────────
     match /reviews/{reviewId} {
       allow read: if resource.data.isPublic == true ||
                      isOwner(resource.data.clientId) ||
                      isOwner(resource.data.trainerId) ||
                      isAdmin();
-      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
-      allow update, delete: if isOwner(resource.data.clientId) || isAdmin();
+      // Only the client who completed the booking can submit a review
+      allow create: if isAuthenticated() &&
+                    request.resource.data.clientId == request.auth.uid &&
+                    exists(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)) &&
+                    get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.clientId == request.auth.uid &&
+                    get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.status == 'COMPLETED';
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        (
+          isOwner(resource.data.clientId) &&
+          request.resource.data.clientId == resource.data.clientId &&
+          request.resource.data.bookingId == resource.data.bookingId
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Review Reports (Abuse / Harassment Flagging)
+    match /review_reports/{reportId} {
+      allow create: if isAuthenticated() && request.resource.data.reporterId == request.auth.uid;
+      allow read, update, delete: if isAdmin();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -240,7 +294,7 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 12. purchased_packages Collection
+    // 12. purchased_packages Collection (Admin SDK / Cloud Functions Managed)
     // ─────────────────────────────────────────────────────────────────────────
     match /purchased_packages/{packageId} {
       allow read: if isAuthenticated() && (
@@ -248,13 +302,7 @@ service cloud.firestore {
         resource.data.trainerId == request.auth.uid ||
         isAdmin()
       );
-      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
-      allow update: if isAuthenticated() && (
-        resource.data.clientId == request.auth.uid ||
-        resource.data.trainerId == request.auth.uid ||
-        isAdmin()
-      );
-      allow delete: if isAdmin();
+      allow write: if isAdmin(); // Package activation and balances must be managed by Cloud Functions
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -270,7 +318,43 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────────────────
     match /slot_locks/{lockId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && (
+        (resource != null && (resource.data.clientId == request.auth.uid || resource.data.trainerId == request.auth.uid)) ||
+        isAdmin()
+      );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Support Tickets & Complaints (Strict Client Ownership & Admin Access)
+    // ─────────────────────────────────────────────────────────────────────────
+    match /support_tickets/{ticketId} {
+      allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        (
+          resource.data.clientId == request.auth.uid &&
+          request.resource.data.clientId == resource.data.clientId &&
+          (!('status' in request.resource.data) || request.resource.data.status == resource.data.status || request.resource.data.status == 'CLOSED')
+        )
+      );
+      allow delete: if isAdmin();
+
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && (
+          get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.clientId == request.auth.uid ||
+          isAdmin()
+        );
+        allow create: if isAuthenticated() && (
+          request.resource.data.senderId == request.auth.uid &&
+          (
+            get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.clientId == request.auth.uid ||
+            isAdmin()
+          )
+        );
+        allow update, delete: if isAdmin();
+      }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

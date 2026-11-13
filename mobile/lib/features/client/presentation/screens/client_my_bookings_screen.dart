@@ -4,12 +4,15 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../services/credit_service.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../services/location_service.dart';
+import '../../../../services/review_service.dart';
 import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/notification_model.dart';
+import '../../../../shared/models/review_model.dart';
 import '../../../../shared/models/session_credit_model.dart';
 import '../../../../widgets/app_widgets.dart';
-import '../widgets/client_notifications_sheet.dart';
+import '../widgets/client_review_modal.dart';
 import 'client_booking_detail_screen.dart';
+import 'client_notifications_screen.dart';
 
 /// Complete My Bookings section for clients to track, manage, reschedule,
 /// and review their 60-minute training sessions.
@@ -61,7 +64,12 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
               icon: const Icon(Iconsax.notification, color: kDark, size: 22),
               onPressed: () {
                 HapticFeedback.lightImpact();
-                ClientNotificationsSheet.show(context, clientId: widget.clientId);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ClientNotificationsScreen(),
+                  ),
+                );
               },
             ),
             if (unreadCount > 0)
@@ -728,6 +736,100 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 10),
+              StreamBuilder<ReviewModel?>(
+                stream: ReviewService.instance.streamReviewForBooking(booking.id),
+                builder: (context, reviewSnap) {
+                  final review = reviewSnap.data;
+                  if (review != null) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFFDE68A)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.star_rounded, size: 16, color: Color(0xFFD97706)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Reviewed ★ ${review.ratingText}',
+                                style: const TextStyle(
+                                  fontFamily: 'Syne',
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF92400E),
+                                ),
+                              ),
+                            ],
+                          ),
+                          InkWell(
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              ClientReviewModal.show(
+                                context,
+                                booking: booking,
+                                existingReview: review,
+                              );
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit_outlined, size: 13, color: Color(0xFF92400E)),
+                                  SizedBox(width: 3),
+                                  Text(
+                                    'Edit Review',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF92400E),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        ClientReviewModal.show(
+                          context,
+                          booking: booking,
+                        );
+                      },
+                      icon: const Icon(Icons.star_outline_rounded, size: 15, color: kDark),
+                      label: const Text(
+                        'Rate & Review Session',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w800,
+                          color: kDark,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kLime,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  );
+                },
               ),
             ] else if (booking.isCreditReturned) ...[
               const SizedBox(height: 8),

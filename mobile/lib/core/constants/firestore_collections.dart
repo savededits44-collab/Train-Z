@@ -13,6 +13,7 @@ class FirestoreCollections {
   static const String sessionCredits = 'session_credits';
   static const String trainerAvailability = 'trainer_availability';
   static const String reviews = 'reviews';
+  static const String reviewReports = 'review_reports';
   static const String notifications = 'notifications';
   static const String purchasedPackages = 'purchased_packages';
   static const String platformSettings = 'platform_settings';
@@ -20,15 +21,21 @@ class FirestoreCollections {
   static const String conversations = 'conversations';
   static const String messages = 'messages';
   static const String trainerCertificates = 'trainer_certificates';
+  static const String supportTickets = 'support_tickets';
+  static const String deletionRequests = 'deletion_requests';
+  static const String userSettings = 'settings';
+  static const String deletionAudits = 'deletion_audits';
 
   /// Subcollections
   static const String creditTransactions = 'transactions';
   static const String availabilitySlots = 'slots';
+  static const String supportMessages = 'messages';
 
   /// Storage buckets & directories
   static const String storageProfilePictures = 'profile_pictures';
   static const String storageCertificates = 'certificates';
   static const String storageTrainerCertifications = 'trainer_documents/certifications';
   static const String storageTrainerVerifications = 'trainer_documents/verifications';
+  static const String storageSupportAttachments = 'support_attachments';
 }
 

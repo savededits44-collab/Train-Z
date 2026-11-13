@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../core/constants/firestore_collections.dart';
 import '../shared/models/notification_model.dart';
+import '../shared/models/notification_preferences_model.dart';
 
 /// Real-time in-app notification service for Train-Z.
 /// Synchronizes notifications between clients and trainers via Cloud Firestore.
@@ -32,6 +33,27 @@ class NotificationService extends ChangeNotifier {
 
   // Deduplication cache: key = "$userId:$type:$relatedId", value = timestamp
   final Map<String, DateTime> _recentNotificationCache = {};
+
+  // Notification category preferences per user
+  final Map<String, NotificationPreferencesModel> _userPreferences = {};
+
+  void setUserPreferences(String userId, NotificationPreferencesModel prefs) {
+    _userPreferences[userId] = prefs;
+  }
+
+  NotificationPreferencesModel getUserPreferences(String userId) {
+    return _userPreferences[userId] ?? const NotificationPreferencesModel();
+  }
+
+  /// Completely purges cached notifications and user preferences on logout
+  void clearCache() {
+    _firestoreSub?.cancel();
+    _firestoreSub = null;
+    _notifications.clear();
+    _userPreferences.clear();
+    _recentNotificationCache.clear();
+    _notify();
+  }
 
   List<NotificationModel> get notifications => List.unmodifiable(_notifications);
   Stream<List<NotificationModel>> get stream => _streamController.stream;
@@ -107,6 +129,13 @@ class NotificationService extends ChangeNotifier {
     }
     _recentNotificationCache[cacheKey] = now;
 
+    // Category preferences check: respect client disabled categories (security is never disabled)
+    final userPrefs = _userPreferences[userId];
+    if (userPrefs != null && !userPrefs.isCategoryEnabled(type)) {
+      debugPrint('Notification suppressed by user preference: type=$type, userId=$userId');
+      return;
+    }
+
     final docRef = _firestore?.collection(FirestoreCollections.notifications).doc();
     final docId = docRef?.id ?? 'notif_${now.millisecondsSinceEpoch}';
     final notif = NotificationModel(
@@ -123,13 +152,13 @@ class NotificationService extends ChangeNotifier {
       createdAt: now,
     );
 
-    // If recipient is current user, update memory immediately for 0ms latency
+    // If recipient is current user (or offline/testing without Firestore), update memory immediately for 0ms latency
     String? currentUid;
     try {
       currentUid = FirebaseAuth.instance.currentUser?.uid;
     } catch (_) {}
 
-    if (currentUid == userId) {
+    if (currentUid == userId || _firestore == null) {
       _notifications.insert(0, notif);
       _notify();
     }
@@ -168,6 +197,21 @@ class NotificationService extends ChangeNotifier {
           .update({'isRead': true});
     } catch (e) {
       debugPrint('Notice: Error updating notification read state: $e');
+    }
+  }
+
+  /// Dismisses or permanently deletes a specific notification
+  Future<void> deleteNotification(String notificationId) async {
+    _notifications.removeWhere((n) => n.id == notificationId);
+    _notify();
+
+    try {
+      await _firestore
+          ?.collection(FirestoreCollections.notifications)
+          .doc(notificationId)
+          .delete();
+    } catch (e) {
+      debugPrint('Notice: Error deleting notification: $e');
     }
   }
 

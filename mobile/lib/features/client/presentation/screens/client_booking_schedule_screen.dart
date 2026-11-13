@@ -169,6 +169,8 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
   }
 
   Future<void> _handleProceedToCheckout() async {
+    if (_isSubmitting) return;
+
     // 1. Inactive city guard
     if (widget.trainer.cityId != null && !LocationService.instance.isCityActive(widget.trainer.cityId)) {
       setState(() => _errorMessage =

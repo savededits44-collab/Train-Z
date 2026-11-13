@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../core/constants/app_constants.dart';
 import '../core/constants/firestore_collections.dart';
 import '../core/errors/app_exceptions.dart';
@@ -12,12 +14,23 @@ import '../shared/models/user_model.dart';
 class CreditService {
   static final CreditService _instance = CreditService._internal();
   factory CreditService() => _instance;
+  static CreditService get instance => _instance;
   CreditService._internal();
 
   FirebaseFirestore? _firestoreInstance;
   FirebaseFirestore? get _firestore {
     try {
+      if (Firebase.apps.isEmpty) return null;
       return _firestoreInstance ?? FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? get _currentAuthUid {
+    try {
+      if (Firebase.apps.isEmpty) return null;
+      return FirebaseAuth.instance.currentUser?.uid;
     } catch (_) {
       return null;
     }
@@ -29,6 +42,7 @@ class CreditService {
 
   // In-memory fallback for test and offline environments
   final Map<String, SessionCreditModel> _mockCredits = {};
+  final Set<String> _mockReservedBookingIds = {};
 
   void setMockCredits(SessionCreditModel credit) {
     _mockCredits[credit.clientId] = credit;
@@ -38,15 +52,20 @@ class CreditService {
 
   void resetMockCredits() {
     _mockCredits.clear();
+    _mockReservedBookingIds.clear();
   }
 
   // ───────────────────────────────────────────────────────────────────────────
   // Streams & Getters
   // ───────────────────────────────────────────────────────────────────────────
 
-  /// Real-time stream of a client's credit account
+  /// Real-time stream of a client's credit account (Restricted to authenticated owner or admin)
   Stream<SessionCreditModel?> streamClientCredits(String clientId) {
     if (clientId.trim().isEmpty) return Stream.value(null);
+    final currentUid = _currentAuthUid;
+    if (currentUid != null && currentUid.isNotEmpty && currentUid != clientId) {
+      return Stream.value(null);
+    }
     final fs = _firestore;
     if (fs == null) {
       return Stream.value(_mockCredits[clientId] ?? SessionCreditModel(clientId: clientId));
@@ -71,9 +90,13 @@ class CreditService {
     }
   }
 
-  /// Real-time stream of immutable credit transaction history
+  /// Real-time stream of immutable credit transaction history (Restricted to authenticated owner or admin)
   Stream<List<CreditTransactionModel>> streamCreditTransactions(String clientId) {
     if (clientId.trim().isEmpty) return Stream.value(<CreditTransactionModel>[]);
+    final currentUid = _currentAuthUid;
+    if (currentUid != null && currentUid.isNotEmpty && currentUid != clientId) {
+      return Stream.value(<CreditTransactionModel>[]);
+    }
     final fs = _firestore;
     if (fs == null) return Stream.value(<CreditTransactionModel>[]);
     try {
@@ -177,6 +200,11 @@ class CreditService {
       throw ArgumentError('Valid client ID is required to reserve credits.');
     }
 
+    if (_mockReservedBookingIds.contains(bookingId)) {
+      return 'mock_reserve_$bookingId';
+    }
+    _mockReservedBookingIds.add(bookingId);
+
     final currentMem = _mockCredits[clientId];
     if (currentMem != null && currentMem.availableBalance >= 1) {
       _mockCredits[clientId] = currentMem.copyWith(
@@ -251,6 +279,8 @@ class CreditService {
   }) async {
     if (clientId.trim().isEmpty) return;
 
+    _mockReservedBookingIds.remove(bookingId);
+
     final currentMem = _mockCredits[clientId];
     if (currentMem != null) {
       _mockCredits[clientId] = currentMem.copyWith(
@@ -315,6 +345,8 @@ class CreditService {
     required UserRole cancelledByRole,
   }) async {
     if (clientId.trim().isEmpty) return false;
+
+    _mockReservedBookingIds.remove(bookingId);
 
     final bool isTrainerOrAdmin =
         cancelledByRole == UserRole.trainer || cancelledByRole == UserRole.admin;

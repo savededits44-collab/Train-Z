@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../features/client/client_feature.dart';
 import '../features/trainer/trainer_feature.dart';
+import '../services/auth_service.dart';
 import '../shared/models/trainer_profile_model.dart';
+import '../shared/models/user_model.dart';
 import '../screens/admin/admin_trainer_review_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/onboarding/client_onboarding.dart';
@@ -50,6 +52,17 @@ class AppRouter {
   static const String clientBookingDetail = '/client/booking-detail';
   static const String clientChat = '/client/chat';
   static const String clientNotifications = '/client/notifications';
+  static const String clientSettings = '/client/settings';
+  static const String clientPersonalInfo = '/client/personal-info';
+  static const String clientAccountSecurity = '/client/account-security';
+  static const String clientAccountDeletion = '/client/account-deletion';
+  static const String clientNotificationPreferences = '/client/notification-preferences';
+  static const String clientPrivacySettings = '/client/privacy-settings';
+  static const String clientHelpSupport = '/client/help-support';
+  static const String clientSupportTickets = '/client/support-tickets';
+  static const String clientSubmitTicket = '/client/submit-ticket';
+  static const String clientSupportDetail = '/client/support-detail';
+  static const String clientLegal = '/client/legal';
 
   // Dedicated Trainer Routes
   static const String trainerLogin = '/trainer/login';
@@ -82,8 +95,14 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const TrainerOnboardingScreen());
       case clientDashboard:
       case clientHome:
-        return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
+        final initialTab = (settings.arguments is int)
+            ? settings.arguments as int
+            : (settings.arguments is Map ? (settings.arguments as Map)['initialTab'] as int? ?? 0 : 0);
+        return MaterialPageRoute(builder: (_) => ClientHomeScreen(initialTab: initialTab));
       case trainerDashboard:
+        if (AuthService.instance.currentRole == UserRole.client) {
+          return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
+        }
         final trainerId = settings.arguments as String?;
         return MaterialPageRoute(
           builder: (_) => TrainerDashboard(trainerId: trainerId),
@@ -217,6 +236,99 @@ class AppRouter {
             conversation: args['conversation'],
           ),
         );
+      case clientSettings:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientSettingsScreen(
+            clientId: args['clientId'] ?? '',
+            clientName: args['clientName'] ?? 'TRAIN Z Athlete',
+            clientEmail: args['clientEmail'],
+          ),
+        );
+      case clientPersonalInfo:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientPersonalInfoScreen(
+            clientId: args['clientId'] ?? '',
+            userModel: args['userModel'],
+            profileModel: args['profileModel'],
+          ),
+        );
+      case clientAccountSecurity:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientAccountSecurityScreen(
+            clientId: args['clientId'] ?? '',
+            userEmail: args['userEmail'] ?? '',
+            isEmailVerified: args['isEmailVerified'] ?? false,
+          ),
+        );
+      case clientAccountDeletion:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientAccountDeletionScreen(
+            clientId: args['clientId'] ?? '',
+            clientEmail: args['clientEmail'] ?? '',
+          ),
+        );
+      case clientNotificationPreferences:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientNotificationPreferencesScreen(
+            clientId: args['clientId'] ?? '',
+          ),
+        );
+      case clientPrivacySettings:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientPrivacySettingsScreen(
+            clientId: args['clientId'] ?? '',
+          ),
+        );
+      case clientHelpSupport:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientHelpSupportScreen(
+            clientId: args['clientId'] ?? '',
+            clientName: args['clientName'] ?? 'TRAIN Z Athlete',
+            clientEmail: args['clientEmail'],
+          ),
+        );
+      case clientSupportTickets:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientSupportTicketsScreen(
+            clientId: args['clientId'] ?? '',
+            clientName: args['clientName'] ?? 'TRAIN Z Athlete',
+            clientEmail: args['clientEmail'],
+          ),
+        );
+      case clientSubmitTicket:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientSubmitTicketScreen(
+            clientId: args['clientId'] ?? '',
+            clientName: args['clientName'] ?? 'TRAIN Z Athlete',
+            clientEmail: args['clientEmail'],
+            initialBooking: args['initialBooking'],
+          ),
+        );
+      case clientSupportDetail:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => ClientSupportDetailScreen(
+            ticket: args['ticket'],
+            clientId: args['clientId'] ?? '',
+            clientName: args['clientName'] ?? 'TRAIN Z Athlete',
+          ),
+        );
+      case clientLegal:
+        final initialTab = (settings.arguments is int)
+            ? settings.arguments as int
+            : (settings.arguments is Map ? (settings.arguments as Map)['initialTabIndex'] as int? ?? 0 : 0);
+        return MaterialPageRoute(
+          builder: (_) => ClientLegalScreen(initialTabIndex: initialTab),
+        );
 
       // Dedicated Trainer Routes
       case trainerLogin:
@@ -252,6 +364,9 @@ class AppRouter {
           builder: (_) => TrainerForgotPasswordScreen(initialEmail: email),
         );
       case trainerCertificates:
+        if (AuthService.instance.currentRole == UserRole.client) {
+          return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
+        }
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           builder: (_) => TrainerCertificatesScreen(
@@ -260,6 +375,9 @@ class AppRouter {
           ),
         );
       case trainerAvailability:
+        if (AuthService.instance.currentRole == UserRole.client) {
+          return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
+        }
         final args = settings.arguments as Map<String, dynamic>?;
         final trainerId = args?['trainerId'] as String? ?? (settings.arguments is String ? settings.arguments as String : null);
         return MaterialPageRoute(
@@ -269,6 +387,9 @@ class AppRouter {
         );
 
       case adminDashboard:
+        if (AuthService.instance.currentRole == UserRole.client) {
+          return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
+        }
         return MaterialPageRoute(builder: (_) => const AdminTrainerReviewScreen());
 
       case accountSuspended:

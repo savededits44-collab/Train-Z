@@ -4,9 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import '../core/constants/firestore_collections.dart';
+import '../features/client/presentation/screens/client_account_security_screen.dart';
 import '../features/client/presentation/screens/client_booking_detail_screen.dart';
 import '../features/client/presentation/screens/client_chat_screen.dart';
 import '../features/client/presentation/screens/client_notifications_screen.dart';
+import '../features/client/presentation/screens/client_payment_history_screen.dart';
+import '../features/client/presentation/screens/client_support_tickets_screen.dart';
 import '../shared/models/conversation_model.dart';
 import 'firestore_service.dart';
 import 'notification_service.dart';
@@ -271,7 +274,57 @@ class PushNotificationService {
       }
     }
 
-    // 3. Fallback: navigate to Notification Centre
+    // 3. Support ticket routing
+    final ticketId = data['ticketId'] as String? ?? data['supportTicketId'] as String?;
+    if (type.startsWith('SUPPORT_') || ticketId != null) {
+      final user = FirebaseAuth.instance.currentUser;
+      final currentUid = user?.uid ?? '';
+      final clientName = user?.displayName ?? 'Athlete';
+      final clientEmail = user?.email;
+      nav.push(
+        MaterialPageRoute(
+          builder: (_) => ClientSupportTicketsScreen(
+            clientId: currentUid,
+            clientName: clientName,
+            clientEmail: clientEmail,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // 4. Payment / package routing
+    final paymentId = data['paymentId'] as String?;
+    if (type.startsWith('PAYMENT_') || type.startsWith('PACKAGE_') || paymentId != null) {
+      final user = FirebaseAuth.instance.currentUser;
+      final currentUid = user?.uid ?? '';
+      nav.push(
+        MaterialPageRoute(
+          builder: (_) => ClientPaymentHistoryScreen(clientId: currentUid),
+        ),
+      );
+      return;
+    }
+
+    // 5. Account security routing
+    if (type.contains('SECURITY')) {
+      final user = FirebaseAuth.instance.currentUser;
+      final currentUid = user?.uid ?? '';
+      final clientEmail = user?.email ?? '';
+      final isEmailVerified = user?.emailVerified ?? false;
+      nav.push(
+        MaterialPageRoute(
+          builder: (_) => ClientAccountSecurityScreen(
+            clientId: currentUid,
+            userEmail: clientEmail,
+            isEmailVerified: isEmailVerified,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // 6. Fallback: navigate to Notification Centre
     nav.push(
       MaterialPageRoute(
         builder: (_) => const ClientNotificationsScreen(),

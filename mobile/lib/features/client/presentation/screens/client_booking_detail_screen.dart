@@ -3,13 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../services/firestore_service.dart';
+import '../../../../services/review_service.dart';
 import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/conversation_model.dart';
 import '../../../../shared/models/payment_model.dart';
+import '../../../../shared/models/review_model.dart';
 import '../../../../widgets/app_widgets.dart';
 import '../widgets/client_reschedule_modal.dart';
+import '../widgets/client_review_modal.dart';
 import 'client_chat_screen.dart';
 import 'client_payment_receipt_screen.dart';
+import 'client_submit_ticket_screen.dart';
 
 /// Detailed screen displaying full session booking metrics,
 /// 60-minute duration, training address, verified status,
@@ -289,8 +293,18 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 _buildPackageStatusCard(sf),
                 const SizedBox(height: 16),
 
-                // ── 5. SECTION 8 CANCELLATION ADVISORY CARD ──
+                // ── 5. SESSION REVIEW CARD (FOR COMPLETED SESSIONS) ──
+                if (_currentBooking.isCompleted) ...[
+                  _buildReviewCard(sf),
+                  const SizedBox(height: 16),
+                ],
+
+                // ── 6. SECTION 8 CANCELLATION ADVISORY CARD ──
                 _buildPolicyAdvisoryCard(sf),
+                const SizedBox(height: 14),
+
+                // ── 7. SUPPORT / REPORT AN ISSUE ──
+                _buildSupportLinkCard(sf),
               ],
             ),
           ),
@@ -846,6 +860,338 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
     );
   }
 
+  Widget _buildSupportLinkCard(double sf) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const Icon(Iconsax.message_question, size: 16, color: Color(0xFF6B7280)),
+              const SizedBox(width: 8),
+              Text(
+                'Have an issue with this session?',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                  color: const Color(0xFF4B5563),
+                ),
+              ),
+            ],
+          ),
+          InkWell(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              final user = FirebaseAuth.instance.currentUser;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ClientSubmitTicketScreen(
+                    clientId: _currentBooking.clientId,
+                    clientName: user?.displayName ?? 'Athlete',
+                    clientEmail: user?.email,
+                    initialBooking: _currentBooking,
+                  ),
+                ),
+              );
+            },
+            child: const Text(
+              'Report Issue',
+              style: TextStyle(
+                fontFamily: 'Syne',
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF2563EB),
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewCard(double sf) {
+    return StreamBuilder<ReviewModel?>(
+      stream: ReviewService.instance.streamReviewForBooking(_currentBooking.id),
+      builder: (context, snapshot) {
+        final review = snapshot.data;
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFEEEEEE)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.star_rounded, size: 18, color: Color(0xFFD97706)),
+                      const SizedBox(width: 8),
+                      Text(
+                        review != null ? 'YOUR SESSION REVIEW' : 'RATE THIS WORKOUT',
+                        style: TextStyle(
+                          fontFamily: 'Syne',
+                          fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF888888),
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (review != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDCFCE7),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.verified, size: 11, color: Color(0xFF16A34A)),
+                          SizedBox(width: 3),
+                          Text(
+                            'Verified Review',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF16A34A),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (review != null) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Row(
+                          children: List.generate(
+                            5,
+                            (i) => Icon(
+                              i < review.rating.round() ? Icons.star_rounded : Icons.star_outline_rounded,
+                              size: 18,
+                              color: const Color(0xFFD97706),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          review.ratingText,
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (14.0 * sf).clamp(13.0, 16.0),
+                            fontWeight: FontWeight.w800,
+                            color: kDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        ClientReviewModal.show(
+                          context,
+                          booking: _currentBooking,
+                          existingReview: review,
+                        );
+                      },
+                      icon: const Icon(Icons.edit_outlined, size: 14, color: kDark),
+                      label: const Text(
+                        'Edit',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: kDark,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (review.categories.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: review.categories.map((cat) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          cat,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF374151),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFEEEEEE)),
+                  ),
+                  child: Text(
+                    '"${review.comment}"',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: (12.0 * sf).clamp(11.0, 13.0),
+                      color: const Color(0xFF333333),
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Submitted on ${review.formattedDate}',
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 10,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                ),
+              ] else if (_currentBooking.isCompleted) ...[
+            // View Receipt button
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _handleViewReceipt,
+                icon: const Icon(Iconsax.receipt, size: 15, color: kDark),
+                label: const Text(
+                  'Receipt',
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12.5,
+                    color: kDark,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFE5E7EB)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            // Review button
+            Expanded(
+              flex: 2,
+              child: StreamBuilder<ReviewModel?>(
+                stream: ReviewService.instance.streamReviewForBooking(_currentBooking.id),
+                builder: (context, reviewSnap) {
+                  final review = reviewSnap.data;
+                  return ElevatedButton.icon(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      ClientReviewModal.show(
+                        context,
+                        booking: _currentBooking,
+                        existingReview: review,
+                      );
+                    },
+                    icon: Icon(
+                      review != null ? Icons.edit_outlined : Icons.star_outline_rounded,
+                      size: 16,
+                      color: kDark,
+                    ),
+                    label: Text(
+                      review != null ? 'Edit Review (${review.ratingText} ★)' : 'Rate & Review',
+                      style: const TextStyle(
+                        fontFamily: 'Syne',
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                        color: kDark,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kLime,
+                      foregroundColor: kDark,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ] else ...[
+                Text(
+                  'How was your 60-minute training session with ${_currentBooking.displayTrainerName}? Share your feedback to help your trainer and keep training standards high.',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: (11.5 * sf).clamp(10.5, 12.5),
+                    color: const Color(0xFF4B5563),
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      ClientReviewModal.show(
+                        context,
+                        booking: _currentBooking,
+                      );
+                    },
+                    icon: const Icon(Icons.star_outline_rounded, size: 16, color: kDark),
+                    label: const Text(
+                      'Rate & Review Session',
+                      style: TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: kDark,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kLime,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -1023,6 +1369,70 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                     color: kLime,
                   ),
                 ),
+              ),
+            ),
+          ] else if (_currentBooking.isCompleted) ...[
+            // View Receipt button
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _handleViewReceipt,
+                icon: const Icon(Iconsax.receipt, size: 15, color: kDark),
+                label: const Text(
+                  'Receipt',
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12.5,
+                    color: kDark,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFE5E7EB)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            // Review button
+            Expanded(
+              flex: 2,
+              child: StreamBuilder<ReviewModel?>(
+                stream: ReviewService.instance.streamReviewForBooking(_currentBooking.id),
+                builder: (context, reviewSnap) {
+                  final review = reviewSnap.data;
+                  return ElevatedButton.icon(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      ClientReviewModal.show(
+                        context,
+                        booking: _currentBooking,
+                        existingReview: review,
+                      );
+                    },
+                    icon: Icon(
+                      review != null ? Icons.edit_outlined : Icons.star_outline_rounded,
+                      size: 16,
+                      color: kDark,
+                    ),
+                    label: Text(
+                      review != null ? 'Edit Review (${review.ratingText} ★)' : 'Rate & Review',
+                      style: const TextStyle(
+                        fontFamily: 'Syne',
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                        color: kDark,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kLime,
+                      foregroundColor: kDark,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                  );
+                },
               ),
             ),
           ] else ...[
