@@ -431,6 +431,60 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                   ),
                 ],
               ),
+              if (credits?.activePackageName != null || credits?.packageExpiryDate != null) ...[
+                const SizedBox(height: 12),
+                const Divider(height: 1, color: Color(0xFF262626)),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Icon(Iconsax.box_1, size: 13, color: Color(0xFF9CA3AF)),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              credits?.activePackageName ?? 'TRAIN Z Package',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFE5E7EB),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (credits?.packageExpiryDate != null) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: credits!.isPackageExpired
+                              ? const Color(0xFF7F1D1D)
+                              : const Color(0xFF1E293B),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          credits.isPackageExpired
+                              ? 'Package Expired'
+                              : 'Expires ${_formatDate(credits.packageExpiryDate!)} (${credits.daysUntilExpiry}d left)',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: credits.isPackageExpired ? const Color(0xFFFCA5A5) : const Color(0xFF93C5FD),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
             ],
           ),
         );
@@ -650,6 +704,83 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
               ],
             ),
 
+            if (booking.isCompleted) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Iconsax.ticket, size: 12, color: Color(0xFF2563EB)),
+                    SizedBox(width: 4),
+                    Text(
+                      '1 Session Credit Consumed',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        color: Color(0xFF1D4ED8),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ] else if (booking.isCreditReturned) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Iconsax.ticket, size: 12, color: Color(0xFF16A34A)),
+                    SizedBox(width: 4),
+                    Text(
+                      '1 Session Credit Returned to Balance',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        color: Color(0xFF15803D),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ] else if (booking.isCreditForfeited) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Iconsax.ticket_expired, size: 12, color: Color(0xFFDC2626)),
+                    SizedBox(width: 4),
+                    Text(
+                      '1 Session Credit Forfeited (<12h cancellation)',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 10,
+                        color: Color(0xFFB91C1C),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             if (booking.isRescheduled) ...[
               const SizedBox(height: 8),
               Container(
@@ -676,6 +807,31 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                 ),
               ),
             ],
+
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  booking.bookingReference,
+                  style: const TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF9CA3AF),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Text(
+                  '60-Min Training',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 10,
+                    color: kGrey.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

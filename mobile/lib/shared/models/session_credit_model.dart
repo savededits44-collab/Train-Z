@@ -42,6 +42,9 @@ class SessionCreditModel {
   final int totalForfeited;
   final int availableBalance;
   final DateTime? lastUpdated;
+  final String? activePackageName;
+  final int? validityDays;
+  final DateTime? packageExpiryDate;
 
   const SessionCreditModel({
     required this.clientId,
@@ -52,14 +55,52 @@ class SessionCreditModel {
     this.totalForfeited = 0,
     this.availableBalance = 0,
     this.lastUpdated,
+    this.activePackageName,
+    this.validityDays,
+    this.packageExpiryDate,
   });
 
   /// Calculates real-time net available credit balance
   int get computedAvailable =>
       (totalPurchased + totalReturned) - (totalReserved + totalConsumed + totalForfeited);
 
-  bool get hasAvailableCredits => availableBalance > 0;
-  bool get canBookSession => availableBalance > 0;
+  bool get hasAvailableCredits => availableBalance > 0 && !isPackageExpired;
+  bool get canBookSession => availableBalance > 0 && !isPackageExpired;
+  bool get isPackageExpired =>
+      packageExpiryDate != null && packageExpiryDate!.isBefore(DateTime.now());
+  int? get daysUntilExpiry {
+    if (packageExpiryDate == null) return null;
+    final diff = packageExpiryDate!.difference(DateTime.now()).inDays;
+    return diff < 0 ? 0 : diff;
+  }
+
+  SessionCreditModel copyWith({
+    String? clientId,
+    int? totalPurchased,
+    int? totalReserved,
+    int? totalConsumed,
+    int? totalReturned,
+    int? totalForfeited,
+    int? availableBalance,
+    DateTime? lastUpdated,
+    String? activePackageName,
+    int? validityDays,
+    DateTime? packageExpiryDate,
+  }) {
+    return SessionCreditModel(
+      clientId: clientId ?? this.clientId,
+      totalPurchased: totalPurchased ?? this.totalPurchased,
+      totalReserved: totalReserved ?? this.totalReserved,
+      totalConsumed: totalConsumed ?? this.totalConsumed,
+      totalReturned: totalReturned ?? this.totalReturned,
+      totalForfeited: totalForfeited ?? this.totalForfeited,
+      availableBalance: availableBalance ?? this.availableBalance,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      activePackageName: activePackageName ?? this.activePackageName,
+      validityDays: validityDays ?? this.validityDays,
+      packageExpiryDate: packageExpiryDate ?? this.packageExpiryDate,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -71,6 +112,9 @@ class SessionCreditModel {
       'totalForfeited': totalForfeited,
       'availableBalance': availableBalance,
       'lastUpdated': FieldValue.serverTimestamp(),
+      'activePackageName': ?activePackageName,
+      'validityDays': ?validityDays,
+      'packageExpiryDate': packageExpiryDate != null ? Timestamp.fromDate(packageExpiryDate!) : null,
     };
   }
 
@@ -90,6 +134,9 @@ class SessionCreditModel {
       totalForfeited: (map['totalForfeited'] as num?)?.toInt() ?? 0,
       availableBalance: (map['availableBalance'] as num?)?.toInt() ?? 0,
       lastUpdated: parseTimestamp(map['lastUpdated']),
+      activePackageName: map['activePackageName'] as String?,
+      validityDays: (map['validityDays'] as num?)?.toInt(),
+      packageExpiryDate: parseTimestamp(map['packageExpiryDate']),
     );
   }
 

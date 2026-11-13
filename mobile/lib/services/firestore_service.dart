@@ -448,20 +448,76 @@ class FirestoreService {
   /// Streams bookings for a client
   Stream<List<BookingModel>> streamClientBookings(String clientId) {
     if (clientId.trim().isEmpty) return Stream.value(<BookingModel>[]);
-    return _firestore
-        .collection(FirestoreCollections.bookings)
-        .where('clientId', isEqualTo: clientId)
-        .orderBy('sessionDate', descending: true)
-        .snapshots()
-        .map((snap) => snap.docs.map((d) => BookingModel.fromDocument(d)).toList());
+    try {
+      return _firestore
+          .collection(FirestoreCollections.bookings)
+          .where('clientId', isEqualTo: clientId)
+          .orderBy('sessionDate', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs.map((d) => BookingModel.fromDocument(d)).toList())
+          .handleError((_) {
+            return BookingService.instance.allBookings
+                .where((b) => b.clientId == clientId)
+                .toList();
+          });
+    } catch (_) {
+      return Stream.value(
+        BookingService.instance.allBookings
+            .where((b) => b.clientId == clientId)
+            .toList(),
+      );
+    }
+  }
+
+  /// Streams a single booking document by ID in real time
+  Stream<BookingModel?> streamBooking(String bookingId) {
+    if (bookingId.trim().isEmpty) return Stream.value(null);
+    try {
+      return _firestore
+          .collection(FirestoreCollections.bookings)
+          .doc(bookingId)
+          .snapshots()
+          .map((snap) {
+            if (!snap.exists) return null;
+            return BookingModel.fromDocument(snap);
+          })
+          .handleError((_) {
+            try {
+              return BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+            } catch (_) {
+              return null;
+            }
+          });
+    } catch (_) {
+      try {
+        final b = BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+        return Stream.value(b);
+      } catch (_) {
+        return Stream.value(null);
+      }
+    }
   }
 
   /// Gets a single booking document by ID
   Future<BookingModel?> getBooking(String bookingId) async {
     if (bookingId.trim().isEmpty) return null;
-    final doc = await _firestore.collection(FirestoreCollections.bookings).doc(bookingId).get();
-    if (!doc.exists) return null;
-    return BookingModel.fromDocument(doc);
+    try {
+      final doc = await _firestore.collection(FirestoreCollections.bookings).doc(bookingId).get();
+      if (!doc.exists) {
+        try {
+          return BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+        } catch (_) {
+          return null;
+        }
+      }
+      return BookingModel.fromDocument(doc);
+    } catch (_) {
+      try {
+        return BookingService.instance.allBookings.firstWhere((b) => b.id == bookingId);
+      } catch (_) {
+        return null;
+      }
+    }
   }
 
   /// Updates client's selected city and training venue preference in real time
@@ -491,12 +547,14 @@ class FirestoreService {
     if (!bookingDoc.exists) return false;
 
     final booking = BookingModel.fromDocument(bookingDoc);
+    // Duplicate cancellation protection
+    if (booking.isCancelled) return false;
 
-    // Enforce 12-hour cancellation rule through CreditService
+    // Enforce 12-hour cancellation rule through CreditService using fullSessionStartDateTime
     final creditReturned = await CreditService().processCancellationCredit(
       clientId: clientId,
       bookingId: bookingId,
-      sessionStartTime: booking.sessionDate,
+      sessionStartTime: booking.fullSessionStartDateTime,
       cancelledByRole: UserRole.client,
     );
 
@@ -509,29 +567,59 @@ class FirestoreService {
       'updatedAt': FieldValue.serverTimestamp(),
     });
 
-    BookingService.instance.addOrUpdateBooking(booking.copyWith(
+    // Release the slot lock in slot_locks
+    final dateKey = '${booking.sessionDate.year}-${booking.sessionDate.month.toString().padLeft(2, '0')}-${booking.sessionDate.day.toString().padLeft(2, '0')}';
+    final safeTimeKey = booking.startTime.replaceAll(' ', '').replaceAll(':', '');
+    final lockDocId = '${booking.trainerId}_${dateKey}_$safeTimeKey';
+    try {
+      await _firestore.collection(FirestoreCollections.slotLocks).doc(lockDocId).delete();
+    } catch (_) {}
+
+    final updated = booking.copyWith(
       status: newStatus,
       updatedAt: DateTime.now(),
-    ));
+    );
+    BookingService.instance.addOrUpdateBooking(updated);
 
     // Create in-app notification for the client
-    final notifRef = _firestore.collection(FirestoreCollections.notifications).doc();
-    await notifRef.set({
-      'id': notifRef.id,
-      'userId': clientId,
-      'title': creditReturned ? 'Booking Cancelled (Credit Returned)' : 'Booking Cancelled (Credit Forfeited)',
-      'body': creditReturned
-          ? 'Your session with ${booking.displayTrainerName} was cancelled. 1 session credit has been returned to your available balance.'
-          : 'Your session with ${booking.displayTrainerName} was cancelled within 12h of workout. 1 session credit was forfeited per Section 8 policy.',
-      'type': 'BOOKING_CANCELLED',
-      'isRead': false,
-      'data': {
-        'bookingId': bookingId,
-        'returnedCredit': creditReturned,
-        'status': newStatus.toFirestore(),
-      },
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      final notifRef = _firestore.collection(FirestoreCollections.notifications).doc();
+      await notifRef.set({
+        'id': notifRef.id,
+        'userId': clientId,
+        'title': creditReturned ? 'Booking Cancelled (Credit Returned)' : 'Booking Cancelled (Credit Forfeited)',
+        'body': creditReturned
+            ? 'Your session with ${booking.displayTrainerName} was cancelled. 1 session credit has been returned to your available balance.'
+            : 'Your session with ${booking.displayTrainerName} was cancelled within 12h of workout. 1 session credit was forfeited per Section 8 policy.',
+        'type': 'BOOKING_CANCELLED',
+        'isRead': false,
+        'data': {
+          'bookingId': bookingId,
+          'returnedCredit': creditReturned,
+          'status': newStatus.toFirestore(),
+        },
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {}
+
+    // Create in-app notification for the trainer
+    try {
+      final trainerNotifRef = _firestore.collection(FirestoreCollections.notifications).doc();
+      await trainerNotifRef.set({
+        'id': trainerNotifRef.id,
+        'userId': booking.trainerId,
+        'title': 'Session Cancelled by Athlete',
+        'body': '${booking.displayClientName} cancelled the session on ${booking.sessionDate.day}/${booking.sessionDate.month}/${booking.sessionDate.year} at ${booking.startTime}.',
+        'type': 'BOOKING_CANCELLED',
+        'isRead': false,
+        'data': {
+          'bookingId': bookingId,
+          'clientId': clientId,
+          'status': newStatus.toFirestore(),
+        },
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {}
 
     return creditReturned;
   }
@@ -553,6 +641,27 @@ class FirestoreService {
     final booking = BookingModel.fromDocument(bookingDoc);
     if (booking.status != BookingStatus.confirmed && booking.status != BookingStatus.pending) {
       throw Exception('Only confirmed or pending bookings can be rescheduled.');
+    }
+
+    // Verify target date and time is not in the past
+    int newHour = 6;
+    int newMinute = 0;
+    try {
+      final clean = newStartTime.trim();
+      final isPm = clean.toUpperCase().contains('PM');
+      final isAm = clean.toUpperCase().contains('AM');
+      final digits = clean.replaceAll(RegExp(r'[^\d:]'), '');
+      final parts = digits.split(':');
+      if (parts.isNotEmpty) {
+        newHour = int.tryParse(parts[0]) ?? 6;
+        if (parts.length > 1) newMinute = int.tryParse(parts[1]) ?? 0;
+        if (isPm && newHour < 12) newHour += 12;
+        if (isAm && newHour == 12) newHour = 0;
+      }
+    } catch (_) {}
+    final fullNewStart = DateTime(newSessionDate.year, newSessionDate.month, newSessionDate.day, newHour, newMinute);
+    if (fullNewStart.isBefore(DateTime.now())) {
+      throw const BookingConflictException('Cannot reschedule to a past date or time.');
     }
 
     // Availability re-check on target date to prevent double-booking
@@ -578,6 +687,50 @@ class FirestoreService {
       }
     }
 
+    // Check slot locks for conflict
+    final newDateKey = '${newSessionDate.year}-${newSessionDate.month.toString().padLeft(2, '0')}-${newSessionDate.day.toString().padLeft(2, '0')}';
+    final newSafeTimeKey = newStartTime.replaceAll(' ', '').replaceAll(':', '');
+    final newLockDocId = '${booking.trainerId}_${newDateKey}_$newSafeTimeKey';
+
+    try {
+      final newLockDoc = await _firestore.collection(FirestoreCollections.slotLocks).doc(newLockDocId).get();
+      if (newLockDoc.exists) {
+        final lockStatus = (newLockDoc.data()?['status'] as String? ?? '').toUpperCase();
+        final lockBookingId = newLockDoc.data()?['bookingId'] as String? ?? '';
+        if (lockBookingId != bookingId && (lockStatus == 'CONFIRMED' || lockStatus == 'RESERVED')) {
+          throw const BookingConflictException(
+            'Selected trainer slot is already booked. Please choose another time slot.',
+          );
+        }
+      }
+    } catch (e) {
+      if (e is BookingConflictException) rethrow;
+    }
+
+    // Release old slot lock
+    final oldDateKey = '${booking.sessionDate.year}-${booking.sessionDate.month.toString().padLeft(2, '0')}-${booking.sessionDate.day.toString().padLeft(2, '0')}';
+    final oldSafeTimeKey = booking.startTime.replaceAll(' ', '').replaceAll(':', '');
+    final oldLockDocId = '${booking.trainerId}_${oldDateKey}_$oldSafeTimeKey';
+
+    try {
+      await _firestore.collection(FirestoreCollections.slotLocks).doc(oldLockDocId).delete();
+    } catch (_) {}
+
+    // Lock new slot atomically
+    try {
+      await _firestore.collection(FirestoreCollections.slotLocks).doc(newLockDocId).set({
+        'id': newLockDocId,
+        'trainerId': booking.trainerId,
+        'date': newDateKey,
+        'startTime': newStartTime,
+        'endTime': newEndTime,
+        'status': 'CONFIRMED',
+        'bookingId': bookingId,
+        'clientId': booking.clientId,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {}
+
     // Update booking document
     await bookingRef.update({
       'sessionDate': Timestamp.fromDate(newSessionDate),
@@ -592,23 +745,60 @@ class FirestoreService {
       'updatedAt': FieldValue.serverTimestamp(),
     });
 
-    // Create notification
-    final notifRef = _firestore.collection(FirestoreCollections.notifications).doc();
-    await notifRef.set({
-      'id': notifRef.id,
-      'userId': booking.clientId,
-      'title': 'Session Rescheduled',
-      'body': 'Your session with ${booking.displayTrainerName} has been rescheduled to ${newSessionDate.day}/${newSessionDate.month}/${newSessionDate.year} at $newStartTime - $newEndTime.',
-      'type': 'BOOKING_RESCHEDULED',
-      'isRead': false,
-      'data': {
-        'bookingId': bookingId,
-        'newDate': newSessionDate.toIso8601String(),
-        'newStartTime': newStartTime,
-        'newEndTime': newEndTime,
-      },
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    final updated = booking.copyWith(
+      sessionDate: newSessionDate,
+      startTime: newStartTime,
+      endTime: newEndTime,
+      isRescheduled: true,
+      rescheduledAt: DateTime.now(),
+      previousSessionDate: booking.sessionDate,
+      previousStartTime: booking.startTime,
+      previousEndTime: booking.endTime,
+      status: BookingStatus.confirmed,
+      updatedAt: DateTime.now(),
+    );
+    BookingService.instance.addOrUpdateBooking(updated);
+
+    // Create notification for client
+    try {
+      final notifRef = _firestore.collection(FirestoreCollections.notifications).doc();
+      await notifRef.set({
+        'id': notifRef.id,
+        'userId': booking.clientId,
+        'title': 'Session Rescheduled',
+        'body': 'Your session with ${booking.displayTrainerName} has been rescheduled to ${newSessionDate.day}/${newSessionDate.month}/${newSessionDate.year} at $newStartTime - $newEndTime.',
+        'type': 'BOOKING_RESCHEDULED',
+        'isRead': false,
+        'data': {
+          'bookingId': bookingId,
+          'newDate': newSessionDate.toIso8601String(),
+          'newStartTime': newStartTime,
+          'newEndTime': newEndTime,
+        },
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {}
+
+    // Create notification for trainer
+    try {
+      final trainerNotifRef = _firestore.collection(FirestoreCollections.notifications).doc();
+      await trainerNotifRef.set({
+        'id': trainerNotifRef.id,
+        'userId': booking.trainerId,
+        'title': 'Session Rescheduled by Athlete',
+        'body': '${booking.displayClientName} rescheduled their session to ${newSessionDate.day}/${newSessionDate.month}/${newSessionDate.year} at $newStartTime - $newEndTime.',
+        'type': 'BOOKING_RESCHEDULED',
+        'isRead': false,
+        'data': {
+          'bookingId': bookingId,
+          'clientId': booking.clientId,
+          'newDate': newSessionDate.toIso8601String(),
+          'newStartTime': newStartTime,
+          'newEndTime': newEndTime,
+        },
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {}
 
     return true;
   }

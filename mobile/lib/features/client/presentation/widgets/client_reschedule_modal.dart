@@ -1,15 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../../../../core/constants/firestore_collections.dart';
 import '../../../../core/errors/app_exceptions.dart';
 import '../../../../services/firestore_service.dart';
+import '../../../../services/trainer_availability_service.dart';
 import '../../../../shared/models/booking_model.dart';
+import '../../../../shared/models/trainer_availability_model.dart';
 import '../../../../widgets/app_widgets.dart';
 
 /// Modal bottom sheet allowing clients to reschedule a booking session,
-/// selecting from available 60-minute slots with double-booking prevention.
+/// selecting from genuine available 60-minute trainer slots with double-booking prevention.
 class ClientRescheduleModal extends StatefulWidget {
   final BookingModel booking;
   final VoidCallback? onRescheduled;
@@ -41,31 +41,12 @@ class ClientRescheduleModal extends StatefulWidget {
 }
 
 class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
-  final _firestore = FirebaseFirestore.instance;
   final _firestoreService = FirestoreService();
 
   late DateTime _selectedDate;
-  String? _selectedTimeSlot;
-  bool _isLoadingSlots = false;
+  TimeSlot? _selectedSlot;
   bool _isSubmitting = false;
   String? _errorMessage;
-
-  // Booked slots on selected date for this trainer
-  final Set<String> _bookedStartTimes = {};
-
-  // Standard 60-minute training slots
-  final List<Map<String, String>> _availableSlots = const [
-    {'id': 'slot_0600', 'start': '06:00', 'end': '07:00', 'label': '06:00 AM - 07:00 AM'},
-    {'id': 'slot_0700', 'start': '07:00', 'end': '08:00', 'label': '07:00 AM - 08:00 AM'},
-    {'id': 'slot_0800', 'start': '08:00', 'end': '09:00', 'label': '08:00 AM - 09:00 AM'},
-    {'id': 'slot_0900', 'start': '09:00', 'end': '10:00', 'label': '09:00 AM - 10:00 AM'},
-    {'id': 'slot_1000', 'start': '10:00', 'end': '11:00', 'label': '10:00 AM - 11:00 AM'},
-    {'id': 'slot_1600', 'start': '16:00', 'end': '17:00', 'label': '04:00 PM - 05:00 PM'},
-    {'id': 'slot_1700', 'start': '17:00', 'end': '18:00', 'label': '05:00 PM - 06:00 PM'},
-    {'id': 'slot_1800', 'start': '18:00', 'end': '19:00', 'label': '06:00 PM - 07:00 PM'},
-    {'id': 'slot_1900', 'start': '19:00', 'end': '20:00', 'label': '07:00 PM - 08:00 PM'},
-    {'id': 'slot_2000', 'start': '20:00', 'end': '21:00', 'label': '08:00 PM - 09:00 PM'},
-  ];
 
   @override
   void initState() {
@@ -73,62 +54,13 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
     // Start from tomorrow
     final tomorrow = DateTime.now().add(const Duration(days: 1));
     _selectedDate = DateTime(tomorrow.year, tomorrow.month, tomorrow.day);
-    _loadBookedSlotsForDate(_selectedDate);
-  }
-
-  Future<void> _loadBookedSlotsForDate(DateTime date) async {
-    setState(() {
-      _isLoadingSlots = true;
-      _selectedTimeSlot = null;
-      _errorMessage = null;
-    });
-
-    try {
-      final start = DateTime(date.year, date.month, date.day);
-      final end = DateTime(date.year, date.month, date.day, 23, 59, 59);
-
-      final snap = await _firestore
-          .collection(FirestoreCollections.bookings)
-          .where('trainerId', isEqualTo: widget.booking.trainerId)
-          .where('sessionDate', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
-          .where('sessionDate', isLessThanOrEqualTo: Timestamp.fromDate(end))
-          .get();
-
-      final booked = <String>{};
-      for (final doc in snap.docs) {
-        if (doc.id == widget.booking.id) continue; // Ignore current booking
-        final data = doc.data();
-        final status = data['status'] as String? ?? '';
-        final startT = data['startTime'] as String? ?? '';
-        if ((status == 'CONFIRMED' || status == 'PENDING' || status == 'RESERVED') &&
-            startT.isNotEmpty) {
-          booked.add(startT);
-        }
-      }
-
-      if (mounted) {
-        setState(() {
-          _bookedStartTimes.clear();
-          _bookedStartTimes.addAll(booked);
-          _isLoadingSlots = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingSlots = false;
-        });
-      }
-    }
   }
 
   Future<void> _handleConfirmReschedule() async {
-    if (_selectedTimeSlot == null) {
+    if (_selectedSlot == null || !_selectedSlot!.isAvailable) {
       setState(() => _errorMessage = 'Please select an available 60-minute time slot.');
       return;
     }
-
-    final slot = _availableSlots.firstWhere((s) => s['id'] == _selectedTimeSlot);
 
     setState(() {
       _isSubmitting = true;
@@ -140,9 +72,8 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
       await _firestoreService.rescheduleBooking(
         bookingId: widget.booking.id,
         newSessionDate: _selectedDate,
-        newStartTime: slot['start']!,
-        newEndTime: slot['end']!,
-        newTimeSlotId: slot['id'],
+        newStartTime: _selectedSlot!.start,
+        newEndTime: _selectedSlot!.end,
       );
 
       if (!mounted) return;
@@ -153,7 +84,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Session rescheduled to ${_formatDate(_selectedDate)} at ${slot['label']}',
+            'Session rescheduled to ${_formatDate(_selectedDate)} at ${_selectedSlot!.start} - ${_selectedSlot!.end}',
             style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w600),
           ),
           backgroundColor: const Color(0xFF16A34A),
@@ -170,8 +101,6 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
           _errorMessage = 'Rescheduling failed: $e';
         }
       });
-      // Refresh slots
-      _loadBookedSlotsForDate(_selectedDate);
     }
   }
 
@@ -317,8 +246,11 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                         return InkWell(
                           onTap: () {
                             HapticFeedback.selectionClick();
-                            setState(() => _selectedDate = d);
-                            _loadBookedSlotsForDate(d);
+                            setState(() {
+                              _selectedDate = d;
+                              _selectedSlot = null;
+                              _errorMessage = null;
+                            });
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
@@ -406,82 +338,125 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                   ),
                   const SizedBox(height: 12),
 
-                  if (_isLoadingSlots)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: Center(child: CircularProgressIndicator(color: kDark)),
-                    )
-                  else
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: _availableSlots.map((slot) {
-                        final isBooked = _bookedStartTimes.contains(slot['start']);
-                        final isSelected = _selectedTimeSlot == slot['id'];
+                  StreamBuilder<List<TimeSlot>>(
+                    stream: TrainerAvailabilityService.instance.streamSlotsForTrainerDate(
+                      trainerId: widget.booking.trainerId,
+                      date: _selectedDate,
+                      currentClientId: widget.booking.clientId,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(child: CircularProgressIndicator(color: kDark)),
+                        );
+                      }
 
-                        return InkWell(
-                          onTap: isBooked
-                              ? null
-                              : () {
-                                  HapticFeedback.selectionClick();
-                                  setState(() => _selectedTimeSlot = slot['id']);
-                                },
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: isBooked
-                                  ? const Color(0xFFF3F4F6)
-                                  : isSelected
-                                      ? kDark
-                                      : Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: isBooked
-                                    ? const Color(0xFFE5E7EB)
-                                    : isSelected
-                                        ? kDark
-                                        : const Color(0xFFD1D5DB),
-                                width: isSelected ? 1.5 : 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  isBooked
-                                      ? Icons.block
-                                      : isSelected
-                                          ? Iconsax.tick_circle
-                                          : Iconsax.clock,
-                                  size: 14,
-                                  color: isBooked
-                                      ? const Color(0xFF9CA3AF)
-                                      : isSelected
-                                          ? kLime
-                                          : kDark,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  slot['label']!,
+                      final slots = snapshot.data ?? [];
+                      if (slots.isEmpty) {
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF9FAFB),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Iconsax.calendar_remove, size: 18, color: Color(0xFF6B7280)),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  'Trainer is not available on this date. Please choose another date.',
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontSize: 11.5,
-                                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                                    color: isBooked
-                                        ? const Color(0xFF9CA3AF)
-                                        : isSelected
-                                            ? Colors.white
-                                            : kDark,
-                                    decoration: isBooked ? TextDecoration.lineThrough : null,
+                                    color: Color(0xFF4B5563),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         );
-                      }).toList(),
-                    ),
+                      }
+
+                      return Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: slots.map((slot) {
+                          final isAvailable = slot.isAvailable;
+                          final isSelected = _selectedSlot != null &&
+                              _selectedSlot!.start.trim().toUpperCase() == slot.start.trim().toUpperCase();
+
+                          return InkWell(
+                            onTap: isAvailable
+                                ? () {
+                                    HapticFeedback.selectionClick();
+                                    setState(() {
+                                      _selectedSlot = slot;
+                                      _errorMessage = null;
+                                    });
+                                  }
+                                : null,
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: !isAvailable
+                                    ? const Color(0xFFF3F4F6)
+                                    : isSelected
+                                        ? kDark
+                                        : Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: !isAvailable
+                                      ? const Color(0xFFE5E7EB)
+                                      : isSelected
+                                          ? kDark
+                                          : const Color(0xFFD1D5DB),
+                                  width: isSelected ? 1.5 : 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    !isAvailable
+                                        ? Icons.block
+                                        : isSelected
+                                            ? Iconsax.tick_circle
+                                            : Iconsax.clock,
+                                    size: 14,
+                                    color: !isAvailable
+                                        ? const Color(0xFF9CA3AF)
+                                        : isSelected
+                                            ? kLime
+                                            : kDark,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '${slot.start} - ${slot.end}',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 11.5,
+                                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                      color: !isAvailable
+                                          ? const Color(0xFF9CA3AF)
+                                          : isSelected
+                                              ? Colors.white
+                                              : kDark,
+                                      decoration: !isAvailable ? TextDecoration.lineThrough : null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
 
                   if (_errorMessage != null) ...[
                     const SizedBox(height: 16),
@@ -525,7 +500,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isSubmitting || _selectedTimeSlot == null
+                onPressed: _isSubmitting || _selectedSlot == null || !_selectedSlot!.isAvailable
                     ? null
                     : _handleConfirmReschedule,
                 style: ElevatedButton.styleFrom(
@@ -585,4 +560,3 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
     return months[month - 1];
   }
 }
-

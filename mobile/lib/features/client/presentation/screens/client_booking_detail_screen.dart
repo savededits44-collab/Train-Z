@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/conversation_model.dart';
@@ -42,10 +41,8 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
   /// >= 12 hours: credit returned
   /// < 12 hours: credit forfeited
   Future<void> _handleCancelBooking() async {
-    final now = DateTime.now();
-    final sessionStart = _currentBooking.sessionDate;
-    final hoursUntil = sessionStart.difference(now).inMinutes / 60.0;
-    final isEarly = hoursUntil >= AppConstants.cancellationWindowHours;
+    final hoursUntil = _currentBooking.hoursUntilSession;
+    final isEarly = _currentBooking.isCancellationCreditRefundable;
 
     final shouldCancel = await showDialog<bool>(
       context: context,
@@ -239,54 +236,129 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
     final w = MediaQuery.of(context).size.width;
     final hPad = (w * 0.05).clamp(16.0, 24.0);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: kDark),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Booking Details',
-          style: TextStyle(
-            fontFamily: 'Syne',
-            fontSize: (16.5 * sf).clamp(15.0, 18.0),
-            fontWeight: FontWeight.w800,
-            color: kDark,
+    return StreamBuilder<BookingModel?>(
+      stream: _firestoreService.streamBooking(widget.booking.id),
+      initialData: _currentBooking,
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
+          _currentBooking = snapshot.data!;
+        }
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: kDark),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              'Booking Details',
+              style: TextStyle(
+                fontFamily: 'Syne',
+                fontSize: (16.5 * sf).clamp(15.0, 18.0),
+                fontWeight: FontWeight.w800,
+                color: kDark,
+              ),
+            ),
+            centerTitle: true,
           ),
+          body: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(hPad, 16, hPad, 120),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── 0. CANCELLATION OUTCOME BANNER (IF CANCELLED) ──
+                _buildCancellationOutcomeBanner(sf),
+
+                // ── 1. TRAINER IDENTITY CARD ──
+                _buildTrainerCard(sf),
+                const SizedBox(height: 16),
+
+                // ── 2. DATE, TIME & 60-MIN DURATION CARD ──
+                _buildTimingCard(sf),
+                const SizedBox(height: 16),
+
+                // ── 3. TRAINING LOCATION ──
+                _buildLocationCard(sf),
+                const SizedBox(height: 16),
+
+                // ── 4. PACKAGE & PAYMENT STATUS CARD ──
+                _buildPackageStatusCard(sf),
+                const SizedBox(height: 16),
+
+                // ── 5. SECTION 8 CANCELLATION ADVISORY CARD ──
+                _buildPolicyAdvisoryCard(sf),
+              ],
+            ),
+          ),
+          bottomSheet: _buildBottomActions(sf, hPad),
+        );
+      },
+    );
+  }
+
+  Widget _buildCancellationOutcomeBanner(double sf) {
+    if (!_currentBooking.isCancelled) return const SizedBox.shrink();
+
+    final isReturned = _currentBooking.isCreditReturned;
+    final isForfeited = _currentBooking.isCreditForfeited;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isReturned ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isReturned ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA),
         ),
-        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(hPad, 16, hPad, 120),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── 1. TRAINER IDENTITY CARD ──
-            _buildTrainerCard(sf),
-            const SizedBox(height: 16),
-
-            // ── 2. DATE, TIME & 60-MIN DURATION CARD ──
-            _buildTimingCard(sf),
-            const SizedBox(height: 16),
-
-            // ── 3. TRAINING LOCATION ──
-            _buildLocationCard(sf),
-            const SizedBox(height: 16),
-
-            // ── 4. PACKAGE & PAYMENT STATUS CARD ──
-            _buildPackageStatusCard(sf),
-            const SizedBox(height: 16),
-
-            // ── 5. SECTION 8 CANCELLATION ADVISORY CARD ──
-            _buildPolicyAdvisoryCard(sf),
-          ],
-        ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            isReturned ? Iconsax.tick_circle : Iconsax.warning_2,
+            size: 20,
+            color: isReturned ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isReturned
+                      ? 'Session Cancelled • 1 Credit Returned'
+                      : (isForfeited
+                          ? 'Session Cancelled • 1 Credit Forfeited'
+                          : 'Session Cancelled'),
+                  style: TextStyle(
+                    fontFamily: 'Syne',
+                    fontSize: (13.0 * sf).clamp(12.0, 14.5),
+                    fontWeight: FontWeight.w800,
+                    color: isReturned ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  isReturned
+                      ? 'Because this session was cancelled >= 12h before start (or by trainer/platform), 1 session credit has been safely returned to your available balance.'
+                      : 'Because this session was cancelled within 12h of workout start, 1 session credit was forfeited in accordance with Section 8 policy.',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                    color: isReturned ? const Color(0xFF166534) : const Color(0xFF991B1B),
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      bottomSheet: _buildBottomActions(sf, hPad),
     );
   }
 
@@ -522,6 +594,15 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
         _currentBooking.locationReference ??
         'Training Location';
 
+    final isHomeAddress = meetingLoc.toLowerCase().contains('flat') ||
+        meetingLoc.toLowerCase().contains('apartment') ||
+        meetingLoc.toLowerCase().contains('house') ||
+        meetingLoc.toLowerCase().contains('home') ||
+        meetingLoc.toLowerCase().contains('residence') ||
+        meetingLoc.toLowerCase().contains('villa') ||
+        meetingLoc.toLowerCase().contains('tower') ||
+        meetingLoc.toLowerCase().contains('floor');
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -533,19 +614,47 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Iconsax.location, size: 16, color: kDark),
-              const SizedBox(width: 8),
-              Text(
-                'TRAINING ADDRESS',
-                style: TextStyle(
-                  fontFamily: 'Syne',
-                  fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF888888),
-                  letterSpacing: 0.8,
-                ),
+              Row(
+                children: [
+                  const Icon(Iconsax.location, size: 16, color: kDark),
+                  const SizedBox(width: 8),
+                  Text(
+                    'TRAINING ADDRESS',
+                    style: TextStyle(
+                      fontFamily: 'Syne',
+                      fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF888888),
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
               ),
+              if (isHomeAddress)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDCFCE7),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.shield_outlined, size: 11, color: Color(0xFF16A34A)),
+                      SizedBox(width: 3),
+                      Text(
+                        'Private Residence',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF16A34A),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 10),
@@ -572,7 +681,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'Verified service area • Private client address protected',
+                    isHomeAddress
+                        ? 'Athlete\'s Private Residence • Protected • Disclosed only to your booked trainer'
+                        : 'Verified service area • Private client address protected',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: (10.0 * sf).clamp(9.0, 11.0),
@@ -599,21 +710,68 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'PACKAGE & STATUS DETAILS',
-            style: TextStyle(
-              fontFamily: 'Syne',
-              fontSize: (11.0 * sf).clamp(10.0, 12.0),
-              fontWeight: FontWeight.w800,
-              color: const Color(0xFF888888),
-              letterSpacing: 0.8,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'PACKAGE & STATUS DETAILS',
+                style: TextStyle(
+                  fontFamily: 'Syne',
+                  fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF888888),
+                  letterSpacing: 0.8,
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: _currentBooking.bookingReference));
+                  HapticFeedback.selectionClick();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Booking reference copied to clipboard!'),
+                      duration: Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Text(
+                      _currentBooking.bookingReference,
+                      style: const TextStyle(
+                        fontFamily: 'Syne',
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: kDark,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Iconsax.copy, size: 12, color: Color(0xFF6B7280)),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
             icon: Iconsax.card,
             label: 'Training Package',
             value: _currentBooking.resolvedPackageName,
+            sf: sf,
+          ),
+          const SizedBox(height: 10),
+          _buildInfoRow(
+            icon: Iconsax.calendar_tick,
+            label: 'Package Validity',
+            value: '${_currentBooking.resolvedTotalDays} Days (${_currentBooking.resolvedDaysRemaining} days left)',
+            sf: sf,
+          ),
+          const SizedBox(height: 10),
+          _buildInfoRow(
+            icon: Iconsax.ticket,
+            label: 'Session Allowance',
+            value: '${_currentBooking.resolvedSessionsCompleted} done / ${_currentBooking.resolvedTotalSessions} total',
             sf: sf,
           ),
           const SizedBox(height: 10),

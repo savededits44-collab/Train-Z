@@ -241,6 +241,47 @@ class BookingModel {
 
   /// Explicit 60-minute duration string
   String get sessionDurationDisplay => '60 Minutes (Personal 1-on-1)';
+
+  /// Exact DateTime of the session start by combining sessionDate with startTime
+  DateTime get fullSessionStartDateTime {
+    int hour = 6;
+    int minute = 0;
+    try {
+      final cleanTime = startTime.trim();
+      final isPm = cleanTime.toUpperCase().contains('PM');
+      final isAm = cleanTime.toUpperCase().contains('AM');
+      final digitsOnly = cleanTime.replaceAll(RegExp(r'[^\d:]'), '');
+      final parts = digitsOnly.split(':');
+      if (parts.isNotEmpty) {
+        hour = int.tryParse(parts[0]) ?? 6;
+        if (parts.length > 1) {
+          minute = int.tryParse(parts[1]) ?? 0;
+        }
+        if (isPm && hour < 12) hour += 12;
+        if (isAm && hour == 12) hour = 0;
+      }
+    } catch (_) {}
+    return DateTime(
+      sessionDate.year,
+      sessionDate.month,
+      sessionDate.day,
+      hour,
+      minute,
+    );
+  }
+
+  /// Exact hours until session start from now
+  double get hoursUntilSession {
+    final now = DateTime.now();
+    return fullSessionStartDateTime.difference(now).inMinutes / 60.0;
+  }
+
+  /// Whether cancellation qualifies for full credit refund (>= 12h rule)
+  bool get isCancellationCreditRefundable => hoursUntilSession >= 12.0;
+
+  /// Formatted booking reference string
+  String get bookingReference => 'REF-${id.replaceAll('-', '').toUpperCase().padRight(8, '0').substring(0, 8)}';
+
   /// Minutes remaining until reservation expires
   int get minutesRemaining {
     if (expiresAt == null) return 0;

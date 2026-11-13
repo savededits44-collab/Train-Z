@@ -187,7 +187,21 @@ export const cancelBookingWithCredit = onCall(async (request) => {
 
     const sessionDate: Date = booking.sessionDate.toDate();
     const now = new Date();
-    const hoursUntil = (sessionDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    // Calculate cancellation window using actual session start time and date
+    let exactSessionTime = new Date(sessionDate);
+    if (booking.startTime) {
+      const match = (booking.startTime as string).trim().match(/(\d+):(\d+)\s*(AM|PM)?/i);
+      if (match) {
+        let hour = parseInt(match[1], 10);
+        const min = parseInt(match[2], 10);
+        const period = match[3] ? match[3].toUpperCase() : '';
+        if (period === 'PM' && hour < 12) hour += 12;
+        if (period === 'AM' && hour === 12) hour = 0;
+        exactSessionTime.setHours(hour, min, 0, 0);
+      }
+    }
+    const hoursUntil = (exactSessionTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
     const creditRef = db.collection('session_credits').doc(booking.clientId);
     const creditSnap = await transaction.get(creditRef);
@@ -274,6 +288,13 @@ export const cancelBookingWithCredit = onCall(async (request) => {
       }
     }
 
+    // Release slot lock so trainer availability is restored
+    const dateKey = sessionDate.toISOString().slice(0, 10);
+    const safeTimeKey = (booking.startTime || '').replace(/[^a-zA-Z0-9]/g, '');
+    const slotLockId = `${booking.trainerId}_${dateKey}_${safeTimeKey}`;
+    const slotLockRef = db.collection('slot_locks').doc(slotLockId);
+    transaction.delete(slotLockRef);
+
     // Create notification for client
     const notifRef = db.collection('notifications').doc();
     transaction.set(notifRef, {
@@ -288,6 +309,22 @@ export const cancelBookingWithCredit = onCall(async (request) => {
       data: {
         bookingId,
         returnedCredit,
+        status: newStatus,
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Notify trainer as well
+    const notifTrainerRef = db.collection('notifications').doc();
+    transaction.set(notifTrainerRef, {
+      id: notifTrainerRef.id,
+      userId: booking.trainerId,
+      title: 'Session Cancelled ❌',
+      body: `${isClient ? (booking.clientName || 'Athlete') : 'Platform'} cancelled the session on ${dateKey} at ${booking.startTime}.`,
+      type: 'BOOKING_CANCELLED',
+      isRead: false,
+      data: {
+        bookingId,
         status: newStatus,
       },
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -1247,6 +1284,10 @@ export const rescheduleBooking = onCall(async (request) => {
   }
 
   const newDate = new Date(newSessionDateIso);
+  const now = new Date();
+  if (newDate.getTime() < now.getTime() - 60000) {
+    throw new HttpsError('invalid-argument', 'Cannot reschedule to a past date or time.');
+  }
 
   return await db.runTransaction(async (transaction) => {
     const bookingRef = db.collection('bookings').doc(bookingId);
@@ -1264,6 +1305,18 @@ export const rescheduleBooking = onCall(async (request) => {
       throw new HttpsError('permission-denied', 'You do not have permission to reschedule this booking.');
     }
 
+    if (booking.status !== 'CONFIRMED' && booking.status !== 'PENDING' && booking.status !== 'RESCHEDULED') {
+      throw new HttpsError('failed-precondition', `Cannot reschedule a booking with status ${booking.status}.`);
+    }
+
+    // Check trainer date override / blackout
+    const newDateKey = newDate.toISOString().slice(0, 10);
+    const overrideRef = db.collection('trainer_availability').doc(`${booking.trainerId}_override_${newDateKey}`);
+    const overrideSnap = await transaction.get(overrideRef);
+    if (overrideSnap.exists && overrideSnap.data()?.isBlocked) {
+      throw new HttpsError('failed-precondition', 'Trainer is unavailable on this date.');
+    }
+
     // Check old slot lock
     const oldDateKey = booking.sessionDate.toDate().toISOString().slice(0, 10);
     const oldSafeTimeKey = (booking.startTime || '').replace(/[^a-zA-Z0-9]/g, '');
@@ -1271,7 +1324,6 @@ export const rescheduleBooking = onCall(async (request) => {
     const oldLockRef = db.collection('slot_locks').doc(oldLockId);
 
     // Check new slot lock
-    const newDateKey = newDate.toISOString().slice(0, 10);
     const newSafeTimeKey = newStartTime.replace(/[^a-zA-Z0-9]/g, '');
     const newLockId = `${booking.trainerId}_${newDateKey}_${newSafeTimeKey}`;
     const newLockRef = db.collection('slot_locks').doc(newLockId);
