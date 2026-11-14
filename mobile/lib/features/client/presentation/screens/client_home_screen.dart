@@ -117,7 +117,12 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final sf = scaleFactor(context);
-    final user = FirebaseAuth.instance.currentUser;
+    User? user;
+    try {
+      user = AuthService().currentUser;
+    } catch (_) {
+      user = null;
+    }
     final uid = user?.uid ?? '';
 
     return StreamBuilder<UserModel?>(
@@ -235,13 +240,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             ],
                           );
                         },
-                      ),
-                      const SizedBox(width: 4),
-                      // Sign Out
-                      IconButton(
-                        icon: const Icon(Iconsax.logout, color: kDark, size: 20),
-                        tooltip: 'Sign Out',
-                        onPressed: () => showLogoutDialog(context),
                       ),
                       const SizedBox(width: 8),
                     ],
@@ -422,19 +420,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   ],
                 ),
               ),
-              // Location shortcut button
-              IconButton(
-                icon: const Icon(Iconsax.location, color: kDark, size: 22),
-                tooltip: 'Change City',
-                onPressed: () {
-                  ClientLocationSheet.show(
-                    context,
-                    clientId: uid,
-                    currentCityId: selectedCityId,
-                    currentVenue: preferredVenue,
-                  );
-                },
-              ),
             ],
           ),
 
@@ -478,61 +463,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
 
           const SizedBox(height: 16),
 
-          // ── 3. Location & Workout Service Banner ──
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF9FAFB),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFEEEEEE)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: kDark,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Iconsax.location,
-                    size: 16,
-                    color: kLime,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Personal Training',
-                        style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: (12.0 * sf).clamp(11.0, 13.5),
-                          fontWeight: FontWeight.w700,
-                          color: kDark,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Preferred Venue: $preferredVenue • Verified 1-on-1 sessions.',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: (10.0 * sf).clamp(9.0, 11.5),
-                          color: kGrey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 18),
-
-          // ── 4. Real-time Session Credits Card (Double-Entry Balance) ──
+          // ── 2. Real-time Session Credits Card (Double-Entry Balance) ──
           StreamBuilder<SessionCreditModel?>(
             stream: CreditService().streamClientCredits(uid),
             builder: (context, creditSnap) {
@@ -561,21 +492,16 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Flexible(
-                          child: Text(
-                            'SESSION CREDITS',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFFAAAAAA),
-                              letterSpacing: 0.8,
-                            ),
+                        Text(
+                          'SESSION CREDITS',
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFFAAAAAA),
+                            letterSpacing: 0.8,
                           ),
                         ),
-                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
@@ -599,43 +525,36 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                '$available',
-                                style: TextStyle(
-                                  fontFamily: 'Syne',
-                                  fontSize: (38.0 * sf).clamp(30.0, 44.0),
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              '$available',
+                              style: TextStyle(
+                                fontFamily: 'Syne',
+                                fontSize: (38.0 * sf).clamp(30.0, 44.0),
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
                               ),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
-                                  'Available Sessions',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: (12.0 * sf).clamp(11.0, 13.5),
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color(0xFFCCCCCC),
-                                  ),
-                                ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Available Sessions',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: (12.0 * sf).clamp(11.0, 13.5),
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFFCCCCCC),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
                         InkWell(
                           onTap: _scrollToPackages,
                           borderRadius: BorderRadius.circular(10),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                             decoration: BoxDecoration(
                               color: kLime,
                               borderRadius: BorderRadius.circular(8),
@@ -696,52 +615,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             },
           ),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
 
-          // ── 5. Quick Actions Row ──
-          Row(
-            children: [
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Iconsax.search_normal_1,
-                  label: 'Find Trainer',
-                  sf: sf,
-                  onTap: () => _switchTab(1),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Iconsax.calendar_1,
-                  label: 'My Bookings',
-                  sf: sf,
-                  onTap: () => _switchTab(2),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Iconsax.card,
-                  label: 'My Packages',
-                  sf: sf,
-                  onTap: _scrollToPackages,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Iconsax.message,
-                  label: 'Messages',
-                  sf: sf,
-                  onTap: () => _switchTab(3),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 26),
-
-          // ── 6. Upcoming Sessions Section ──
+          // ── 3. Upcoming Sessions Section ──
           _SectionHeader(
             title: 'UPCOMING SESSIONS',
             actionLabel: 'View All',
@@ -966,7 +842,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               }
 
               return SizedBox(
-                height: 270,
+                height: (310.0 * sf).clamp(285.0, 345.0),
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
@@ -2375,11 +2251,11 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           ],
 
           // ── Support & Help Center ──
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
+          Material(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFEEEEEE)),
+              side: const BorderSide(color: Color(0xFFEEEEEE)),
             ),
             child: Column(
               children: [
@@ -2484,11 +2360,11 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           ),
 
           // ── Settings & Account Preferences ──
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
+          Material(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFEEEEEE)),
+              side: const BorderSide(color: Color(0xFFEEEEEE)),
             ),
             child: ListTile(
               leading: Container(
@@ -2602,66 +2478,6 @@ class _SectionHeader extends StatelessWidget {
             ),
           ),
       ],
-    );
-  }
-}
-
-class _QuickActionCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final double sf;
-  final VoidCallback onTap;
-
-  const _QuickActionCard({
-    required this.icon,
-    required this.label,
-    required this.sf,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFB),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFEEEEEE)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFE5E5E5)),
-              ),
-              child: Icon(icon, size: (16.0 * sf).clamp(14.0, 18.0), color: kDark),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontFamily: 'Syne',
-                fontSize: (10.0 * sf).clamp(9.0, 11.5),
-                fontWeight: FontWeight.w700,
-                color: kDark,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

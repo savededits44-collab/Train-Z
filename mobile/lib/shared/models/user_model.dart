@@ -132,7 +132,7 @@ class UserModel {
       gender: Gender.fromFirestore(map['gender']),
       status: UserStatus.fromFirestore(map['status']),
       isEmailVerified: map['isEmailVerified'] as bool? ?? false,
-      isOnboarded: map['onboarded'] as bool? ?? false,
+      isOnboarded: (map['onboarded'] as bool?) ?? (map['isOnboarded'] as bool?) ?? false,
       createdAt: parseTimestamp(map['createdAt']),
       updatedAt: parseTimestamp(map['updatedAt']),
       lastLoginAt: parseTimestamp(map['lastLoginAt']),

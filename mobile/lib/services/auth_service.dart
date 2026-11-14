@@ -66,16 +66,20 @@ class AuthService {
 
   /// Stream of current typed UserModel from Firestore
   Stream<UserModel?> get currentUserProfileStream {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null || uid.trim().isEmpty) return Stream.value(null);
-    return _firestore
-        .collection(FirestoreCollections.users)
-        .doc(uid)
-        .snapshots()
-        .map((snapshot) {
-      if (!snapshot.exists || snapshot.data() == null) return null;
-      return UserModel.fromDocument(snapshot);
-    });
+    try {
+      final uid = currentUser?.uid;
+      if (uid == null || uid.trim().isEmpty) return Stream.value(null);
+      return _firestore
+          .collection(FirestoreCollections.users)
+          .doc(uid)
+          .snapshots()
+          .map((snapshot) {
+        if (!snapshot.exists || snapshot.data() == null) return null;
+        return UserModel.fromDocument(snapshot);
+      });
+    } catch (_) {
+      return Stream.value(null);
+    }
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -216,14 +220,17 @@ class AuthService {
 
     final user = credential.user;
     if (user != null) {
-      // Record last login timestamp
+      // Record last login timestamp without overwriting existing backend verification
+      final loginUpdates = <String, dynamic>{
+        'lastLoginAt': FieldValue.serverTimestamp(),
+      };
+      if (user.emailVerified) {
+        loginUpdates['isEmailVerified'] = true;
+      }
       await _firestore
           .collection(FirestoreCollections.users)
           .doc(user.uid)
-          .set({
-        'lastLoginAt': FieldValue.serverTimestamp(),
-        'isEmailVerified': user.emailVerified,
-      }, SetOptions(merge: true));
+          .set(loginUpdates, SetOptions(merge: true));
       await getUserModel(user.uid);
     }
 
@@ -298,7 +305,14 @@ class AuthService {
     if (user == null) return false;
     await user.reload();
     final updated = _auth.currentUser;
-    final verified = updated?.emailVerified ?? false;
+    bool verified = updated?.emailVerified ?? false;
+
+    if (!verified) {
+      try {
+        final doc = await _firestore.collection(FirestoreCollections.users).doc(user.uid).get();
+        verified = doc.data()?['isEmailVerified'] == true;
+      } catch (_) {}
+    }
 
     if (verified) {
       await _firestore

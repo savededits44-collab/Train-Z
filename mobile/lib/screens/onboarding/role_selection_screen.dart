@@ -46,7 +46,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Choose how you want to use Trainuspro to tailor your experience.',
+                'Choose how you want to use TRAIN Z to tailor your experience.',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: (13.0 * sf).clamp(11.0, 14.0),

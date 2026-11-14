@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen>
         final profile = await AuthService().getUserProfile(user.uid);
         if (profile != null) {
           role = profile['role'] as String?;
-          isOnboarded = profile['onboarded'] == true;
+          isOnboarded = profile['onboarded'] == true || profile['isOnboarded'] == true;
         }
       }
 
@@ -197,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen>
         final profile = await AuthService().getUserProfile(user.uid);
         if (profile != null) {
           role = profile['role'] as String?;
-          isOnboarded = profile['onboarded'] == true;
+          isOnboarded = profile['onboarded'] == true || profile['isOnboarded'] == true;
         }
       }
 

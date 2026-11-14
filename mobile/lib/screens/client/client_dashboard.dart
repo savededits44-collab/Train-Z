@@ -144,25 +144,6 @@ class _HomeTab extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    // Log out quick action button
-                    InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: onLogout,
-                      child: Container(
-                        width: (36.0 * sf).clamp(30, 44),
-                        height: (36.0 * sf).clamp(30, 44),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFEBEE),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Iconsax.logout,
-                          size: (17.0 * sf).clamp(14, 20),
-                          color: const Color(0xFFE53935),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ],

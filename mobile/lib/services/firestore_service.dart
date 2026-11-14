@@ -28,6 +28,14 @@ class FirestoreService {
   FirestoreService._internal();
 
   FirebaseFirestore? _firestoreInstance;
+  bool get _isFirebaseActive {
+    try {
+      return Firebase.apps.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
   FirebaseFirestore get _firestore {
     try {
       _firestoreInstance ??= FirebaseFirestore.instance;
@@ -58,6 +66,7 @@ class FirestoreService {
   /// Streams the 6 predefined TRAIN Z platform packages.
   /// Falls back to [TrainingPlanModel.platformPackages] if the collection has not yet been seeded.
   Stream<List<TrainingPlanModel>> streamPlatformTrainingPlans() {
+    if (!_isFirebaseActive) return Stream.value(TrainingPlanModel.platformPackages);
     try {
       return _firestore
           .collection(FirestoreCollections.trainingPlans)
@@ -205,6 +214,7 @@ class FirestoreService {
     String? cityId,
     int limit = 25,
   }) {
+    if (!_isFirebaseActive) return Stream.value(<TrainerDisplayModel>[]);
     Query query = _firestore
         .collection(FirestoreCollections.trainerProfiles)
         .where('verificationStatus', isEqualTo: 'APPROVED')
@@ -314,7 +324,7 @@ class FirestoreService {
 
   /// Stream client profile in real time (Restricted to authenticated owner or admin)
   Stream<ClientProfileModel?> streamClientProfile(String clientId) {
-    if (clientId.trim().isEmpty) return Stream.value(null);
+    if (!_isFirebaseActive || clientId.trim().isEmpty) return Stream.value(null);
     final currentUid = _currentAuthUid;
     if (currentUid != null && currentUid.isNotEmpty && currentUid != clientId) {
       return Stream.value(null);
@@ -467,7 +477,7 @@ class FirestoreService {
 
   /// Streams bookings for a client (Strictly restricted to authenticated client owner)
   Stream<List<BookingModel>> streamClientBookings(String clientId) {
-    if (clientId.trim().isEmpty) return Stream.value(<BookingModel>[]);
+    if (!_isFirebaseActive || clientId.trim().isEmpty) return Stream.value(<BookingModel>[]);
     final currentUid = _currentAuthUid;
     if (currentUid != null && currentUid.isNotEmpty && currentUid != clientId) {
       return Stream.value(<BookingModel>[]);
@@ -1233,6 +1243,7 @@ class FirestoreService {
 
   /// Streams unread notifications for a user
   Stream<List<NotificationModel>> streamUserNotifications(String userId) {
+    if (!_isFirebaseActive || userId.trim().isEmpty) return Stream.value(<NotificationModel>[]);
     return _firestore
         .collection(FirestoreCollections.notifications)
         .where('userId', isEqualTo: userId)

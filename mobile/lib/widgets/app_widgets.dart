@@ -13,10 +13,11 @@ double scaleFactor(BuildContext context) {
   return (w / 360).clamp(0.75, 1.3);
 }
 
-// ─── App logo (trainus|pro) ───────────────────────────────────────────────────
+// ─── App logo (TRAIN Z) ──────────────────────────────────────────────────────
 class AppLogo extends StatelessWidget {
   final double fontSize;
-  const AppLogo({super.key, this.fontSize = 16});
+  final Color? textColor;
+  const AppLogo({super.key, this.fontSize = 16, this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,7 @@ class AppLogo extends StatelessWidget {
               fontFamily: 'Syne',
               fontSize: fontSize,
               fontWeight: FontWeight.w800,
-              color: kDark,
+              color: textColor ?? kDark,
               letterSpacing: fontSize * 0.04,
             ),
           ),

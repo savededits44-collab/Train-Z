@@ -45,7 +45,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
     final isBestValue = widget.plan.id == 'plan_6_months';
 
     return Container(
-      width: 250,
+      width: (250.0 * sf).clamp(240.0, 280.0),
       margin: const EdgeInsets.only(right: 14),
       decoration: BoxDecoration(
         color: isPopular ? const Color(0xFF111111) : Colors.white,
@@ -63,7 +63,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: EdgeInsets.all((14.0 * sf).clamp(12.0, 16.0)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -133,18 +133,21 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                       '₹${widget.plan.price}',
                       style: TextStyle(
                         fontFamily: 'Syne',
-                        fontSize: (26.0 * sf).clamp(22.0, 30.0),
+                        fontSize: (24.0 * sf).clamp(20.0, 28.0),
                         fontWeight: FontWeight.w800,
                         color: isPopular ? Colors.white : kDark,
                       ),
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      '/ ${widget.plan.validityDays} ${widget.plan.validityDays == 1 ? "day" : "days"}',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                        color: isPopular ? const Color(0xFFAAAAAA) : kGrey,
+                    Flexible(
+                      child: Text(
+                        '/ ${widget.plan.validityDays} ${widget.plan.validityDays == 1 ? "day" : "days"}',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                          color: isPopular ? const Color(0xFFAAAAAA) : kGrey,
+                        ),
                       ),
                     ),
                   ],

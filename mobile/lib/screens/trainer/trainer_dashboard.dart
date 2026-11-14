@@ -160,7 +160,7 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
 class _TrainerHomeTab extends StatelessWidget {
   final double sf;
   final String? trainerId;
-  final VoidCallback onLogout;
+  final VoidCallback? onLogout;
   final VoidCallback onGoToSchedule;
   final VoidCallback onGoToProfile;
   final VoidCallback onGoToClients;
@@ -168,7 +168,7 @@ class _TrainerHomeTab extends StatelessWidget {
   const _TrainerHomeTab({
     required this.sf,
     this.trainerId,
-    required this.onLogout,
+    this.onLogout,
     required this.onGoToSchedule,
     required this.onGoToProfile,
     required this.onGoToClients,
@@ -347,25 +347,6 @@ class _TrainerHomeTab extends StatelessWidget {
                                             ? Image.file(File(photoUrl), fit: BoxFit.cover)
                                             : _avatarFallback(trainerName)))
                                     : _avatarFallback(trainerName),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: (8.0 * sf).clamp(6, 10)),
-
-                          // Logout Icon Button
-                          TrainerPressScale(
-                            onTap: onLogout,
-                            child: Container(
-                              width: (36.0 * sf).clamp(30, 44),
-                              height: (36.0 * sf).clamp(30, 44),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFFFEBEE),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Iconsax.logout,
-                                size: (17.0 * sf).clamp(14, 20),
-                                color: const Color(0xFFE53935),
                               ),
                             ),
                           ),
