@@ -5,14 +5,14 @@ import '../../services/trainer_certificate_service.dart';
 import '../../shared/models/trainer_certificate_model.dart';
 import 'trainer_certificates_screen.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
-const Color _kSuccess = Color(0xFF10B981);
-const Color _kWarning = Color(0xFFF59E0B);
-const Color _kDanger = Color(0xFFEF4444);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
+const Color _kSuccess = Color(0xFF16A34A);
+const Color _kWarning = Color(0xFFD97706);
+const Color _kDanger = Color(0xFFDC2626);
 
 /// Screen for Trainers to review certificate submissions, document privacy policies,
 /// and understand qualification verification states.
@@ -57,12 +57,12 @@ class _TrainerPrivacyDocumentsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: _kBg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -71,7 +71,7 @@ class _TrainerPrivacyDocumentsScreenState
             fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: _kDark,
           ),
         ),
       ),
@@ -86,12 +86,12 @@ class _TrainerPrivacyDocumentsScreenState
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: _kBorder),
             ),
-            child: Column(
+            child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Iconsax.shield_security, color: _kLime, size: 20),
+                    Icon(Iconsax.shield_security, color: _kDark, size: 20),
                     SizedBox(width: 8),
                     Text(
                       'Document Privacy Guarantee',
@@ -99,18 +99,18 @@ class _TrainerPrivacyDocumentsScreenState
                         fontFamily: 'Outfit',
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: _kDark,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                const Text(
+                SizedBox(height: 10),
+                Text(
                   '• Full certificate files, diplomas, and government IDs are kept strictly private in encrypted storage.\n• Only platform administrators and you have access to raw files.\n• Clients and athletes ONLY see approved qualification titles, issuing organizations, and years of completion.\n• Private storage links are never exposed to the public.',
                   style: TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 12,
-                    color: _kGrey,
+                    color: Color(0xFF4B5563),
                     height: 1.5,
                   ),
                 ),
@@ -130,7 +130,7 @@ class _TrainerPrivacyDocumentsScreenState
                   fontFamily: 'Outfit',
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: _kDark,
                 ),
               ),
               TextButton.icon(
@@ -141,10 +141,10 @@ class _TrainerPrivacyDocumentsScreenState
                     ),
                   );
                 },
-                icon: const Icon(Iconsax.add_circle, color: _kLime, size: 16),
+                icon: const Icon(Iconsax.add_circle, color: _kDark, size: 16),
                 label: const Text(
                   'Upload / Manage',
-                  style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kLime, fontWeight: FontWeight.w500),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kDark, fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -161,7 +161,7 @@ class _TrainerPrivacyDocumentsScreenState
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.all(24),
-                    child: CircularProgressIndicator(color: _kLime),
+                    child: CircularProgressIndicator(color: _kDark),
                   ),
                 );
               }
@@ -186,7 +186,7 @@ class _TrainerPrivacyDocumentsScreenState
                           fontFamily: 'Outfit',
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: _kDark,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -198,8 +198,8 @@ class _TrainerPrivacyDocumentsScreenState
                       const SizedBox(height: 14),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _kLime,
-                          foregroundColor: _kDark,
+                          backgroundColor: _kDark,
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: () {
@@ -256,7 +256,7 @@ class _TrainerPrivacyDocumentsScreenState
                                       fontFamily: 'Outfit',
                                       fontSize: 14,
                                       fontWeight: FontWeight.w700,
-                                      color: Colors.white,
+                                      color: _kDark,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -296,9 +296,9 @@ class _TrainerPrivacyDocumentsScreenState
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: _kDanger.withAlpha(20),
+                              color: const Color(0xFFFEF2F2),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: _kDanger.withAlpha(60)),
+                              border: Border.all(color: const Color(0xFFFCA5A5)),
                             ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,7 +311,7 @@ class _TrainerPrivacyDocumentsScreenState
                                     style: const TextStyle(
                                       fontFamily: 'Outfit',
                                       fontSize: 11.5,
-                                      color: Colors.white,
+                                      color: Color(0xFFB91C1C),
                                     ),
                                   ),
                                 ),

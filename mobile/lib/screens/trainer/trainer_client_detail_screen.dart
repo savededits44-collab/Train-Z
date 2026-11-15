@@ -7,12 +7,13 @@ import '../../shared/models/booking_model.dart';
 import '../../shared/models/trainer_client_model.dart';
 import 'trainer_conversation_screen.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kLime = Color(0xFFB2FF59);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 const Color _kGreen = Color(0xFF2E7D32);
 
 /// Detailed Client Profile & Private Training Records Screen for Trainers.
@@ -84,12 +85,13 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
     final client = widget.client;
 
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -97,14 +99,14 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
           style: TextStyle(
             fontFamily: 'Outfit',
             fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            color: _kDark,
           ),
         ),
         actions: [
           IconButton(
             tooltip: 'Message Client',
-            icon: const Icon(Iconsax.message, color: _kLime, size: 22),
+            icon: const Icon(Iconsax.message, color: _kDark, size: 22),
             onPressed: _openChat,
           ),
         ],
@@ -116,16 +118,16 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
 
           // Tab Bar
           Container(
-            color: _kCardBg,
+            color: Colors.white,
             child: TabBar(
               controller: _tabController,
-              indicatorColor: _kLime,
+              indicatorColor: _kDark,
               indicatorWeight: 3,
-              labelColor: _kLime,
+              labelColor: _kDark,
               unselectedLabelColor: _kGrey,
               labelStyle: const TextStyle(
                 fontFamily: 'Outfit',
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
               unselectedLabelStyle: const TextStyle(
@@ -173,21 +175,21 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: const BoxDecoration(
-        color: _kDark,
+        color: Colors.white,
         border: Border(bottom: BorderSide(color: _kBorder)),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundColor: _kLime.withValues(alpha: 0.2),
+            backgroundColor: _kCardSubBg,
             child: Text(
               client.displayInitial,
               style: const TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: _kLime,
+                color: _kDark,
               ),
             ),
           ),
@@ -205,7 +207,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                           fontFamily: 'Outfit',
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: _kDark,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -216,8 +218,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: client.isActive
-                            ? _kGreen.withValues(alpha: 0.2)
-                            : _kGrey.withValues(alpha: 0.2),
+                            ? _kGreen.withValues(alpha: 0.1)
+                            : _kGrey.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
                           color: client.isActive ? _kGreen : _kGrey,
@@ -230,7 +232,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                           fontFamily: 'Outfit',
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: client.isActive ? const Color(0xFF66BB6A) : _kGrey,
+                          color: client.isActive ? _kGreen : _kGrey,
                         ),
                       ),
                     ),
@@ -249,7 +251,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Iconsax.activity, size: 12, color: _kLime),
+                      const Icon(Iconsax.activity, size: 12, color: _kDark),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -257,7 +259,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                           style: const TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 12,
-                            color: Color(0xFFCCCCCC),
+                            color: _kGrey,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -308,8 +310,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: _kLime,
+                      fontWeight: FontWeight.w600,
+                      color: _kDark,
                     ),
                   ),
                   Container(
@@ -323,8 +325,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       style: const TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        color: _kDark,
                       ),
                     ),
                   ),
@@ -337,7 +339,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                   fontFamily: 'Outfit',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: _kDark,
                 ),
               ),
               const SizedBox(height: 12),
@@ -349,7 +351,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       ? (client.completedSessions / client.totalSessions).clamp(0.0, 1.0)
                       : 0.0,
                   backgroundColor: _kCardSubBg,
-                  valueColor: const AlwaysStoppedAnimation<Color>(_kLime),
+                  valueColor: const AlwaysStoppedAnimation<Color>(_kDark),
                   minHeight: 6,
                 ),
               ),
@@ -372,8 +374,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     style: const TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: _kLime,
+                      fontWeight: FontWeight.w600,
+                      color: _kDark,
                     ),
                   ),
                 ],
@@ -391,7 +393,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             fontFamily: 'Outfit',
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: _kDark,
           ),
         ),
         const SizedBox(height: 10),
@@ -423,7 +425,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             fontFamily: 'Outfit',
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: _kDark,
           ),
         ),
         const SizedBox(height: 10),
@@ -470,12 +472,12 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: isUpcoming ? _kLime.withValues(alpha: 0.15) : _kCardSubBg,
+              color: isUpcoming ? _kLime.withValues(alpha: 0.25) : _kCardSubBg,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               isUpcoming ? Iconsax.calendar_tick : Iconsax.tick_circle,
-              color: isUpcoming ? _kLime : _kGrey,
+              color: isUpcoming ? const Color(0xFF15803D) : _kGrey,
               size: 22,
             ),
           ),
@@ -489,8 +491,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                   style: const TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    color: _kDark,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -508,7 +510,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: isUpcoming ? _kGreen.withValues(alpha: 0.15) : _kCardSubBg,
+              color: isUpcoming ? _kGreen.withValues(alpha: 0.1) : _kCardSubBg,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -517,7 +519,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 fontFamily: 'Outfit',
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
-                color: isUpcoming ? const Color(0xFF66BB6A) : _kGrey,
+                color: isUpcoming ? _kGreen : _kGrey,
               ),
             ),
           ),
@@ -544,13 +546,13 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E2838),
+                color: const Color(0xFFEFF6FF),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFF2A3C54)),
+                border: Border.all(color: const Color(0xFFBFDBFE)),
               ),
               child: const Row(
                 children: [
-                  Icon(Iconsax.lock, color: Color(0xFF64B5F6), size: 18),
+                  Icon(Iconsax.lock, color: Color(0xFF2563EB), size: 18),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -558,7 +560,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 11,
-                        color: Color(0xFFBBDEFB),
+                        color: Color(0xFF1E40AF),
                       ),
                     ),
                   ),
@@ -599,18 +601,18 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             // Add Note CTA Button
             ElevatedButton.icon(
               onPressed: () => _showAddNoteDialog(client),
-              icon: const Icon(Iconsax.add, color: _kDark, size: 18),
+              icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
               label: const Text(
                 'Add Private Note',
                 style: TextStyle(
                   fontFamily: 'Outfit',
                   fontWeight: FontWeight.w500,
                   fontSize: 14,
-                  color: _kDark,
+                  color: Colors.white,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _kLime,
+                backgroundColor: _kDark,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
@@ -636,8 +638,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        color: _kDark,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -681,7 +683,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: _kLime.withValues(alpha: 0.15),
+                  color: _kCardSubBg,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -690,7 +692,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     fontFamily: 'Outfit',
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: _kLime,
+                    color: _kDark,
                   ),
                 ),
               ),
@@ -707,7 +709,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                   const SizedBox(width: 4),
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert, size: 18, color: _kGrey),
-                    color: _kCardSubBg,
+                    color: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     onSelected: (val) {
                       if (val == 'edit') {
@@ -721,9 +723,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                         value: 'edit',
                         child: Row(
                           children: [
-                            Icon(Iconsax.edit, size: 16, color: Colors.white),
+                            Icon(Iconsax.edit, size: 16, color: _kDark),
                             SizedBox(width: 8),
-                            Text('Edit Note', style: TextStyle(color: Colors.white, fontFamily: 'Outfit', fontSize: 13)),
+                            Text('Edit Note', style: TextStyle(color: _kDark, fontFamily: 'Outfit', fontSize: 13)),
                           ],
                         ),
                       ),
@@ -749,8 +751,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             style: const TextStyle(
               fontFamily: 'Outfit',
               fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              color: _kDark,
             ),
           ),
           const SizedBox(height: 6),
@@ -759,7 +761,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             style: const TextStyle(
               fontFamily: 'Outfit',
               fontSize: 13,
-              color: Color(0xFFDCDCDC),
+              color: Color(0xFF4B5563),
               height: 1.4,
             ),
           ),
@@ -807,7 +809,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                             fontFamily: 'Outfit',
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
-                            color: _kLime,
+                            color: _kDark,
                           ),
                         ),
                       ],
@@ -837,7 +839,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                             fontFamily: 'Outfit',
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: _kDark,
                           ),
                         ),
                       ],
@@ -880,18 +882,18 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             // Record Milestone Button
             ElevatedButton.icon(
               onPressed: () => _showAddProgressDialog(client),
-              icon: const Icon(Iconsax.award, color: _kDark, size: 18),
+              icon: const Icon(Iconsax.award, color: Colors.white, size: 18),
               label: const Text(
                 'Record Progress Milestone',
                 style: TextStyle(
                   fontFamily: 'Outfit',
                   fontWeight: FontWeight.w500,
                   fontSize: 14,
-                  color: _kDark,
+                  color: Colors.white,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _kLime,
+                backgroundColor: _kDark,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
@@ -917,8 +919,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        color: _kDark,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -962,7 +964,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF64B5F6).withValues(alpha: 0.15),
+                  color: const Color(0xFFEFF6FF),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -971,7 +973,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     fontFamily: 'Outfit',
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF64B5F6),
+                    color: Color(0xFF2563EB),
                   ),
                 ),
               ),
@@ -1000,8 +1002,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             style: const TextStyle(
               fontFamily: 'Outfit',
               fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              color: _kDark,
             ),
           ),
           if (progress.notes.isNotEmpty) ...[
@@ -1011,7 +1013,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
               style: const TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 13,
-                color: Color(0xFFDCDCDC),
+                color: Color(0xFF4B5563),
                 height: 1.4,
               ),
             ),
@@ -1031,7 +1033,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: _kCardBg,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -1057,7 +1059,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                         fontFamily: 'Outfit',
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: _kDark,
                       ),
                     ),
                     IconButton(
@@ -1078,12 +1080,12 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                         style: TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: isSel ? _kDark : Colors.white,
+                          fontWeight: FontWeight.w600,
+                          color: isSel ? Colors.white : _kDark,
                         ),
                       ),
                       selected: isSel,
-                      selectedColor: _kLime,
+                      selectedColor: _kDark,
                       backgroundColor: _kCardSubBg,
                       onSelected: (val) {
                         if (val) setModalState(() => category = cat);
@@ -1094,7 +1096,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 const SizedBox(height: 14),
                 TextField(
                   controller: titleCtrl,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
+                  style: const TextStyle(color: _kDark, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Topic / Title',
                     labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
@@ -1112,7 +1114,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 TextField(
                   controller: contentCtrl,
                   maxLines: 4,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
+                  style: const TextStyle(color: _kDark, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Observation Details *',
                     labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
@@ -1156,7 +1158,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _kLime,
+                      backgroundColor: _kDark,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
@@ -1165,7 +1167,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontWeight: FontWeight.w500,
-                        color: _kDark,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -1186,7 +1188,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: _kCardBg,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -1212,7 +1214,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                         fontFamily: 'Outfit',
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: _kDark,
                       ),
                     ),
                     IconButton(
@@ -1232,12 +1234,12 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                         style: TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: isSel ? _kDark : Colors.white,
+                          fontWeight: FontWeight.w600,
+                          color: isSel ? Colors.white : _kDark,
                         ),
                       ),
                       selected: isSel,
-                      selectedColor: _kLime,
+                      selectedColor: _kDark,
                       backgroundColor: _kCardSubBg,
                       onSelected: (val) {
                         if (val) setModalState(() => category = cat);
@@ -1248,7 +1250,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 const SizedBox(height: 14),
                 TextField(
                   controller: titleCtrl,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
+                  style: const TextStyle(color: _kDark, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Topic / Title',
                     labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
@@ -1264,7 +1266,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 TextField(
                   controller: contentCtrl,
                   maxLines: 4,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
+                  style: const TextStyle(color: _kDark, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Observation Details *',
                     labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
@@ -1306,7 +1308,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _kLime,
+                      backgroundColor: _kDark,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
@@ -1315,7 +1317,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontWeight: FontWeight.w500,
-                        color: _kDark,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -1332,14 +1334,14 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: _kCardBg,
+        backgroundColor: Colors.white,
         title: const Text(
           'Delete Note',
-          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kDark),
         ),
         content: const Text(
           'Are you sure you want to permanently delete this private note?',
-          style: TextStyle(fontFamily: 'Outfit', color: Color(0xFFDCDCDC)),
+          style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF4B5563)),
         ),
         actions: [
           TextButton(
@@ -1378,7 +1380,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: _kCardBg,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -1404,7 +1406,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                         fontFamily: 'Outfit',
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: _kDark,
                       ),
                     ),
                     IconButton(
@@ -1424,12 +1426,12 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                         style: TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: isSel ? _kDark : Colors.white,
+                          fontWeight: FontWeight.w600,
+                          color: isSel ? Colors.white : _kDark,
                         ),
                       ),
                       selected: isSel,
-                      selectedColor: _kLime,
+                      selectedColor: _kDark,
                       backgroundColor: _kCardSubBg,
                       onSelected: (val) {
                         if (val) setModalState(() => category = cat);
@@ -1440,7 +1442,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 const SizedBox(height: 14),
                 TextField(
                   controller: titleCtrl,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
+                  style: const TextStyle(color: _kDark, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Milestone Title *',
                     labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
@@ -1458,7 +1460,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 TextField(
                   controller: notesCtrl,
                   maxLines: 3,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
+                  style: const TextStyle(color: _kDark, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Details / Coaching Notes',
                     labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
@@ -1503,7 +1505,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _kLime,
+                      backgroundColor: _kDark,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
@@ -1512,7 +1514,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontWeight: FontWeight.w500,
-                        color: _kDark,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -1529,14 +1531,14 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: _kCardBg,
+        backgroundColor: Colors.white,
         title: const Text(
           'Delete Milestone',
-          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kDark),
         ),
         content: const Text(
           'Are you sure you want to delete this recorded milestone?',
-          style: TextStyle(fontFamily: 'Outfit', color: Color(0xFFDCDCDC)),
+          style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF4B5563)),
         ),
         actions: [
           TextButton(

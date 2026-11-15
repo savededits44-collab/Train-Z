@@ -5,7 +5,6 @@ import '../services/auth_service.dart';
 import '../shared/models/trainer_client_model.dart';
 import '../shared/models/trainer_profile_model.dart';
 import '../shared/models/user_model.dart';
-import '../screens/admin/admin_trainer_review_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/onboarding/client_onboarding.dart';
 import '../screens/onboarding/role_selection_screen.dart';
@@ -549,10 +548,8 @@ class AppRouter {
         );
 
       case adminDashboard:
-        if (AuthService.instance.currentRole == UserRole.client) {
-          return MaterialPageRoute(builder: (_) => const ClientHomeScreen());
-        }
-        return MaterialPageRoute(builder: (_) => const AdminTrainerReviewScreen());
+        // Admin portal is exclusively hosted on the web application.
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
 
       case accountSuspended:
         return MaterialPageRoute(

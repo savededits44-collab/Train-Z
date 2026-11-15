@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../../../core/utils/support_email_helper.dart';
 import '../../../../services/support_service.dart';
 import '../../../../shared/models/support_ticket_model.dart';
 import '../../../../widgets/app_widgets.dart';
@@ -77,8 +78,9 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                     icon: Iconsax.message_question,
                     title: 'Raise a Request',
                     subtitle: 'Report an issue or complaint',
-                    color: kDark,
-                    iconColor: kLime,
+                    color: const Color(0xFFF9FAFB),
+                    iconColor: kDark,
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
                     onTap: () {
                       HapticFeedback.lightImpact();
                       Navigator.push(
@@ -111,7 +113,6 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                         iconColor: kDark,
                         badgeCount: activeCount,
                         border: Border.all(color: const Color(0xFFE5E7EB)),
-                        isDark: false,
                         onTap: () {
                           HapticFeedback.lightImpact();
                           Navigator.push(
@@ -192,7 +193,19 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
 
             const SizedBox(height: 24),
 
-            // ── 4. Contact Support Callout Banner ──
+            // ── 4. Contact Support Section ──
+            Text(
+              'CONTACT SUPPORT',
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: (11.5 * sf).clamp(10.5, 12.5),
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF888888),
+                letterSpacing: 0.8,
+              ),
+            ),
+            const SizedBox(height: 12),
+
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
@@ -219,17 +232,17 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Still Need Assistance?',
+                              SupportEmailHelper.officialSupportIdentity,
                               style: TextStyle(
                                 fontFamily: 'Outfit',
-                                fontSize: (14.0 * sf).clamp(13.0, 15.5),
+                                fontSize: (14.5 * sf).clamp(13.5, 16.0),
                                 fontWeight: FontWeight.w600,
                                 color: kDark,
                               ),
                             ),
                             const SizedBox(height: 2),
                             const Text(
-                              'Our support team typically reviews requests within 24 business hours.',
+                              'Our support team typically reviews inquiries within 24 business hours.',
                               style: TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 11,
@@ -242,6 +255,78 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                     ],
                   ),
                   const SizedBox(height: 14),
+
+                  // ── Clickable Email Support Tile ──
+                  InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      SupportEmailHelper.launchSupportEmail(
+                        context: context,
+                        subject: 'TRAIN Z Client Support Request',
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Iconsax.sms, color: kDark, size: 18),
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Email Support',
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontSize: 11,
+                                    color: Color(0xFF6B7280),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  SupportEmailHelper.officialSupportEmail,
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: kDark,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF9FAFB),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0xFFE5E7EB)),
+                            ),
+                            child: const Icon(Iconsax.export_1, size: 14, color: kDark),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ── In-App Ticket Button (Preserved) ──
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -295,7 +380,6 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
     required double sf,
     int badgeCount = 0,
     BoxBorder? border,
-    bool isDark = true,
   }) {
     return InkWell(
       onTap: onTap,
@@ -340,7 +424,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                 fontFamily: 'Outfit',
                 fontSize: (14.0 * sf).clamp(13.0, 15.5),
                 fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : kDark,
+                color: kDark,
               ),
             ),
             const SizedBox(height: 2),
@@ -349,7 +433,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
               style: TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: (10.5 * sf).clamp(9.5, 11.5),
-                color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
+                color: const Color(0xFF6B7280),
               ),
             ),
           ],

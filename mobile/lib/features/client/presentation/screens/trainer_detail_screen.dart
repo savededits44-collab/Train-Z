@@ -39,7 +39,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Professional Trainer packages are coming soon!'),
-          backgroundColor: Color(0xFF1E293B),
+          backgroundColor: Color(0xFF111111),
         ),
       );
       return;
@@ -357,7 +357,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                 children: [
                   CircleAvatar(
                     radius: (52.0 * sf).clamp(44.0, 60.0),
-                    backgroundColor: const Color(0xFF111111),
+                    backgroundColor: Color(0xFF111111),
                     backgroundImage: (trainer.photoUrl != null && trainer.photoUrl!.isNotEmpty)
                         ? NetworkImage(trainer.photoUrl!)
                         : null,

@@ -5,12 +5,12 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../services/trainer_notification_preferences_service.dart';
 import '../../shared/models/trainer_notification_preferences_model.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 
 /// Screen allowing Trainers to manage optional notification categories
 /// while keeping essential security and verification alerts permanently active.
@@ -64,12 +64,13 @@ class _TrainerNotificationPreferencesScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -77,13 +78,13 @@ class _TrainerNotificationPreferencesScreenState
           style: TextStyle(
             fontFamily: 'Outfit',
             fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            color: _kDark,
           ),
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: _kLime))
+          ? const Center(child: CircularProgressIndicator(color: _kDark))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -103,15 +104,15 @@ class _TrainerNotificationPreferencesScreenState
                         children: [
                           const Row(
                             children: [
-                              Icon(Iconsax.shield_security, color: _kLime, size: 18),
+                              Icon(Iconsax.shield_security, color: _kDark, size: 18),
                               SizedBox(width: 8),
                               Text(
                                 'Essential Notifications',
                                 style: TextStyle(
                                   fontFamily: 'Outfit',
                                   fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  color: _kDark,
                                 ),
                               ),
                             ],
@@ -119,7 +120,7 @@ class _TrainerNotificationPreferencesScreenState
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF64B5F6).withValues(alpha: 0.15),
+                              color: const Color(0xFFEFF6FF),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
@@ -128,7 +129,7 @@ class _TrainerNotificationPreferencesScreenState
                                 fontFamily: 'Outfit',
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF64B5F6),
+                                color: Color(0xFF2563EB),
                               ),
                             ),
                           ),
@@ -169,7 +170,7 @@ class _TrainerNotificationPreferencesScreenState
                     fontFamily: 'Outfit',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: _kDark,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -297,7 +298,7 @@ class _TrainerNotificationPreferencesScreenState
       ),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: const Color(0xFF64B5F6)),
+          Icon(icon, size: 18, color: const Color(0xFF2563EB)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -308,8 +309,8 @@ class _TrainerNotificationPreferencesScreenState
                   style: const TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    color: _kDark,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -342,7 +343,7 @@ class _TrainerNotificationPreferencesScreenState
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: value ? _kLime : _kGrey),
+          Icon(icon, size: 20, color: value ? _kDark : _kGrey),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -353,8 +354,8 @@ class _TrainerNotificationPreferencesScreenState
                   style: const TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    color: _kDark,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -371,10 +372,10 @@ class _TrainerNotificationPreferencesScreenState
           ),
           Switch(
             value: value,
-            activeThumbColor: _kDark,
-            activeTrackColor: _kLime,
-            inactiveThumbColor: _kGrey,
-            inactiveTrackColor: _kCardSubBg,
+            activeThumbColor: Colors.white,
+            activeTrackColor: _kDark,
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: _kBorder,
             onChanged: onChanged,
           ),
         ],

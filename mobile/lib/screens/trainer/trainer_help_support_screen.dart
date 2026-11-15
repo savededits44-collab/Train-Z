@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../core/utils/support_email_helper.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 
 class TrainerHelpSupportScreen extends StatelessWidget {
   const TrainerHelpSupportScreen({super.key});
@@ -42,12 +44,13 @@ class TrainerHelpSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -55,14 +58,27 @@ class TrainerHelpSupportScreen extends StatelessWidget {
           style: TextStyle(
             fontFamily: 'Outfit',
             fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            color: _kDark,
           ),
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // ── Contact Support Section ───────────────────────
+          const Text(
+            'Contact Support',
+            style: TextStyle(
+              fontFamily: 'Outfit',
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: _kGrey,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 10),
+
           // ── Contact Support Card ──────────────────────────
           Container(
             padding: const EdgeInsets.all(18),
@@ -79,27 +95,48 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _kLime.withAlpha(25),
+                        color: _kCardSubBg,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Iconsax.headphone, color: _kLime, size: 24),
+                      child: const Icon(Iconsax.headphone, color: _kDark, size: 24),
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'TRAIN Z Coach Support',
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                SupportEmailHelper.officialSupportIdentity,
+                                style: const TextStyle(
+                                  fontFamily: 'Outfit',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: _kDark,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: _kCardSubBg,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'TRAIN Z Coach Support',
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w500,
+                                    color: _kGrey,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 2),
-                          Text(
+                          const SizedBox(height: 2),
+                          const Text(
                             'Priority coach assistance desk',
                             style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kGrey),
                           ),
@@ -114,41 +151,70 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 12.5,
-                    color: Colors.white70,
+                    color: Color(0xFF4B5563),
                     height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: _kLime,
-                          side: const BorderSide(color: _kLime),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Support desk email: support@trainz.fit',
-                                style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
-                              ),
-                              backgroundColor: _kCardSubBg,
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                        icon: const Icon(Iconsax.sms, size: 16),
-                        label: const Text(
-                          'support@trainz.fit',
-                          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500),
-                        ),
-                      ),
+
+                // ── Clickable Email Support Tile ──
+                InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    SupportEmailHelper.launchSupportEmail(
+                      context: context,
+                      subject: 'TRAIN Z Coach Support Request',
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: _kCardSubBg,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: _kBorder),
                     ),
-                  ],
+                    child: Row(
+                      children: [
+                        const Icon(Iconsax.sms, color: _kDark, size: 18),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Email Support',
+                                style: TextStyle(
+                                  fontFamily: 'Outfit',
+                                  fontSize: 11,
+                                  color: _kGrey,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                SupportEmailHelper.officialSupportEmail,
+                                style: TextStyle(
+                                  fontFamily: 'Outfit',
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: _kDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Iconsax.export_1, size: 14, color: _kDark),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -162,8 +228,8 @@ class TrainerHelpSupportScreen extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Outfit',
               fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              color: _kDark,
             ),
           ),
           const SizedBox(height: 12),
@@ -179,11 +245,11 @@ class TrainerHelpSupportScreen extends StatelessWidget {
               child: Material(
                 color: Colors.transparent,
                 child: Theme(
-                  data: ThemeData.dark().copyWith(
+                  data: Theme.of(context).copyWith(
                     dividerColor: Colors.transparent,
                   ),
                   child: ExpansionTile(
-                    iconColor: _kLime,
+                    iconColor: _kDark,
                     collapsedIconColor: _kGrey,
                     tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -193,7 +259,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                         fontFamily: 'Outfit',
                         fontSize: 13.5,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: _kDark,
                       ),
                     ),
                     children: [
@@ -202,7 +268,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 12.5,
-                          color: Colors.white70,
+                          color: Color(0xFF4B5563),
                           height: 1.45,
                         ),
                       ),

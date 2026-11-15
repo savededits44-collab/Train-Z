@@ -72,6 +72,10 @@
 	<string>TRAIN Z requires access to your photo library to select a profile photo and upload support ticket screenshots.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>TRAIN Z requires access to save workout summaries and receipts to your photo library.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>mailto</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

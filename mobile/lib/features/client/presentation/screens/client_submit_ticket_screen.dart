@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -79,58 +80,27 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
   }
 
   Future<void> _handleAttachFile() async {
-    // Show mock file selection dialog for testing & environments without image_picker
-    final selectedOption = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Add Screenshot or Document', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 16)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Attach a relevant screenshot or document to help us resolve your issue faster (Max 5MB: JPG, PNG, PDF):',
-              style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF4B5563)),
-            ),
-            const SizedBox(height: 12),
-            ListTile(
-              leading: const Icon(Iconsax.image, color: kDark),
-              title: const Text('Workout Screenshot', style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('workout_error_proof.png (1.2 MB)', style: TextStyle(fontFamily: 'Outfit', fontSize: 11)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              onTap: () => Navigator.pop(ctx, 'workout_error_proof.png'),
-            ),
-            ListTile(
-              leading: const Icon(Iconsax.receipt, color: kDark),
-              title: const Text('Payment Transaction Proof', style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('razorpay_receipt_proof.jpg (850 KB)', style: TextStyle(fontFamily: 'Outfit', fontSize: 11)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              onTap: () => Navigator.pop(ctx, 'razorpay_receipt_proof.jpg'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF6B7280))),
-          ),
-        ],
-      ),
-    );
-
-    if (selectedOption != null) {
-      if (!mounted) return;
-      setState(() {
-        _attachmentName = selectedOption;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Attached "$selectedOption"'),
-          duration: const Duration(seconds: 2),
-        ),
+    try {
+      final files = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
       );
+
+      if (files.isNotEmpty) {
+        final file = files.first;
+        if (!mounted) return;
+        setState(() {
+          _attachmentName = file.name;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Attached "${file.name}"'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Notice: File picker error: $e');
     }
   }
 

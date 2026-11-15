@@ -10,12 +10,12 @@ import '../../services/trainer_profile_service.dart';
 import '../../shared/models/trainer_profile_model.dart';
 import '../../shared/models/user_model.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 
 /// Dedicated Personal Information Management Screen for Trainers.
 /// Allows updating permitted personal details while preventing role/category self-assignment.
@@ -106,9 +106,9 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
         const SnackBar(
           content: Text(
             'Profile photo updated successfully',
-            style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white),
           ),
-          backgroundColor: _kCardSubBg,
+          backgroundColor: _kDark,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -137,12 +137,12 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
       lastDate: DateTime(now.year - 18),
       builder: (context, child) {
         return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: _kLime,
-              onPrimary: _kDark,
-              surface: _kCardBg,
-              onSurface: Colors.white,
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: _kDark,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: _kDark,
             ),
           ),
           child: child!,
@@ -165,14 +165,14 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
     await showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: _kCardBg,
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: _kBorder),
         ),
         title: const Text(
           'Update Email Address',
-          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: _kDark),
         ),
         content: Form(
           key: dialogFormKey,
@@ -186,13 +186,24 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
               const SizedBox(height: 14),
               TextFormField(
                 controller: newEmailCtrl,
-                style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
+                style: const TextStyle(fontFamily: 'Outfit', color: _kDark),
                 decoration: InputDecoration(
                   labelText: 'New Email Address',
                   labelStyle: const TextStyle(color: _kGrey),
                   filled: true,
                   fillColor: _kCardSubBg,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: _kBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: _kBorder),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: _kDark),
+                  ),
                 ),
                 validator: (v) {
                   if (v == null || !v.contains('@') || !v.contains('.')) {
@@ -211,8 +222,8 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: _kLime,
-              foregroundColor: _kDark,
+              backgroundColor: _kDark,
+              foregroundColor: Colors.white,
             ),
             onPressed: () async {
               if (!dialogFormKey.currentState!.validate()) return;
@@ -223,8 +234,11 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                 setState(() => _emailCtrl.text = newEmailCtrl.text.trim());
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Verification link dispatched to new email.'),
-                    backgroundColor: _kCardSubBg,
+                    content: Text(
+                      'Verification link dispatched to new email.',
+                      style: TextStyle(fontFamily: 'Outfit', color: Colors.white),
+                    ),
+                    backgroundColor: _kDark,
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -269,9 +283,9 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
         const SnackBar(
           content: Text(
             'Personal details saved successfully',
-            style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white),
           ),
-          backgroundColor: _kCardSubBg,
+          backgroundColor: _kDark,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -293,12 +307,12 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
     final isAdvanced = _profileService.category == TrainerCategory.advancedTrainer;
 
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: _kBg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -307,7 +321,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
             fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w500,
-            color: Colors.white,
+            color: _kDark,
           ),
         ),
       ),
@@ -335,14 +349,14 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                               fontFamily: 'Outfit',
                               fontSize: 32,
                               fontWeight: FontWeight.w700,
-                              color: _kLime,
+                              color: _kDark,
                             ),
                           )
                         : null,
                   ),
                   if (_isUploadingPhoto)
                     const Positioned.fill(
-                      child: CircularProgressIndicator(color: _kLime),
+                      child: CircularProgressIndicator(color: _kDark),
                     ),
                   Positioned(
                     bottom: 0,
@@ -352,10 +366,10 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: const BoxDecoration(
-                          color: _kLime,
+                          color: _kDark,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Iconsax.camera, size: 16, color: _kDark),
+                        child: const Icon(Iconsax.camera, size: 16, color: Colors.white),
                       ),
                     ),
                   ),
@@ -382,7 +396,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Iconsax.lock, color: _kLime, size: 20),
+                  const Icon(Iconsax.lock, color: _kDark, size: 20),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -396,14 +410,14 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                                 fontFamily: 'Outfit',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: _kDark,
                               ),
                             ),
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: _kLime.withAlpha(25),
+                                color: _kCardSubBg,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: const Text(
@@ -412,7 +426,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                                   fontFamily: 'Outfit',
                                   fontSize: 9,
                                   fontWeight: FontWeight.w600,
-                                  color: _kLime,
+                                  color: _kDark,
                                 ),
                               ),
                             ),
@@ -441,7 +455,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
             _buildLabel('Full Name'),
             TextFormField(
               controller: _nameCtrl,
-              style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
+              style: const TextStyle(fontFamily: 'Outfit', color: _kDark),
               decoration: _inputDecoration('Your official full name', Iconsax.user),
               validator: (v) {
                 if (v == null || v.trim().length < 2) {
@@ -457,7 +471,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
             TextFormField(
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
-              style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
+              style: const TextStyle(fontFamily: 'Outfit', color: _kDark),
               decoration: _inputDecoration('+91 98765 43210', Iconsax.call),
               validator: (v) {
                 if (v == null || v.trim().length < 10) {
@@ -473,13 +487,13 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
             TextFormField(
               controller: _emailCtrl,
               readOnly: true,
-              style: const TextStyle(fontFamily: 'Outfit', color: Colors.white70),
+              style: const TextStyle(fontFamily: 'Outfit', color: Color(0xFF4B5563)),
               decoration: _inputDecoration('Email address', Iconsax.sms).copyWith(
                 suffixIcon: TextButton(
                   onPressed: _showUpdateEmailDialog,
                   child: const Text(
                     'Change',
-                    style: TextStyle(fontFamily: 'Outfit', color: _kLime, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontFamily: 'Outfit', color: _kDark, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
@@ -501,13 +515,13 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                   dropdownColor: _kCardBg,
                   hint: const Text('Select gender', style: TextStyle(color: _kGrey, fontFamily: 'Outfit')),
                   isExpanded: true,
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                  icon: const Icon(Icons.arrow_drop_down, color: _kDark),
                   items: Gender.values.map((g) {
                     return DropdownMenuItem<Gender>(
                       value: g,
                       child: Text(
                         g == Gender.male ? 'Male' : 'Female',
-                        style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
+                        style: const TextStyle(fontFamily: 'Outfit', color: _kDark),
                       ),
                     );
                   }).toList(),
@@ -537,7 +551,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                       _dateOfBirth ?? 'Select Date of Birth',
                       style: TextStyle(
                         fontFamily: 'Outfit',
-                        color: _dateOfBirth != null ? Colors.white : _kGrey,
+                        color: _dateOfBirth != null ? _kDark : _kGrey,
                         fontSize: 14,
                       ),
                     ),
@@ -555,8 +569,8 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _kLime,
-                  foregroundColor: _kDark,
+                  backgroundColor: _kDark,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -566,7 +580,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(color: _kDark, strokeWidth: 2),
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                       )
                     : const Text(
                         'Save Personal Details',
@@ -593,7 +607,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
           fontFamily: 'Outfit',
           fontSize: 13,
           fontWeight: FontWeight.w500,
-          color: Colors.white,
+          color: _kDark,
         ),
       ),
     );
@@ -617,7 +631,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: _kLime),
+        borderSide: const BorderSide(color: _kDark),
       ),
     );
   }

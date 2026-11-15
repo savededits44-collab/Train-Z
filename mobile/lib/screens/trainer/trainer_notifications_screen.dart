@@ -14,12 +14,12 @@ import 'trainer_notification_preferences_screen.dart';
 import 'trainer_package_management_screen.dart';
 import 'trainer_reviews_screen.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 
 /// Dedicated Notification Centre for Trainers
 class TrainerNotificationsScreen extends StatefulWidget {
@@ -65,7 +65,7 @@ class _TrainerNotificationsScreenState
           'All notifications marked as read',
           style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
         ),
-        backgroundColor: _kCardSubBg,
+        backgroundColor: _kDark,
         behavior: SnackBarBehavior.floating,
         duration: Duration(seconds: 2),
       ),
@@ -199,34 +199,35 @@ class _TrainerNotificationsScreenState
   Color _getCategoryColor(NotificationCategory category) {
     switch (category) {
       case NotificationCategory.bookings:
-        return _kLime;
+        return const Color(0xFF15803D); // Green
       case NotificationCategory.messages:
-        return const Color(0xFF38BDF8); // Cyan
+        return const Color(0xFF0284C7); // Cyan
       case NotificationCategory.sessions:
-        return const Color(0xFFFB923C); // Orange
+        return const Color(0xFFD97706); // Amber
       case NotificationCategory.packages:
-        return const Color(0xFFA855F7); // Purple
+        return const Color(0xFF7C3AED); // Purple
       case NotificationCategory.earnings:
-        return const Color(0xFF34D399); // Emerald
+        return const Color(0xFF059669); // Emerald
       case NotificationCategory.reviews:
-        return const Color(0xFFFBBF24); // Amber
+        return const Color(0xFFD97706); // Amber
       case NotificationCategory.support:
-        return const Color(0xFF60A5FA); // Blue
+        return const Color(0xFF2563EB); // Blue
       case NotificationCategory.announcements:
       case NotificationCategory.all:
-        return Colors.white70;
+        return _kGrey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -234,19 +235,19 @@ class _TrainerNotificationsScreenState
           style: TextStyle(
             fontFamily: 'Outfit',
             fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            color: _kDark,
           ),
         ),
         actions: [
           IconButton(
             tooltip: 'Mark all as read',
-            icon: const Icon(Icons.done_all, color: Colors.white, size: 22),
+            icon: const Icon(Icons.done_all, color: _kDark, size: 22),
             onPressed: _markAllAsRead,
           ),
           IconButton(
             tooltip: 'Notification Preferences',
-            icon: const Icon(Iconsax.setting_2, color: Colors.white, size: 20),
+            icon: const Icon(Iconsax.setting_2, color: _kDark, size: 20),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -266,7 +267,7 @@ class _TrainerNotificationsScreenState
           if (snapshot.connectionState == ConnectionState.waiting &&
               !snapshot.hasData) {
             return const Center(
-              child: CircularProgressIndicator(color: _kLime),
+              child: CircularProgressIndicator(color: _kDark),
             );
           }
 
@@ -303,7 +304,7 @@ class _TrainerNotificationsScreenState
                               fontFamily: 'Outfit',
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: _kDark,
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -326,9 +327,9 @@ class _TrainerNotificationsScreenState
                           vertical: 5,
                         ),
                         decoration: BoxDecoration(
-                          color: _kLime.withAlpha(30),
+                          color: const Color(0xFFEFF6FF),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: _kLime.withAlpha(120)),
+                          border: Border.all(color: const Color(0xFFBFDBFE)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -337,7 +338,7 @@ class _TrainerNotificationsScreenState
                               width: 6,
                               height: 6,
                               decoration: const BoxDecoration(
-                                color: _kLime,
+                                color: Color(0xFF2563EB),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -347,8 +348,8 @@ class _TrainerNotificationsScreenState
                               style: const TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: _kLime,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF2563EB),
                               ),
                             ),
                           ],
@@ -369,7 +370,7 @@ class _TrainerNotificationsScreenState
                         icon: const Icon(
                           Icons.done_all,
                           size: 15,
-                          color: _kLime,
+                          color: _kDark,
                         ),
                         label: const Text(
                           'Mark all read',
@@ -377,7 +378,7 @@ class _TrainerNotificationsScreenState
                             fontFamily: 'Outfit',
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: _kLime,
+                            color: _kDark,
                           ),
                         ),
                       ),
@@ -405,11 +406,11 @@ class _TrainerNotificationsScreenState
                       showCheckmark: false,
                       onSelected: (_) => _onCategorySelected(cat),
                       backgroundColor: _kCardBg,
-                      selectedColor: _kLime,
+                      selectedColor: _kDark,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       visualDensity: VisualDensity.compact,
                       side: BorderSide(
-                        color: isSelected ? _kLime : _kBorder,
+                        color: isSelected ? _kDark : _kBorder,
                         width: 1,
                       ),
                       shape: RoundedRectangleBorder(
@@ -428,8 +429,8 @@ class _TrainerNotificationsScreenState
                               fontFamily: 'Outfit',
                               fontSize: 12,
                               fontWeight:
-                                  isSelected ? FontWeight.w600 : FontWeight.w600,
-                              color: isSelected ? _kDark : Colors.white,
+                                  isSelected ? FontWeight.w600 : FontWeight.w500,
+                              color: isSelected ? Colors.white : _kDark,
                             ),
                           ),
                           if (count > 0) ...[
@@ -441,7 +442,7 @@ class _TrainerNotificationsScreenState
                               ),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? _kDark.withAlpha(40)
+                                    ? Colors.white.withAlpha(50)
                                     : _kCardSubBg,
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -450,8 +451,8 @@ class _TrainerNotificationsScreenState
                                 style: TextStyle(
                                   fontFamily: 'Outfit',
                                   fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected ? _kDark : _kGrey,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected ? Colors.white : _kGrey,
                                 ),
                               ),
                             ),
@@ -515,8 +516,8 @@ class _TrainerNotificationsScreenState
               style: const TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                color: _kDark,
               ),
             ),
             const SizedBox(height: 6),
@@ -570,14 +571,14 @@ class _TrainerNotificationsScreenState
       onDismissed: (_) {
         _notificationService.deleteNotification(item.id);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
+          const SnackBar(
+            content: Text(
               'Notification removed',
               style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
             ),
-            backgroundColor: _kCardSubBg,
+            backgroundColor: _kDark,
             behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
+            duration: Duration(seconds: 2),
           ),
         );
       },
@@ -589,10 +590,10 @@ class _TrainerNotificationsScreenState
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: item.isRead ? _kCardBg : _kCardSubBg,
+              color: _kCardBg,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: item.isRead ? _kBorder : _kLime.withAlpha(120),
+                color: item.isRead ? _kBorder : _kDark,
                 width: item.isRead ? 1 : 1.2,
               ),
             ),
@@ -604,9 +605,9 @@ class _TrainerNotificationsScreenState
                   width: 38,
                   height: 38,
                   decoration: BoxDecoration(
-                    color: catColor.withAlpha(25),
+                    color: catColor.withAlpha(20),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: catColor.withAlpha(60)),
+                    border: Border.all(color: catColor.withAlpha(50)),
                   ),
                   child: Icon(
                     _getCategoryIcon(item.categoryEnum),
@@ -630,9 +631,9 @@ class _TrainerNotificationsScreenState
                                 fontFamily: 'Outfit',
                                 fontSize: 14,
                                 fontWeight: item.isRead
-                                    ? FontWeight.w600
-                                    : FontWeight.w700,
-                                color: Colors.white,
+                                    ? FontWeight.w500
+                                    : FontWeight.w600,
+                                color: _kDark,
                               ),
                             ),
                           ),
@@ -642,7 +643,7 @@ class _TrainerNotificationsScreenState
                               width: 8,
                               height: 8,
                               decoration: const BoxDecoration(
-                                color: _kLime,
+                                color: Color(0xFF2563EB),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -655,7 +656,7 @@ class _TrainerNotificationsScreenState
                         style: const TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 12.5,
-                          color: Colors.white70,
+                          color: Color(0xFF4B5563),
                           height: 1.35,
                         ),
                       ),
@@ -678,7 +679,7 @@ class _TrainerNotificationsScreenState
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: _kCardBg,
+                                color: _kCardSubBg,
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(color: _kBorder),
                               ),
@@ -688,7 +689,7 @@ class _TrainerNotificationsScreenState
                                   fontFamily: 'Outfit',
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
-                                  color: _kLime,
+                                  color: _kDark,
                                 ),
                               ),
                             ),

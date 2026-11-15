@@ -6,12 +6,12 @@ import '../../services/trainer_review_service.dart';
 import '../../shared/models/review_model.dart';
 import '../../shared/models/review_report_model.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 
 /// Dedicated Trainer Reviews & Ratings Management Screen
 class TrainerReviewsScreen extends StatefulWidget {
@@ -76,12 +76,12 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: _kBg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 18),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -90,12 +90,12 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
             fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: _kDark,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: _kLime, size: 20),
+            icon: const Icon(Icons.refresh, color: _kDark, size: 20),
             tooltip: 'Refresh Reviews',
             onPressed: _loadMetrics,
           ),
@@ -103,8 +103,8 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          color: _kLime,
-          backgroundColor: _kCardBg,
+          color: _kDark,
+          backgroundColor: Colors.white,
           onRefresh: _loadMetrics,
           child: CustomScrollView(
             slivers: [
@@ -125,7 +125,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                           fontFamily: 'Outfit',
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: _kDark,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -133,19 +133,19 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       // Search Input
                       TextField(
                         controller: _searchCtrl,
-                        style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 13),
+                        style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 13),
                         onChanged: (val) => setState(() => _searchQuery = val),
                         decoration: InputDecoration(
                           hintText: 'Search reviews by client, package, or comment...',
-                          hintStyle: TextStyle(
+                          hintStyle: const TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 12.5,
-                            color: Colors.white.withValues(alpha: 0.35),
+                            color: _kGrey,
                           ),
-                          prefixIcon: const Icon(Iconsax.search_normal, color: _kLime, size: 18),
+                          prefixIcon: const Icon(Iconsax.search_normal, color: _kGrey, size: 18),
                           suffixIcon: _searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.clear, color: Colors.white54, size: 16),
+                                  icon: const Icon(Icons.clear, color: _kGrey, size: 16),
                                   onPressed: () {
                                     _searchCtrl.clear();
                                     setState(() => _searchQuery = '');
@@ -153,7 +153,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                                 )
                               : null,
                           filled: true,
-                          fillColor: Colors.white.withValues(alpha: 0.05),
+                          fillColor: _kCardSubBg,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -165,7 +165,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: _kLime),
+                            borderSide: const BorderSide(color: _kDark),
                           ),
                         ),
                       ),
@@ -223,26 +223,26 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                   );
 
                   if (reviews.isEmpty) {
-                    return SliverToBoxAdapter(
+                    return const SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                        padding: EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                         child: Center(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Iconsax.star_slash, size: 48, color: Colors.white.withValues(alpha: 0.2)),
-                              const SizedBox(height: 12),
-                              const Text(
+                              Icon(Iconsax.star_slash, size: 48, color: Color(0xFF9CA3AF)),
+                              SizedBox(height: 12),
+                              Text(
                                 'No Reviews Found',
                                 style: TextStyle(
                                   fontFamily: 'Outfit',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.white70,
+                                  color: _kDark,
                                 ),
                               ),
-                              const SizedBox(height: 6),
-                              const Text(
+                              SizedBox(height: 6),
+                              Text(
                                 'Reviews appear automatically as verified clients complete scheduled workout sessions with you.',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
@@ -305,7 +305,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       fontFamily: 'Outfit',
                       fontSize: 40,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: _kDark,
                       height: 1.0,
                     ),
                   ),
@@ -366,7 +366,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Iconsax.like_1, size: 15, color: _kLime),
+                      const Icon(Iconsax.like_1, size: 15, color: _kDark),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -375,7 +375,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                             fontFamily: 'Outfit',
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: _kDark,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -394,7 +394,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Iconsax.message_tick, size: 15, color: Color(0xFF60A5FA)),
+                      const Icon(Iconsax.message_tick, size: 15, color: Color(0xFF2563EB)),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -403,7 +403,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                             fontFamily: 'Outfit',
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: _kDark,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -424,7 +424,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
       children: [
         Text(
           '$star',
-          style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: Colors.white70, fontWeight: FontWeight.w700),
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: _kDark, fontWeight: FontWeight.w700),
         ),
         const SizedBox(width: 2),
         const Icon(Icons.star_rounded, size: 10, color: Color(0xFFFFB300)),
@@ -435,8 +435,8 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
             child: LinearProgressIndicator(
               value: percent,
               minHeight: 5,
-              backgroundColor: Colors.white.withValues(alpha: 0.08),
-              valueColor: const AlwaysStoppedAnimation<Color>(_kLime),
+              backgroundColor: const Color(0xFFE5E7EB),
+              valueColor: const AlwaysStoppedAnimation<Color>(_kDark),
             ),
           ),
         ),
@@ -460,17 +460,17 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? _kLime : _kCardBg,
+          color: isSelected ? _kDark : _kCardBg,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? _kLime : _kBorder),
+          border: Border.all(color: isSelected ? _kDark : _kBorder),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontFamily: 'Outfit',
             fontSize: 11.5,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
-            color: isSelected ? _kDark : Colors.white70,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : _kDark,
           ),
         ),
       ),
@@ -484,17 +484,17 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? _kLime : _kCardBg,
+          color: isSelected ? _kDark : _kCardBg,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? _kLime : _kBorder),
+          border: Border.all(color: isSelected ? _kDark : _kBorder),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontFamily: 'Outfit',
             fontSize: 11.5,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
-            color: isSelected ? _kDark : Colors.white70,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : _kDark,
           ),
         ),
       ),
@@ -518,10 +518,10 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: _kLime.withValues(alpha: 0.2),
+                backgroundColor: _kCardSubBg,
                 child: Text(
                   r.displayClientName.isNotEmpty ? r.displayClientName[0].toUpperCase() : 'C',
-                  style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kLime, fontSize: 13),
+                  style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kDark, fontSize: 13),
                 ),
               ),
               const SizedBox(width: 10),
@@ -535,7 +535,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                         fontFamily: 'Outfit',
                         fontSize: 14.5,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: _kDark,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -578,12 +578,12 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: _kCardSubBg,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 'Package: ${r.packageName}',
-                style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: Colors.white60),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: Color(0xFF4B5563)),
               ),
             ),
           ],
@@ -595,7 +595,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
             style: const TextStyle(
               fontFamily: 'Outfit',
               fontSize: 12.5,
-              color: Colors.white,
+              color: _kDark,
               height: 1.45,
             ),
           ),
@@ -606,18 +606,18 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.amber.withValues(alpha: 0.1),
+                color: const Color(0xFFFFFBEB),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+                border: Border.all(color: const Color(0xFFFDE68A)),
               ),
               child: Row(
                 children: [
-                  const Icon(Iconsax.info_circle, size: 14, color: Colors.amber),
+                  const Icon(Iconsax.info_circle, size: 14, color: Color(0xFFD97706)),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'Reported to Admin: ${r.reportReason ?? "Policy violation"}',
-                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Colors.amber),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF92400E)),
                     ),
                   ),
                 ],
@@ -635,7 +635,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
               decoration: BoxDecoration(
                 color: _kCardSubBg,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: _kLime.withValues(alpha: 0.2)),
+                border: Border.all(color: _kBorder),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -647,11 +647,11 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                         children: [
                           Container(
                             padding: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              color: _kLime.withValues(alpha: 0.2),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Iconsax.verify, size: 11, color: _kLime),
+                            child: const Icon(Iconsax.verify, size: 11, color: _kDark),
                           ),
                           const SizedBox(width: 5),
                           const Text(
@@ -660,7 +660,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                               fontFamily: 'Outfit',
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: _kLime,
+                              color: _kDark,
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -677,7 +677,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                             onTap: () => _openResponseSheet(r, isEditing: true),
                             child: const Text(
                               'Edit',
-                              style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: _kLime, fontWeight: FontWeight.w600),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: _kDark, fontWeight: FontWeight.w600),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -698,7 +698,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                     style: const TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 11.5,
-                      color: Colors.white70,
+                      color: Color(0xFF374151),
                       height: 1.4,
                     ),
                   ),
@@ -711,18 +711,18 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
               children: [
                 OutlinedButton.icon(
                   onPressed: () => _openResponseSheet(r),
-                  icon: const Icon(Iconsax.message_edit, size: 14, color: _kLime),
+                  icon: const Icon(Iconsax.message_edit, size: 14, color: _kDark),
                   label: const Text(
                     'Reply to Client',
                     style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 11.5,
                       fontWeight: FontWeight.w500,
-                      color: _kLime,
+                      color: _kDark,
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: _kLime.withValues(alpha: 0.6)),
+                    side: const BorderSide(color: _kBorder),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
@@ -754,7 +754,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
             child: Container(
               padding: const EdgeInsets.all(22),
               decoration: const BoxDecoration(
-                color: Color(0xFF1E1E22),
+                color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SafeArea(
@@ -767,7 +767,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       child: Container(
                         width: 40,
                         height: 4,
-                        decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+                        decoration: BoxDecoration(color: _kBorder, borderRadius: BorderRadius.circular(2)),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -777,7 +777,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                         fontFamily: 'Outfit',
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: _kDark,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -791,15 +791,15 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       controller: responseController,
                       maxLines: 4,
                       maxLength: 500,
-                      style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 13),
+                      style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 13),
                       decoration: InputDecoration(
                         hintText: 'Write a professional, courteous reply...',
-                        hintStyle: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: Colors.white.withValues(alpha: 0.35)),
+                        hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: _kGrey),
                         filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.05),
+                        fillColor: _kCardSubBg,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _kBorder)),
                         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _kBorder)),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _kLime)),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _kDark)),
                       ),
                     ),
 
@@ -822,7 +822,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 13),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
-                            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: Colors.white70)),
+                            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: _kDark)),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -853,13 +853,13 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _kLime,
+                              backgroundColor: _kDark,
                               padding: const EdgeInsets.symmetric(vertical: 13),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
                             child: Text(
                               isEditing ? 'Update' : 'Publish Reply',
-                              style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: _kDark),
+                              style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Colors.white),
                             ),
                           ),
                         ),
@@ -879,11 +879,11 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: _kCardBg,
-        title: const Text('Delete Response?', style: TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w700)),
+        backgroundColor: Colors.white,
+        title: const Text('Delete Response?', style: TextStyle(fontFamily: 'Outfit', color: _kDark, fontWeight: FontWeight.w700)),
         content: const Text(
           'Are you sure you want to remove your public response to this review? You can submit another reply at any time.',
-          style: TextStyle(fontFamily: 'Outfit', color: Colors.white70, fontSize: 12.5),
+          style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF4B5563), fontSize: 12.5),
         ),
         actions: [
           TextButton(
@@ -950,7 +950,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
             child: Container(
               padding: const EdgeInsets.all(22),
               decoration: const BoxDecoration(
-                color: Color(0xFF1E1E22),
+                color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SafeArea(
@@ -963,7 +963,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       child: Container(
                         width: 40,
                         height: 4,
-                        decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+                        decoration: BoxDecoration(color: _kBorder, borderRadius: BorderRadius.circular(2)),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -973,7 +973,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                         fontFamily: 'Outfit',
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white,
+                        color: _kDark,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -987,16 +987,16 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
+                        color: _kCardSubBg,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: _kBorder),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: selectedReason,
-                          dropdownColor: _kCardBg,
+                          dropdownColor: Colors.white,
                           isExpanded: true,
-                          style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 12.5),
+                          style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 12.5),
                           items: reasons.map((r) {
                             return DropdownMenuItem<String>(value: r, child: Text(r));
                           }).toList(),
@@ -1012,13 +1012,15 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       controller: detailsController,
                       maxLines: 3,
                       maxLength: 300,
-                      style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 12.5),
+                      style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 12.5),
                       decoration: InputDecoration(
                         hintText: 'Additional details for administrators (optional)...',
-                        hintStyle: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.white.withValues(alpha: 0.3)),
+                        hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kGrey),
                         filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.05),
+                        fillColor: _kCardSubBg,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: _kBorder)),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: _kBorder)),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: _kDark)),
                       ),
                     ),
 
@@ -1038,7 +1040,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 13),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
-                            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: Colors.white70)),
+                            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: _kDark)),
                           ),
                         ),
                         const SizedBox(width: 10),

@@ -329,29 +329,8 @@ class TrainerProfileService extends ChangeNotifier {
         }
       }
 
-      if (!kReleaseMode) {
-        final currentEmail = AuthService().currentUser?.email?.toLowerCase().trim();
-        if (AuthService.isStandardDemoTrainer(email: currentEmail, uid: uid)) {
-          _verificationStatus = TrainerVerificationStatus.approved;
-          _category = TrainerCategory.trainer;
-          _experienceYears = 1.5;
-          _isProfileCompleted = true;
-          _profileCompletionScore = 100;
-          _approvedAt ??= DateTime.now();
-        } else if (AuthService.isAdvancedDemoTrainer(email: currentEmail, uid: uid)) {
-          _verificationStatus = TrainerVerificationStatus.approved;
-          _category = TrainerCategory.advancedTrainer;
-          _experienceYears = 4.0;
-          _isProfileCompleted = true;
-          _profileCompletionScore = 100;
-          _approvedAt ??= DateTime.now();
-        }
-      }
-
-      if (kReleaseMode || !AuthService.isDemoTrainer(uid: uid)) {
-        final comp = calculateCompletion();
-        _profileCompletionScore = comp.score;
-      }
+      final comp = calculateCompletion();
+      _profileCompletionScore = comp.score;
 
       notifyListeners();
     } catch (e) {
@@ -594,28 +573,6 @@ class TrainerProfileService extends ChangeNotifier {
         }, SetOptions(merge: true));
       } catch (e) {
         debugPrint('Notice: TrainerProfileService reject Firestore: $e');
-      }
-    }
-  }
-
-  /// Reset to pending review (for testing / demo)
-  Future<void> resetToPending() async {
-    _verificationStatus = TrainerVerificationStatus.pending;
-    _adminNotes = null;
-    notifyListeners();
-
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null && uid.trim().isNotEmpty) {
-      try {
-        await FirebaseFirestore.instance
-            .collection(FirestoreCollections.trainerProfiles)
-            .doc(uid)
-            .set({
-          'verificationStatus': 'PENDING',
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      } catch (e) {
-        debugPrint('Notice: TrainerProfileService reset Firestore: $e');
       }
     }
   }

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -193,77 +192,6 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
     debugPrint('Razorpay external wallet selected: ${response.walletName}');
   }
 
-  /// Sandbox Simulation / Test-mode payment verification
-  Future<void> _handleTestModePayment() async {
-    if (kReleaseMode) {
-      setState(() {
-        _errorMessage = 'Test mode simulation is disabled in production.';
-      });
-      return;
-    }
-
-    setState(() {
-      _isCreatingOrder = true;
-      _errorMessage = null;
-    });
-    HapticFeedback.mediumImpact();
-
-    try {
-      final orderData = await _paymentService.createOrder(
-        packageId: widget.plan.id,
-        clientId: widget.clientId,
-        bookingId: widget.booking?.id,
-        trainerId: widget.trainer?.uid,
-        trainerName: widget.trainer?.displayName,
-      );
-
-      _currentOrder = orderData;
-      setState(() {
-        _isCreatingOrder = false;
-        _isVerifying = true;
-      });
-
-      // Generate verified test signature for sandbox verification
-      final testPaymentId = 'pay_${DateTime.now().millisecondsSinceEpoch}';
-      final testSignature = PaymentService.generateTestSignature(orderData.orderId, testPaymentId);
-
-      // Verify and finalize via backend
-      final finalized = await _paymentService.verifyPayment(
-        paymentDocId: orderData.paymentDocId,
-        razorpayOrderId: orderData.orderId,
-        razorpayPaymentId: testPaymentId,
-        razorpaySignature: testSignature,
-        paymentMethod: 'TEST_UPI_SANDBOX',
-      );
-
-      if (!mounted) return;
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ClientPaymentStatusScreen(
-            initialStatus: PaymentStatusType.success,
-            payment: finalized,
-            plan: widget.plan,
-            trainer: widget.trainer,
-            booking: widget.booking,
-            clientId: widget.clientId,
-            clientName: widget.clientName,
-            clientEmail: widget.clientEmail,
-            clientPhone: widget.clientPhone,
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isCreatingOrder = false;
-        _isVerifying = false;
-        _errorMessage = 'Sandbox simulation failed: $e';
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final sf = scaleFactor(context);
@@ -441,36 +369,6 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
                   ),
                 ],
               ),
-              if (!kReleaseMode) ...[
-                const SizedBox(height: 8),
-                // Sandbox Test Mode Trigger
-                InkWell(
-                  onTap: _isCreatingOrder || _isVerifying ? null : _handleTestModePayment,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.flash_on, size: 14, color: Color(0xFFD97706)),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Test Mode Simulation (Instant Sandbox Verification)',
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontSize: (11.0 * sf).clamp(10.0, 11.5),
-                              color: const Color(0xFFB45309),
-                              fontWeight: FontWeight.w600,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
         ),

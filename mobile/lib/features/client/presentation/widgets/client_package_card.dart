@@ -48,15 +48,15 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
       width: (250.0 * sf).clamp(240.0, 280.0),
       margin: const EdgeInsets.only(right: 14),
       decoration: BoxDecoration(
-        color: isPopular ? const Color(0xFF111111) : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isPopular ? kLime.withValues(alpha: 0.8) : const Color(0xFFEEEEEE),
+          color: isPopular ? const Color(0xFF84CC00) : const Color(0xFFEEEEEE),
           width: isPopular ? 1.5 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isPopular ? 0.12 : 0.04),
+            color: Colors.black.withValues(alpha: isPopular ? 0.06 : 0.03),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -81,7 +81,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                         fontFamily: 'Outfit',
                         fontSize: (12.0 * sf).clamp(11.0, 13.5),
                         fontWeight: FontWeight.w600,
-                        color: isPopular ? const Color(0xFFAAAAAA) : const Color(0xFF888888),
+                        color: const Color(0xFF6B7280),
                         letterSpacing: 0.8,
                       ),
                     ),
@@ -135,7 +135,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                         fontFamily: 'Outfit',
                         fontSize: (24.0 * sf).clamp(20.0, 28.0),
                         fontWeight: FontWeight.w600,
-                        color: isPopular ? Colors.white : kDark,
+                        color: kDark,
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -146,7 +146,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                         style: TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                          color: isPopular ? const Color(0xFFAAAAAA) : kGrey,
+                          color: kGrey,
                         ),
                       ),
                     ),
@@ -159,9 +159,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: isPopular
-                        ? kLime.withValues(alpha: 0.18)
-                        : const Color(0xFFF4F9F2),
+                    color: const Color(0xFFF4F9F2),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -170,7 +168,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                       fontFamily: 'Outfit',
                       fontSize: (10.0 * sf).clamp(9.0, 11.5),
                       fontWeight: FontWeight.w700,
-                      color: isPopular ? kLime : const Color(0xFF15803D),
+                      color: const Color(0xFF15803D),
                     ),
                   ),
                 ),
@@ -180,19 +178,16 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                 // Features
                 _FeatureLine(
                   text: '${widget.plan.sessionsCount} Personal 1-on-1 Sessions',
-                  isDark: isPopular,
                   sf: sf,
                 ),
                 const SizedBox(height: 6),
                 _FeatureLine(
                   text: '${widget.plan.validityDays} Days Validity Window',
-                  isDark: isPopular,
                   sf: sf,
                 ),
                 const SizedBox(height: 6),
                 _FeatureLine(
                   text: '60 Minutes per workout',
-                  isDark: isPopular,
                   sf: sf,
                 ),
               ],
@@ -206,7 +201,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
               child: ElevatedButton(
                 onPressed: _showPurchaseConfirmation,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isPopular ? kLime : kDark,
+                  backgroundColor: kDark,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -219,7 +214,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                     fontFamily: 'Outfit',
                     fontSize: (12.5 * sf).clamp(11.5, 14.0),
                     fontWeight: FontWeight.w500,
-                    color: isPopular ? kDark : Colors.white,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -233,19 +228,18 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
 
 class _FeatureLine extends StatelessWidget {
   final String text;
-  final bool isDark;
   final double sf;
 
-  const _FeatureLine({required this.text, required this.isDark, required this.sf});
+  const _FeatureLine({required this.text, required this.sf});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
+        const Icon(
           Icons.check_circle_rounded,
           size: 14,
-          color: isDark ? kLime : const Color(0xFF16A34A),
+          color: Color(0xFF16A34A),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -255,7 +249,7 @@ class _FeatureLine extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Outfit',
               fontSize: (11.0 * sf).clamp(10.0, 12.5),
-              color: isDark ? const Color(0xFFDDDDDD) : const Color(0xFF444444),
+              color: const Color(0xFF444444),
             ),
           ),
         ),

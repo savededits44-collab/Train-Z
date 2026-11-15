@@ -7,10 +7,13 @@ import '../../services/trainer_profile_service.dart';
 import '../../shared/models/trainer_profile_model.dart';
 import '../../shared/models/training_plan_model.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kCardBg = Color(0xFF1C1C1E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kLime = Color(0xFFB2FF59);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 
 /// Screen for Managing Training Packages:
 /// - Standard Trainers: Read-only catalog of the 6 fixed TRAIN Z packages.
@@ -129,11 +132,11 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E22),
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Delete Custom Plan?',
-          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kDark),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -141,27 +144,27 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           children: [
             Text(
               'Are you sure you want to remove "${plan.title}"? Clients will no longer be able to discover or book this package.',
-              style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFF4B5563)),
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
+                color: const Color(0xFFEFF6FF),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                border: Border.all(color: const Color(0xFFBFDBFE)),
               ),
-              child: Row(
+              child: const Row(
                 children: [
-                  const Icon(Iconsax.shield_tick, size: 16, color: Colors.lightBlueAccent),
-                  const SizedBox(width: 8),
+                  Icon(Iconsax.shield_tick, size: 16, color: Color(0xFF2563EB)),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Purchase Safety: Any existing client purchases of this package remain 100% active and protected.',
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 11,
-                        color: Colors.white.withValues(alpha: 0.85),
+                        color: Color(0xFF1E40AF),
                       ),
                     ),
                   ),
@@ -173,7 +176,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel', style: TextStyle(color: _kGrey)),
+            child: const Text('Cancel', style: TextStyle(color: _kGrey, fontFamily: 'Outfit')),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -218,20 +221,24 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E22),
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Standard Trainer Policy',
-          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kDark),
         ),
-        content: Text(
+        content: const Text(
           'Standard Trainers utilize the 6 fixed platform packages established by TRAIN Z. Custom package creation and pricing adjustments are reserved for verified Advanced Trainers with 3.5+ years of verified experience.\n\nPrices, session counts, and validities are standardized platform-wide.',
-          style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white.withValues(alpha: 0.8), height: 1.4),
+          style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFF4B5563), height: 1.4),
         ),
         actions: [
-          TextButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _kDark,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Got It', style: TextStyle(color: _kLime, fontWeight: FontWeight.w500)),
+            child: const Text('Got It', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontFamily: 'Outfit')),
           ),
         ],
       ),
@@ -241,22 +248,23 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 18),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           _isAdvanced ? 'Custom Training Plans' : 'Platform Packages',
-          style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white, fontSize: 18),
+          style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kDark, fontSize: 18),
         ),
         actions: [
           if (_isAdvanced)
             IconButton(
-              icon: const Icon(Iconsax.add_circle, color: _kLime),
+              icon: const Icon(Iconsax.add_circle, color: _kDark),
               tooltip: 'Create Custom Plan',
               onPressed: _openCreatePlanSheet,
             ),
@@ -265,11 +273,11 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
       floatingActionButton: _isAdvanced
           ? FloatingActionButton.extended(
               onPressed: _openCreatePlanSheet,
-              backgroundColor: _kLime,
-              icon: const Icon(Iconsax.add, color: _kDark),
+              backgroundColor: _kDark,
+              icon: const Icon(Iconsax.add, color: Colors.white),
               label: const Text(
                 'New Custom Plan',
-                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kDark),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Colors.white),
               ),
             )
           : null,
@@ -290,9 +298,9 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E22),
+            color: _kCardBg,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _kLime.withValues(alpha: 0.3)),
+            border: Border.all(color: _kBorder),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,7 +310,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _kLime,
+                      color: _kCardSubBg,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Text(
@@ -317,21 +325,21 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Iconsax.lock, size: 16, color: _kLime),
+                  const Icon(Iconsax.lock, size: 16, color: _kGrey),
                 ],
               ),
               const SizedBox(height: 12),
               const Text(
                 'Platform-Standardized Packages',
-                style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w600, color: _kDark),
               ),
               const SizedBox(height: 6),
-              Text(
+              const Text(
                 'Standard Trainers operate under the 6 platform-wide packages below. Pricing, session counts, and validity are fixed to deliver consistent value across TRAIN Z. Standard Trainers cannot create custom plans or modify prices.',
                 style: TextStyle(
                   fontFamily: 'Outfit',
                   fontSize: 12,
-                  color: Colors.white.withValues(alpha: 0.7),
+                  color: _kGrey,
                   height: 1.4,
                 ),
               ),
@@ -345,12 +353,12 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           children: [
             const Text(
               'Assigned Packages (6)',
-              style: TextStyle(fontFamily: 'Outfit', fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 15, fontWeight: FontWeight.w600, color: _kDark),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
+                color: _kCardSubBg,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: const Text(
@@ -377,8 +385,8 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: plan.popular
-              ? _kLime.withValues(alpha: 0.6)
-              : Colors.white.withValues(alpha: 0.08),
+              ? _kDark
+              : _kBorder,
           width: plan.popular ? 1.5 : 1.0,
         ),
       ),
@@ -394,7 +402,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                     fontFamily: 'Outfit',
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: _kDark,
                   ),
                 ),
               ),
@@ -402,7 +410,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: _kLime,
+                    color: _kDark,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Text(
@@ -411,7 +419,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                       fontFamily: 'Outfit',
                       fontSize: 9,
                       fontWeight: FontWeight.w600,
-                      color: _kDark,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -419,7 +427,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFB300),
+                    color: const Color(0xFFFEF3C7),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Text(
@@ -428,7 +436,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                       fontFamily: 'Outfit',
                       fontSize: 9,
                       fontWeight: FontWeight.w600,
-                      color: _kDark,
+                      color: Color(0xFF92400E),
                     ),
                   ),
                 ),
@@ -437,10 +445,10 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           const SizedBox(height: 8),
           Text(
             plan.description,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Outfit',
               fontSize: 12,
-              color: Colors.white.withValues(alpha: 0.65),
+              color: Color(0xFF4B5563),
               height: 1.35,
             ),
           ),
@@ -450,18 +458,18 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
+              color: _kCardSubBg,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildMetricColumn('Total Price', plan.formattedPrice, isHighlight: true),
-                Container(width: 1, height: 28, color: Colors.white.withValues(alpha: 0.1)),
+                Container(width: 1, height: 28, color: _kBorder),
                 _buildMetricColumn('Sessions', '${plan.sessionsCount}'),
-                Container(width: 1, height: 28, color: Colors.white.withValues(alpha: 0.1)),
+                Container(width: 1, height: 28, color: _kBorder),
                 _buildMetricColumn('Validity', '${plan.validityDays} Days'),
-                Container(width: 1, height: 28, color: Colors.white.withValues(alpha: 0.1)),
+                Container(width: 1, height: 28, color: _kBorder),
                 _buildMetricColumn('Per Session', '₹${plan.pricePerSession.round()}'),
               ],
             ),
@@ -470,7 +478,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
 
           Row(
             children: [
-              const Icon(Iconsax.shield_tick, size: 14, color: _kLime),
+              const Icon(Iconsax.shield_tick, size: 14, color: _kDark),
               const SizedBox(width: 6),
               const Expanded(
                 child: Text(
@@ -488,8 +496,8 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                   style: const TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: _kLime,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF15803D),
                   ),
                 ),
             ],
@@ -520,9 +528,9 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF262014),
+                color: const Color(0xFFFFFBEB),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFFB300).withValues(alpha: 0.4)),
+                border: Border.all(color: const Color(0xFFFDE68A)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -532,8 +540,9 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFB300),
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFFFCD34D)),
                         ),
                         child: const Text(
                           'ADVANCED TRAINER',
@@ -541,27 +550,27 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                             fontFamily: 'Outfit',
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: _kDark,
+                            color: Color(0xFF92400E),
                             letterSpacing: 0.8,
                           ),
                         ),
                       ),
                       const Spacer(),
-                      const Icon(Iconsax.star, size: 16, color: Color(0xFFFFB300)),
+                      const Icon(Iconsax.star, size: 16, color: Color(0xFFD97706)),
                     ],
                   ),
                   const SizedBox(height: 10),
                   const Text(
                     'Custom Package Management',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF92400E)),
                   ),
                   const SizedBox(height: 6),
-                  Text(
+                  const Text(
                     'As an approved Advanced Trainer, you can set your own prices, session counts, and validities. Every package requires Admin approval before it is published to clients. Existing client purchases are always protected.',
                     style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: Color(0xFFB45309),
                       height: 1.4,
                     ),
                   ),
@@ -612,10 +621,10 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? _kLime : Colors.white.withValues(alpha: 0.06),
+          color: isSelected ? _kDark : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? _kLime : Colors.white.withValues(alpha: 0.1),
+            color: isSelected ? _kDark : _kBorder,
           ),
         ),
         child: Row(
@@ -626,15 +635,15 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
               style: TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
-                color: isSelected ? _kDark : Colors.white70,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected ? Colors.white : _kDark,
               ),
             ),
             const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
               decoration: BoxDecoration(
-                color: isSelected ? _kDark : Colors.white.withValues(alpha: 0.12),
+                color: isSelected ? Colors.white.withAlpha(50) : _kCardSubBg,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -642,8 +651,8 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 style: TextStyle(
                   fontFamily: 'Outfit',
                   fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: isSelected ? _kLime : Colors.white,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? Colors.white : _kGrey,
                 ),
               ),
             ),
@@ -663,15 +672,16 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
+              color: Colors.white,
               shape: BoxShape.circle,
+              border: Border.all(color: _kBorder),
             ),
             child: const Icon(Iconsax.box_1, size: 30, color: _kGrey),
           ),
           const SizedBox(height: 16),
           Text(
             hasNoPlansAtAll ? 'No Custom Packages Yet' : 'No Packages in this Status',
-            style: const TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w600, color: _kDark),
           ),
           const SizedBox(height: 8),
           Text(
@@ -679,19 +689,19 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 ? 'Create custom packages with personalized rates, sessions, and validity for your clients.'
                 : 'Try selecting a different filter above or create a new custom package.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.white.withValues(alpha: 0.6)),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kGrey),
           ),
           if (hasNoPlansAtAll) ...[
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _openCreatePlanSheet,
-              icon: const Icon(Iconsax.add, color: _kDark, size: 16),
+              icon: const Icon(Iconsax.add, color: Colors.white, size: 16),
               label: const Text(
                 'Create Custom Package',
-                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: _kDark),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _kLime,
+                backgroundColor: _kDark,
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
@@ -704,7 +714,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
 
   Widget _buildCustomPlanCard(TrainingPlanModel plan) {
     final statusColor = _getStatusColor(plan.approvalStatus);
-    final statusBgColor = statusColor.withValues(alpha: 0.15);
+    final statusBgColor = statusColor.withValues(alpha: 0.1);
     final isApproved = plan.approvalStatus == PackageApprovalStatus.approved;
     final isRejected = plan.approvalStatus == PackageApprovalStatus.rejected;
 
@@ -718,8 +728,8 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           color: isRejected
               ? Colors.redAccent.withValues(alpha: 0.5)
               : isApproved
-                  ? Colors.greenAccent.withValues(alpha: 0.3)
-                  : Colors.white.withValues(alpha: 0.08),
+                  ? const Color(0xFF86EFAC)
+                  : _kBorder,
         ),
       ),
       child: Column(
@@ -738,7 +748,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                         fontFamily: 'Outfit',
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: _kDark,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -755,7 +765,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 decoration: BoxDecoration(
                   color: statusBgColor,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: statusColor.withValues(alpha: 0.4)),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -767,7 +777,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: statusColor,
                       ),
                     ),
@@ -780,10 +790,10 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
 
           Text(
             plan.description,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Outfit',
               fontSize: 12,
-              color: Colors.white.withValues(alpha: 0.7),
+              color: Color(0xFF4B5563),
               height: 1.35,
             ),
           ),
@@ -793,18 +803,18 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
+              color: _kCardSubBg,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildMetricColumn('Price', plan.formattedPrice, isHighlight: true),
-                Container(width: 1, height: 28, color: Colors.white.withValues(alpha: 0.1)),
+                Container(width: 1, height: 28, color: _kBorder),
                 _buildMetricColumn('Sessions', '${plan.sessionsCount}'),
-                Container(width: 1, height: 28, color: Colors.white.withValues(alpha: 0.1)),
+                Container(width: 1, height: 28, color: _kBorder),
                 _buildMetricColumn('Validity', '${plan.validityDays} Days'),
-                Container(width: 1, height: 28, color: Colors.white.withValues(alpha: 0.1)),
+                Container(width: 1, height: 28, color: _kBorder),
                 _buildMetricColumn('Per Session', '₹${plan.pricePerSession.round()}'),
               ],
             ),
@@ -816,9 +826,9 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withValues(alpha: 0.1),
+                color: Colors.redAccent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.25)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -834,17 +844,17 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                           style: TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                             color: Colors.redAccent,
                           ),
                         ),
                         const SizedBox(height: 3),
                         Text(
                           plan.adminRejectionReason!,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 11,
-                            color: Colors.white.withValues(alpha: 0.85),
+                            color: Color(0xFF991B1B),
                             height: 1.35,
                           ),
                         ),
@@ -861,7 +871,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
             const SizedBox(height: 10),
             Row(
               children: [
-                const Icon(Iconsax.clock, size: 13, color: Colors.amber),
+                const Icon(Iconsax.clock, size: 13, color: Color(0xFFD97706)),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
@@ -869,7 +879,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                     style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 11,
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: Color(0xFF4B5563),
                     ),
                   ),
                 ),
@@ -881,7 +891,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
             const SizedBox(height: 10),
             Row(
               children: [
-                const Icon(Iconsax.tick_circle, size: 13, color: Colors.greenAccent),
+                const Icon(Iconsax.tick_circle, size: 13, color: Color(0xFF15803D)),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
@@ -889,7 +899,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                     style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 11,
-                      color: Colors.greenAccent.withValues(alpha: 0.9),
+                      color: Color(0xFF15803D),
                     ),
                   ),
                 ),
@@ -898,7 +908,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           ],
 
           const SizedBox(height: 14),
-          const Divider(height: 1, color: Colors.white12),
+          const Divider(height: 1, color: _kBorder),
           const SizedBox(height: 10),
 
           // Card Action Buttons
@@ -916,13 +926,13 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
               const SizedBox(width: 8),
               ElevatedButton.icon(
                 onPressed: () => _openEditPlanSheet(plan),
-                icon: const Icon(Iconsax.edit, size: 14, color: _kDark),
+                icon: const Icon(Iconsax.edit, size: 14, color: Colors.white),
                 label: Text(
                   isRejected ? 'Edit & Resubmit' : 'Edit Plan',
-                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w500, color: _kDark),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _kLime,
+                  backgroundColor: _kDark,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
@@ -948,7 +958,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
             fontFamily: 'Outfit',
             fontSize: isHighlight ? 14 : 12.5,
             fontWeight: FontWeight.w600,
-            color: isHighlight ? _kLime : Colors.white,
+            color: _kDark,
           ),
         ),
       ],
@@ -958,11 +968,11 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
   Color _getStatusColor(PackageApprovalStatus status) {
     switch (status) {
       case PackageApprovalStatus.approved:
-        return Colors.greenAccent;
+        return const Color(0xFF15803D);
       case PackageApprovalStatus.pending:
-        return const Color(0xFFFFB300);
+        return const Color(0xFFD97706);
       case PackageApprovalStatus.rejected:
-        return Colors.redAccent;
+        return const Color(0xFFDC2626);
       case PackageApprovalStatus.draft:
         return _kGrey;
     }
@@ -1089,7 +1099,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       decoration: const BoxDecoration(
-        color: Color(0xFF1E1E22),
+        color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -1106,7 +1116,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: _kBorder,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1118,10 +1128,10 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _kLime.withValues(alpha: 0.15),
+                        color: _kCardSubBg,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Iconsax.box_add, color: _kLime, size: 22),
+                      child: const Icon(Iconsax.box_add, color: _kDark, size: 22),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1134,7 +1144,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                               fontFamily: 'Outfit',
                               fontSize: 17,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: _kDark,
                             ),
                           ),
                           const Text(
@@ -1154,22 +1164,22 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE65100).withValues(alpha: 0.15),
+                      color: const Color(0xFFFFFBEB),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFFFB300)),
+                      border: Border.all(color: const Color(0xFFFDE68A)),
                     ),
-                    child: Row(
+                    child: const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Iconsax.warning_2, size: 16, color: Color(0xFFFFB300)),
-                        const SizedBox(width: 8),
+                        Icon(Iconsax.warning_2, size: 16, color: Color(0xFFD97706)),
+                        SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'Notice: Updating an approved plan resets its status to "Pending Approval". It must be reviewed by Admin before new clients can purchase it. Existing client purchases are 100% safe.',
                             style: TextStyle(
                               fontFamily: 'Outfit',
                               fontSize: 11,
-                              color: Colors.white.withValues(alpha: 0.9),
+                              color: Color(0xFF92400E),
                               height: 1.35,
                             ),
                           ),
@@ -1183,13 +1193,13 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                     margin: const EdgeInsets.only(bottom: 14),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.redAccent.withValues(alpha: 0.15),
+                      color: const Color(0xFFFEF2F2),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.redAccent),
+                      border: Border.all(color: const Color(0xFFFCA5A5)),
                     ),
                     child: Text(
                       _errorMessage!,
-                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.redAccent),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFFDC2626)),
                     ),
                   ),
 
@@ -1197,7 +1207,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                 _buildFieldLabel('Package Title'),
                 TextFormField(
                   controller: _titleCtrl,
-                  style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 14),
+                  style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 14),
                   decoration: _inputDecoration('e.g. 10-Session Hypertrophy Blueprint'),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Please enter a package title';
@@ -1220,7 +1230,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                             controller: _priceCtrl,
                             keyboardType: TextInputType.number,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 14),
+                            style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 14),
                             decoration: _inputDecoration('₹ 4,500'),
                             onChanged: (_) => setState(() {}),
                             validator: (v) {
@@ -1243,7 +1253,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                             controller: _sessionsCtrl,
                             keyboardType: TextInputType.number,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 14),
+                            style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 14),
                             decoration: _inputDecoration('e.g. 10'),
                             onChanged: (_) => setState(() {}),
                             validator: (v) {
@@ -1266,7 +1276,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                   controller: _validityCtrl,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 14),
+                  style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 14),
                   decoration: _inputDecoration('e.g. 30'),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Please specify validity in days';
@@ -1283,16 +1293,17 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                     margin: const EdgeInsets.only(bottom: 14),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.04),
+                      color: _kCardSubBg,
                       borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: _kBorder),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Iconsax.calculator, size: 14, color: _kLime),
+                        const Icon(Iconsax.calculator, size: 14, color: _kDark),
                         const SizedBox(width: 8),
                         Text(
                           'Effective rate: ₹${_calculatedPricePerSession.round()} per 60-min session',
-                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: _kLime, fontWeight: FontWeight.w600),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: _kDark, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -1303,7 +1314,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                 TextFormField(
                   controller: _descCtrl,
                   maxLines: 3,
-                  style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 13),
+                  style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 13),
                   decoration: _inputDecoration('Detailed breakdown of workout structure, milestones, and target goals...'),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Please enter a description';
@@ -1315,7 +1326,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
 
                 // Actions
                 if (_isSaving)
-                  const Center(child: CircularProgressIndicator(color: _kLime))
+                  const Center(child: CircularProgressIndicator(color: _kDark))
                 else
                   Column(
                     children: [
@@ -1324,7 +1335,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                         child: ElevatedButton(
                           onPressed: () => _submit(true),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _kLime,
+                            backgroundColor: _kDark,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
@@ -1334,7 +1345,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                               fontFamily: 'Outfit',
                               fontWeight: FontWeight.w500,
                               fontSize: 14,
-                              color: _kDark,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -1345,7 +1356,8 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                         child: OutlinedButton(
                           onPressed: () => _submit(false),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.white24),
+                            foregroundColor: _kDark,
+                            side: const BorderSide(color: _kBorder),
                             padding: const EdgeInsets.symmetric(vertical: 13),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
@@ -1355,7 +1367,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                               fontFamily: 'Outfit',
                               fontWeight: FontWeight.w500,
                               fontSize: 13,
-                              color: Colors.white70,
+                              color: _kDark,
                             ),
                           ),
                         ),
@@ -1379,7 +1391,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
           fontFamily: 'Outfit',
           fontSize: 12,
           fontWeight: FontWeight.w700,
-          color: Colors.white70,
+          color: _kDark,
         ),
       ),
     );
@@ -1388,21 +1400,21 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(fontFamily: 'Outfit', color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
+      hintStyle: const TextStyle(fontFamily: 'Outfit', color: _kGrey, fontSize: 13),
       filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.05),
+      fillColor: _kCardSubBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        borderSide: const BorderSide(color: _kBorder),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        borderSide: const BorderSide(color: _kBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: _kLime),
+        borderSide: const BorderSide(color: _kDark),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),

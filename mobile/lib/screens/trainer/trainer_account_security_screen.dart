@@ -3,14 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../services/auth_service.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
-const Color _kSuccess = Color(0xFF10B981);
-const Color _kWarning = Color(0xFFF59E0B);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
+const Color _kSuccess = Color(0xFF15803D);
+const Color _kWarning = Color(0xFFD97706);
 
 /// Dedicated Account & Security Management Screen for Trainers.
 /// Manages passwords, email verification, and reauthentication via Firebase Authentication.
@@ -61,9 +60,9 @@ class _TrainerAccountSecurityScreenState
             verified
                 ? 'Email verified successfully!'
                 : 'Email is still unverified. Please check your inbox.',
-            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white),
           ),
-          backgroundColor: verified ? _kSuccess : _kCardSubBg,
+          backgroundColor: verified ? _kSuccess : _kDark,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -88,48 +87,14 @@ class _TrainerAccountSecurityScreenState
         const SnackBar(
           content: Text(
             'Verification link sent to your email address.',
-            style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white),
           ),
-          backgroundColor: _kCardSubBg,
+          backgroundColor: _kDark,
           behavior: SnackBarBehavior.floating,
         ),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Notice: $e'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
-  }
-
-  Future<void> _sendPasswordReset() async {
-    final email = _authService.currentUser?.email;
-    if (email == null || email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No registered email found.')),
-      );
-      return;
-    }
-
-    setState(() => _isSendingReset = true);
-    try {
-      await _authService.sendPasswordResetEmail(email);
-      if (!mounted) return;
-      setState(() => _isSendingReset = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Password reset link sent to $email'),
-          backgroundColor: _kCardSubBg,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isSendingReset = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Notice: $e'),
@@ -144,7 +109,7 @@ class _TrainerAccountSecurityScreenState
     if (!_passwordFormKey.currentState!.validate()) return;
 
     setState(() => _isChangingPassword = true);
-    HapticFeedback.lightImpact();
+    HapticFeedback.mediumImpact();
 
     try {
       await _authService.changePassword(
@@ -152,18 +117,19 @@ class _TrainerAccountSecurityScreenState
         newPassword: _newPasswordCtrl.text.trim(),
       );
 
-      _currentPasswordCtrl.clear();
-      _newPasswordCtrl.clear();
-      _confirmPasswordCtrl.clear();
-
       if (!mounted) return;
-      setState(() => _isChangingPassword = false);
+      setState(() {
+        _isChangingPassword = false;
+        _currentPasswordCtrl.clear();
+        _newPasswordCtrl.clear();
+        _confirmPasswordCtrl.clear();
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Password changed successfully',
-            style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
+            'Password updated successfully!',
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white),
           ),
           backgroundColor: _kSuccess,
           behavior: SnackBarBehavior.floating,
@@ -174,7 +140,42 @@ class _TrainerAccountSecurityScreenState
       setState(() => _isChangingPassword = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text('Password update notice: $e'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _sendPasswordReset() async {
+    final email = _authService.currentUser?.email;
+    if (email == null || email.isEmpty) return;
+
+    setState(() => _isSendingReset = true);
+    HapticFeedback.lightImpact();
+
+    try {
+      await _authService.sendPasswordResetEmail(email);
+      if (!mounted) return;
+      setState(() => _isSendingReset = false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Password reset link sent to $email.',
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white),
+          ),
+          backgroundColor: _kSuccess,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSendingReset = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Notice: $e'),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -189,12 +190,13 @@ class _TrainerAccountSecurityScreenState
     final isGoogleAuth = user?.providerData.any((p) => p.providerId == 'google.com') ?? false;
 
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -203,7 +205,7 @@ class _TrainerAccountSecurityScreenState
             fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: _kDark,
           ),
         ),
       ),
@@ -217,6 +219,13 @@ class _TrainerAccountSecurityScreenState
               color: _kCardBg,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: _kBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,7 +235,7 @@ class _TrainerAccountSecurityScreenState
                   children: [
                     const Row(
                       children: [
-                        Icon(Iconsax.sms, color: _kLime, size: 20),
+                        Icon(Iconsax.sms, color: _kDark, size: 20),
                         SizedBox(width: 8),
                         Text(
                           'Email Address',
@@ -234,7 +243,7 @@ class _TrainerAccountSecurityScreenState
                             fontFamily: 'Outfit',
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: _kDark,
                           ),
                         ),
                       ],
@@ -242,10 +251,10 @@ class _TrainerAccountSecurityScreenState
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: (isEmailVerified ? _kSuccess : _kWarning).withAlpha(30),
+                        color: isEmailVerified ? const Color(0xFFF0FDF4) : const Color(0xFFFFFBEB),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                          color: (isEmailVerified ? _kSuccess : _kWarning).withAlpha(100),
+                          color: isEmailVerified ? const Color(0xFFBBF7D0) : const Color(0xFFFDE68A),
                         ),
                       ),
                       child: Text(
@@ -266,7 +275,7 @@ class _TrainerAccountSecurityScreenState
                   style: const TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 13,
-                    color: Colors.white70,
+                    color: _kGrey,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -275,8 +284,8 @@ class _TrainerAccountSecurityScreenState
                     children: [
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _kLime,
-                          foregroundColor: _kDark,
+                          backgroundColor: _kDark,
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           textStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w700),
                         ),
@@ -287,7 +296,7 @@ class _TrainerAccountSecurityScreenState
                       const SizedBox(width: 8),
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
+                          foregroundColor: _kDark,
                           side: const BorderSide(color: _kBorder),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           textStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12),
@@ -297,7 +306,7 @@ class _TrainerAccountSecurityScreenState
                             ? const SizedBox(
                                 width: 12,
                                 height: 12,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                child: CircularProgressIndicator(strokeWidth: 2, color: _kDark),
                               )
                             : const Icon(Icons.refresh, size: 14),
                         label: const Text('Check Status'),
@@ -322,7 +331,7 @@ class _TrainerAccountSecurityScreenState
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.g_mobiledata, color: _kLime, size: 28),
+                  Icon(Icons.g_mobiledata, color: _kDark, size: 28),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -340,6 +349,13 @@ class _TrainerAccountSecurityScreenState
                 color: _kCardBg,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: _kBorder),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Form(
                 key: _passwordFormKey,
@@ -348,15 +364,15 @@ class _TrainerAccountSecurityScreenState
                   children: [
                     const Row(
                       children: [
-                        Icon(Iconsax.lock, color: _kLime, size: 20),
+                        Icon(Iconsax.lock, color: _kDark, size: 20),
                         SizedBox(width: 8),
                         Text(
                           'Change Password',
                           style: TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            color: _kDark,
                           ),
                         ),
                       ],
@@ -419,8 +435,8 @@ class _TrainerAccountSecurityScreenState
                       height: 46,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _kLime,
-                          foregroundColor: _kDark,
+                          backgroundColor: _kDark,
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -430,14 +446,14 @@ class _TrainerAccountSecurityScreenState
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(color: _kDark, strokeWidth: 2),
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                               )
                             : const Text(
                                 'Update Password',
                                 style: TextStyle(
                                   fontFamily: 'Outfit',
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                       ),
@@ -480,15 +496,15 @@ class _TrainerAccountSecurityScreenState
               children: [
                 Row(
                   children: [
-                    Icon(Iconsax.shield_tick, color: _kLime, size: 20),
+                    Icon(Iconsax.shield_tick, color: _kDark, size: 20),
                     SizedBox(width: 8),
                     Text(
                       'Session & Data Protection',
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        color: _kDark,
                       ),
                     ),
                   ],
@@ -521,12 +537,12 @@ class _TrainerAccountSecurityScreenState
     return TextFormField(
       controller: controller,
       obscureText: obscure,
-      style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
+      style: const TextStyle(fontFamily: 'Outfit', color: _kDark),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit', fontSize: 13),
         filled: true,
-        fillColor: _kCardSubBg,
+        fillColor: const Color(0xFFF9FAFB),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         suffixIcon: IconButton(
           icon: Icon(
@@ -544,9 +560,9 @@ class _TrainerAccountSecurityScreenState
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: _kBorder),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _kLime),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          borderSide: BorderSide(color: _kDark, width: 1.5),
         ),
       ),
       validator: validator,

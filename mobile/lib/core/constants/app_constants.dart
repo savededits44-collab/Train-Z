@@ -4,7 +4,8 @@ class AppConstants {
 
   static const String appName = 'TrainZ';
   static const String appTagline = 'Transform Your Body.';
-  static const String supportEmail = 'support@trainz.app';
+  static const String supportEmail = 'trainzsupport@gmail.com';
+  static const String supportTeamIdentity = 'TRAIN Z Support Team';
 
   /// Standard session duration in minutes
   static const int sessionDurationMinutes = 60;

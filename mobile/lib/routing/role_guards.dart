@@ -72,7 +72,8 @@ class RoleGuards {
       case UserRole.trainer:
         return AppRouter.trainerDashboard;
       case UserRole.admin:
-        return AppRouter.adminDashboard;
+        // Admin operations are restricted to the web portal; redirect to login on mobile
+        return AppRouter.login;
     }
   }
 

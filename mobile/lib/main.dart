@@ -31,13 +31,14 @@ void main() async {
     debugPrint('PushNotificationService initialization notice: $e');
   }
 
-  // Set system UI style for ultra-clean edge-to-edge dark luxury
+  // Set system UI style for ultra-clean edge-to-edge light luxury
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: AppTheme.pureBlack,
-      systemNavigationBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
 
@@ -53,7 +54,8 @@ class TrainusproApp extends StatelessWidget {
       title: 'TRAIN Z',
       debugShowCheckedModeBanner: false,
       navigatorKey: PushNotificationService.navigatorKey,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      themeMode: ThemeMode.light, // Unified light theme across the entire application
       home: const SplashScreen(),
       onGenerateRoute: AppRouter.onGenerateRoute,
     );

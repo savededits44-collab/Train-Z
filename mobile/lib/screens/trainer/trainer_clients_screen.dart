@@ -7,13 +7,13 @@ import '../../shared/models/trainer_client_model.dart';
 import 'trainer_client_detail_screen.dart';
 import 'trainer_conversation_screen.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
-const Color _kGreen = Color(0xFF2E7D32);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
+const Color _kGreen = Color(0xFF15803D);
 
 enum ClientFilterTab { all, active, past }
 
@@ -86,13 +86,14 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: widget.showAppBar
           ? AppBar(
-              backgroundColor: _kDark,
+              backgroundColor: Colors.white,
               elevation: 0,
+              scrolledUnderElevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               title: const Text(
@@ -101,7 +102,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                   fontFamily: 'Outfit',
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: _kDark,
                 ),
               ),
             )
@@ -111,7 +112,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
             return const Center(
-              child: CircularProgressIndicator(color: _kLime),
+              child: CircularProgressIndicator(color: _kDark),
             );
           }
 
@@ -143,7 +144,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: const BoxDecoration(
-                    color: _kDark,
+                    color: Colors.white,
                     border: Border(bottom: BorderSide(color: _kBorder)),
                   ),
                   child: Column(
@@ -178,14 +179,14 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                       TextField(
                         controller: _searchCtrl,
                         onChanged: (val) => setState(() => _searchQuery = val),
-                        style: const TextStyle(color: Colors.white, fontFamily: 'Outfit', fontSize: 13),
+                        style: const TextStyle(color: _kDark, fontFamily: 'Outfit', fontSize: 13),
                         decoration: InputDecoration(
                           hintText: 'Search by athlete name, package, or goal...',
-                          hintStyle: TextStyle(color: _kGrey.withValues(alpha: 0.6), fontSize: 13),
-                          prefixIcon: const Icon(Iconsax.search_normal, color: _kGrey, size: 18),
+                          hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+                          prefixIcon: const Icon(Iconsax.search_normal, color: Color(0xFF9CA3AF), size: 18),
                           suffixIcon: _searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.clear, color: _kGrey, size: 18),
+                                  icon: const Icon(Icons.clear, color: Color(0xFF9CA3AF), size: 18),
                                   onPressed: () {
                                     _searchCtrl.clear();
                                     setState(() => _searchQuery = '');
@@ -193,7 +194,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                                 )
                               : null,
                           filled: true,
-                          fillColor: _kCardBg,
+                          fillColor: _kCardSubBg,
                           contentPadding: const EdgeInsets.symmetric(vertical: 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -205,7 +206,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: _kLime),
+                            borderSide: const BorderSide(color: _kDark),
                           ),
                         ),
                       ),
@@ -268,16 +269,16 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
-          color: _kCardBg,
+          color: const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: highlight ? _kLime.withValues(alpha: 0.4) : _kBorder),
+          border: Border.all(color: highlight ? const Color(0xFFBBF7D0) : _kBorder),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(icon, size: 14, color: highlight ? _kLime : _kGrey),
+                Icon(icon, size: 14, color: highlight ? _kGreen : _kGrey),
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
@@ -285,7 +286,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                     style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 10,
-                      color: highlight ? Colors.white : _kGrey,
+                      color: highlight ? _kGreen : _kGrey,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -300,7 +301,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                 fontFamily: 'Outfit',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: highlight ? _kLime : Colors.white,
+                color: highlight ? _kGreen : _kDark,
               ),
             ),
           ],
@@ -323,9 +324,9 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? _kLime : _kCardBg,
+            color: isSelected ? _kDark : _kCardSubBg,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: isSelected ? _kLime : _kBorder),
+            border: Border.all(color: isSelected ? _kDark : _kBorder),
           ),
           child: Center(
             child: Text(
@@ -334,7 +335,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                 fontFamily: 'Outfit',
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: isSelected ? _kDark : Colors.white,
+                color: isSelected ? Colors.white : _kDark,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -354,9 +355,14 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
       decoration: BoxDecoration(
         color: _kCardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: client.isActive ? _kBorder : _kBorder.withValues(alpha: 0.5),
-        ),
+        border: Border.all(color: _kBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,14 +372,14 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: client.isActive ? _kLime.withValues(alpha: 0.2) : _kCardSubBg,
+                backgroundColor: _kCardSubBg,
                 child: Text(
                   client.displayInitial,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: client.isActive ? _kLime : _kGrey,
+                    color: _kDark,
                   ),
                 ),
               ),
@@ -391,7 +397,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                               fontFamily: 'Outfit',
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: _kDark,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -402,8 +408,8 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: client.isActive
-                                ? _kGreen.withValues(alpha: 0.2)
-                                : _kGrey.withValues(alpha: 0.2),
+                                ? const Color(0xFFF0FDF4)
+                                : const Color(0xFFF3F4F6),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -412,7 +418,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                               fontFamily: 'Outfit',
                               fontSize: 9,
                               fontWeight: FontWeight.w600,
-                              color: client.isActive ? const Color(0xFF66BB6A) : _kGrey,
+                              color: client.isActive ? _kGreen : _kGrey,
                             ),
                           ),
                         ),
@@ -435,7 +441,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
               // Message Client shortcut
               IconButton(
                 tooltip: 'Message Client',
-                icon: const Icon(Iconsax.message, color: _kLime, size: 20),
+                icon: const Icon(Iconsax.message, color: _kDark, size: 20),
                 onPressed: () => _openChat(client),
               ),
             ],
@@ -447,14 +453,15 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _kCardSubBg,
+              color: const Color(0xFFF9FAFB),
               borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: _kBorder),
             ),
             child: Column(
               children: [
                 Row(
                   children: [
-                    const Icon(Iconsax.calendar_tick, size: 14, color: _kLime),
+                    const Icon(Iconsax.calendar_tick, size: 14, color: _kDark),
                     const SizedBox(width: 8),
                     const Text(
                       'Next Session:',
@@ -472,7 +479,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                           fontFamily: 'Outfit',
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: client.hasUpcomingSession ? Colors.white : _kGrey,
+                          color: client.hasUpcomingSession ? _kDark : _kGrey,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -501,7 +508,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                           fontFamily: 'Outfit',
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFFCCCCCC),
+                          color: _kDark,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -511,7 +518,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: _kLime.withValues(alpha: 0.15),
+                          color: const Color(0xFFF0FDF4),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -520,7 +527,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                             fontFamily: 'Outfit',
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: _kLime,
+                            color: _kGreen,
                           ),
                         ),
                       ),
@@ -546,18 +553,18 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                   ),
                 );
               },
-              icon: const Icon(Iconsax.profile_circle, size: 16, color: _kDark),
+              icon: const Icon(Iconsax.profile_circle, size: 16, color: Colors.white),
               label: const Text(
                 'View Profile, Notes & Milestones',
                 style: TextStyle(
                   fontFamily: 'Outfit',
                   fontWeight: FontWeight.w500,
                   fontSize: 13,
-                  color: _kDark,
+                  color: Colors.white,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _kLime,
+                backgroundColor: _kDark,
                 padding: const EdgeInsets.symmetric(vertical: 11),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 elevation: 0,
@@ -585,7 +592,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(color: _kBorder),
               ),
-              child: const Icon(Iconsax.people, size: 48, color: _kGrey),
+              child: const Icon(Iconsax.people, size: 48, color: Color(0xFF9CA3AF)),
             ),
             const SizedBox(height: 18),
             Text(
@@ -594,7 +601,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                 fontFamily: 'Outfit',
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: _kDark,
               ),
             ),
             const SizedBox(height: 6),
@@ -615,4 +622,3 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
     );
   }
 }
-

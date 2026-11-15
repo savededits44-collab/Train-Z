@@ -5,12 +5,12 @@ import '../../services/chat_service.dart';
 import '../../shared/models/conversation_model.dart';
 import 'trainer_conversation_screen.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 
 /// Dedicated Messages Screen for Trainers to manage all active 1-on-1 client conversations.
 class TrainerMessagesScreen extends StatefulWidget {
@@ -64,12 +64,13 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -77,8 +78,8 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
           style: TextStyle(
             fontFamily: 'Outfit',
             fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            color: _kDark,
           ),
         ),
       ),
@@ -86,7 +87,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
         stream: _chatService.streamTrainerConversations(_trainerId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: _kLime));
+            return const Center(child: CircularProgressIndicator(color: _kDark));
           }
 
           final allConversations = snapshot.data ?? [];
@@ -102,7 +103,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: const BoxDecoration(
-                    color: _kDark,
+                    color: Colors.white,
                     border: Border(bottom: BorderSide(color: _kBorder)),
                   ),
                   child: Column(
@@ -114,13 +115,13 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: _kCardBg,
+                                color: _kCardSubBg,
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(color: _kBorder),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Iconsax.messages_2, color: _kLime, size: 18),
+                                  const Icon(Iconsax.messages_2, color: _kDark, size: 18),
                                   const SizedBox(width: 8),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +136,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                                           fontFamily: 'Outfit',
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.white,
+                                          color: _kDark,
                                         ),
                                       ),
                                     ],
@@ -149,7 +150,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: _kCardBg,
+                                color: _kCardSubBg,
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                   color: totalUnread > 0 ? const Color(0xFFEF5350).withValues(alpha: 0.5) : _kBorder,
@@ -176,7 +177,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                                           fontFamily: 'Outfit',
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
-                                          color: totalUnread > 0 ? const Color(0xFFEF5350) : Colors.white,
+                                          color: totalUnread > 0 ? const Color(0xFFEF5350) : _kDark,
                                         ),
                                       ),
                                     ],
@@ -194,7 +195,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                       TextField(
                         controller: _searchCtrl,
                         onChanged: (val) => setState(() => _searchQuery = val),
-                        style: const TextStyle(color: Colors.white, fontFamily: 'Outfit', fontSize: 13),
+                        style: const TextStyle(color: _kDark, fontFamily: 'Outfit', fontSize: 13),
                         decoration: InputDecoration(
                           hintText: 'Search by athlete name or message...',
                           hintStyle: TextStyle(color: _kGrey.withValues(alpha: 0.6), fontSize: 13),
@@ -209,7 +210,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                                 )
                               : null,
                           filled: true,
-                          fillColor: _kCardBg,
+                          fillColor: _kCardSubBg,
                           contentPadding: const EdgeInsets.symmetric(vertical: 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -221,7 +222,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: _kLime),
+                            borderSide: const BorderSide(color: _kDark),
                           ),
                         ),
                       ),
@@ -277,7 +278,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
           color: _kCardBg,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: hasUnread ? _kLime.withValues(alpha: 0.4) : _kBorder,
+            color: hasUnread ? _kDark : _kBorder,
             width: hasUnread ? 1.2 : 1,
           ),
         ),
@@ -288,14 +289,14 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
               children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: hasUnread ? _kLime.withValues(alpha: 0.25) : _kCardSubBg,
+                  backgroundColor: hasUnread ? _kDark : _kCardSubBg,
                   child: Text(
                     initial,
                     style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: hasUnread ? _kLime : Colors.white,
+                      color: hasUnread ? Colors.white : _kDark,
                     ),
                   ),
                 ),
@@ -307,9 +308,9 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                       width: 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: _kLime,
+                        color: const Color(0xFFEF5350),
                         shape: BoxShape.circle,
-                        border: Border.all(color: _kDark, width: 2),
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
                     ),
                   ),
@@ -329,8 +330,8 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                           style: TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 15,
-                            fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w700,
-                            color: Colors.white,
+                            fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w600,
+                            color: _kDark,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -341,7 +342,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                         style: TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 11,
-                          color: hasUnread ? _kLime : _kGrey,
+                          color: hasUnread ? _kDark : _kGrey,
                           fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w400,
                         ),
                       ),
@@ -358,8 +359,8 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                           style: TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 12.5,
-                            color: hasUnread ? Colors.white : _kGrey,
-                            fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w400,
+                            color: hasUnread ? _kDark : _kGrey,
+                            fontWeight: hasUnread ? FontWeight.w500 : FontWeight.w400,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -419,7 +420,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                 fontFamily: 'Outfit',
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: _kDark,
               ),
             ),
             const SizedBox(height: 6),

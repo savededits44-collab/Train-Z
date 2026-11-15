@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../services/trainer_certificate_service.dart';
@@ -51,7 +51,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
     super.initState();
     _trainerId = widget.trainerId ??
         FirebaseAuth.instance.currentUser?.uid ??
-        'trainer_mock_user';
+        '';
     _category = widget.category ?? TrainerProfileService.instance.category;
   }
 

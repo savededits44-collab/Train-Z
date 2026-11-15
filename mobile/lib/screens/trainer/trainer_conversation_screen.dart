@@ -7,12 +7,13 @@ import '../../shared/models/conversation_model.dart';
 import '../../shared/models/trainer_client_model.dart';
 import 'trainer_client_detail_screen.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kLime = Color(0xFFB2FF59);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 
 /// Dedicated 1-on-1 Conversation Screen for Trainers communicating with booked Clients.
 class TrainerConversationScreen extends StatefulWidget {
@@ -176,12 +177,13 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
     final initial = clientName.isNotEmpty ? clientName[0].toUpperCase() : 'C';
 
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: GestureDetector(
@@ -190,14 +192,14 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: _kLime.withValues(alpha: 0.2),
+                backgroundColor: _kCardSubBg,
                 child: Text(
                   initial,
                   style: const TextStyle(
                     fontFamily: 'Outfit',
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
-                    color: _kLime,
+                    color: _kDark,
                   ),
                 ),
               ),
@@ -211,15 +213,15 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                       style: const TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        color: _kDark,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const Row(
                       children: [
-                        Icon(Icons.check_circle_rounded, size: 10, color: Color(0xFF66BB6A)),
+                        Icon(Icons.check_circle_rounded, size: 10, color: Color(0xFF2E7D32)),
                         SizedBox(width: 4),
                         Text(
                           'Booked Athlete • Active',
@@ -240,7 +242,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
         actions: [
           IconButton(
             tooltip: 'Client Records',
-            icon: const Icon(Iconsax.profile_circle, color: Colors.white, size: 22),
+            icon: const Icon(Iconsax.profile_circle, color: _kDark, size: 22),
             onPressed: _openClientProfile,
           ),
         ],
@@ -252,12 +254,12 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: const BoxDecoration(
-                color: _kCardBg,
+                color: Colors.white,
                 border: Border(bottom: BorderSide(color: _kBorder)),
               ),
               child: const Row(
                 children: [
-                  Icon(Iconsax.shield_tick, color: _kLime, size: 14),
+                  Icon(Iconsax.shield_tick, color: _kDark, size: 14),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -279,7 +281,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                 stream: _chatService.streamMessages(widget.conversation.id),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator(color: _kLime));
+                    return const Center(child: CircularProgressIndicator(color: _kDark));
                   }
 
                   final liveMessages = snapshot.data ?? [];
@@ -306,7 +308,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                                 ? const SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: _kLime),
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: _kDark),
                                   )
                                 : TextButton.icon(
                                     onPressed: () {
@@ -421,7 +423,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isMe ? const Color(0xFF263238) : _kCardBg,
+          color: isMe ? _kDark : Colors.white,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(14),
             topRight: const Radius.circular(14),
@@ -429,7 +431,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
             bottomRight: Radius.circular(isMe ? 2 : 14),
           ),
           border: Border.all(
-            color: isMe ? _kLime.withValues(alpha: 0.3) : _kBorder,
+            color: isMe ? _kDark : _kBorder,
             width: 1,
           ),
         ),
@@ -438,10 +440,10 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
           children: [
             Text(
               msg.text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 13.5,
-                color: Colors.white,
+                color: isMe ? Colors.white : _kDark,
                 height: 1.4,
               ),
             ),
@@ -454,7 +456,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                   style: TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 10,
-                    color: _kGrey.withValues(alpha: 0.8),
+                    color: isMe ? Colors.white70 : _kGrey,
                   ),
                 ),
                 if (isMe) ...[
@@ -462,7 +464,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                   Icon(
                     msg.isRead ? Icons.done_all_rounded : Icons.done_rounded,
                     size: 13,
-                    color: msg.isRead ? _kLime : _kGrey,
+                    color: msg.isRead ? _kLime : Colors.white70,
                   ),
                 ],
               ],
@@ -479,7 +481,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: const BoxDecoration(
-        color: _kCardBg,
+        color: Colors.white,
         border: Border(top: BorderSide(color: _kBorder)),
       ),
       child: Row(
@@ -489,7 +491,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
               controller: _textCtrl,
               maxLines: 4,
               minLines: 1,
-              style: const TextStyle(color: Colors.white, fontFamily: 'Outfit', fontSize: 13.5),
+              style: const TextStyle(color: _kDark, fontFamily: 'Outfit', fontSize: 13.5),
               decoration: InputDecoration(
                 hintText: 'Type a message to your athlete...',
                 hintStyle: TextStyle(color: _kGrey.withValues(alpha: 0.6), fontSize: 13),
@@ -506,7 +508,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
-                  borderSide: const BorderSide(color: _kLime),
+                  borderSide: const BorderSide(color: _kDark),
                 ),
               ),
               onSubmitted: (_) => _sendMessage(),
@@ -515,7 +517,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
           const SizedBox(width: 8),
           Container(
             decoration: BoxDecoration(
-              color: _kLime,
+              color: _kDark,
               borderRadius: BorderRadius.circular(20),
             ),
             child: IconButton(
@@ -523,9 +525,9 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: _kDark),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : const Icon(Iconsax.send_1, size: 20, color: _kDark),
+                  : const Icon(Iconsax.send_1, size: 20, color: Colors.white),
               onPressed: _isSending ? null : _sendMessage,
             ),
           ),
@@ -550,7 +552,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(color: _kBorder),
               ),
-              child: const Icon(Iconsax.message, size: 44, color: _kLime),
+              child: const Icon(Iconsax.message, size: 44, color: _kDark),
             ),
             const SizedBox(height: 16),
             Text(
@@ -558,8 +560,8 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
               style: const TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                color: _kDark,
               ),
               textAlign: TextAlign.center,
             ),

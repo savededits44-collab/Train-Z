@@ -302,8 +302,7 @@ class TrainerAuthController extends ChangeNotifier {
       _currentTrainerUser = userModel;
 
       // Email verification check
-      final isDemo = !kReleaseMode && AuthService.isDemoTrainer(email: email, uid: user.uid);
-      if (!isDemo && !user.emailVerified && !userModel.isEmailVerified) {
+      if (!user.emailVerified && !userModel.isEmailVerified) {
         _setLoading(false);
         return TrainerAuthNavigationTarget.verifyEmail;
       }

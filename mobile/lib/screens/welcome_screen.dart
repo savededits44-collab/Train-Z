@@ -3,14 +3,14 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../theme/app_theme.dart';
 
 /// Trainuspro Landing / Welcome Screen
-/// Elegant Black & White corporate portal for Athletes & Trainers
+/// Elegant light luxury corporate portal for Athletes & Trainers
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.pureBlack,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 20.0),
@@ -28,11 +28,11 @@ class WelcomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(color: AppTheme.borderSubtle),
-                          color: AppTheme.surfaceBlack,
+                          color: AppTheme.surfaceSubtle,
                         ),
                         child: const Icon(
                           Iconsax.weight,
-                          color: AppTheme.pureWhite,
+                          color: AppTheme.textPrimary,
                           size: 18,
                         ),
                       ),
@@ -47,7 +47,7 @@ class WelcomeScreen extends StatelessWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 2.0,
-                                color: AppTheme.pureWhite,
+                                color: AppTheme.textPrimary,
                               ),
                             ),
                             TextSpan(
@@ -57,7 +57,7 @@ class WelcomeScreen extends StatelessWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
                                 letterSpacing: 2.0,
-                                color: AppTheme.mutedWhite,
+                                color: AppTheme.textSecondary,
                               ),
                             ),
                           ],
@@ -70,7 +70,7 @@ class WelcomeScreen extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.pureWhite,
+                          color: AppTheme.primaryDark,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
@@ -80,7 +80,7 @@ class WelcomeScreen extends StatelessWidget {
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.0,
-                            color: AppTheme.pureBlack,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -92,8 +92,9 @@ class WelcomeScreen extends StatelessWidget {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.borderDark),
+                      border: Border.all(color: AppTheme.borderSubtle),
                       borderRadius: BorderRadius.circular(20),
+                      color: AppTheme.surfaceSubtle,
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
@@ -101,7 +102,7 @@ class WelcomeScreen extends StatelessWidget {
                         Icon(
                           Iconsax.verify,
                           size: 12,
-                          color: AppTheme.pureWhite,
+                          color: AppTheme.textPrimary,
                         ),
                         SizedBox(width: 4),
                         Text(
@@ -111,7 +112,7 @@ class WelcomeScreen extends StatelessWidget {
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.0,
-                            color: AppTheme.mutedWhite,
+                            color: AppTheme.textSecondary,
                           ),
                         ),
                       ],
@@ -131,7 +132,7 @@ class WelcomeScreen extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   height: 1.15,
                   letterSpacing: 1.5,
-                  color: AppTheme.pureWhite,
+                  color: AppTheme.textPrimary,
                 ),
               ),
               const SizedBox(height: 14),
@@ -142,7 +143,7 @@ class WelcomeScreen extends StatelessWidget {
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   height: 1.6,
-                  color: AppTheme.slateGrey,
+                  color: AppTheme.textSecondary,
                 ),
               ),
 
@@ -175,7 +176,7 @@ class WelcomeScreen extends StatelessWidget {
                     Icon(
                       Iconsax.shield_tick,
                       size: 14,
-                      color: AppTheme.darkGrey,
+                      color: AppTheme.textMuted,
                     ),
                     SizedBox(width: 6),
                     Text(
@@ -185,7 +186,7 @@ class WelcomeScreen extends StatelessWidget {
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 1.2,
-                        color: AppTheme.darkGrey,
+                        color: AppTheme.textMuted,
                       ),
                     ),
                   ],
@@ -223,33 +224,31 @@ class _PortalCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: isPrimary ? AppTheme.pureWhite : AppTheme.surfaceBlack,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isPrimary ? AppTheme.pureWhite : AppTheme.borderDark,
-            width: 1.2,
+            color: isPrimary ? AppTheme.primaryDark : AppTheme.borderSubtle,
+            width: isPrimary ? 1.5 : 1.0,
           ),
-          boxShadow: isPrimary
-              ? [
-                  BoxShadow(
-                    color: Colors.white.withValues(alpha: 0.12),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ]
-              : null,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isPrimary ? 0.06 : 0.03),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isPrimary ? AppTheme.pureBlack : AppTheme.elevatedSurface,
+                color: isPrimary ? AppTheme.primaryDark : AppTheme.surfaceSubtle,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: isPrimary ? AppTheme.pureWhite : AppTheme.mutedWhite,
+                color: isPrimary ? Colors.white : AppTheme.textPrimary,
                 size: 20,
               ),
             ),
@@ -260,24 +259,22 @@ class _PortalCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: AppTheme.fontFamily,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: isPrimary ? AppTheme.pureBlack : AppTheme.pureWhite,
+                      color: AppTheme.textPrimary,
                       letterSpacing: 0.5,
                     ),
                   ),
                   const SizedBox(height: 3),
                   Text(
                     subtitle,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: AppTheme.fontFamily,
                       fontSize: 11,
                       fontWeight: FontWeight.w400,
-                      color: isPrimary
-                          ? AppTheme.pureBlack.withValues(alpha: 0.7)
-                          : AppTheme.slateGrey,
+                      color: AppTheme.textSecondary,
                     ),
                   ),
                 ],
@@ -286,7 +283,7 @@ class _PortalCard extends StatelessWidget {
             Icon(
               Iconsax.arrow_right_3,
               size: 18,
-              color: isPrimary ? AppTheme.pureBlack : AppTheme.mutedWhite,
+              color: isPrimary ? AppTheme.primaryDark : AppTheme.textMuted,
             ),
           ],
         ),

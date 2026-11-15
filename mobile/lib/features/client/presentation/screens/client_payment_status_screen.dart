@@ -499,7 +499,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
   // ── Success: Transaction Details Card ──
   Widget _buildTransactionCard(double sf) {
     final amount = _payment?.amount ?? widget.plan?.price ?? 0;
-    final txnId = _payment?.razorpayPaymentId ?? _payment?.gatewayOrderId ?? 'pay_sandbox_test';
+    final txnId = _payment?.razorpayPaymentId ?? _payment?.gatewayOrderId ?? '—';
     final receipt = _payment?.displayReceiptNumber ?? 'REC-PENDING';
 
     return Container(

@@ -449,17 +449,6 @@ class TrainerCertificateService {
     return updated;
   }
 
-  List<TrainerCertificateModel> _enrichIfDemoCertificates(List<TrainerCertificateModel> list, String trainerId) {
-    if (kReleaseMode) return list;
-    if (trainerId == 'nY3lebkFPBZwWNV6ycj4QtpttV92') {
-      return list.map((c) => c.copyWith(verificationStatus: CertificateVerificationStatus.verified)).toList();
-    }
-    if (trainerId == 'tBzc47n2bpbLVVIFSIEd34Mfbma2') {
-      return list.map((c) => c.copyWith(verificationStatus: CertificateVerificationStatus.verified)).toList();
-    }
-    return list;
-  }
-
   /// Streams certificates submitted by a specific trainer.
   Stream<List<TrainerCertificateModel>> streamTrainerCertificates(String trainerId) async* {
     if (_firestore != null) {
@@ -471,14 +460,14 @@ class TrainerCertificateService {
           .map((snap) {
         final list = snap.docs.map(TrainerCertificateModel.fromDocument).toList();
         list.sort((a, b) => (b.createdAt ?? DateTime(2000)).compareTo(a.createdAt ?? DateTime(2000)));
-        return _enrichIfDemoCertificates(list, trainerId);
+        return list;
       });
       return;
     }
 
-    yield _enrichIfDemoCertificates(List<TrainerCertificateModel>.from(_mockCertificates[trainerId] ?? []), trainerId);
+    yield List<TrainerCertificateModel>.from(_mockCertificates[trainerId] ?? []);
     yield* _mockStreamController.stream.map((_) {
-      return _enrichIfDemoCertificates(List<TrainerCertificateModel>.from(_mockCertificates[trainerId] ?? []), trainerId);
+      return List<TrainerCertificateModel>.from(_mockCertificates[trainerId] ?? []);
     });
   }
 
@@ -493,13 +482,13 @@ class TrainerCertificateService {
             .get();
         final list = snap.docs.map(TrainerCertificateModel.fromDocument).toList();
         list.sort((a, b) => (b.createdAt ?? DateTime(2000)).compareTo(a.createdAt ?? DateTime(2000)));
-        return _enrichIfDemoCertificates(list, trainerId);
+        return list;
       } catch (e) {
         debugPrint('Firestore fetch error: $e');
       }
     }
 
-    return _enrichIfDemoCertificates(List<TrainerCertificateModel>.from(_mockCertificates[trainerId] ?? []), trainerId);
+    return List<TrainerCertificateModel>.from(_mockCertificates[trainerId] ?? []);
   }
 
   /// Deletes an unverified certificate.

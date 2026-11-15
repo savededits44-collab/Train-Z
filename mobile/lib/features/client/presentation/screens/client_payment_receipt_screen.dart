@@ -197,7 +197,7 @@ Powered by Razorpay & TRAIN Z Platform
                   _buildReceiptRow('Package Purchased', payment.displayPackageName),
                   _buildReceiptRow('Sessions', '${payment.sessionsCount ?? 1} Sessions (60 mins each)'),
                   _buildReceiptRow('Validity Duration', '${payment.validityDays ?? 30} Days'),
-                  _buildReceiptRow('Payment ID', payment.razorpayPaymentId ?? 'pay_sandbox_test'),
+                  _buildReceiptRow('Payment ID', payment.razorpayPaymentId ?? payment.gatewayOrderId ?? '—'),
                   _buildReceiptRow('Payment Method', payment.paymentMethod ?? 'Razorpay Gateway'),
                   _buildReceiptRow('Date & Time', _formatTimestamp(payment.verifiedAt ?? payment.createdAt)),
 

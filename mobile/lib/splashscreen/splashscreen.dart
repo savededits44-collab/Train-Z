@@ -12,7 +12,6 @@ import '../screens/trainer/trainer_dashboard.dart';
 import '../services/auth_service.dart';
 import '../services/trainer_profile_service.dart';
 import '../shared/models/trainer_profile_model.dart';
-import '../theme/app_theme.dart';
 
 /// TRAIN Z Premium Animated Motion-Graphics Splash Screen.
 /// Features a bespoke sequential letter-by-letter entrance for the TRAIN Z wordmark,
@@ -39,9 +38,10 @@ class _SplashScreenState extends State<SplashScreen>
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: AppTheme.pureBlack,
-        systemNavigationBarIconBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );
 
@@ -217,11 +217,11 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: const LinearGradient(
             colors: [
               Colors.transparent,
-              Color(0xCCFF00CC), // subtle volt
-              Color(0xFFCCFF00),
-              Colors.white,
-              Color(0xFFCCFF00),
-              Color(0xCCFF00CC),
+              Color(0x6084CC00),
+              Color(0xFF84CC00),
+              Color(0xFF111111),
+              Color(0xFF84CC00),
+              Color(0x6084CC00),
               Colors.transparent,
             ],
             stops: [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0],
@@ -253,11 +253,11 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: const LinearGradient(
             colors: [
               Colors.transparent,
-              Color(0x80CCFF00),
-              Color(0xFFCCFF00),
-              Colors.white,
-              Color(0xFFCCFF00),
-              Color(0x80CCFF00),
+              Color(0x6084CC00),
+              Color(0xFF84CC00),
+              Color(0xFF111111),
+              Color(0xFF84CC00),
+              Color(0x6084CC00),
               Colors.transparent,
             ],
             stops: [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0],
@@ -279,7 +279,7 @@ class _SplashScreenState extends State<SplashScreen>
           fontFamily: 'Outfit',
           fontSize: subtitleFontSize,
           fontWeight: FontWeight.w600,
-          color: const Color(0xFF8E8E93),
+          color: const Color(0xFF6B7280),
           letterSpacing: 2.5,
         ),
       );
@@ -305,7 +305,7 @@ class _SplashScreenState extends State<SplashScreen>
             fontFamily: 'Outfit',
             fontSize: subtitleFontSize,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF8E8E93),
+            color: const Color(0xFF6B7280),
             letterSpacing: 2.5,
           ),
         ),
@@ -326,9 +326,16 @@ class _SplashScreenState extends State<SplashScreen>
           color: const Color(0xFF14171A),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.12),
+            color: const Color(0xFFE5E7EB),
             width: 1.2,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Center(
           child: Text(
@@ -367,14 +374,14 @@ class _SplashScreenState extends State<SplashScreen>
               color: const Color(0xFF14171A),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.12),
+                color: const Color(0xFFE5E7EB),
                 width: 1.2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFCCFF00).withValues(alpha: 0.06 * eased),
-                  blurRadius: 18,
-                  spreadRadius: 1,
+                  color: Colors.black.withValues(alpha: 0.08 * eased),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -407,7 +414,7 @@ class _SplashScreenState extends State<SplashScreen>
     final double wordSpacing = (13.0 * sf).clamp(10.0, 18.0);
 
     return Scaffold(
-      backgroundColor: AppTheme.pureBlack,
+      backgroundColor: Colors.white,
       body: Stack(
         alignment: Alignment.center,
         children: [
@@ -425,7 +432,7 @@ class _SplashScreenState extends State<SplashScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFFCCFF00).withValues(alpha: 0.05),
+                      const Color(0xFFCCFF00).withValues(alpha: 0.12),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.75],
@@ -480,7 +487,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   char: 'T',
                                   index: 0,
                                   sf: sf,
-                                  color: Colors.white,
+                                  color: const Color(0xFF111111),
                                   controllerValue: val,
                                   reduceMotion: reduceMotion,
                                 ),
@@ -489,7 +496,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   char: 'R',
                                   index: 1,
                                   sf: sf,
-                                  color: Colors.white,
+                                  color: const Color(0xFF111111),
                                   controllerValue: val,
                                   reduceMotion: reduceMotion,
                                 ),
@@ -498,7 +505,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   char: 'A',
                                   index: 2,
                                   sf: sf,
-                                  color: Colors.white,
+                                  color: const Color(0xFF111111),
                                   controllerValue: val,
                                   reduceMotion: reduceMotion,
                                 ),
@@ -507,7 +514,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   char: 'I',
                                   index: 3,
                                   sf: sf,
-                                  color: Colors.white,
+                                  color: const Color(0xFF111111),
                                   controllerValue: val,
                                   reduceMotion: reduceMotion,
                                 ),
@@ -516,7 +523,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   char: 'N',
                                   index: 4,
                                   sf: sf,
-                                  color: Colors.white,
+                                  color: const Color(0xFF111111),
                                   controllerValue: val,
                                   reduceMotion: reduceMotion,
                                 ),
@@ -525,7 +532,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   char: 'Z',
                                   index: 5,
                                   sf: sf,
-                                  color: const Color(0xFFCCFF00),
+                                  color: const Color(0xFF84CC00),
                                   controllerValue: val,
                                   reduceMotion: reduceMotion,
                                 ),
@@ -578,9 +585,9 @@ class _SplashScreenState extends State<SplashScreen>
                                 borderRadius: BorderRadius.circular(2),
                                 child: const LinearProgressIndicator(
                                   minHeight: 2.2,
-                                  backgroundColor: Color(0xFF222222),
+                                  backgroundColor: Color(0xFFEEEEEE),
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    Color(0xFFCCFF00),
+                                    Color(0xFF111111),
                                   ),
                                 ),
                               ),
@@ -594,8 +601,8 @@ class _SplashScreenState extends State<SplashScreen>
                           child: ElevatedButton(
                             onPressed: _onGetStarted,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: AppTheme.pureBlack,
+                              backgroundColor: const Color(0xFF111111),
+                              foregroundColor: Colors.white,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
@@ -612,14 +619,14 @@ class _SplashScreenState extends State<SplashScreen>
                                     fontSize: (14.5 * sf).clamp(13.0, 16.0),
                                     fontWeight: FontWeight.w500,
                                     letterSpacing: 0.5,
-                                    color: AppTheme.pureBlack,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 const Icon(
                                   Iconsax.arrow_right_1,
                                   size: 17,
-                                  color: AppTheme.pureBlack,
+                                  color: Colors.white,
                                 ),
                               ],
                             ),

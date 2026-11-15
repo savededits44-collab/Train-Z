@@ -5,12 +5,11 @@ import '../../services/auth_service.dart';
 import '../../services/trainer_account_service.dart';
 import '../../shared/models/account_deletion_model.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 const Color _kDanger = Color(0xFFEF4444);
 
 /// Screen for Trainers to request account deletion.
@@ -98,30 +97,30 @@ class _TrainerAccountDeletionScreenState
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
-          backgroundColor: _kCardBg,
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: const BorderSide(color: _kBorder),
           ),
           title: const Row(
             children: [
-              Icon(Iconsax.info_circle, color: _kLime, size: 22),
+              Icon(Iconsax.info_circle, color: Color(0xFF15803D), size: 22),
               SizedBox(width: 8),
               Text(
                 'Request Submitted',
-                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: _kDark),
               ),
             ],
           ),
           content: const Text(
             'Your account deletion request has been submitted to platform administrators. Your coach profile is now deactivated.\n\nAll historical financial, booking, and payout ledger entries will be preserved for required audit and tax compliance.',
-            style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white70, height: 1.4),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: _kGrey, height: 1.4),
           ),
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: _kLime,
-                foregroundColor: _kDark,
+                backgroundColor: _kDark,
+                foregroundColor: Colors.white,
               ),
               onPressed: () async {
                 Navigator.of(ctx).pop();
@@ -153,12 +152,13 @@ class _TrainerAccountDeletionScreenState
     final isGoogleAuth = user?.providerData.any((p) => p.providerId == 'google.com') ?? false;
 
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -167,12 +167,12 @@ class _TrainerAccountDeletionScreenState
             fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: _kDark,
           ),
         ),
       ),
       body: _isCheckingEligibility
-          ? const Center(child: CircularProgressIndicator(color: _kLime))
+          ? const Center(child: CircularProgressIndicator(color: _kDark))
           : Form(
               key: _formKey,
               child: ListView(
@@ -182,9 +182,9 @@ class _TrainerAccountDeletionScreenState
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: _kDanger.withAlpha(20),
+                      color: const Color(0xFFFEF2F2),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: _kDanger.withAlpha(80)),
+                      border: Border.all(color: const Color(0xFFFCA5A5)),
                     ),
                     child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,7 +210,7 @@ class _TrainerAccountDeletionScreenState
                           style: TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 12.5,
-                            color: Colors.white,
+                            color: Color(0xFF991B1B),
                             height: 1.4,
                           ),
                         ),
@@ -253,7 +253,7 @@ class _TrainerAccountDeletionScreenState
                             style: const TextStyle(
                               fontFamily: 'Outfit',
                               fontSize: 12.5,
-                              color: Colors.white70,
+                              color: Color(0xFF991B1B),
                               height: 1.4,
                             ),
                           ),
@@ -287,7 +287,7 @@ class _TrainerAccountDeletionScreenState
                       children: [
                         Row(
                           children: [
-                            Icon(Iconsax.receipt_2, color: _kLime, size: 20),
+                            Icon(Iconsax.receipt_2, color: _kDark, size: 20),
                             SizedBox(width: 8),
                             Text(
                               'Financial & Audit Record Retention',
@@ -295,7 +295,7 @@ class _TrainerAccountDeletionScreenState
                                 fontFamily: 'Outfit',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: _kDark,
                               ),
                             ),
                           ],
@@ -319,18 +319,18 @@ class _TrainerAccountDeletionScreenState
                   // ── Deletion Reason ───────────────────────────────
                   const Text(
                     'Reason for leaving (Optional)',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w700, color: _kDark),
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
                     controller: _reasonCtrl,
                     maxLines: 3,
-                    style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 13),
+                    style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: 'Please share your feedback or reason for closing your account...',
                       hintStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit', fontSize: 12),
                       filled: true,
-                      fillColor: _kCardBg,
+                      fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                         borderSide: const BorderSide(color: _kBorder),
@@ -341,7 +341,7 @@ class _TrainerAccountDeletionScreenState
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: _kLime),
+                        borderSide: const BorderSide(color: _kDark),
                       ),
                     ),
                   ),
@@ -352,18 +352,18 @@ class _TrainerAccountDeletionScreenState
                   if (!isGoogleAuth) ...[
                     const Text(
                       'Reauthenticate with Password',
-                      style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w700, color: _kDark),
                     ),
                     const SizedBox(height: 6),
                     TextFormField(
                       controller: _passwordCtrl,
                       obscureText: _obscurePassword,
-                      style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
+                      style: const TextStyle(fontFamily: 'Outfit', color: _kDark),
                       decoration: InputDecoration(
                         hintText: 'Enter your current password to confirm',
                         hintStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit', fontSize: 12),
                         filled: true,
-                        fillColor: _kCardBg,
+                        fillColor: Colors.white,
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword ? Iconsax.eye_slash : Iconsax.eye,
@@ -396,23 +396,18 @@ class _TrainerAccountDeletionScreenState
                   ],
 
                   // ── Risk Confirmation Checkbox ────────────────────
-                  Theme(
-                    data: ThemeData.dark().copyWith(
-                      unselectedWidgetColor: _kGrey,
+                  CheckboxListTile(
+                    value: _confirmedRisk,
+                    onChanged: (_eligibility != null && !_eligibility!.canDelete)
+                        ? null
+                        : (val) => setState(() => _confirmedRisk = val ?? false),
+                    contentPadding: EdgeInsets.zero,
+                    activeColor: _kDanger,
+                    title: const Text(
+                      'I understand that my trainer profile will be permanently deactivated and I will lose access to my coaching profile.',
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kDark),
                     ),
-                    child: CheckboxListTile(
-                      value: _confirmedRisk,
-                      onChanged: (_eligibility != null && !_eligibility!.canDelete)
-                          ? null
-                          : (val) => setState(() => _confirmedRisk = val ?? false),
-                      contentPadding: EdgeInsets.zero,
-                      activeColor: _kDanger,
-                      title: const Text(
-                        'I understand that my trainer profile will be permanently deactivated and I will lose access to my coaching profile.',
-                        style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.white70),
-                      ),
-                      controlAffinity: ListTileControlAffinity.leading,
-                    ),
+                    controlAffinity: ListTileControlAffinity.leading,
                   ),
 
                   const SizedBox(height: 24),
@@ -425,7 +420,7 @@ class _TrainerAccountDeletionScreenState
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _kDanger,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: _kCardSubBg,
+                        disabledBackgroundColor: const Color(0xFFE5E7EB),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       onPressed: (_isSubmitting || (_eligibility != null && !_eligibility!.canDelete))

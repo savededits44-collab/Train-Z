@@ -14,12 +14,12 @@ import 'trainer_personal_info_screen.dart';
 import 'trainer_privacy_documents_screen.dart';
 import 'trainer_profile_setup_screen.dart';
 
-const Color _kDark = Color(0xFF141416);
-const Color _kCardBg = Color(0xFF1C1C1E);
-const Color _kCardSubBg = Color(0xFF23262F);
-const Color _kLime = Color(0xFFD4FF00);
-const Color _kGrey = Color(0xFF777E90);
-const Color _kBorder = Color(0xFF2E323E);
+const Color _kDark = Color(0xFF111111);
+const Color _kBg = Color(0xFFF9FAFB);
+const Color _kCardBg = Colors.white;
+const Color _kCardSubBg = Color(0xFFF3F4F6);
+const Color _kGrey = Color(0xFF6B7280);
+const Color _kBorder = Color(0xFFE5E7EB);
 const Color _kDanger = Color(0xFFEF4444);
 
 /// Dedicated Trainer Settings & Account Management Screen
@@ -60,12 +60,13 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
     final email = user?.email ?? '';
 
     return Scaffold(
-      backgroundColor: _kDark,
+      backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kDark,
+        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _kDark, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -74,7 +75,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
             fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: _kDark,
           ),
         ),
       ),
@@ -88,6 +89,13 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
               color: _kCardBg,
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: _kBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
               children: [
@@ -104,7 +112,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                             fontFamily: 'Outfit',
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
-                            color: _kLime,
+                            color: _kDark,
                           ),
                         )
                       : null,
@@ -123,12 +131,12 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                                 fontFamily: 'Outfit',
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: _kDark,
                               ),
                             ),
                           ),
                           if (isApproved)
-                            const Icon(Icons.verified, color: _kLime, size: 18),
+                            const Icon(Icons.verified, color: Color(0xFF15803D), size: 18),
                         ],
                       ),
                       const SizedBox(height: 2),
@@ -144,10 +152,10 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: isAdvanced ? const Color(0xFFE65100).withAlpha(30) : _kLime.withAlpha(25),
+                          color: isAdvanced ? const Color(0xFFFFF8E1) : const Color(0xFFF4F9F2),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                            color: isAdvanced ? const Color(0xFFE65100).withAlpha(80) : _kLime.withAlpha(80),
+                            color: isAdvanced ? const Color(0xFFFFCC80) : const Color(0xFFBBF7D0),
                           ),
                         ),
                         child: Text(
@@ -156,7 +164,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                             fontFamily: 'Outfit',
                             fontSize: 9.5,
                             fontWeight: FontWeight.w600,
-                            color: isAdvanced ? const Color(0xFFFB8C00) : _kLime,
+                            color: isAdvanced ? const Color(0xFFE65100) : const Color(0xFF15803D),
                           ),
                         ),
                       ),
@@ -184,7 +192,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                 );
               },
             ),
-            const Divider(height: 1, color: _kBorder),
+            const Divider(height: 1, color: Color(0xFFF3F4F6)),
             _SettingsTile(
               icon: Iconsax.briefcase,
               title: 'Professional Profile',
@@ -216,7 +224,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                 );
               },
             ),
-            const Divider(height: 1, color: _kBorder),
+            const Divider(height: 1, color: Color(0xFFF3F4F6)),
             _SettingsTile(
               icon: Iconsax.notification,
               title: 'Notification Preferences',
@@ -229,7 +237,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                 );
               },
             ),
-            const Divider(height: 1, color: _kBorder),
+            const Divider(height: 1, color: Color(0xFFF3F4F6)),
             _SettingsTile(
               icon: Iconsax.shield_security,
               title: 'Privacy & Documents',
@@ -261,7 +269,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                 );
               },
             ),
-            const Divider(height: 1, color: _kBorder),
+            const Divider(height: 1, color: Color(0xFFF3F4F6)),
             _SettingsTile(
               icon: Iconsax.info_circle,
               title: 'Legal Information',
@@ -284,19 +292,20 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
             height: 48,
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
+                foregroundColor: _kDark,
                 side: const BorderSide(color: _kBorder),
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
               onPressed: _onLogout,
-              icon: const Icon(Iconsax.logout, size: 18, color: Colors.white),
+              icon: const Icon(Iconsax.logout, size: 18, color: _kDark),
               label: const Text(
                 'Log Out',
                 style: TextStyle(
                   fontFamily: 'Outfit',
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white,
+                  color: _kDark,
                 ),
               ),
             ),
@@ -308,16 +317,16 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: _kCardBg,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: _kDanger.withAlpha(60)),
+              border: Border.all(color: const Color(0xFFFEE2E2)),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: _kDanger.withAlpha(20),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFEE2E2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Iconsax.trash, color: _kDanger, size: 18),
@@ -392,6 +401,13 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
         color: _kCardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _kBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: children,
@@ -431,7 +447,7 @@ class _SettingsTile extends StatelessWidget {
                   color: _kCardSubBg,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: _kLime, size: 18),
+                child: Icon(icon, color: _kDark, size: 18),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -444,7 +460,7 @@ class _SettingsTile extends StatelessWidget {
                         fontFamily: 'Outfit',
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: _kDark,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -459,7 +475,7 @@ class _SettingsTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: _kGrey, size: 14),
+              const Icon(Icons.arrow_forward_ios, color: Color(0xFF9CA3AF), size: 14),
             ],
           ),
         ),

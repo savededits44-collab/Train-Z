@@ -959,7 +959,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
         return TrainerPressScale(
           onTap: onOpenEarnings ?? onGoToSchedule,
           child: TrainerBreathingGlow(
-            glowColor: kLime,
+            glowColor: kLime.withValues(alpha: 0.35),
             active: true,
             minBlur: 4,
             maxBlur: 14,
@@ -968,15 +968,15 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.all((18.0 * sf).clamp(14.0, 22.0)),
               decoration: BoxDecoration(
-                color: const Color(0xFF141416),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular((18.0 * sf).clamp(14.0, 22.0)),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.08),
+                  color: const Color(0xFFE5E7EB),
                   width: 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.16),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -992,7 +992,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                         width: (34.0 * sf).clamp(28.0, 40.0),
                         height: (34.0 * sf).clamp(28.0, 40.0),
                         decoration: BoxDecoration(
-                          color: kLime,
+                          color: const Color(0xFFF3F4F6),
                           borderRadius: BorderRadius.circular((10.0 * sf).clamp(8.0, 12.0)),
                         ),
                         child: Icon(
@@ -1013,7 +1013,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                                 fontSize: (11.0 * sf).clamp(9.5, 12.5),
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 1.2,
-                                color: kLime,
+                                color: const Color(0xFF6B7280),
                               ),
                             ),
                             const SizedBox(height: 1),
@@ -1022,7 +1022,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: (11.0 * sf).clamp(9.5, 12.0),
-                                color: Colors.white.withValues(alpha: 0.65),
+                                color: const Color(0xFF9CA3AF),
                               ),
                             ),
                           ],
@@ -1031,17 +1031,17 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.07),
+                          color: const Color(0xFFF0FDF4),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.12),
+                            color: const Color(0xFFBBF7D0),
                           ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: const [
                             TrainerLivePulseDot(
-                              color: Color(0xFF4CAF50),
+                              color: Color(0xFF15803D),
                               size: 6.5,
                             ),
                             SizedBox(width: 5),
@@ -1051,7 +1051,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                                 fontFamily: 'Outfit',
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                color: Color(0xFF15803D),
                               ),
                             ),
                           ],
@@ -1073,7 +1073,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                           fontFamily: 'Outfit',
                           fontSize: (22.0 * sf).clamp(18.0, 26.0),
                           fontWeight: FontWeight.w600,
-                          color: kLime,
+                          color: kDark,
                         ),
                       ),
                       const SizedBox(width: 3),
@@ -1083,7 +1083,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                           fontFamily: 'Outfit',
                           fontSize: (34.0 * sf).clamp(28.0, 40.0),
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: kDark,
                           height: 1.0,
                         ),
                       ),
@@ -1091,10 +1091,10 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: kLime.withValues(alpha: 0.12),
+                          color: const Color(0xFFF3F4F6),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: kLime.withValues(alpha: 0.28),
+                            color: const Color(0xFFE5E7EB),
                           ),
                         ),
                         child: Text(
@@ -1103,7 +1103,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                             fontFamily: 'Outfit',
                             fontSize: (11.0 * sf).clamp(9.5, 12.5),
                             fontWeight: FontWeight.w700,
-                            color: kLime,
+                            color: kDark,
                           ),
                         ),
                       ),
@@ -1114,7 +1114,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
 
                   Container(
                     height: 1,
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: const Color(0xFFEEEEEE),
                   ),
 
                   SizedBox(height: (12.0 * sf).clamp(8.0, 14.0)),
@@ -1124,7 +1124,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                       Icon(
                         todayCount > 0 ? Iconsax.tick_circle : Iconsax.info_circle,
                         size: 14,
-                        color: todayCount > 0 ? const Color(0xFF4CAF50) : Colors.white.withValues(alpha: 0.45),
+                        color: todayCount > 0 ? const Color(0xFF15803D) : const Color(0xFF6B7280),
                       ),
                       const SizedBox(width: 6),
                       Expanded(
@@ -1136,7 +1136,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                             fontFamily: 'Outfit',
                             fontSize: (11.5 * sf).clamp(10.0, 12.5),
                             fontWeight: FontWeight.w500,
-                            color: Colors.white.withValues(alpha: 0.85),
+                            color: const Color(0xFF4B5563),
                           ),
                         ),
                       ),
@@ -1151,14 +1151,14 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                                 fontFamily: 'Outfit',
                                 fontSize: (11.0 * sf).clamp(9.5, 12.0),
                                 fontWeight: FontWeight.w700,
-                                color: kLime,
+                                color: kDark,
                               ),
                             ),
                             const SizedBox(width: 3),
                             const Icon(
                               Icons.arrow_forward_ios_rounded,
                               size: 10,
-                              color: kLime,
+                              color: kDark,
                             ),
                           ],
                         ),
@@ -1243,9 +1243,16 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all((16.0 * sf).clamp(14, 20)),
       decoration: BoxDecoration(
-        color: const Color(0xFF141416),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1270,7 +1277,7 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              const Icon(Iconsax.shield_tick, size: 16, color: kLime),
+              const Icon(Iconsax.shield_tick, size: 16, color: Color(0xFF15803D)),
             ],
           ),
           const SizedBox(height: 10),
@@ -1280,7 +1287,7 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
               fontFamily: 'Outfit',
               fontSize: (16.0 * sf).clamp(14, 18),
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: kDark,
             ),
           ),
           const SizedBox(height: 4),
@@ -1289,7 +1296,7 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Outfit',
               fontSize: (11.0 * sf).clamp(9.5, 12),
-              color: Colors.white.withValues(alpha: 0.65),
+              color: const Color(0xFF6B7280),
               height: 1.35,
             ),
           ),
@@ -1297,9 +1304,9 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
+              color: const Color(0xFFF9FAFB),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              border: Border.all(color: const Color(0xFFE5E7EB)),
             ),
             child: Column(
               children: packages
@@ -1315,15 +1322,15 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
                               fontFamily: 'Outfit',
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: kDark,
                             ),
                           ),
                           Text(
                             '${p.$2} • ${p.$3} (${p.$4})',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Outfit',
                               fontSize: 10.5,
-                              color: kLime.withValues(alpha: 0.9),
+                              color: Color(0xFF15803D),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -1336,6 +1343,13 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kDark,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -1346,21 +1360,15 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
                 ),
               );
             },
-            icon: const Icon(Iconsax.eye, size: 14, color: kDark),
+            icon: const Icon(Iconsax.eye, size: 14, color: Colors.white),
             label: const Text(
               'View Package Details',
               style: TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 11.5,
                 fontWeight: FontWeight.w500,
-                color: kDark,
+                color: Colors.white,
               ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kLime,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           ),
         ],
@@ -2319,25 +2327,26 @@ void _showEarningsDetailSheet(BuildContext context, double sf, int totalEarnings
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF141416),
+                color: const Color(0xFFF9FAFB),
                 borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'TOTAL EARNINGS',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w600, color: kLime, letterSpacing: 1.1),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF6B7280), letterSpacing: 1.1),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     '₹$totalEarnings',
-                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 28, fontWeight: FontWeight.w600, color: Colors.white),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 28, fontWeight: FontWeight.w600, color: kDark),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${completed.length} completed sessions • ${upcoming.length} upcoming scheduled',
-                    style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Colors.white.withValues(alpha: 0.65)),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF6B7280)),
                   ),
                 ],
               ),

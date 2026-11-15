@@ -217,7 +217,7 @@ class PushNotificationService {
                 ),
             ],
           ),
-          backgroundColor: const Color(0xFF0D1117),
+          backgroundColor: const Color(0xFF111111),
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 4),
           action: SnackBarAction(
