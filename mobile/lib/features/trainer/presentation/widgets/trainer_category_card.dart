@@ -75,9 +75,9 @@ class TrainerCategoryCard extends StatelessWidget {
                             Text(
                               category.displayName,
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (16.0 * sf).clamp(14.0, 19.0),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: isSelected ? Colors.white : kDark,
                               ),
                             ),
@@ -95,7 +95,7 @@ class TrainerCategoryCard extends StatelessWidget {
                                 child: const Text(
                                   'Coming Soon',
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
                                     color: Color(0xFFFF5252),
@@ -118,7 +118,7 @@ class TrainerCategoryCard extends StatelessWidget {
                                 child: Text(
                                   '3.5+ Yrs Exp & Certified',
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
                                     color: isSelected ? kLime : const Color(0xFF2E7D32),
@@ -160,7 +160,7 @@ class TrainerCategoryCard extends StatelessWidget {
               Text(
                 'Requirement: ${category.requirementText}',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (12.0 * sf).clamp(11.0, 13.5),
                   fontWeight: FontWeight.w500,
                   color: isSelected ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF424242),
@@ -174,7 +174,7 @@ class TrainerCategoryCard extends StatelessWidget {
               Text(
                 'Platform Rule: ${category.packageRuleText}',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (11.5 * sf).clamp(10.5, 12.5),
                   fontWeight: FontWeight.w400,
                   color: isSelected ? Colors.white.withValues(alpha: 0.65) : kGrey,

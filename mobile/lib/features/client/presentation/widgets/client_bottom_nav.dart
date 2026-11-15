@@ -99,9 +99,9 @@ class ClientBottomNav extends StatelessWidget {
                         Text(
                           item['label'] as String,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
                         ),

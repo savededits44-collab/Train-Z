@@ -75,7 +75,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
         title: const Text(
           'Client Messages',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -127,14 +127,14 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                                     children: [
                                       const Text(
                                         'Conversations',
-                                        style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: _kGrey),
+                                        style: TextStyle(fontFamily: 'Outfit', fontSize: 10, color: _kGrey),
                                       ),
                                       Text(
                                         '${allConversations.length}',
                                         style: const TextStyle(
-                                          fontFamily: 'Syne',
+                                          fontFamily: 'Outfit',
                                           fontSize: 16,
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w600,
                                           color: Colors.white,
                                         ),
                                       ),
@@ -168,14 +168,14 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                                     children: [
                                       const Text(
                                         'Unread Messages',
-                                        style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: _kGrey),
+                                        style: TextStyle(fontFamily: 'Outfit', fontSize: 10, color: _kGrey),
                                       ),
                                       Text(
                                         '$totalUnread',
                                         style: TextStyle(
-                                          fontFamily: 'Syne',
+                                          fontFamily: 'Outfit',
                                           fontSize: 16,
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w600,
                                           color: totalUnread > 0 ? const Color(0xFFEF5350) : Colors.white,
                                         ),
                                       ),
@@ -194,7 +194,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                       TextField(
                         controller: _searchCtrl,
                         onChanged: (val) => setState(() => _searchQuery = val),
-                        style: const TextStyle(color: Colors.white, fontFamily: 'Poppins', fontSize: 13),
+                        style: const TextStyle(color: Colors.white, fontFamily: 'Outfit', fontSize: 13),
                         decoration: InputDecoration(
                           hintText: 'Search by athlete name or message...',
                           hintStyle: TextStyle(color: _kGrey.withValues(alpha: 0.6), fontSize: 13),
@@ -292,9 +292,9 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                   child: Text(
                     initial,
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 18,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: hasUnread ? _kLime : Colors.white,
                     ),
                   ),
@@ -327,9 +327,9 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                         child: Text(
                           clientName,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 15,
-                            fontWeight: hasUnread ? FontWeight.w800 : FontWeight.w700,
+                            fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w700,
                             color: Colors.white,
                           ),
                           maxLines: 1,
@@ -339,10 +339,10 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                       Text(
                         timeStr,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           color: hasUnread ? _kLime : _kGrey,
-                          fontWeight: hasUnread ? FontWeight.w700 : FontWeight.normal,
+                          fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w400,
                         ),
                       ),
                     ],
@@ -356,10 +356,10 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                               ? (conv.lastMessageSenderId == _trainerId ? 'You: ${conv.lastMessage}' : conv.lastMessage)
                               : 'New booked conversation',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12.5,
                             color: hasUnread ? Colors.white : _kGrey,
-                            fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
+                            fontWeight: hasUnread ? FontWeight.w600 : FontWeight.w400,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -376,9 +376,9 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                           child: Text(
                             '${conv.trainerUnreadCount}',
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 10,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
@@ -416,9 +416,9 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
             Text(
               noConversationsOverall ? 'No Conversations Yet' : 'No Matching Messages',
               style: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 17,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
             ),
@@ -429,7 +429,7 @@ class _TrainerMessagesScreenState extends State<TrainerMessagesScreen> {
                   : 'Try searching with a different athlete name or keyword.',
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 12,
                 color: _kGrey,
               ),

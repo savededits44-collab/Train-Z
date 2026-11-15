@@ -90,16 +90,16 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                       Text(
                         'Package Summary',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                         ),
                       ),
                       Text(
                         'Transparent Price & Session Breakdown',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.5),
                           color: const Color(0xFF16A34A),
                           fontWeight: FontWeight.w600,
@@ -171,7 +171,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                       Text(
                         'Important Package Conditions',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.0),
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF92400E),
@@ -186,7 +186,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                     '• Package sessions are valid for ${plan.validityDays} days from activation.\n'
                     '• Transparent pricing in Indian Rupees (₹) with zero hidden fees.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (10.5 * sf).clamp(9.5, 11.5),
                       color: const Color(0xFF78350F),
                       height: 1.45,
@@ -237,9 +237,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
               child: Text(
                 widget.trainer != null ? 'Continue to Schedule Session' : 'Proceed to Payment & Book Later',
                 style: const TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 14,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w500,
                   color: Colors.white,
                 ),
               ),
@@ -256,13 +256,13 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
       children: [
         Text(
           label,
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey),
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey),
         ),
         Flexible(
           child: Text(
             value,
             textAlign: TextAlign.end,
-            style: const TextStyle(fontFamily: 'Syne', fontSize: 12.0, fontWeight: FontWeight.w700, color: kDark),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.0, fontWeight: FontWeight.w700, color: kDark),
           ),
         ),
       ],
@@ -289,9 +289,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
         title: Text(
           'Training Packages',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (17.0 * sf).clamp(15.0, 19.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -359,19 +359,19 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                             const SizedBox(height: 12),
                             const Text(
                               'Unable to load packages',
-                              style: TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w700),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w700),
                             ),
                             const SizedBox(height: 6),
                             Text(
                               '${snapshot.error}',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+                              style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
                             ),
                             const SizedBox(height: 14),
                             ElevatedButton(
                               onPressed: () => setState(() {}),
                               style: ElevatedButton.styleFrom(backgroundColor: kDark),
-                              child: const Text('Try Again', style: TextStyle(fontFamily: 'Syne', color: Colors.white)),
+                              child: const Text('Try Again', style: TextStyle(fontFamily: 'Outfit', color: Colors.white)),
                             ),
                           ],
                         ),
@@ -471,9 +471,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                 ? Text(
                     trainer.displayName.isNotEmpty ? trainer.displayName[0].toUpperCase() : 'T',
                     style: const TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 18,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w500,
                       color: kLime,
                     ),
                   )
@@ -491,9 +491,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                         trainer.displayName,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 15,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                         ),
                       ),
@@ -506,7 +506,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                 Text(
                   trainer.gymName ?? 'Certified Personal Trainer',
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11.5,
                     color: kGrey,
                   ),
@@ -521,7 +521,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                   child: Text(
                     categoryLabel,
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: categoryText,
@@ -561,9 +561,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
         Text(
           title,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (19.0 * sf).clamp(17.0, 23.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -571,7 +571,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
         Text(
           subtitle,
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (11.5 * sf).clamp(10.5, 13.0),
             color: kGrey,
             height: 1.45,
@@ -606,9 +606,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
             'Professional Trainer • Coming Soon',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (16.0 * sf).clamp(15.0, 18.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: kDark,
             ),
           ),
@@ -617,7 +617,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
             'Packages for Professional Trainers are coming soon and are unavailable for booking at launch. Please choose an available Standard or Advanced Trainer to book your training sessions.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.5 * sf).clamp(10.5, 12.5),
               color: kGrey,
               height: 1.45,
@@ -633,7 +633,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
             ),
             child: const Text(
               'Explore Other Trainers',
-              style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kLime),
+              style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kLime),
             ),
           ),
         ],
@@ -664,9 +664,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                   : 'No packages available',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (15.5 * sf).clamp(14.5, 17.5),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
               ),
             ),
@@ -677,7 +677,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                   : 'Platform training packages will appear here once configured.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (11.5 * sf).clamp(10.5, 12.5),
                 color: kGrey,
                 height: 1.45,
@@ -693,7 +693,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
               ),
               child: const Text(
                 'Explore Other Trainers',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kLime),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kLime),
               ),
             ),
           ],
@@ -741,7 +741,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                     Text(
                       hasSelection ? selectedPlan.title : 'No Package Selected',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         color: hasSelection ? kGrey : const Color(0xFF9CA3AF),
                       ),
@@ -749,9 +749,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                     Text(
                       hasSelection ? selectedPlan.formattedPrice : 'Choose a package',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: hasSelection ? kDark : const Color(0xFFCCCCCC),
                       ),
                     ),
@@ -765,9 +765,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                     label: Text(
                       hasSelection ? 'Review & Continue' : 'Select a Package',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 13.5,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w500,
                         color: hasSelection ? kDark : const Color(0xFF9CA3AF),
                       ),
                     ),
@@ -846,9 +846,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                             Text(
                               'FLAGSHIP TRANSFORMATION',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 9.5,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: kDark,
                               ),
                             ),
@@ -883,9 +883,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                       Text(
                         plan.title,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (18.0 * sf).clamp(16.0, 21.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
                       ),
@@ -900,7 +900,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                           child: Text(
                             'Save $savings% per session',
                             style: const TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 10.5,
                               color: kLime,
                               fontWeight: FontWeight.w700,
@@ -915,7 +915,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                   Text(
                     plan.description,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.5),
                       color: const Color(0xFFB0B0B0),
                       height: 1.4,
@@ -933,16 +933,16 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                           Text(
                             plan.formattedPrice,
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (22.0 * sf).clamp(20.0, 26.0),
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
                           Text(
                             '₹$pricePerSession per 60-min session',
                             style: const TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: kLime,
@@ -959,7 +959,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                         child: Text(
                           '${plan.sessionsCount} Sessions • ${plan.validityDays} Days',
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -1022,7 +1022,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                             ? 'Advanced Trainer Custom Plan • Admin Verified'
                             : 'TRAIN Z Platform Package',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 9.5,
                           fontWeight: FontWeight.w700,
                           color: isCustom ? const Color(0xFF1D4ED8) : kDark,
@@ -1054,9 +1054,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                     Text(
                       plan.title,
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (16.0 * sf).clamp(14.5, 18.0),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: kDark,
                       ),
                     ),
@@ -1071,9 +1071,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                         child: const Text(
                           'MOST POPULAR',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 9,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kLime,
                           ),
                         ),
@@ -1087,7 +1087,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                   Text(
                     plan.description,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.5),
                       color: const Color(0xFF555555),
                       height: 1.4,
@@ -1106,9 +1106,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                         Text(
                           plan.formattedPrice,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (18.5 * sf).clamp(16.5, 22.0),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -1117,7 +1117,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                               ? '₹$pricePerSession/session (Save $savings%)'
                               : '₹$pricePerSession/session • 60 mins',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (10.0 * sf).clamp(9.0, 11.5),
                             fontWeight: FontWeight.w600,
                             color: savings > 0 ? const Color(0xFF15803D) : kGrey,
@@ -1134,7 +1134,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                       child: Text(
                         '${plan.sessionsCount} ${plan.sessionsCount == 1 ? "Session" : "Sessions"} • ${plan.validityDays}d validity',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (10.5 * sf).clamp(9.5, 12.0),
                           fontWeight: FontWeight.w600,
                           color: kDark,
@@ -1179,9 +1179,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                 Text(
                   'ALL PACKAGES COMPARISON',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                   ),
                 ),
@@ -1196,12 +1196,12 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
               dataRowMinHeight: 48,
               dataRowMaxHeight: 52,
               columns: const [
-                DataColumn(label: Text('Package', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 11))),
-                DataColumn(label: Text('Sessions', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 11))),
-                DataColumn(label: Text('Total Price', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 11))),
-                DataColumn(label: Text('Per Session', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 11))),
-                DataColumn(label: Text('Validity', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 11))),
-                DataColumn(label: Text('Savings', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 11))),
+                DataColumn(label: Text('Package', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 11))),
+                DataColumn(label: Text('Sessions', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 11))),
+                DataColumn(label: Text('Total Price', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 11))),
+                DataColumn(label: Text('Per Session', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 11))),
+                DataColumn(label: Text('Validity', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 11))),
+                DataColumn(label: Text('Savings', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 11))),
               ],
               rows: plans.map((plan) {
                 final isSelected = _selectedPlanId == plan.id;
@@ -1221,8 +1221,8 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                           Text(
                             plan.title,
                             style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              fontFamily: 'Outfit',
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
                               color: isTransformation ? const Color(0xFFD97706) : kDark,
                               fontSize: 11.5,
                             ),
@@ -1235,11 +1235,11 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
                         ],
                       ),
                     ),
-                    DataCell(Text('${plan.sessionsCount}', style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5))),
-                    DataCell(Text(plan.formattedPrice, style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 12))),
-                    DataCell(Text('₹${plan.pricePerSession.round()}', style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFF15803D)))),
-                    DataCell(Text('${plan.validityDays}d', style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5))),
-                    DataCell(Text(plan.savingsPercent > 0 ? '${plan.savingsPercent}%' : '—', style: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w700, fontSize: 11.5))),
+                    DataCell(Text('${plan.sessionsCount}', style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5))),
+                    DataCell(Text(plan.formattedPrice, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 12))),
+                    DataCell(Text('₹${plan.pricePerSession.round()}', style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFF15803D)))),
+                    DataCell(Text('${plan.validityDays}d', style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5))),
+                    DataCell(Text(plan.savingsPercent > 0 ? '${plan.savingsPercent}%' : '—', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 11.5))),
                   ],
                 );
               }).toList(),
@@ -1268,9 +1268,9 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
               Text(
                 'PACKAGE RULES & GUARANTEES',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 11,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   letterSpacing: 1.0,
                 ),
@@ -1328,7 +1328,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
               Text(
                 title,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.5 * sf).clamp(10.5, 13.0),
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -1337,7 +1337,7 @@ class _ClientPackageSelectionScreenState extends State<ClientPackageSelectionScr
               Text(
                 subtitle,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (10.0 * sf).clamp(9.0, 11.5),
                   color: kGrey,
                   height: 1.35,

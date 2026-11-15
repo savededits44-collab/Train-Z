@@ -98,7 +98,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.white),
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white),
         ),
         backgroundColor: const Color(0xFF1E1E24),
         behavior: SnackBarBehavior.floating,
@@ -161,7 +161,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                       Text(
                         'Client & Athlete Portal',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.5),
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF15803D),
@@ -177,9 +177,9 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                 Text(
                   'Start your\ntransformation.',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (28.0 * sf).clamp(24.0, 36.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                     height: 1.15,
                   ),
@@ -190,7 +190,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                 Text(
                   'Create your account to train with verified 1-on-1 personal trainers.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.5 * sf).clamp(11.0, 14.0),
                     color: kGrey,
                     height: 1.4,
@@ -296,7 +296,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                         text: TextSpan(
                           text: 'I agree to the ',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.5 * sf).clamp(10.5, 13.0),
                             color: kGrey,
                           ),
@@ -344,7 +344,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                       Text(
                         'Already have an account? ',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (13.0 * sf).clamp(11.0, 14.5),
                           color: kGrey,
                         ),
@@ -358,7 +358,7 @@ class _ClientRegisterScreenState extends State<ClientRegisterScreen> {
                         child: Text(
                           'Log In',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (13.0 * sf).clamp(11.0, 14.5),
                             fontWeight: FontWeight.w700,
                             color: kDark,

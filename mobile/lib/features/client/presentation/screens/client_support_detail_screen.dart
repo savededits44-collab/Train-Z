@@ -83,15 +83,15 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Close Support Ticket?', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 16)),
+        title: const Text('Close Support Ticket?', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 16)),
         content: const Text(
           'Mark this ticket as closed? You can always submit a new support request if you experience another issue.',
-          style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF4B5563)),
+          style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF4B5563)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: Color(0xFF6B7280))),
+            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF6B7280))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -100,7 +100,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Close Ticket', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+            child: const Text('Close Ticket', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -152,16 +152,16 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
             Text(
               _currentTicket.ticketNumber,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (16.0 * sf).clamp(15.0, 18.0),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
               ),
             ),
             Text(
               _currentTicket.category.label,
               style: const TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 10,
                 color: Color(0xFF6B7280),
               ),
@@ -183,7 +183,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
                     children: [
                       Icon(Icons.check_circle_outline, size: 16, color: Color(0xFF16A34A)),
                       SizedBox(width: 8),
-                      Text('Mark as Resolved / Close', style: TextStyle(fontFamily: 'Poppins', fontSize: 12)),
+                      Text('Mark as Resolved / Close', style: TextStyle(fontFamily: 'Outfit', fontSize: 12)),
                     ],
                   ),
                 ),
@@ -212,9 +212,9 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (13.5 * sf).clamp(12.5, 15.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                         ),
                       ),
@@ -232,7 +232,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
                       Text(
                         'Related Booking: ${_currentTicket.bookingReference}',
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 10.5,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF4B5563),
@@ -286,7 +286,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
                     child: Text(
                       'This ticket has been marked as closed. To report another issue, please raise a new support request.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         color: Color(0xFF6B7280),
                       ),
@@ -329,7 +329,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
                           decoration: const InputDecoration(
                             hintText: 'Type follow-up response...',
                             hintStyle: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 12,
                               color: Color(0xFF9CA3AF),
                             ),
@@ -337,7 +337,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
                             contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           ),
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12.5,
                             color: kDark,
                           ),
@@ -421,7 +421,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
                       Text(
                         isClient ? 'You' : 'TRAIN Z Support',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: isClient ? kLime : const Color(0xFF2563EB),
@@ -437,7 +437,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
                   Text(
                     msg.message,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (12.0 * sf).clamp(11.0, 13.0),
                       color: isClient ? Colors.white : kDark,
                       height: 1.35,
@@ -462,7 +462,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 10,
                                 color: isClient ? const Color(0xFFE5E7EB) : const Color(0xFF4B5563),
                               ),
@@ -476,7 +476,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
                   Text(
                     msg.formattedTime,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 9,
                       color: isClient ? const Color(0xFF9CA3AF) : const Color(0xFF9CA3AF),
                     ),
@@ -501,7 +501,7 @@ class _ClientSupportDetailScreenState extends State<ClientSupportDetailScreen> {
       child: Text(
         status.label,
         style: TextStyle(
-          fontFamily: 'Poppins',
+          fontFamily: 'Outfit',
           fontSize: 10,
           fontWeight: FontWeight.w700,
           color: status.color,

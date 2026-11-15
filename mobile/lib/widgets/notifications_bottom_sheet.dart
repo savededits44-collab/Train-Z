@@ -55,9 +55,9 @@ class NotificationsBottomSheet extends StatelessWidget {
                     Text(
                       'Notifications',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: kDark,
                       ),
                     ),
@@ -76,7 +76,7 @@ class NotificationsBottomSheet extends StatelessWidget {
                           child: Text(
                             '$unread New',
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -95,9 +95,9 @@ class NotificationsBottomSheet extends StatelessWidget {
                   child: const Text(
                     'Mark all as read',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: kDark,
                     ),
                   ),
@@ -132,7 +132,7 @@ class NotificationsBottomSheet extends StatelessWidget {
                           const Text(
                             'No notifications yet',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: kDark,
@@ -143,7 +143,7 @@ class NotificationsBottomSheet extends StatelessWidget {
                             'Live updates on your bookings, payments, and schedules will appear here.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 12,
                               color: kGrey,
                             ),
@@ -266,9 +266,9 @@ class _NotificationTile extends StatelessWidget {
                         child: Text(
                           item.title,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (13.5 * sf).clamp(12.0, 15.0),
-                            fontWeight: isUnread ? FontWeight.w800 : FontWeight.w600,
+                            fontWeight: isUnread ? FontWeight.w600 : FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -288,7 +288,7 @@ class _NotificationTile extends StatelessWidget {
                   Text(
                     item.body,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.5 * sf).clamp(10.5, 12.5),
                       color: isUnread ? const Color(0xFF374151) : kGrey,
                       height: 1.35,
@@ -298,7 +298,7 @@ class _NotificationTile extends StatelessWidget {
                   Text(
                     _formatTime(item.createdAt),
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 10,
                       color: Color(0xFF9CA3AF),
                     ),

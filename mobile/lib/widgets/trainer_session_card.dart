@@ -40,7 +40,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
               Expanded(
                 child: Text(
                   'Application under review: You will be eligible to accept sessions once approved by Admin.',
-                  style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600, fontSize: 12.5),
+                  style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 12.5),
                 ),
               ),
             ],
@@ -69,7 +69,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
             const SizedBox(width: 10),
             Text(
               'Session with ${widget.booking.displayClientName} accepted!',
-              style: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
+              style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -92,7 +92,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
           title: Text(
             'Reject Session Request?',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (18.0 * widget.sf).clamp(16.0, 20.0),
               fontWeight: FontWeight.w700,
               color: kDark,
@@ -104,14 +104,14 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
             children: [
               Text(
                 'Are you sure you want to reject the session request from ${widget.booking.displayClientName}?',
-                style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kGrey),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kGrey),
               ),
               const SizedBox(height: 14),
               TextField(
                 controller: reasonController,
                 decoration: InputDecoration(
                   hintText: 'Reason (e.g. Schedule full, out of town)',
-                  hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+                  hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
                   filled: true,
                   fillColor: kField,
                   border: OutlineInputBorder(
@@ -127,7 +127,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
               onPressed: () => Navigator.pop(ctx),
               child: const Text(
                 'Cancel',
-                style: TextStyle(fontFamily: 'Poppins', color: kGrey, fontWeight: FontWeight.w600),
+                style: TextStyle(fontFamily: 'Outfit', color: kGrey, fontWeight: FontWeight.w500),
               ),
             ),
             ElevatedButton(
@@ -148,7 +148,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
               },
               child: const Text(
                 'Reject Request',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500),
               ),
             ),
           ],
@@ -190,12 +190,12 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                     const SizedBox(height: 16),
                     const Text(
                       'Reschedule Session',
-                      style: TextStyle(fontFamily: 'Syne', fontSize: 18, fontWeight: FontWeight.w800, color: kDark),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 18, fontWeight: FontWeight.w600, color: kDark),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       'Select new date and time for ${widget.booking.displayClientName}.',
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: kGrey),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: kGrey),
                     ),
                     const SizedBox(height: 16),
                     InkWell(
@@ -226,17 +226,17 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                                 const SizedBox(width: 10),
                                 Text(
                                   '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                                  style: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600, color: kDark),
+                                  style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: kDark),
                                 ),
                               ],
                             ),
-                            const Text('Change Date', style: TextStyle(fontFamily: 'Syne', fontSize: 12, fontWeight: FontWeight.w700, color: kDark)),
+                            const Text('Change Date', style: TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w700, color: kDark)),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 14),
-                    const Text('Select Time Slot', style: TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w700, color: kDark)),
+                    const Text('Select Time Slot', style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w700, color: kDark)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -250,8 +250,8 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                           selectedColor: kLime,
                           backgroundColor: kField,
                           labelStyle: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                            fontFamily: 'Outfit',
+                            fontWeight: isSel ? FontWeight.w600 : FontWeight.w500,
                             color: kDark,
                           ),
                         );
@@ -262,7 +262,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                       controller: reasonController,
                       decoration: InputDecoration(
                         hintText: 'Reason for rescheduling (optional)',
-                        hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+                        hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
                         filled: true,
                         fillColor: kField,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -292,7 +292,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Confirm Reschedule', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: kLime)),
+                        child: const Text('Confirm Reschedule', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kLime)),
                       ),
                     ),
                   ],
@@ -314,7 +314,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
         return AlertDialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          title: const Text('Cancel Session?', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800)),
+          title: const Text('Cancel Session?', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,7 +335,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Keep Session', style: TextStyle(fontFamily: 'Poppins', color: kGrey)),
+              child: const Text('Keep Session', style: TextStyle(fontFamily: 'Outfit', color: kGrey)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
@@ -350,7 +350,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                 );
                 if (mounted) setState(() => _loading = false);
               },
-              child: const Text('Cancel Session', style: TextStyle(fontFamily: 'Syne', color: Colors.white, fontWeight: FontWeight.w700)),
+              child: const Text('Cancel Session', style: TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w500)),
             ),
           ],
         );
@@ -422,7 +422,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                     Text(
                       b.displayClientName,
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (15.0 * sf).clamp(13.0, 17.0),
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -437,7 +437,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                           Text(
                             b.clientPhone!,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.0 * sf).clamp(9.5, 12.0),
                               color: kGrey,
                             ),
@@ -490,7 +490,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                                       ? 'Completed'
                                       : (isCancelled ? 'Cancelled' : 'Rejected')))),
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
                         color: isPending
@@ -529,7 +529,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                   child: Text(
                     '${b.startTime} - ${b.endTime}  •  ${_formatDate(b.sessionDate)}',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (12.0 * sf).clamp(10.5, 13.0),
                       fontWeight: FontWeight.w600,
                       color: kDark,
@@ -554,7 +554,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                       child: Text(
                         b.displayWorkoutType,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.5 * sf).clamp(10.0, 12.5),
                           fontWeight: FontWeight.w500,
                           color: kDark,
@@ -577,7 +577,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                         child: Text(
                           b.meetingLocation!,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.5 * sf).clamp(10.0, 12.5),
                             color: kGrey,
                           ),
@@ -597,7 +597,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
             Text(
               'Athlete Note: "${b.notes}"',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (11.0 * sf).clamp(9.5, 12.0),
                 fontStyle: FontStyle.italic,
                 color: kGrey,
@@ -633,8 +633,8 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                         label: const Text(
                           'Reject',
                           style: TextStyle(
-                            fontFamily: 'Syne',
-                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Outfit',
+                            fontWeight: FontWeight.w500,
                             fontSize: 12.5,
                             color: Color(0xFFE53935),
                           ),
@@ -661,8 +661,8 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                           label: const Text(
                             'Accept Session',
                             style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w500,
                               fontSize: 12.5,
                               color: kDark,
                             ),
@@ -702,7 +702,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                       icon: const Icon(Iconsax.calendar_edit, size: 13, color: kDark),
                       label: const Text(
                         'Reschedule',
-                        style: TextStyle(fontFamily: 'Syne', fontSize: 11, fontWeight: FontWeight.w700, color: kDark),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w500, color: kDark),
                       ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: kBorder),
@@ -718,7 +718,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                       icon: const Icon(Icons.close_rounded, size: 14, color: Color(0xFFDC2626)),
                       label: const Text(
                         'Cancel',
-                        style: TextStyle(fontFamily: 'Syne', fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFDC2626)),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFFDC2626)),
                       ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFFFCA5A5)),
@@ -739,7 +739,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                       icon: const Icon(Icons.check_rounded, size: 14, color: kDark),
                       label: const Text(
                         'Complete',
-                        style: TextStyle(fontFamily: 'Syne', fontSize: 11, fontWeight: FontWeight.w700, color: kDark),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w500, color: kDark),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: kLime,
@@ -770,7 +770,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                     child: Text(
                       'Workout session completed & recorded.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF15803D),
@@ -798,7 +798,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                     child: Text(
                       'This session was cancelled.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF6B7280),
@@ -825,7 +825,7 @@ class _TrainerSessionCardState extends State<TrainerSessionCard> {
                     child: Text(
                       'Session request was rejected.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFFC62828),

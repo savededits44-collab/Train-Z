@@ -42,9 +42,9 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
         title: Text(
           'Payment History',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 21.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -85,7 +85,7 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
                       padding: const EdgeInsets.all(24),
                       child: Text(
                         'Failed to load payment history: ${snapshot.error}',
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Color(0xFFDC2626)),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFFDC2626)),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -134,7 +134,7 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: 11.5,
             fontWeight: FontWeight.w600,
             color: isSelected ? kLime : const Color(0xFF4B5563),
@@ -179,9 +179,9 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
                       child: Text(
                         item.displayPackageName,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (15.0 * sf).clamp(13.5, 17.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -190,9 +190,9 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
                     Text(
                       '₹${item.amount}',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (16.0 * sf).clamp(14.5, 18.5),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: kDark,
                       ),
                     ),
@@ -203,14 +203,14 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
                   children: [
                     Text(
                       '${item.sessionsCount ?? 1} Sessions',
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey, fontWeight: FontWeight.w500),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(width: 8),
                     const Text('•', style: TextStyle(color: kGrey)),
                     const SizedBox(width: 8),
                     Text(
                       _formatDate(item.createdAt),
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
                     ),
                   ],
                 ),
@@ -222,7 +222,7 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
                       const SizedBox(width: 4),
                       Text(
                         'Coach: ${item.trainerName}',
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey, fontWeight: FontWeight.w500),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -236,7 +236,7 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
                   children: [
                     Text(
                       'ID: ${item.razorpayPaymentId ?? item.gatewayOrderId ?? item.id.substring(0, 8)}',
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: kGrey),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: kGrey),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -251,9 +251,9 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
                       child: Text(
                         item.status.toFirestore(),
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 9.5,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: isSuccess
                               ? const Color(0xFF15803D)
                               : isFailed
@@ -291,16 +291,16 @@ class _ClientPaymentHistoryScreenState extends State<ClientPaymentHistoryScreen>
             Text(
               'No Payment Records',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (17.0 * sf).clamp(15.0, 20.0),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
               ),
             ),
             const SizedBox(height: 6),
             const Text(
               'When you purchase training packages, receipts and payment records will appear here.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
               textAlign: TextAlign.center,
             ),
           ],

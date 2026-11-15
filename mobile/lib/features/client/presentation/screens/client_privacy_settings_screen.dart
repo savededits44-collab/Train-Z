@@ -30,9 +30,9 @@ class ClientPrivacySettingsScreen extends StatelessWidget {
         title: Text(
           'Privacy & Data Protection',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -47,7 +47,7 @@ class ClientPrivacySettingsScreen extends StatelessWidget {
             Text(
               'Your privacy is fundamental to the TRAIN Z coaching model. We ensure total transparency in how your data is handled.',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (12.0 * sf).clamp(11.0, 13.5),
                 color: const Color(0xFF4B5563),
               ),
@@ -123,7 +123,7 @@ class ClientPrivacySettingsScreen extends StatelessWidget {
                 icon: const Icon(Iconsax.document_text, size: 18, color: kDark),
                 label: const Text(
                   'View Complete Privacy Policy',
-                  style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+                  style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 13, color: kDark),
                 ),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Color(0xFFD1D5DB)),
@@ -153,7 +153,7 @@ class ClientPrivacySettingsScreen extends StatelessWidget {
                 icon: const Icon(Iconsax.trash, size: 18, color: Color(0xFFDC2626)),
                 label: const Text(
                   'Request Account Deletion',
-                  style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFFDC2626)),
+                  style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 13, color: Color(0xFFDC2626)),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFEF2F2),
@@ -204,9 +204,9 @@ class ClientPrivacySettingsScreen extends StatelessWidget {
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (13.5 * sf).clamp(12.5, 15.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                   ),
                 ),
@@ -222,7 +222,7 @@ class ClientPrivacySettingsScreen extends StatelessWidget {
                   child: Text(
                     badge,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: badgeColor ?? const Color(0xFF16A34A),
@@ -236,7 +236,7 @@ class ClientPrivacySettingsScreen extends StatelessWidget {
           Text(
             description,
             style: const TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 11.5,
               height: 1.5,
               color: Color(0xFF4B5563),

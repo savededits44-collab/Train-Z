@@ -64,16 +64,16 @@ class _ClientAccountDeletionScreenState
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Final Confirmation',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: kDanger, fontSize: 18),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: kDanger, fontSize: 18),
         ),
         content: const Text(
           'This action cannot be undone. Your active sessions will be cancelled, your credentials deleted, and personal files erased.',
-          style: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: Color(0xFF4B5563)),
+          style: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: Color(0xFF4B5563)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Keep Account', style: TextStyle(fontFamily: 'Poppins', color: Color(0xFF6B7280))),
+            child: const Text('Keep Account', style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF6B7280))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -83,7 +83,7 @@ class _ClientAccountDeletionScreenState
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               elevation: 0,
             ),
-            child: const Text('Yes, Delete', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+            child: const Text('Yes, Delete', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -112,10 +112,10 @@ class _ClientAccountDeletionScreenState
         builder: (ctx) => AlertDialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Account Deleted', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: kDark, fontSize: 18)),
+          title: const Text('Account Deleted', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: kDark, fontSize: 18)),
           content: const Text(
             'Your account and personal data have been removed. Thank you for being a part of TRAIN Z.',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Color(0xFF4B5563)),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFF4B5563)),
           ),
           actions: [
             ElevatedButton(
@@ -127,7 +127,7 @@ class _ClientAccountDeletionScreenState
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: kDark, foregroundColor: Colors.white),
-              child: const Text('Continue', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+              child: const Text('Continue', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
             ),
           ],
         ),
@@ -159,9 +159,9 @@ class _ClientAccountDeletionScreenState
         title: Text(
           'Delete Account',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDanger,
           ),
         ),
@@ -194,8 +194,8 @@ class _ClientAccountDeletionScreenState
                           Text(
                             'Irreversible Account Action',
                             style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontWeight: FontWeight.w800,
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w600,
                               fontSize: (14.0 * sf).clamp(13.0, 15.5),
                               color: kDanger,
                             ),
@@ -203,7 +203,7 @@ class _ClientAccountDeletionScreenState
                           const SizedBox(height: 4),
                           const Text(
                             'Deleting your account permanently revokes your access to TRAIN Z and purges your profile data.',
-                            style: TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFF7F1D1D)),
+                            style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFF7F1D1D)),
                           ),
                         ],
                       ),
@@ -227,7 +227,7 @@ class _ClientAccountDeletionScreenState
                   children: [
                     Text(
                       'What happens when you delete your account:',
-                      style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 13, color: kDark),
+                      style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13, color: kDark),
                     ),
                     SizedBox(height: 10),
                     _DeletionBullet(
@@ -263,7 +263,7 @@ class _ClientAccountDeletionScreenState
                       Expanded(
                         child: Text(
                           _errorMessage!,
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kDanger),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kDanger),
                         ),
                       ),
                     ],
@@ -276,7 +276,7 @@ class _ClientAccountDeletionScreenState
               _buildInputLabel('Reason for Leaving (Optional)', sf),
               TextFormField(
                 controller: _reasonController,
-                style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
                 decoration: _buildInputDecoration(
                   hint: 'Help us understand how we can improve...',
                   icon: Iconsax.edit_2,
@@ -291,10 +291,10 @@ class _ClientAccountDeletionScreenState
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 validator: (v) => (v == null || v.isEmpty) ? 'Current password is required to verify identity.' : null,
-                style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
                 decoration: InputDecoration(
                   hintText: 'Enter your current account password',
-                  hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFFA0A0A0)),
+                  hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFFA0A0A0)),
                   prefixIcon: const Icon(Iconsax.key, size: 18, color: kDark),
                   suffixIcon: IconButton(
                     icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, size: 18, color: const Color(0xFF6B7280)),
@@ -323,7 +323,7 @@ class _ClientAccountDeletionScreenState
                   }
                   return null;
                 },
-                style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 14, color: kDanger, letterSpacing: 1.2),
+                style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14, color: kDanger, letterSpacing: 1.2),
                 decoration: _buildInputDecoration(
                   hint: 'Type DELETE here',
                   icon: Iconsax.danger,
@@ -350,7 +350,7 @@ class _ClientAccountDeletionScreenState
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                       : const Text(
                           'Permanently Delete My Account',
-                          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 14),
+                          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14),
                         ),
                 ),
               ),
@@ -368,9 +368,9 @@ class _ClientAccountDeletionScreenState
       child: Text(
         label,
         style: TextStyle(
-          fontFamily: 'Syne',
+          fontFamily: 'Outfit',
           fontSize: (12.0 * sf).clamp(11.0, 13.5),
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
           color: kDark,
         ),
       ),
@@ -380,7 +380,7 @@ class _ClientAccountDeletionScreenState
   InputDecoration _buildInputDecoration({required String hint, required IconData icon}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFFA0A0A0)),
+      hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFFA0A0A0)),
       prefixIcon: Icon(icon, size: 18, color: kDark),
       filled: true,
       fillColor: Colors.white,
@@ -404,11 +404,11 @@ class _DeletionBullet extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('• ', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: kDanger, fontSize: 14)),
+          const Text('• ', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: kDanger, fontSize: 14)),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, height: 1.5, color: Color(0xFF4B5563)),
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, height: 1.5, color: Color(0xFF4B5563)),
             ),
           ),
         ],

@@ -68,7 +68,7 @@ class _TrainerPrivacyDocumentsScreenState
         title: const Text(
           'Privacy & Certificate Documents',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -96,7 +96,7 @@ class _TrainerPrivacyDocumentsScreenState
                     Text(
                       'Document Privacy Guarantee',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -108,7 +108,7 @@ class _TrainerPrivacyDocumentsScreenState
                 const Text(
                   '• Full certificate files, diplomas, and government IDs are kept strictly private in encrypted storage.\n• Only platform administrators and you have access to raw files.\n• Clients and athletes ONLY see approved qualification titles, issuing organizations, and years of completion.\n• Private storage links are never exposed to the public.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12,
                     color: _kGrey,
                     height: 1.5,
@@ -127,7 +127,7 @@ class _TrainerPrivacyDocumentsScreenState
               const Text(
                 'Submitted Certificates',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -144,7 +144,7 @@ class _TrainerPrivacyDocumentsScreenState
                 icon: const Icon(Iconsax.add_circle, color: _kLime, size: 16),
                 label: const Text(
                   'Upload / Manage',
-                  style: TextStyle(fontFamily: 'Syne', fontSize: 12, color: _kLime, fontWeight: FontWeight.w700),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kLime, fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -183,7 +183,7 @@ class _TrainerPrivacyDocumentsScreenState
                       const Text(
                         'No Certificates Submitted',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -193,7 +193,7 @@ class _TrainerPrivacyDocumentsScreenState
                       const Text(
                         'Upload qualifications to upgrade to Advanced Trainer and unlock custom plans.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: _kGrey),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kGrey),
                       ),
                       const SizedBox(height: 14),
                       ElevatedButton(
@@ -211,7 +211,7 @@ class _TrainerPrivacyDocumentsScreenState
                         },
                         child: const Text(
                           'Upload First Certificate',
-                          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700),
+                          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500),
                         ),
                       ),
                     ],
@@ -253,7 +253,7 @@ class _TrainerPrivacyDocumentsScreenState
                                   Text(
                                     cert.certificateName,
                                     style: const TextStyle(
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Outfit',
                                       fontSize: 14,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
@@ -263,7 +263,7 @@ class _TrainerPrivacyDocumentsScreenState
                                   Text(
                                     '${cert.issuingOrganization} • ${cert.yearOfCompletion}',
                                     style: const TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: 12,
                                       color: _kGrey,
                                     ),
@@ -281,9 +281,9 @@ class _TrainerPrivacyDocumentsScreenState
                               child: Text(
                                 cert.verificationStatus.displayName.toUpperCase(),
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 9.5,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w600,
                                   color: statusColor,
                                 ),
                               ),
@@ -309,7 +309,7 @@ class _TrainerPrivacyDocumentsScreenState
                                   child: Text(
                                     'Admin Feedback: ${cert.rejectionReason}',
                                     style: const TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: 11.5,
                                       color: Colors.white,
                                     ),

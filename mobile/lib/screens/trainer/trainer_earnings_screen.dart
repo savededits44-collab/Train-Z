@@ -93,7 +93,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
         title: const Text(
           'Earnings & Payouts',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -112,8 +112,8 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
           indicatorWeight: 3,
           labelColor: _kLime,
           unselectedLabelColor: Colors.white60,
-          labelStyle: const TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w700),
-          unselectedLabelStyle: const TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w500),
+          labelStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w500),
+          unselectedLabelStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w500),
           tabs: const [
             Tab(text: 'Overview & History'),
             Tab(text: 'Payout Batches'),
@@ -175,7 +175,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                   const Text(
                     'Session Earnings History',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -186,12 +186,12 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                   // Search Bar
                   TextField(
                     controller: _searchCtrl,
-                    style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 13),
+                    style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 13),
                     onChanged: (val) => setState(() => _searchQuery = val),
                     decoration: InputDecoration(
                       hintText: 'Search by client, package, or reference...',
                       hintStyle: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 12.5,
                         color: Colors.white.withValues(alpha: 0.35),
                       ),
@@ -288,7 +288,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                           const Text(
                             'No Earnings Records Found',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                               color: Colors.white70,
@@ -299,7 +299,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                             'Earnings are generated automatically whenever scheduled training sessions are completed with verified clients.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 12,
                               color: _kGrey,
                             ),
@@ -348,7 +348,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                   Text(
                     'Commission Rate Pending Configuration',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFFF59E0B),
@@ -358,7 +358,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                   Text(
                     'Platform commission percentage is currently pending administrator publication. Payout calculations will finalize once updated.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       color: Colors.white70,
                     ),
@@ -394,7 +394,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
             child: Text(
               'TRAIN Z Platform Fee: ${_summary.formattedCommissionRate} • Transparent & Automated',
               style: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -437,9 +437,9 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 11.5,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: _kLime,
                         letterSpacing: 1.1,
                       ),
@@ -455,7 +455,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                     child: Text(
                       '${_summary.completedSessionsCount} Sessions',
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: _kLime,
@@ -468,9 +468,9 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
               Text(
                 _summary.formattedNetEarnings,
                 style: const TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 32,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                   letterSpacing: -0.5,
                 ),
@@ -479,7 +479,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
               Text(
                 'Calculated as Gross Revenue minus ${_summary.formattedCommissionRate} platform fee for completed sessions.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 11,
                   color: Colors.white.withValues(alpha: 0.6),
                 ),
@@ -567,7 +567,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11.5,
                     color: _kGrey,
                     fontWeight: FontWeight.w500,
@@ -582,9 +582,9 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
           Text(
             value,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: 18,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: color,
             ),
           ),
@@ -592,7 +592,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
           Text(
             subtitle,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 10,
               color: Colors.white.withValues(alpha: 0.45),
             ),
@@ -616,9 +616,9 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 11.5,
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
             color: isSelected ? _kDark : Colors.white70,
           ),
         ),
@@ -640,9 +640,9 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 11.5,
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
             color: isSelected ? _kDark : Colors.white70,
           ),
         ),
@@ -675,7 +675,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                     Text(
                       tx.clientName,
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -685,7 +685,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                     Text(
                       'Ref: ${tx.id}  •  Booking: ${tx.bookingRef}',
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 10.5,
                         color: _kGrey,
                       ),
@@ -703,7 +703,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                 child: Text(
                   tx.payoutStatus.displayTitle,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                     color: statusColor,
@@ -721,7 +721,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
               const SizedBox(width: 4),
               Text(
                 '${tx.formattedSessionDate}  •  ${tx.formattedTimeSlot}',
-                style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Colors.white70),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Colors.white70),
               ),
             ],
           ),
@@ -733,7 +733,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
               Expanded(
                 child: Text(
                   tx.packageName,
-                  style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -748,9 +748,9 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Gross Revenue', style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: _kGrey)),
+                  const Text('Gross Revenue', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, color: _kGrey)),
                   const SizedBox(height: 2),
-                  Text(tx.formattedGross, style: const TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
+                  Text(tx.formattedGross, style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
                 ],
               ),
               Column(
@@ -758,23 +758,23 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                 children: [
                   Text(
                     'Fee (${tx.commissionRatePercent ?? 15}%)',
-                    style: const TextStyle(fontFamily: 'Poppins', fontSize: 10, color: _kGrey),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: _kGrey),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '-${tx.formattedCommission}',
-                    style: const TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFFF59E0B)),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFFF59E0B)),
                   ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text('Trainer Net', style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: _kLime)),
+                  const Text('Trainer Net', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, color: _kLime)),
                   const SizedBox(height: 2),
                   Text(
                     tx.formattedNet,
-                    style: const TextStyle(fontFamily: 'Syne', fontSize: 15, fontWeight: FontWeight.w800, color: _kLime),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 15, fontWeight: FontWeight.w600, color: _kLime),
                   ),
                 ],
               ),
@@ -792,7 +792,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
               ),
               child: Text(
                 'Refunded: ${tx.refundReason}',
-                style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Colors.redAccent),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Colors.redAccent),
               ),
             ),
           ],
@@ -823,7 +823,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                   const Text(
                     'No Payout Records Yet',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
                       color: Colors.white70,
@@ -834,7 +834,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                     'Eligible session earnings are aggregated and disbursed to your registered bank account per the platform settlement cycle.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
                       color: _kGrey,
                     ),
@@ -872,7 +872,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                           Text(
                             po.id,
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -881,7 +881,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                           const SizedBox(height: 2),
                           Text(
                             'Initiated: ${po.formattedDate}',
-                            style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                            style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
                           ),
                         ],
                       ),
@@ -895,7 +895,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                         child: Text(
                           po.status.displayTitle,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: statusColor,
@@ -911,14 +911,14 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Disbursed Amount', style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey)),
+                          const Text('Disbursed Amount', style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey)),
                           const SizedBox(height: 2),
                           Text(
                             po.formattedAmount,
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 20,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: _kLime,
                             ),
                           ),
@@ -927,11 +927,11 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text('Sessions Settled', style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey)),
+                          const Text('Sessions Settled', style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey)),
                           const SizedBox(height: 2),
                           Text(
                             '${po.transactionCount} sessions',
-                            style: const TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
+                            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
                           ),
                         ],
                       ),
@@ -945,13 +945,13 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                         const SizedBox(width: 6),
                         Text(
                           '${po.bankName ?? "Bank Transfer"} •••• ${po.bankAccountLast4}',
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Colors.white70),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Colors.white70),
                         ),
                         if (po.utrNumber != null) ...[
                           const Spacer(),
                           Text(
                             'UTR: ${po.utrNumber}',
-                            style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: _kGrey),
+                            style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: _kGrey),
                           ),
                         ],
                       ],
@@ -975,7 +975,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                             child: Text(
                               'Failure Reason: ${po.failureReason}',
                               style: const TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 11,
                                 color: Colors.redAccent,
                               ),
@@ -1033,7 +1033,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                           Text(
                             'Bank Account Settlement',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -1043,7 +1043,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                           Text(
                             'Direct electronic bank transfer (NEFT/RTGS/IMPS)',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               color: _kGrey,
                             ),
@@ -1057,7 +1057,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                 const Text(
                   'Verified Payout Channels',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -1067,7 +1067,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                 const Text(
                   'TRAIN Z settles trainer payouts directly into verified Indian banking institutions. Sensitive financial credentials are authenticated through secure banking partner APIs and verified by Platform Administrators during trainer onboarding.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11.5,
                     color: Colors.white70,
                     height: 1.5,
@@ -1088,7 +1088,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                         child: Text(
                           'Zero Banking Credentials Stored On Device. Payout accounts are encrypted and managed in accordance with RBI and platform security guidelines.',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             color: _kGrey,
                           ),
@@ -1115,7 +1115,7 @@ class _TrainerEarningsScreenState extends State<TrainerEarningsScreen> with Sing
                 Text(
                   'Payout Settlement Rules',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -1171,9 +1171,9 @@ class _SettlementBullet extends StatelessWidget {
             child: Text(
               number,
               style: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 11,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: _kLime,
               ),
             ),
@@ -1183,7 +1183,7 @@ class _SettlementBullet extends StatelessWidget {
             child: Text(
               text,
               style: const TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 11.5,
                 color: Colors.white70,
                 height: 1.4,

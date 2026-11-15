@@ -269,9 +269,9 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
                   Text(
                     'Client Schedule',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (22.0 * sf).clamp(18.0, 26.0),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: kDark,
                       letterSpacing: -0.5,
                     ),
@@ -280,7 +280,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
                   Text(
                     'Track client packages, remaining sessions, and schedule.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.5 * sf).clamp(10.0, 13.0),
                       color: kGrey,
                     ),
@@ -317,7 +317,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
                   Text(
                     pendingCount > 0 ? '$pendingCount New' : 'Live Sync',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (10.5 * sf).clamp(9.5, 12.0),
                       fontWeight: FontWeight.w700,
                       color: pendingCount > 0 ? const Color(0xFFE65100) : const Color(0xFF2E7D32),
@@ -352,7 +352,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
                     Text(
                       'All Bookings',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (11.0 * sf).clamp(10.0, 12.5),
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -383,7 +383,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
                     Text(
                       'Working Hours',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (11.0 * sf).clamp(10.0, 12.5),
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -486,7 +486,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
               Text(
                 label,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.5 * sf).clamp(10.0, 13.0),
                   fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                   color: active ? Colors.white : const Color(0xFF666666),
@@ -552,7 +552,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
                       title,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (13.0 * sf).clamp(11.5, 14.5),
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -590,9 +590,9 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
               child: Text(
                 'Today',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.0 * sf).clamp(9.5, 12.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                 ),
               ),
@@ -657,7 +657,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
                   Text(
                     _weekdayAbbr(dt.weekday),
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 10,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                       color: isSelected ? const Color(0xFFBBBBBB) : kGrey,
@@ -667,9 +667,9 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
                   Text(
                     '${dt.day}',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: isSelected ? kLime : kDark,
                     ),
                   ),
@@ -719,7 +719,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
                   day,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: kGrey,
@@ -769,9 +769,9 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
                       Text(
                         '$dayNumber',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
                           color: isSelected ? kLime : kDark,
                         ),
                       ),
@@ -811,10 +811,10 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
           child: TextField(
             controller: _searchController,
             onChanged: (val) => setState(() => _searchQuery = val.trim()),
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
             decoration: InputDecoration(
               hintText: 'Search client by name, phone, or goal...',
-              hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFFAAAAAA)),
+              hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFFAAAAAA)),
               prefixIcon: const Icon(Iconsax.search_normal_1, size: 16, color: kGrey),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
@@ -903,7 +903,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (11.0 * sf).clamp(9.5, 12.0),
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 color: selected ? Colors.white : kDark,
@@ -933,7 +933,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (10.5 * sf).clamp(9.5, 11.5),
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             color: selected ? kDark : kGrey,
@@ -950,7 +950,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
         Text(
           'Scheduled Clients ($count)',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (14.0 * sf).clamp(12.5, 16.0),
             fontWeight: FontWeight.w700,
             color: kDark,
@@ -959,7 +959,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
         Text(
           'Tap card for full client details',
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: 10.5,
             color: kGrey,
           ),
@@ -984,7 +984,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
           Text(
             'No clients found for this view',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (14.0 * sf).clamp(12.5, 16.0),
               fontWeight: FontWeight.w700,
               color: kDark,
@@ -995,7 +995,7 @@ class _TrainerScheduleSectionState extends State<TrainerScheduleSection> {
             'Try selecting another date, clearing search keywords, or relaxing status filters.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.5 * sf).clamp(10.0, 13.0),
               color: kGrey,
             ),
@@ -1128,9 +1128,9 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                   child: Text(
                     b.displayClientName.isNotEmpty ? b.displayClientName[0].toUpperCase() : 'C',
                     style: const TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 17,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: kLime,
                     ),
                   ),
@@ -1150,7 +1150,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (15.0 * sf).clamp(13.5, 17.0),
                               fontWeight: FontWeight.w700,
                               color: kDark,
@@ -1167,7 +1167,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                             ),
                             child: const Text(
                               'REQUEST',
-                              style: TextStyle(fontFamily: 'Syne', fontSize: 8.5, fontWeight: FontWeight.w800, color: Colors.white),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 8.5, fontWeight: FontWeight.w600, color: Colors.white),
                             ),
                           ),
                         ],
@@ -1179,7 +1179,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (11.0 * sf).clamp(10.0, 12.0),
                         color: kGrey,
                       ),
@@ -1203,7 +1203,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                     Text(
                       '${b.startTime} - ${b.endTime}',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (10.5 * sf).clamp(9.5, 12.0),
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -1230,7 +1230,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                   Text(
                     b.resolvedPackageName,
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (12.0 * sf).clamp(10.5, 13.0),
                       fontWeight: FontWeight.w700,
                       color: kDark,
@@ -1257,7 +1257,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                     Text(
                       healthText,
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: badgeColor,
@@ -1275,7 +1275,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
           Text(
             'Start: ${_formatDate(b.resolvedStartDate)}  •  Expiry: ${_formatDate(b.resolvedExpiryDate)}',
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (10.5 * sf).clamp(9.5, 11.5),
               color: kGrey,
             ),
@@ -1290,7 +1290,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
               Text(
                 'Remaining Sessions',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (11.0 * sf).clamp(10.0, 12.0),
                   fontWeight: FontWeight.w500,
                   color: kGrey,
@@ -1300,9 +1300,9 @@ class _TrainerClientScheduleCard extends StatelessWidget {
               Text(
                 b.remainingFractionNumbers,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (13.5 * sf).clamp(12.0, 15.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                 ),
               ),
@@ -1341,7 +1341,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (10.5 * sf).clamp(9.5, 11.5),
                       color: kGrey,
                     ),
@@ -1353,7 +1353,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                   Text(
                     'Details',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.0),
                       fontWeight: FontWeight.w700,
                       color: kDark,
@@ -1415,7 +1415,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
       SnackBar(
         content: Text(
           'Contact number $p copied to clipboard for dialing!',
-          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+          style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
         ),
         backgroundColor: kDark,
         behavior: SnackBarBehavior.floating,
@@ -1433,7 +1433,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
       SnackBar(
         content: Text(
           'Booking accepted for ${widget.booking.displayClientName}!',
-          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w600),
         ),
         backgroundColor: const Color(0xFF16A34A),
         behavior: SnackBarBehavior.floating,
@@ -1451,7 +1451,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
       SnackBar(
         content: Text(
           'Session request for ${widget.booking.displayClientName} declined.',
-          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+          style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
         ),
         backgroundColor: const Color(0xFFDC2626),
         behavior: SnackBarBehavior.floating,
@@ -1469,7 +1469,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
       SnackBar(
         content: Text(
           'Attendance recorded! Session marked complete for ${widget.booking.displayClientName}.',
-          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w600),
         ),
         backgroundColor: const Color(0xFF16A34A),
         behavior: SnackBarBehavior.floating,
@@ -1501,7 +1501,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
       SnackBar(
         content: Text(
           'Session rescheduled to ${pickedDate.day}/${pickedDate.month} for ${widget.booking.displayClientName}.',
-          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w600),
         ),
         backgroundColor: const Color(0xFF7C3AED),
         behavior: SnackBarBehavior.floating,
@@ -1515,7 +1515,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Cancel Session?', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800)),
+        title: const Text('Cancel Session?', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600)),
         content: Text('Are you sure you want to cancel the session for ${widget.booking.displayClientName}?'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Back')),
@@ -1543,7 +1543,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
       SnackBar(
         content: Text(
           'Session cancelled for ${widget.booking.displayClientName}.',
-          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+          style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
         ),
         backgroundColor: const Color(0xFFDC2626),
         behavior: SnackBarBehavior.floating,
@@ -1608,9 +1608,9 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                       child: Text(
                         b.displayClientName.isNotEmpty ? b.displayClientName[0].toUpperCase() : 'C',
                         style: const TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 24,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w500,
                           color: kLime,
                         ),
                       ),
@@ -1624,9 +1624,9 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         Text(
                           b.displayClientName,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -1634,7 +1634,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         Text(
                           'Age: ${b.resolvedAge} yrs  •  ${b.clientPhone ?? "+91 98201 54321"}',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (12.0 * sf).clamp(10.5, 13.0),
                             color: kGrey,
                           ),
@@ -1685,7 +1685,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         Text(
                           'Fitness Goal & Routine',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (13.0 * sf).clamp(11.5, 14.5),
                             fontWeight: FontWeight.w700,
                             color: kDark,
@@ -1696,13 +1696,13 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                     const SizedBox(height: 8),
                     Text(
                       b.resolvedFitnessGoal,
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.w600, color: kDark),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600, color: kDark),
                     ),
                     if (b.notes != null && b.notes!.trim().isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Text(
                         'Notes: ${b.notes!}',
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey),
                       ),
                     ],
                   ],
@@ -1740,9 +1740,9 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                             Text(
                               b.resolvedPackageName,
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (14.5 * sf).clamp(13.0, 16.5),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: kDark,
                               ),
                             ),
@@ -1759,9 +1759,9 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                           child: Text(
                             b.remainingFractionNumbers,
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (13.0 * sf).clamp(11.5, 14.5),
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: kDark,
                             ),
                           ),
@@ -1834,10 +1834,10 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Package Start', style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: kGrey)),
+                              const Text('Package Start', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, color: kGrey)),
                               Text(
                                 _formatFullDate(b.resolvedStartDate),
-                                style: const TextStyle(fontFamily: 'Syne', fontSize: 12, fontWeight: FontWeight.w700, color: kDark),
+                                style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w700, color: kDark),
                               ),
                             ],
                           ),
@@ -1845,10 +1845,10 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              const Text('Package Expiry', style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: kGrey)),
+                              const Text('Package Expiry', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, color: kGrey)),
                               Text(
                                 _formatFullDate(b.resolvedExpiryDate),
-                                style: TextStyle(fontFamily: 'Syne', fontSize: 12, fontWeight: FontWeight.w700, color: badgeColor),
+                                style: TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w700, color: badgeColor),
                               ),
                             ],
                           ),
@@ -1864,11 +1864,11 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                       children: [
                         const Text(
                           'Attendance & Sessions:',
-                          style: TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey),
                         ),
                         Text(
                           '${b.resolvedSessionsCompleted} / ${b.resolvedTotalSessions} Attended',
-                          style: const TextStyle(fontFamily: 'Syne', fontSize: 12.5, fontWeight: FontWeight.w800, color: kDark),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5, fontWeight: FontWeight.w600, color: kDark),
                         ),
                       ],
                     ),
@@ -1896,7 +1896,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         const SizedBox(width: 6),
                         Text(
                           'Session: ${b.startTime} - ${b.endTime}  •  ${_formatFullDate(b.sessionDate)}',
-                          style: const TextStyle(fontFamily: 'Syne', fontSize: 12.5, fontWeight: FontWeight.w700, color: kDark),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5, fontWeight: FontWeight.w700, color: kDark),
                         ),
                       ],
                     ),
@@ -1915,7 +1915,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                                 ? (b.meetingLocation ?? 'Standard Gym Studio')
                                 : 'Location address hidden until booking is confirmed',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11.5,
                               color: b.status == BookingStatus.confirmed ? kGrey : const Color(0xFFD97706),
                               fontStyle: b.status == BookingStatus.confirmed ? FontStyle.normal : FontStyle.italic,
@@ -1949,7 +1949,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                           child: const Center(
                             child: Text(
                               'Decline',
-                              style: TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFDC2626)),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFDC2626)),
                             ),
                           ),
                         ),
@@ -1969,7 +1969,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                           child: const Center(
                             child: Text(
                               'Accept Request',
-                              style: TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w700, color: kLime),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w700, color: kLime),
                             ),
                           ),
                         ),
@@ -2001,7 +2001,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         SizedBox(width: 8),
                         Text(
                           'Mark Session Attended & Complete',
-                          style: TextStyle(fontFamily: 'Syne', fontSize: 13.5, fontWeight: FontWeight.w700, color: Colors.white),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 13.5, fontWeight: FontWeight.w700, color: Colors.white),
                         ),
                       ],
                     ),
@@ -2016,7 +2016,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         icon: const Icon(Iconsax.calendar_edit, size: 14, color: kDark),
                         label: const Text(
                           'Reschedule',
-                          style: TextStyle(fontFamily: 'Syne', fontSize: 12, fontWeight: FontWeight.w700, color: kDark),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w500, color: kDark),
                         ),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: kBorder),
@@ -2032,7 +2032,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         icon: const Icon(Icons.close_rounded, size: 14, color: Color(0xFFDC2626)),
                         label: const Text(
                           'Cancel Session',
-                          style: TextStyle(fontFamily: 'Syne', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFDC2626)),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFDC2626)),
                         ),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Color(0xFFFCA5A5)),
@@ -2090,9 +2090,9 @@ class _MetricDetailBox extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (11.5 * sf).clamp(10.0, 13.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: valueColor ?? kDark,
             ),
           ),
@@ -2101,7 +2101,7 @@ class _MetricDetailBox extends StatelessWidget {
             label,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 9.5,
               color: kGrey,
             ),
@@ -2132,9 +2132,9 @@ class _StatMiniItem extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (16.0 * sf).clamp(14.0, 19.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: color,
           ),
         ),
@@ -2142,7 +2142,7 @@ class _StatMiniItem extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (9.5 * sf).clamp(8.5, 11.0),
             color: kGrey,
           ),

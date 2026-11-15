@@ -63,7 +63,7 @@ class _TrainerNotificationsScreenState
       const SnackBar(
         content: Text(
           'All notifications marked as read',
-          style: TextStyle(fontFamily: 'Poppins', fontSize: 13),
+          style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
         ),
         backgroundColor: _kCardSubBg,
         behavior: SnackBarBehavior.floating,
@@ -232,7 +232,7 @@ class _TrainerNotificationsScreenState
         title: const Text(
           'Notification Centre',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -300,9 +300,9 @@ class _TrainerNotificationsScreenState
                           Text(
                             '${allNotifications.length}',
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 13,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
@@ -310,7 +310,7 @@ class _TrainerNotificationsScreenState
                           const Text(
                             'Total',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               color: _kGrey,
                             ),
@@ -345,7 +345,7 @@ class _TrainerNotificationsScreenState
                             Text(
                               '$unreadCount Unread',
                               style: const TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: _kLime,
@@ -374,9 +374,9 @@ class _TrainerNotificationsScreenState
                         label: const Text(
                           'Mark all read',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: _kLime,
                           ),
                         ),
@@ -425,10 +425,10 @@ class _TrainerNotificationsScreenState
                           Text(
                             cat.displayName,
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 12,
                               fontWeight:
-                                  isSelected ? FontWeight.w800 : FontWeight.w600,
+                                  isSelected ? FontWeight.w600 : FontWeight.w600,
                               color: isSelected ? _kDark : Colors.white,
                             ),
                           ),
@@ -448,7 +448,7 @@ class _TrainerNotificationsScreenState
                               child: Text(
                                 '$count',
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: isSelected ? _kDark : _kGrey,
@@ -513,7 +513,7 @@ class _TrainerNotificationsScreenState
                   ? 'No Notifications'
                   : 'No ${_selectedCategory.displayName} Notifications',
               style: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -526,7 +526,7 @@ class _TrainerNotificationsScreenState
                   : 'You have no notifications under ${_selectedCategory.displayName.toLowerCase()} right now.',
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 13,
                 color: _kGrey,
                 height: 1.4,
@@ -573,7 +573,7 @@ class _TrainerNotificationsScreenState
           SnackBar(
             content: const Text(
               'Notification removed',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 13),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
             ),
             backgroundColor: _kCardSubBg,
             behavior: SnackBarBehavior.floating,
@@ -627,7 +627,7 @@ class _TrainerNotificationsScreenState
                             child: Text(
                               item.title,
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 14,
                                 fontWeight: item.isRead
                                     ? FontWeight.w600
@@ -653,7 +653,7 @@ class _TrainerNotificationsScreenState
                       Text(
                         item.body,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12.5,
                           color: Colors.white70,
                           height: 1.35,
@@ -665,7 +665,7 @@ class _TrainerNotificationsScreenState
                           Text(
                             item.formattedDate,
                             style: const TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               color: _kGrey,
                             ),
@@ -685,7 +685,7 @@ class _TrainerNotificationsScreenState
                               child: Text(
                                 referenceLabel,
                                 style: const TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
                                   color: _kLime,
@@ -697,7 +697,7 @@ class _TrainerNotificationsScreenState
                           Text(
                             item.categoryEnum.displayName,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 10.5,
                               color: catColor,
                               fontWeight: FontWeight.w600,

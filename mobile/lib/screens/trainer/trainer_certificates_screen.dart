@@ -78,7 +78,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
           backgroundColor: Colors.redAccent,
           content: Text(
             'Verified certificates cannot be deleted. They are preserved for platform audit requirements.',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 13),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
           ),
         ),
       );
@@ -92,11 +92,11 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Delete Certificate?',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700),
         ),
         content: Text(
           'Are you sure you want to remove "${certificate.certificateName}"? This action cannot be undone.',
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.black87),
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.black87),
         ),
         actions: [
           TextButton(
@@ -122,7 +122,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: kDark,
-              content: Text('Certificate deleted successfully.', style: TextStyle(fontFamily: 'Poppins')),
+              content: Text('Certificate deleted successfully.', style: TextStyle(fontFamily: 'Outfit')),
             ),
           );
         }
@@ -131,7 +131,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.redAccent,
-              content: Text('Error: $e', style: const TextStyle(fontFamily: 'Poppins')),
+              content: Text('Error: $e', style: const TextStyle(fontFamily: 'Outfit')),
             ),
           );
         }
@@ -153,9 +153,9 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
         title: const Text(
           'Certificates & Qualifications',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             color: kDark,
           ),
         ),
@@ -209,9 +209,9 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kDark,
                             letterSpacing: 0.5,
                           ),
@@ -222,7 +222,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                         Text(
                           '${eligibility.verifiedCertificatesCount} Verified',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: eligibility.verifiedCertificatesCount > 0
@@ -267,9 +267,9 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
             label: const Text(
               'Upload Certificate',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 15,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: kDark,
               ),
             ),
@@ -337,9 +337,9 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 14,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                         ),
                       ),
@@ -362,7 +362,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                     Text(
                       badgeText,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: badgeColor,
@@ -379,7 +379,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                 ? 'Advanced Trainer requires relevant professional trainer certificates and at least 3.5 years of experience. Verified by Admin.'
                 : 'Standard Trainer requires at least one beginner-level trainer certificate submitted for Admin verification.',
             style: const TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 12.5,
               color: Color(0xFF555555),
               height: 1.4,
@@ -405,7 +405,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                   child: Text(
                     eligibility.message,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: kDark,
@@ -437,7 +437,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
             child: Text(
               'Private & Secure: Full certificates and documents are accessible ONLY to you and TRAIN Z administrators. Clients never see your raw documents or download links.',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 11.5,
                 color: Color(0xFF166534),
                 height: 1.4,
@@ -535,7 +535,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                               Text(
                                 cert.fileType.toUpperCase(),
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: isPdf ? Colors.redAccent : const Color(0xFF0284C7),
@@ -548,7 +548,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                         Text(
                           cert.formattedFileSize,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             color: kGrey,
                           ),
@@ -569,7 +569,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                           Text(
                             cert.verificationStatus.displayName,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: statusColor,
@@ -586,7 +586,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                 Text(
                   cert.certificateName,
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -598,7 +598,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                 Text(
                   '${cert.courseName} • ${cert.issuingOrganization}',
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 13,
                     color: Color(0xFF444444),
                   ),
@@ -609,7 +609,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                 Text(
                   'Completed in ${cert.yearOfCompletion}',
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12,
                     color: kGrey,
                   ),
@@ -620,7 +620,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                   Text(
                     cert.qualificationDetails!,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
                       color: Color(0xFF666666),
                     ),
@@ -646,7 +646,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                       Text(
                         cert.isRejected ? 'Admin Rejection Feedback' : 'Admin Resubmission Request',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: statusColor,
@@ -660,7 +660,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                         cert.adminReviewNotes ??
                         'Please upload a clearer copy of your official certificate for verification.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
                       color: statusColor.withValues(alpha: 0.9),
                     ),
@@ -686,9 +686,9 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                     label: const Text(
                       'Replace / Resubmit',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 12,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: kDark,
                       ),
                     ),
@@ -701,7 +701,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                       Text(
                         cert.isVerified ? 'Publicly Verified' : 'Under Review',
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           color: kGrey,
                         ),
@@ -745,7 +745,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
             const Text(
               'No Certificates Uploaded',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: kDark,
@@ -758,7 +758,7 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
                   : 'Submit at least one beginner-level trainer certificate for Admin verification.',
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 13,
                 color: kGrey,
                 height: 1.4,
@@ -771,8 +771,8 @@ class _TrainerCertificatesScreenState extends State<TrainerCertificatesScreen> {
               label: const Text(
                 'Upload First Certificate',
                 style: TextStyle(
-                  fontFamily: 'Syne',
-                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Outfit',
+                  fontWeight: FontWeight.w500,
                   color: kDark,
                 ),
               ),
@@ -943,7 +943,7 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
               widget.certificateToReplace != null
                   ? 'Certificate resubmitted for Admin review.'
                   : 'Certificate uploaded successfully. Pending Admin verification.',
-              style: const TextStyle(fontFamily: 'Poppins', color: kLime),
+              style: const TextStyle(fontFamily: 'Outfit', color: kLime),
             ),
           ),
         );
@@ -954,7 +954,7 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.redAccent,
-            content: Text('Submission failed: $e', style: const TextStyle(fontFamily: 'Poppins')),
+            content: Text('Submission failed: $e', style: const TextStyle(fontFamily: 'Outfit')),
           ),
         );
       }
@@ -994,7 +994,7 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
               Text(
                 isReplace ? 'Replace / Resubmit Certificate' : 'Upload Certificate',
                 style: const TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -1003,7 +1003,7 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
               const SizedBox(height: 6),
               const Text(
                 'Upload your professional certification document (PDF or image). Max 10 MB.',
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
               ),
               const SizedBox(height: 20),
 
@@ -1042,7 +1042,7 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Outfit',
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
                                       color: kDark,
@@ -1052,7 +1052,7 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
                                   Text(
                                     '${(_pickedFile!.size / (1024 * 1024)).toStringAsFixed(2)} MB • Tap to replace',
                                     style: const TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: 11,
                                       color: kGrey,
                                     ),
@@ -1070,7 +1070,7 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
                             const Text(
                               'Choose Document or Image',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: kDark,
@@ -1080,7 +1080,7 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
                             const Text(
                               'Supported formats: PDF, JPG, PNG, WebP (up to 10 MB)',
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 11,
                                 color: kGrey,
                               ),
@@ -1095,7 +1095,7 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
                 Text(
                   _fileValidationError!,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11,
                     color: Colors.redAccent,
                   ),
@@ -1166,7 +1166,7 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
                   child: Text(
                     'Encrypting & Uploading (${(_uploadProgress * 100).toInt()}%)...',
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
                       color: kDark,
                     ),
@@ -1189,9 +1189,9 @@ class _CertificateUploadSheetState extends State<_CertificateUploadSheet> {
                       ? 'Uploading...'
                       : (isReplace ? 'Resubmit for Verification' : 'Submit for Verification'),
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: kLime,
                   ),
                 ),

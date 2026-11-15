@@ -209,9 +209,9 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                           Text(
                             'Filters',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: kDark,
                             ),
                           ),
@@ -222,8 +222,8 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                         child: const Text(
                           'Reset All',
                           style: TextStyle(
-                            fontFamily: 'Syne',
-                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Outfit',
+                            fontWeight: FontWeight.w500,
                             color: Color(0xFFDC2626),
                             fontSize: 13,
                           ),
@@ -253,7 +253,7 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                       title: Text(
                         'Available Slots Only',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (13.5 * sf).clamp(12.5, 15.0),
                           fontWeight: FontWeight.w700,
                           color: kDark,
@@ -261,7 +261,7 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                       ),
                       subtitle: const Text(
                         'Show only trainers with open booking slots.',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
                       ),
                       onChanged: (val) {
                         HapticFeedback.selectionClick();
@@ -285,7 +285,7 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                           selectedColor: kDark,
                           backgroundColor: const Color(0xFFF7F7F7),
                           labelStyle: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.0 * sf).clamp(10.0, 12.5),
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                             color: isSelected ? Colors.white : kDark,
@@ -325,7 +325,7 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                           selectedColor: kDark,
                           backgroundColor: const Color(0xFFF7F7F7),
                           labelStyle: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.0 * sf).clamp(10.0, 12.5),
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                             color: isSelected ? Colors.white : kDark,
@@ -381,7 +381,7 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                                   child: Text(
                                     exp,
                                     style: TextStyle(
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Outfit',
                                       fontSize: (11.0 * sf).clamp(10.0, 12.5),
                                       fontWeight: FontWeight.w700,
                                       color: isSelected ? Colors.white : kDark,
@@ -428,7 +428,7 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                                   child: Text(
                                     label,
                                     style: TextStyle(
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Outfit',
                                       fontSize: (11.0 * sf).clamp(10.0, 12.5),
                                       fontWeight: FontWeight.w700,
                                       color: isSelected ? kLime : kDark,
@@ -458,11 +458,11 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                         child: DropdownButton<String?>(
                           value: _cityId,
                           isExpanded: true,
-                          hint: Text('Current City (${LocationService.instance.currentCityName})', style: const TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                          hint: Text('Current City (${LocationService.instance.currentCityName})', style: const TextStyle(fontFamily: 'Outfit', fontSize: 13)),
                           items: [
                             DropdownMenuItem<String?>(
                               value: null,
-                              child: Text('Current City (${LocationService.instance.currentCityName})', style: const TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                              child: Text('Current City (${LocationService.instance.currentCityName})', style: const TextStyle(fontFamily: 'Outfit', fontSize: 13)),
                             ),
                             ...LocationService.instance.allCities.map((city) {
                               return DropdownMenuItem<String?>(
@@ -473,7 +473,7 @@ class _TrainerFilterSheetState extends State<TrainerFilterSheet> {
                                       ? '${city.name} (${city.state})'
                                       : '${city.name} (${city.state}) - Coming Soon',
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: 13,
                                     color: city.isActive ? kDark : const Color(0xFF999999),
                                   ),
@@ -526,9 +526,9 @@ class _FilterSectionTitle extends StatelessWidget {
     return Text(
       title,
       style: TextStyle(
-        fontFamily: 'Syne',
+        fontFamily: 'Outfit',
         fontSize: (11.0 * sf).clamp(10.0, 12.5),
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
         color: const Color(0xFF888888),
         letterSpacing: 0.8,
       ),

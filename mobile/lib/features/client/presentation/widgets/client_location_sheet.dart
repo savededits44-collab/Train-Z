@@ -81,7 +81,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
         SnackBar(
           content: Text(
             '${inactiveCity.name} is scheduled for future platform expansion. Service is not yet available in this city.',
-            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
           ),
           backgroundColor: const Color(0xFF1E1E24),
           behavior: SnackBarBehavior.floating,
@@ -113,7 +113,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
         SnackBar(
           content: Text(
             'Location updated to ${locService.currentFormattedLocation}! Showing trainers in your area.',
-            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
           ),
           backgroundColor: const Color(0xFF16A34A),
           behavior: SnackBarBehavior.floating,
@@ -178,9 +178,9 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -189,7 +189,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.5 * sf).clamp(10.5, 13.0),
                             color: kGrey,
                           ),
@@ -205,9 +205,9 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
               Text(
                 'PLATFORM LOCATIONS',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: const Color(0xFF888888),
                   letterSpacing: 0.8,
                 ),
@@ -227,7 +227,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                         SnackBar(
                           content: Text(
                             '${city.name} will be available in upcoming expansion. Training services will launch here soon.',
-                            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
                           ),
                           duration: const Duration(seconds: 2),
                           backgroundColor: const Color(0xFF1E1E24),
@@ -275,7 +275,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                                   Text(
                                     city.name,
                                     style: TextStyle(
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Outfit',
                                       fontSize: (13.5 * sf).clamp(12.5, 15.0),
                                       fontWeight: FontWeight.w700,
                                       color: isActive ? kDark : const Color(0xFF888888),
@@ -293,7 +293,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                                       child: const Text(
                                         'Coming Soon',
                                         style: TextStyle(
-                                          fontFamily: 'Poppins',
+                                          fontFamily: 'Outfit',
                                           fontSize: 9.5,
                                           fontWeight: FontWeight.w600,
                                           color: Color(0xFF6B7280),
@@ -307,7 +307,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                                     ? '${city.state} • Active Launch City'
                                     : '${city.state} • Expansion Phase',
                                 style: TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: (10.5 * sf).clamp(9.5, 12.0),
                                   color: isActive ? kGrey : const Color(0xFFAAAAAA),
                                 ),
@@ -325,7 +325,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                             child: const Text(
                               'Active',
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 color: kDark,
@@ -343,9 +343,9 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
               Text(
                 'PREFERRED WORKOUT VENUE',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: const Color(0xFF888888),
                   letterSpacing: 0.8,
                 ),
@@ -364,7 +364,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
                     selectedColor: kDark,
                     backgroundColor: const Color(0xFFF7F7F7),
                     labelStyle: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.5 * sf).clamp(10.5, 13.0),
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                       color: isSelected ? Colors.white : kDark,

@@ -48,9 +48,9 @@ class _ClientNotificationPreferencesScreenState
         title: Text(
           'Notification Preferences',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -73,7 +73,7 @@ class _ClientNotificationPreferencesScreenState
                 Text(
                   'Choose which notifications you wish to receive. We prioritize your focus and only send vital personal training alerts.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(11.0, 13.5),
                     color: const Color(0xFF4B5563),
                   ),
@@ -108,19 +108,19 @@ class _ClientNotificationPreferencesScreenState
                               children: [
                                 Text(
                                   'Account Security Alerts',
-                                  style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 12.5, color: kDark),
+                                  style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 12.5, color: kDark),
                                 ),
                                 SizedBox(width: 6),
                                 Text(
                                   '(Mandatory)',
-                                  style: TextStyle(fontFamily: 'Poppins', fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF16A34A)),
+                                  style: TextStyle(fontFamily: 'Outfit', fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF16A34A)),
                                 ),
                               ],
                             ),
                             SizedBox(height: 2),
                             Text(
                               'Password changes, logins from new devices, and transaction invoices are always delivered for security compliance.',
-                              style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Color(0xFF6B7280)),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF6B7280)),
                             ),
                           ],
                         ),
@@ -137,9 +137,9 @@ class _ClientNotificationPreferencesScreenState
                   child: Text(
                     'SESSION & BOOKING CHANNELS',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: const Color(0xFF6B7280),
                       letterSpacing: 0.8,
                     ),
@@ -193,9 +193,9 @@ class _ClientNotificationPreferencesScreenState
                   child: Text(
                     'PAYMENTS & PLATFORM',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: const Color(0xFF6B7280),
                       letterSpacing: 0.8,
                     ),
@@ -265,7 +265,7 @@ class _ClientNotificationPreferencesScreenState
                       Expanded(
                         child: Text(
                           'Preferences are synchronized across your devices in real-time. Disabled categories will be suppressed immediately.',
-                          style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Color(0xFF6B7280)),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF6B7280)),
                         ),
                       ),
                     ],
@@ -302,11 +302,11 @@ class _ClientNotificationPreferencesScreenState
       ),
       title: Text(
         title,
-        style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+        style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
       ),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF6B7280)),
+        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF6B7280)),
       ),
     );
   }

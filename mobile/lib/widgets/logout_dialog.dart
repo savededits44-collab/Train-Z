@@ -49,9 +49,9 @@ Future<void> showLogoutDialog(BuildContext context, {bool isTrainer = false}) as
               Text(
                 'Log Out',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                 ),
               ),
@@ -60,7 +60,7 @@ Future<void> showLogoutDialog(BuildContext context, {bool isTrainer = false}) as
                 'Are you sure you want to log out of your TRAIN Z account?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.0 * sf).clamp(11.0, 14.0),
                   color: kGrey,
                 ),
@@ -81,9 +81,9 @@ Future<void> showLogoutDialog(BuildContext context, {bool isTrainer = false}) as
                       child: Text(
                         'Cancel',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (13.0 * sf).clamp(11.0, 14.0),
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: kDark,
                         ),
                       ),
@@ -105,9 +105,9 @@ Future<void> showLogoutDialog(BuildContext context, {bool isTrainer = false}) as
                       child: Text(
                         'Log Out',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (13.0 * sf).clamp(11.0, 14.0),
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: Colors.white,
                         ),
                       ),

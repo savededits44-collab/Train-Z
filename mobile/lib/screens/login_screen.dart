@@ -262,9 +262,9 @@ class _LoginScreenState extends State<LoginScreen>
                 Text(
                   'Welcome\nback.',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: headingSize,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                     height: 1.15,
                   ),
@@ -275,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen>
                 Text(
                   'Sign in to access your workouts & sessions.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: subSize,
                     fontWeight: FontWeight.w400,
                     color: kGrey,
@@ -331,7 +331,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: Text(
                       'Forgot password?',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: subSize - 1,
                         fontWeight: FontWeight.w500,
                         color: kDark,
@@ -365,7 +365,7 @@ class _LoginScreenState extends State<LoginScreen>
                       Text(
                         "Don't have an account?  ",
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: subSize - 1,
                           color: kGrey,
                         ),
@@ -381,9 +381,9 @@ class _LoginScreenState extends State<LoginScreen>
                         child: Text(
                           'Sign up',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: subSize - 1,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: kDark,
                             decoration: TextDecoration.underline,
                           ),

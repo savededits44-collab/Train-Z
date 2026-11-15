@@ -283,9 +283,9 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
         title: Text(
           'Payment Summary',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (16.0 * sf).clamp(15.0, 18.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -334,7 +334,7 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
                       child: Text(
                         _errorMessage!,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
                           color: Color(0xFFB91C1C),
                           fontWeight: FontWeight.w500,
@@ -374,7 +374,7 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
                       Text(
                         'FINAL AMOUNT',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (10.0 * sf).clamp(9.0, 11.0),
                           fontWeight: FontWeight.w600,
                           color: kGrey,
@@ -383,9 +383,9 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
                       Text(
                         '₹${widget.plan.price}',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (22.0 * sf).clamp(19.0, 24.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                         ),
                       ),
@@ -414,7 +414,7 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
                                 const SizedBox(width: 8),
                                 Text(
                                   _isVerifying ? 'Verifying...' : 'Preparing...',
-                                  style: const TextStyle(fontFamily: 'Syne', fontSize: 13, color: kLime, fontWeight: FontWeight.w700),
+                                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kLime, fontWeight: FontWeight.w700),
                                 ),
                               ],
                             )
@@ -428,9 +428,9 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
                                   Text(
                                     'Pay ₹${widget.plan.price} (Razorpay)',
                                     style: TextStyle(
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Outfit',
                                       fontSize: (13.5 * sf).clamp(12.5, 15.0),
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w600,
                                       color: kLime,
                                     ),
                                   ),
@@ -458,7 +458,7 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
                           Text(
                             'Test Mode Simulation (Instant Sandbox Verification)',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.0 * sf).clamp(10.0, 11.5),
                               color: const Color(0xFFB45309),
                               fontWeight: FontWeight.w600,
@@ -496,9 +496,9 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
               Text(
                 widget.plan.title,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (17.0 * sf).clamp(15.0, 20.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                 ),
               ),
@@ -510,7 +510,7 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
                 ),
                 child: Text(
                   '₹${widget.plan.price}',
-                  style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 13, color: kDark),
+                  style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 13, color: kDark),
                 ),
               ),
             ],
@@ -518,7 +518,7 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
           const SizedBox(height: 6),
           Text(
             widget.plan.description,
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey, height: 1.35),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey, height: 1.35),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
@@ -563,15 +563,15 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
               children: [
                 const Text(
                   'LINKED FIRST SESSION',
-                  style: TextStyle(fontFamily: 'Syne', fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF15803D)),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF15803D)),
                 ),
                 Text(
                   '${b.sessionDate.day} ${_getShortMonth(b.sessionDate.month)} • ${b.startTime} - ${b.endTime}',
-                  style: const TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w700, color: kDark),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w700, color: kDark),
                 ),
                 Text(
                   b.meetingLocation ?? 'Selected Location',
-                  style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -597,9 +597,9 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
           Text(
             'PRICE BREAKDOWN',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (11.5 * sf).clamp(10.5, 13.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: kDark,
             ),
           ),
@@ -611,8 +611,8 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total Payable', style: TextStyle(fontFamily: 'Syne', fontSize: 14, fontWeight: FontWeight.w800, color: kDark)),
-              Text('₹${widget.plan.price}', style: const TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w800, color: kDark)),
+              const Text('Total Payable', style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w600, color: kDark)),
+              Text('₹${widget.plan.price}', style: const TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w600, color: kDark)),
             ],
           ),
         ],
@@ -642,9 +642,9 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                   ),
                 ),
@@ -676,7 +676,7 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
       ),
       child: Text(
         title,
-        style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF374151)),
+        style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF374151)),
       ),
     );
   }
@@ -698,7 +698,7 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
           Expanded(
             child: Text(
               '256-Bit Encrypted Razorpay Gateway. Backend signature verification & idempotency guards prevent duplicate billing.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Color(0xFF64748B), height: 1.4),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF64748B), height: 1.4),
             ),
           ),
         ],
@@ -712,8 +712,8 @@ class _ClientPaymentScreenState extends State<ClientPaymentScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey)),
-          Text(value, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, fontWeight: FontWeight.w600, color: kDark)),
+          Text(label, style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey)),
+          Text(value, style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w600, color: kDark)),
         ],
       ),
     );

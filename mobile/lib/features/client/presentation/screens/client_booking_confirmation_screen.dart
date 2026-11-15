@@ -151,15 +151,15 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Cancel Reservation?', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800)),
+        title: const Text('Cancel Reservation?', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600)),
         content: const Text(
           'Releasing this reservation will free up the time slot for other athletes.',
-          style: TextStyle(fontFamily: 'Poppins', fontSize: 13),
+          style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Keep Slot', style: TextStyle(fontFamily: 'Poppins', color: kDark)),
+            child: const Text('Keep Slot', style: TextStyle(fontFamily: 'Outfit', color: kDark)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -167,7 +167,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
               backgroundColor: const Color(0xFFDC2626),
               elevation: 0,
             ),
-            child: const Text('Release Slot', style: TextStyle(fontFamily: 'Poppins', color: Colors.white)),
+            child: const Text('Release Slot', style: TextStyle(fontFamily: 'Outfit', color: Colors.white)),
           ),
         ],
       ),
@@ -226,9 +226,9 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           title: Text(
             isConfirmed ? 'Booking Confirmed' : 'Checkout & Hold',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (18.0 * sf).clamp(16.0, 21.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w500,
               color: kDark,
             ),
           ),
@@ -273,7 +273,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                   ),
                   child: Text(
                     _statusMessage!,
-                    style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFFB91C1C)),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFFB91C1C)),
                   ),
                 ),
               ],
@@ -313,7 +313,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: const Text('Home Dashboard', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark)),
+                          child: const Text('Home Dashboard', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark)),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -336,7 +336,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             elevation: 0,
                           ),
-                          child: const Text('View in My Bookings', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: kLime)),
+                          child: const Text('View in My Bookings', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kLime)),
                         ),
                       ),
                     ],
@@ -352,7 +352,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: const Text('Select Another Slot', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800)),
+                          child: const Text('Select Another Slot', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
                         ),
                       )
                     : StreamBuilder<SessionCreditModel?>(
@@ -390,9 +390,9 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                                               Text(
                                                 'Confirm with 1 Credit (${creditModel.availableBalance} Available)',
                                                 style: TextStyle(
-                                                  fontFamily: 'Syne',
+                                                  fontFamily: 'Outfit',
                                                   fontSize: (14.0 * sf).clamp(12.5, 16.0),
-                                                  fontWeight: FontWeight.w800,
+                                                  fontWeight: FontWeight.w600,
                                                   color: kDark,
                                                 ),
                                               ),
@@ -412,7 +412,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                                     ),
                                     child: Text(
                                       'Pay ₹${widget.plan.price} Online Instead',
-                                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.w600, color: kDark),
+                                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w500, color: kDark),
                                     ),
                                   ),
                                 ),
@@ -436,9 +436,9 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                                         Text(
                                           'Pay ₹${widget.plan.price} & Confirm',
                                           style: TextStyle(
-                                            fontFamily: 'Syne',
+                                            fontFamily: 'Outfit',
                                             fontSize: (14.5 * sf).clamp(13.0, 16.5),
-                                            fontWeight: FontWeight.w800,
+                                            fontWeight: FontWeight.w600,
                                             color: kLime,
                                           ),
                                         ),
@@ -454,7 +454,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                                     : const Text(
                                         'Cancel & Release Slot',
-                                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFFDC2626), fontWeight: FontWeight.w600),
+                                        style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFFDC2626), fontWeight: FontWeight.w600),
                                       ),
                               ),
                             ],
@@ -491,9 +491,9 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           Text(
             'Booking Confirmed!',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (20.0 * sf).clamp(18.0, 24.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: const Color(0xFF14532D),
             ),
           ),
@@ -501,7 +501,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           Text(
             'Payment verified. Your trainer is notified & scheduled.',
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.5 * sf).clamp(10.5, 13.0),
               color: const Color(0xFF166534),
             ),
@@ -518,9 +518,9 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
             child: Text(
               'REF: ${_currentBooking.id.toUpperCase()}',
               style: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 11,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w500,
                 color: Color(0xFF15803D),
                 letterSpacing: 0.8,
               ),
@@ -554,7 +554,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                 ),
                 child: const Text(
                   'SLOT TEMPORARILY RESERVED',
-                  style: TextStyle(fontFamily: 'Syne', fontSize: 9.5, fontWeight: FontWeight.w800, color: Colors.white),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 9.5, fontWeight: FontWeight.w600, color: Colors.white),
                 ),
               ),
               Row(
@@ -564,9 +564,9 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                   Text(
                     _formattedCountdown,
                     style: const TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 14,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: Color(0xFFB45309),
                     ),
                   ),
@@ -578,9 +578,9 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           Text(
             'Booking Not Yet Confirmed',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (17.0 * sf).clamp(15.0, 20.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: const Color(0xFF92400E),
             ),
           ),
@@ -588,7 +588,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           Text(
             'Your time slot is held for 15 minutes. Complete payment to confirm the appointment. If unpaid, the slot automatically releases.',
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.0 * sf).clamp(10.0, 12.5),
               color: const Color(0xFF78350F),
               height: 1.4,
@@ -616,12 +616,12 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           const SizedBox(height: 8),
           const Text(
             'Reservation Expired',
-            style: TextStyle(fontFamily: 'Syne', fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF991B1B)),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF991B1B)),
           ),
           const SizedBox(height: 4),
           const Text(
             'The 15-minute checkout window has elapsed and the time slot was released.',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFF7F1D1D)),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFF7F1D1D)),
             textAlign: TextAlign.center,
           ),
         ],
@@ -663,15 +663,15 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                     Text(
                       widget.trainer.displayName,
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (14.5 * sf).clamp(13.0, 16.5),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: kDark,
                       ),
                     ),
                     Text(
                       'Personal Trainer',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
                     ),
                   ],
                 ),
@@ -685,9 +685,9 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                 child: Text(
                   isConfirmed ? 'CONFIRMED' : 'RESERVED',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 10,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: isConfirmed ? const Color(0xFF15803D) : const Color(0xFFB45309),
                   ),
                 ),
@@ -722,11 +722,11 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
             children: [
               Text(
                 'Selected Package',
-                style: TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w800, color: kDark),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600, color: kDark),
               ),
               Text(
                 widget.plan.title,
-                style: TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w800, color: kDark),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600, color: kDark),
               ),
             ],
           ),
@@ -738,8 +738,8 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total Amount', style: TextStyle(fontFamily: 'Syne', fontSize: 14, fontWeight: FontWeight.w800, color: kDark)),
-              Text('₹${widget.plan.price}', style: const TextStyle(fontFamily: 'Syne', fontSize: 17, fontWeight: FontWeight.w800, color: kDark)),
+              const Text('Total Amount', style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w600, color: kDark)),
+              Text('₹${widget.plan.price}', style: const TextStyle(fontFamily: 'Outfit', fontSize: 17, fontWeight: FontWeight.w600, color: kDark)),
             ],
           ),
         ],
@@ -763,13 +763,13 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
             children: [
               Icon(Iconsax.shield_tick, size: 16, color: Color(0xFF2563EB)),
               SizedBox(width: 8),
-              Text('Privacy & Policy Terms', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 11.5, color: kDark)),
+              Text('Privacy & Policy Terms', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 11.5, color: kDark)),
             ],
           ),
           SizedBox(height: 6),
           Text(
             '• Exact residential address is kept private and accessible only to your assigned trainer.\n• Cancel at least 12 hours prior to start time to retain session credit.\n• Platform credit allocation is processed upon verified payment.',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Color(0xFF555555), height: 1.45),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF555555), height: 1.45),
           ),
         ],
       ),
@@ -786,8 +786,8 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: kGrey)),
-              Text(value, style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: FontWeight.w600, color: kDark)),
+              Text(label, style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: kGrey)),
+              Text(value, style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w600, color: kDark)),
             ],
           ),
         ),
@@ -801,8 +801,8 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey)),
-          Text(value, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, fontWeight: FontWeight.w600, color: kDark)),
+          Text(label, style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey)),
+          Text(value, style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w600, color: kDark)),
         ],
       ),
     );

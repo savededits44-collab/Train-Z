@@ -146,9 +146,9 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
                               ? widget.conversation.trainerName[0].toUpperCase()
                               : 'T',
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             color: kLime,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             fontSize: 15,
                           ),
                         )
@@ -179,16 +179,16 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (14.5 * sf).clamp(13.5, 16.0),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: kDark,
                     ),
                   ),
                   Text(
                     'Personal Trainer • Active',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (10.0 * sf).clamp(9.5, 11.5),
                       color: const Color(0xFF16A34A),
                       fontWeight: FontWeight.w600,
@@ -215,7 +215,7 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
                 Text(
                   'Verified',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (10.5 * sf).clamp(9.5, 11.5),
                     fontWeight: FontWeight.w600,
                     color: kDark,
@@ -247,7 +247,7 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
                     'Private 1-on-1 Fitness Chat for booked training sessions.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (10.0 * sf).clamp(9.0, 11.0),
                       color: const Color(0xFF166534),
                       fontWeight: FontWeight.w500,
@@ -324,7 +324,7 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
                     widget.conversation.trainerName.isNotEmpty
                         ? widget.conversation.trainerName[0].toUpperCase()
                         : 'T',
-                    style: const TextStyle(fontFamily: 'Syne', fontSize: 28, color: kLime, fontWeight: FontWeight.w800),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 28, color: kLime, fontWeight: FontWeight.w600),
                   )
                 : null,
           ),
@@ -332,9 +332,9 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
           Text(
             widget.conversation.trainerName,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (18.0 * sf).clamp(16.0, 20.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: kDark,
             ),
           ),
@@ -342,7 +342,7 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
           Text(
             'Personal Trainer',
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (12.0 * sf).clamp(11.0, 13.0),
               color: kGrey,
             ),
@@ -362,7 +362,7 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
                 Text(
                   'Connected for Training',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (13.5 * sf).clamp(12.5, 15.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -373,7 +373,7 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
                   'Use this channel to coordinate session locations, discuss workout preferences, or notify your trainer about scheduling updates.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (11.0 * sf).clamp(10.0, 12.0),
                     color: const Color(0xFF6B7280),
                     height: 1.4,
@@ -418,7 +418,7 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (10.0 * sf).clamp(9.0, 11.0),
             color: const Color(0xFF4B5563),
             fontWeight: FontWeight.w600,
@@ -462,7 +462,7 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
             Text(
               msg.text,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (12.5 * sf).clamp(11.5, 14.0),
                 color: isMe ? Colors.white : const Color(0xFF111827),
                 height: 1.35,
@@ -475,7 +475,7 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
                 Text(
                   timeStr,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (9.0 * sf).clamp(8.5, 10.0),
                     color: isMe ? Colors.white60 : const Color(0xFF9CA3AF),
                   ),
@@ -526,14 +526,14 @@ class _ClientChatScreenState extends State<ClientChatScreen> {
                 maxLines: 4,
                 minLines: 1,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (12.5 * sf).clamp(11.5, 14.0),
                   color: kDark,
                 ),
                 decoration: const InputDecoration(
                   hintText: 'Type a message...',
                   hintStyle: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12.5,
                     color: Color(0xFF9CA3AF),
                   ),

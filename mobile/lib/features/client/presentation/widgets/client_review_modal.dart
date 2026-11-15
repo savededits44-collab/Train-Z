@@ -134,7 +134,7 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
             widget.existingReview != null
                 ? 'Review updated successfully!'
                 : 'Review submitted! Thank you for rating your trainer.',
-            style: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
+            style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600),
           ),
           backgroundColor: const Color(0xFF16A34A),
           behavior: SnackBarBehavior.floating,
@@ -200,9 +200,9 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                                 ? widget.booking.displayTrainerName[0].toUpperCase()
                                 : 'T',
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               color: kLime,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                             ),
                           )
                         : null,
@@ -215,9 +215,9 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                         Text(
                           isEditing ? 'Edit Session Review' : 'Rate Your Training Session',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (16.0 * sf).clamp(15.0, 18.0),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -225,7 +225,7 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                         Text(
                           '${widget.booking.displayTrainerName} • 60-Min Training',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.5 * sf).clamp(10.5, 12.5),
                             color: const Color(0xFF6B7280),
                           ),
@@ -251,9 +251,9 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                     Text(
                       'HOW WAS YOUR WORKOUT?',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: const Color(0xFF888888),
                         letterSpacing: 0.8,
                       ),
@@ -293,7 +293,7 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                       child: Text(
                         _getRatingLabel(_rating),
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFFB45309),
@@ -310,9 +310,9 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
               Text(
                 'WORKOUT HIGHLIGHTS (OPTIONAL)',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: const Color(0xFF888888),
                   letterSpacing: 0.8,
                 ),
@@ -330,7 +330,7 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                     backgroundColor: const Color(0xFFF9FAFB),
                     checkmarkColor: kLime,
                     labelStyle: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.0),
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       color: isSelected ? Colors.white : kDark,
@@ -363,9 +363,9 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
               Text(
                 'WRITTEN FEEDBACK',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: const Color(0xFF888888),
                   letterSpacing: 0.8,
                 ),
@@ -379,7 +379,7 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                 decoration: InputDecoration(
                   hintText: 'Share your coaching experience, form tips received, or workout intensity...',
                   hintStyle: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (11.5 * sf).clamp(10.5, 12.5),
                     color: const Color(0xFF9CA3AF),
                   ),
@@ -399,7 +399,7 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                   ),
                 ),
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (12.0 * sf).clamp(11.0, 13.0),
                   color: kDark,
                 ),
@@ -423,7 +423,7 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                       child: Text(
                         'Athlete Privacy: Published as "Rahul S." (Verified Athlete). Your private home address and personal contact details are never shared.',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (10.0 * sf).clamp(9.0, 11.0),
                           color: const Color(0xFF166534),
                           height: 1.35,
@@ -452,7 +452,7 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                         child: Text(
                           _errorMessage!,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             color: Color(0xFFDC2626),
                           ),
@@ -484,9 +484,9 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                       : Text(
                           isEditing ? 'Update Review' : 'Submit Review',
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 14,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kLime,
                           ),
                         ),

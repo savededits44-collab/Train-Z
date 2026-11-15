@@ -147,7 +147,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
               Expanded(
                 child: Text(
                   'Booking sent! It is now live in the Trainer session requests.',
-                  style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
+                  style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -214,9 +214,9 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                       child: Text(
                         'Book a Session',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (20.0 * sf).clamp(18.0, 24.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                         ),
                       ),
@@ -234,7 +234,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: kDark,
@@ -248,7 +248,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                 Text(
                   'Your session request will instantly show on the trainer\'s live dashboard.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(10.5, 13.0),
                     color: kGrey,
                   ),
@@ -260,7 +260,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                 Text(
                   'Your Name & Mobile',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (13.5 * sf).clamp(12.0, 15.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -298,7 +298,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                 Text(
                   'Select Day',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (13.5 * sf).clamp(12.0, 15.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -337,7 +337,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                                 Text(
                                   dayLabel,
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w700,
                                     color: selected ? Colors.white : kDark,
@@ -347,7 +347,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                                 Text(
                                   'Nov ${target.day}',
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: 10.5,
                                     color: selected
                                         ? Colors.white.withValues(alpha: 0.7)
@@ -369,7 +369,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                 Text(
                   'Select Time Slot',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (13.5 * sf).clamp(12.0, 15.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -406,7 +406,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                             Text(
                               _timeSlots[i],
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 11,
                                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                                 color: selected ? Colors.white : kDark,
@@ -425,7 +425,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                 Text(
                   'Workout Focus',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (13.5 * sf).clamp(12.0, 15.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -443,7 +443,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                       selectedColor: kDark,
                       backgroundColor: kField,
                       labelStyle: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11.5,
                         color: selected ? Colors.white : kDark,
                         fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
@@ -466,7 +466,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                 Text(
                   'Training Location / Gym',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (13.5 * sf).clamp(12.0, 15.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -487,7 +487,7 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                 Text(
                   'Notes / Injuries / Specific Goals',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (13.5 * sf).clamp(12.0, 15.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,

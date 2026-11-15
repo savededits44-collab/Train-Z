@@ -106,7 +106,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
         const SnackBar(
           content: Text(
             'Profile photo updated successfully',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 13),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
           ),
           backgroundColor: _kCardSubBg,
           behavior: SnackBarBehavior.floating,
@@ -172,7 +172,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
         ),
         title: const Text(
           'Update Email Address',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
         ),
         content: Form(
           key: dialogFormKey,
@@ -181,12 +181,12 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
             children: [
               const Text(
                 'A verification link will be dispatched to your new address. You must verify it to finalize the update.',
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: _kGrey),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: _kGrey),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: newEmailCtrl,
-                style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'New Email Address',
                   labelStyle: const TextStyle(color: _kGrey),
@@ -269,7 +269,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
         const SnackBar(
           content: Text(
             'Personal details saved successfully',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 13),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
           ),
           backgroundColor: _kCardSubBg,
           behavior: SnackBarBehavior.floating,
@@ -304,9 +304,9 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
         title: const Text(
           'Personal Information',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             color: Colors.white,
           ),
         ),
@@ -332,7 +332,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                                 ? _nameCtrl.text[0].toUpperCase()
                                 : 'T',
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 32,
                               fontWeight: FontWeight.w700,
                               color: _kLime,
@@ -366,7 +366,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
             const Center(
               child: Text(
                 'Tap to update photo (Max 5MB • JPG, PNG)',
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
               ),
             ),
 
@@ -393,7 +393,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                             Text(
                               isAdvanced ? 'Advanced Trainer' : 'Standard Trainer',
                               style: const TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
@@ -409,9 +409,9 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                               child: const Text(
                                 'LOCKED',
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 9,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w600,
                                   color: _kLime,
                                 ),
                               ),
@@ -422,7 +422,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                         const Text(
                           'Account role and coaching tier are designated by platform administration and cannot be modified here.',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             color: _kGrey,
                             height: 1.3,
@@ -441,7 +441,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
             _buildLabel('Full Name'),
             TextFormField(
               controller: _nameCtrl,
-              style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+              style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
               decoration: _inputDecoration('Your official full name', Iconsax.user),
               validator: (v) {
                 if (v == null || v.trim().length < 2) {
@@ -457,7 +457,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
             TextFormField(
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
-              style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+              style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
               decoration: _inputDecoration('+91 98765 43210', Iconsax.call),
               validator: (v) {
                 if (v == null || v.trim().length < 10) {
@@ -473,13 +473,13 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
             TextFormField(
               controller: _emailCtrl,
               readOnly: true,
-              style: const TextStyle(fontFamily: 'Poppins', color: Colors.white70),
+              style: const TextStyle(fontFamily: 'Outfit', color: Colors.white70),
               decoration: _inputDecoration('Email address', Iconsax.sms).copyWith(
                 suffixIcon: TextButton(
                   onPressed: _showUpdateEmailDialog,
                   child: const Text(
                     'Change',
-                    style: TextStyle(fontFamily: 'Syne', color: _kLime, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontFamily: 'Outfit', color: _kLime, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
@@ -499,7 +499,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                 child: DropdownButton<Gender>(
                   value: _selectedGender,
                   dropdownColor: _kCardBg,
-                  hint: const Text('Select gender', style: TextStyle(color: _kGrey, fontFamily: 'Poppins')),
+                  hint: const Text('Select gender', style: TextStyle(color: _kGrey, fontFamily: 'Outfit')),
                   isExpanded: true,
                   icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
                   items: Gender.values.map((g) {
@@ -507,7 +507,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                       value: g,
                       child: Text(
                         g == Gender.male ? 'Male' : 'Female',
-                        style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                        style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
                       ),
                     );
                   }).toList(),
@@ -536,7 +536,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                     Text(
                       _dateOfBirth ?? 'Select Date of Birth',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         color: _dateOfBirth != null ? Colors.white : _kGrey,
                         fontSize: 14,
                       ),
@@ -571,7 +571,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
                     : const Text(
                         'Save Personal Details',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                         ),
@@ -590,9 +590,9 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
       child: Text(
         text,
         style: const TextStyle(
-          fontFamily: 'Syne',
+          fontFamily: 'Outfit',
           fontSize: 13,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
           color: Colors.white,
         ),
       ),
@@ -602,7 +602,7 @@ class _TrainerPersonalInfoScreenState extends State<TrainerPersonalInfoScreen> {
   InputDecoration _inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: _kGrey, fontFamily: 'Poppins', fontSize: 13),
+      hintStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit', fontSize: 13),
       prefixIcon: Icon(icon, color: _kGrey, size: 20),
       filled: true,
       fillColor: _kCardBg,

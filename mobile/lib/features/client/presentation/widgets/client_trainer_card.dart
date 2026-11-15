@@ -98,9 +98,9 @@ class ClientTrainerCard extends StatelessWidget {
                                   ? trainer.displayName[0].toUpperCase()
                                   : 'T',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: kLime,
                               ),
                             )
@@ -118,9 +118,9 @@ class ClientTrainerCard extends StatelessWidget {
                                   trainer.displayName,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: (15.5 * sf).clamp(14.0, 17.5),
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w600,
                                     color: kDark,
                                   ),
                                 ),
@@ -144,7 +144,7 @@ class ClientTrainerCard extends StatelessWidget {
                                   trainer.displayLocation,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: (11.0 * sf).clamp(10.0, 12.5),
                                     color: kGrey,
                                     fontWeight: FontWeight.w500,
@@ -176,9 +176,9 @@ class ClientTrainerCard extends StatelessWidget {
                               Text(
                                 trainer.ratingText,
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w600,
                                   color: const Color(0xFF92400E),
                                 ),
                               ),
@@ -186,7 +186,7 @@ class ClientTrainerCard extends StatelessWidget {
                               Text(
                                 '(${trainer.totalReviews})',
                                 style: TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: (9.5 * sf).clamp(8.5, 11.0),
                                   color: const Color(0xFFB45309),
                                 ),
@@ -226,7 +226,7 @@ class ClientTrainerCard extends StatelessWidget {
                               Text(
                                 trainer.availabilityText,
                                 style: TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: 8.5 * sf,
                                   fontWeight: FontWeight.w600,
                                   color: trainer.hasAvailableSlots
@@ -259,7 +259,7 @@ class ClientTrainerCard extends StatelessWidget {
                       child: Text(
                         trainer.experienceText,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (10.0 * sf).clamp(9.0, 11.5),
                           fontWeight: FontWeight.w700,
                           color: kDark,
@@ -276,7 +276,7 @@ class ClientTrainerCard extends StatelessWidget {
                           child: Text(
                             spec,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (10.0 * sf).clamp(9.0, 11.5),
                               fontWeight: FontWeight.w500,
                               color: const Color(0xFF555555),
@@ -293,7 +293,7 @@ class ClientTrainerCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.5),
                       color: const Color(0xFF666666),
                       height: 1.35,
@@ -312,7 +312,7 @@ class ClientTrainerCard extends StatelessWidget {
                         Text(
                           'Starting from',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (10.0 * sf).clamp(9.0, 11.5),
                             color: kGrey,
                           ),
@@ -320,9 +320,9 @@ class ClientTrainerCard extends StatelessWidget {
                         Text(
                           '₹${trainer.hourlyRate} / Session',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (13.5 * sf).clamp(12.5, 15.0),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -342,9 +342,9 @@ class ClientTrainerCard extends StatelessWidget {
                       child: const Text(
                         'View Profile',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: kDark,
                         ),
                       ),
@@ -357,9 +357,9 @@ class ClientTrainerCard extends StatelessWidget {
                       label: const Text(
                         'Book',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 11.5,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w500,
                           color: kDark,
                         ),
                       ),

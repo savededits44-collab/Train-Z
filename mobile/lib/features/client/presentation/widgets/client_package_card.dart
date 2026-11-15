@@ -78,9 +78,9 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                     Text(
                       widget.plan.title.toUpperCase(),
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (12.0 * sf).clamp(11.0, 13.5),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: isPopular ? const Color(0xFFAAAAAA) : const Color(0xFF888888),
                         letterSpacing: 0.8,
                       ),
@@ -95,9 +95,9 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                         child: const Text(
                           'POPULAR',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 9,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -112,9 +112,9 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                         child: const Text(
                           'BEST VALUE',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 9,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
                         ),
@@ -132,9 +132,9 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                     Text(
                       '₹${widget.plan.price}',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (24.0 * sf).clamp(20.0, 28.0),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: isPopular ? Colors.white : kDark,
                       ),
                     ),
@@ -144,7 +144,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                         '/ ${widget.plan.validityDays} ${widget.plan.validityDays == 1 ? "day" : "days"}',
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.0),
                           color: isPopular ? const Color(0xFFAAAAAA) : kGrey,
                         ),
@@ -167,7 +167,7 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                   child: Text(
                     '₹${widget.plan.pricePerSession.round()} per 60-min session',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (10.0 * sf).clamp(9.0, 11.5),
                       fontWeight: FontWeight.w700,
                       color: isPopular ? kLime : const Color(0xFF15803D),
@@ -216,9 +216,9 @@ class _ClientPackageCardState extends State<ClientPackageCard> {
                 child: Text(
                   'Select Package',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (12.5 * sf).clamp(11.5, 14.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w500,
                     color: isPopular ? kDark : Colors.white,
                   ),
                 ),
@@ -253,7 +253,7 @@ class _FeatureLine extends StatelessWidget {
             text,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.0 * sf).clamp(10.0, 12.5),
               color: isDark ? const Color(0xFFDDDDDD) : const Color(0xFF444444),
             ),

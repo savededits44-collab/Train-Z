@@ -85,7 +85,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                   child: Text(
                     '$unreadCount',
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -116,9 +116,9 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                 Text(
                   'My Bookings',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (20.0 * sf).clamp(18.0, 24.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                   ),
                 ),
@@ -169,14 +169,14 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                       labelColor: kLime,
                       unselectedLabelColor: const Color(0xFF6B7280),
                       labelStyle: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w500,
                       ),
                       unselectedLabelStyle: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                       ),
                       dividerColor: Colors.transparent,
                       padding: const EdgeInsets.all(3),
@@ -252,9 +252,9 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
         title: Text(
           'My Bookings',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -275,7 +275,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                 Text(
                   LocationService.instance.currentFormattedLocation,
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -311,7 +311,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                 ),
                 child: Text(
                   '$count',
-                  style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800),
+                  style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -352,9 +352,9 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                       Text(
                         'SESSION CREDITS',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (10.5 * sf).clamp(9.5, 12.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: const Color(0xFF999999),
                           letterSpacing: 0.8,
                         ),
@@ -370,7 +370,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                     child: Text(
                       '60 Min / Session',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (9.5 * sf).clamp(8.5, 10.5),
                         fontWeight: FontWeight.w700,
                         color: kLime,
@@ -390,9 +390,9 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                         Text(
                           '$available',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (32.0 * sf).clamp(26.0, 38.0),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: Colors.white,
                             height: 1.0,
                           ),
@@ -404,7 +404,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                           child: Text(
                             'Available to Book',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                               color: Color(0xFFD1D5DB),
@@ -457,7 +457,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFFE5E7EB),
@@ -482,7 +482,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                               ? 'Package Expired'
                               : 'Expires ${_formatDate(credits.packageExpiryDate!)} (${credits.daysUntilExpiry}d left)',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: credits.isPackageExpired ? const Color(0xFFFCA5A5) : const Color(0xFF93C5FD),
@@ -510,7 +510,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (10.0 * sf).clamp(9.0, 11.0),
               color: isWarning ? const Color(0xFFFCA5A5) : const Color(0xFF9CA3AF),
             ),
@@ -520,7 +520,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
         Text(
           value,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (11.0 * sf).clamp(10.0, 12.0),
             fontWeight: FontWeight.w700,
             color: isWarning ? const Color(0xFFEF4444) : Colors.white,
@@ -599,7 +599,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                           booking.displayTrainerName.isNotEmpty
                               ? booking.displayTrainerName[0].toUpperCase()
                               : 'C',
-                          style: const TextStyle(fontFamily: 'Syne', color: kLime, fontWeight: FontWeight.w800),
+                          style: const TextStyle(fontFamily: 'Outfit', color: kLime, fontWeight: FontWeight.w600),
                         )
                       : null,
                 ),
@@ -616,9 +616,9 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (14.0 * sf).clamp(13.0, 15.5),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: kDark,
                               ),
                             ),
@@ -632,7 +632,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.0),
                           color: const Color(0xFF6B7280),
                         ),
@@ -657,7 +657,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                 Text(
                   _formatDate(booking.sessionDate),
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (11.5 * sf).clamp(10.5, 12.5),
                     fontWeight: FontWeight.w600,
                     color: kDark,
@@ -669,7 +669,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                 Text(
                   '${booking.startTime} - ${booking.endTime}',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (11.5 * sf).clamp(10.5, 12.5),
                     fontWeight: FontWeight.w600,
                     color: kDark,
@@ -684,7 +684,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                   ),
                   child: const Text(
                     '60 Mins',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 10, fontWeight: FontWeight.w700, color: kDark),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 10, fontWeight: FontWeight.w700, color: kDark),
                   ),
                 ),
               ],
@@ -703,7 +703,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.0),
                       color: const Color(0xFF6B7280),
                     ),
@@ -728,7 +728,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                     Text(
                       '1 Session Credit Consumed',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 10,
                         color: Color(0xFF1D4ED8),
                         fontWeight: FontWeight.w600,
@@ -760,7 +760,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                               Text(
                                 'Reviewed ★ ${review.ratingText}',
                                 style: const TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xFF92400E),
@@ -786,7 +786,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                                   Text(
                                     'Edit Review',
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
                                       color: Color(0xFF92400E),
@@ -815,9 +815,9 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                       label: const Text(
                         'Rate & Review Session',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 11.5,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w500,
                           color: kDark,
                         ),
                       ),
@@ -847,7 +847,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                     Text(
                       '1 Session Credit Returned to Balance',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 10,
                         color: Color(0xFF15803D),
                         fontWeight: FontWeight.w600,
@@ -872,7 +872,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                     Text(
                       '1 Session Credit Forfeited (<12h cancellation)',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 10,
                         color: Color(0xFFB91C1C),
                         fontWeight: FontWeight.w600,
@@ -899,7 +899,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                     Text(
                       'Rescheduled session',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (10.0 * sf).clamp(9.0, 11.0),
                         color: const Color(0xFF92400E),
                         fontWeight: FontWeight.w600,
@@ -917,7 +917,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                 Text(
                   booking.bookingReference,
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF9CA3AF),
@@ -927,7 +927,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
                 Text(
                   '60-Min Training',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 10,
                     color: kGrey.withValues(alpha: 0.8),
                   ),
@@ -986,7 +986,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
       child: Text(
         booking.displayStatus,
         style: TextStyle(
-          fontFamily: 'Poppins',
+          fontFamily: 'Outfit',
           fontSize: 10,
           fontWeight: FontWeight.w700,
           color: fg,
@@ -1012,9 +1012,9 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
           Text(
             title,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (15.0 * sf).clamp(14.0, 17.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: kDark,
             ),
           ),
@@ -1023,7 +1023,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
             subtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.5 * sf).clamp(10.5, 12.5),
               color: kGrey,
               height: 1.4,
@@ -1041,7 +1041,7 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
             ),
             child: const Text(
               'Find a Trainer',
-              style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 13),
+              style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 13),
             ),
           ),
         ],

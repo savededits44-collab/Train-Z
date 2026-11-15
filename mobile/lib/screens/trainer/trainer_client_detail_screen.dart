@@ -95,7 +95,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
         title: const Text(
           'Client Details',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -124,13 +124,13 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
               labelColor: _kLime,
               unselectedLabelColor: _kGrey,
               labelStyle: const TextStyle(
-                fontFamily: 'Syne',
-                fontWeight: FontWeight.w700,
+                fontFamily: 'Outfit',
+                fontWeight: FontWeight.w500,
                 fontSize: 13,
               ),
               unselectedLabelStyle: const TextStyle(
-                fontFamily: 'Syne',
-                fontWeight: FontWeight.w600,
+                fontFamily: 'Outfit',
+                fontWeight: FontWeight.w500,
                 fontSize: 13,
               ),
               tabs: const [
@@ -184,9 +184,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             child: Text(
               client.displayInitial,
               style: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 24,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: _kLime,
               ),
             ),
@@ -202,9 +202,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       child: Text(
                         client.name,
                         style: const TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
                         maxLines: 1,
@@ -227,9 +227,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       child: Text(
                         client.status.displayName.toUpperCase(),
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 10,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: client.isActive ? const Color(0xFF66BB6A) : _kGrey,
                         ),
                       ),
@@ -240,7 +240,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 Text(
                   'Client since ${client.formattedMemberSince}',
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12,
                     color: _kGrey,
                   ),
@@ -255,7 +255,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                         child: Text(
                           client.fitnessGoal!,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
                             color: Color(0xFFCCCCCC),
                           ),
@@ -306,7 +306,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                   const Text(
                     'Training Package',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: _kLime,
@@ -321,7 +321,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     child: Text(
                       '${client.remainingSessions} Sessions Left',
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -334,9 +334,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
               Text(
                 client.packageSummary,
                 style: const TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 16,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
@@ -360,7 +360,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                   Text(
                     '${client.completedSessions} of ${client.totalSessions} completed',
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       color: _kGrey,
                     ),
@@ -370,7 +370,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                         ? '${((client.completedSessions / client.totalSessions) * 100).round()}% complete'
                         : '',
                     style: const TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: _kLime,
@@ -388,9 +388,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
         const Text(
           'Upcoming Sessions',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 16,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
         ),
@@ -407,7 +407,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             child: const Center(
               child: Text(
                 'No upcoming confirmed sessions scheduled.',
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: _kGrey),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: _kGrey),
               ),
             ),
           )
@@ -420,9 +420,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
         const Text(
           'Completed Session History',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 16,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
         ),
@@ -439,7 +439,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             child: const Center(
               child: Text(
                 'No completed sessions on record yet.',
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: _kGrey),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: _kGrey),
               ),
             ),
           )
@@ -487,7 +487,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 Text(
                   dateStr,
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -497,7 +497,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 Text(
                   '$timeStr (60 min) • ${b.packageName ?? "General Session"}',
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12,
                     color: _kGrey,
                   ),
@@ -514,9 +514,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             child: Text(
               isUpcoming ? 'CONFIRMED' : 'COMPLETED',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 10,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: isUpcoming ? const Color(0xFF66BB6A) : _kGrey,
               ),
             ),
@@ -556,7 +556,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     child: Text(
                       'Private training notes are visible exclusively to you. Clients cannot access your notes.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         color: Color(0xFFBBDEFB),
                       ),
@@ -584,7 +584,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     child: Text(
                       'Coaching observations are for workout and form reference only. Do not record medical diagnoses or advice.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         color: _kGrey,
                       ),
@@ -603,8 +603,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
               label: const Text(
                 'Add Private Note',
                 style: TextStyle(
-                  fontFamily: 'Syne',
-                  fontWeight: FontWeight.w800,
+                  fontFamily: 'Outfit',
+                  fontWeight: FontWeight.w500,
                   fontSize: 14,
                   color: _kDark,
                 ),
@@ -634,7 +634,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     const Text(
                       'No Training Notes Yet',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -645,7 +645,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       'Record exercise observations, form feedback, or coaching pointers for this client.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 12,
                         color: _kGrey,
                       ),
@@ -687,9 +687,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 child: Text(
                   note.category.toUpperCase(),
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 10,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: _kLime,
                   ),
                 ),
@@ -699,7 +699,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                   Text(
                     note.formattedCreatedAt,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       color: _kGrey,
                     ),
@@ -723,7 +723,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                           children: [
                             Icon(Iconsax.edit, size: 16, color: Colors.white),
                             SizedBox(width: 8),
-                            Text('Edit Note', style: TextStyle(color: Colors.white, fontFamily: 'Poppins', fontSize: 13)),
+                            Text('Edit Note', style: TextStyle(color: Colors.white, fontFamily: 'Outfit', fontSize: 13)),
                           ],
                         ),
                       ),
@@ -733,7 +733,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                           children: [
                             Icon(Iconsax.trash, size: 16, color: Color(0xFFEF5350)),
                             SizedBox(width: 8),
-                            Text('Delete Note', style: TextStyle(color: Color(0xFFEF5350), fontFamily: 'Poppins', fontSize: 13)),
+                            Text('Delete Note', style: TextStyle(color: Color(0xFFEF5350), fontFamily: 'Outfit', fontSize: 13)),
                           ],
                         ),
                       ),
@@ -747,7 +747,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
           Text(
             note.title,
             style: const TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -757,7 +757,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
           Text(
             note.content,
             style: const TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 13,
               color: Color(0xFFDCDCDC),
               height: 1.4,
@@ -798,15 +798,15 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       children: [
                         const Text(
                           'Sessions Done',
-                          style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${client.completedSessions}',
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 20,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: _kLime,
                           ),
                         ),
@@ -828,15 +828,15 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       children: [
                         const Text(
                           'Milestones',
-                          style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${progressList.length}',
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 20,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
                         ),
@@ -865,7 +865,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     child: Text(
                       'Progress records track coaching achievements and exercise mastery. No medical or health claims are made.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         color: _kGrey,
                       ),
@@ -884,8 +884,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
               label: const Text(
                 'Record Progress Milestone',
                 style: TextStyle(
-                  fontFamily: 'Syne',
-                  fontWeight: FontWeight.w800,
+                  fontFamily: 'Outfit',
+                  fontWeight: FontWeight.w500,
                   fontSize: 14,
                   color: _kDark,
                 ),
@@ -915,7 +915,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     const Text(
                       'No Milestones Recorded',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -926,7 +926,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       'Track fitness milestones achieved with this client (e.g. attendance streaks, workout PRs, posture improvements).',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 12,
                         color: _kGrey,
                       ),
@@ -968,9 +968,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 child: Text(
                   progress.category.toUpperCase(),
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 10,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: Color(0xFF64B5F6),
                   ),
                 ),
@@ -980,7 +980,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                   Text(
                     progress.formattedAchievedDate,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       color: _kGrey,
                     ),
@@ -998,7 +998,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
           Text(
             progress.title,
             style: const TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -1009,7 +1009,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
             Text(
               progress.notes,
               style: const TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 13,
                 color: Color(0xFFDCDCDC),
                 height: 1.4,
@@ -1054,9 +1054,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     const Text(
                       'Add Private Note',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
                     ),
@@ -1076,7 +1076,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       label: Text(
                         cat,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: isSel ? _kDark : Colors.white,
@@ -1094,10 +1094,10 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 const SizedBox(height: 14),
                 TextField(
                   controller: titleCtrl,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Topic / Title',
-                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Poppins'),
+                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
                     hintText: 'e.g. Core stability progress',
                     hintStyle: TextStyle(color: _kGrey.withValues(alpha: 0.6)),
                     filled: true,
@@ -1112,10 +1112,10 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 TextField(
                   controller: contentCtrl,
                   maxLines: 4,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Observation Details *',
-                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Poppins'),
+                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
                     hintText: 'Note details on form, endurance, stamina, or workout focus...',
                     hintStyle: TextStyle(color: _kGrey.withValues(alpha: 0.6)),
                     filled: true,
@@ -1163,8 +1163,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     child: const Text(
                       'Save Note',
                       style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Outfit',
+                        fontWeight: FontWeight.w500,
                         color: _kDark,
                       ),
                     ),
@@ -1209,9 +1209,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     const Text(
                       'Edit Note',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
                     ),
@@ -1230,7 +1230,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       label: Text(
                         cat,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: isSel ? _kDark : Colors.white,
@@ -1248,10 +1248,10 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 const SizedBox(height: 14),
                 TextField(
                   controller: titleCtrl,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Topic / Title',
-                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Poppins'),
+                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
                     filled: true,
                     fillColor: _kCardSubBg,
                     border: OutlineInputBorder(
@@ -1264,10 +1264,10 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 TextField(
                   controller: contentCtrl,
                   maxLines: 4,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Observation Details *',
-                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Poppins'),
+                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
                     filled: true,
                     fillColor: _kCardSubBg,
                     border: OutlineInputBorder(
@@ -1313,8 +1313,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     child: const Text(
                       'Update Note',
                       style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Outfit',
+                        fontWeight: FontWeight.w500,
                         color: _kDark,
                       ),
                     ),
@@ -1335,16 +1335,16 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
         backgroundColor: _kCardBg,
         title: const Text(
           'Delete Note',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
         ),
         content: const Text(
           'Are you sure you want to permanently delete this private note?',
-          style: TextStyle(fontFamily: 'Poppins', color: Color(0xFFDCDCDC)),
+          style: TextStyle(fontFamily: 'Outfit', color: Color(0xFFDCDCDC)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel', style: TextStyle(color: _kGrey, fontFamily: 'Syne')),
+            child: const Text('Cancel', style: TextStyle(color: _kGrey, fontFamily: 'Outfit')),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF5350)),
@@ -1362,7 +1362,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 );
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.white, fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+            child: const Text('Delete', style: TextStyle(color: Colors.white, fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -1401,9 +1401,9 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     const Text(
                       'Record Milestone',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
                     ),
@@ -1422,7 +1422,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                       label: Text(
                         cat,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: isSel ? _kDark : Colors.white,
@@ -1440,10 +1440,10 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 const SizedBox(height: 14),
                 TextField(
                   controller: titleCtrl,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Milestone Title *',
-                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Poppins'),
+                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
                     hintText: 'e.g. Mastered Deep Squat Technique',
                     hintStyle: TextStyle(color: _kGrey.withValues(alpha: 0.6)),
                     filled: true,
@@ -1458,10 +1458,10 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 TextField(
                   controller: notesCtrl,
                   maxLines: 3,
-                  style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+                  style: const TextStyle(color: Colors.white, fontFamily: 'Outfit'),
                   decoration: InputDecoration(
                     labelText: 'Details / Coaching Notes',
-                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Poppins'),
+                    labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit'),
                     hintText: 'Observed milestones, repetitions, form consistency...',
                     hintStyle: TextStyle(color: _kGrey.withValues(alpha: 0.6)),
                     filled: true,
@@ -1510,8 +1510,8 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                     child: const Text(
                       'Save Milestone',
                       style: TextStyle(
-                        fontFamily: 'Syne',
-                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Outfit',
+                        fontWeight: FontWeight.w500,
                         color: _kDark,
                       ),
                     ),
@@ -1532,16 +1532,16 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
         backgroundColor: _kCardBg,
         title: const Text(
           'Delete Milestone',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
         ),
         content: const Text(
           'Are you sure you want to delete this recorded milestone?',
-          style: TextStyle(fontFamily: 'Poppins', color: Color(0xFFDCDCDC)),
+          style: TextStyle(fontFamily: 'Outfit', color: Color(0xFFDCDCDC)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel', style: TextStyle(color: _kGrey, fontFamily: 'Syne')),
+            child: const Text('Cancel', style: TextStyle(color: _kGrey, fontFamily: 'Outfit')),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF5350)),
@@ -1559,7 +1559,7 @@ class _TrainerClientDetailScreenState extends State<TrainerClientDetailScreen> w
                 );
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.white, fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+            child: const Text('Delete', style: TextStyle(color: Colors.white, fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
           ),
         ],
       ),

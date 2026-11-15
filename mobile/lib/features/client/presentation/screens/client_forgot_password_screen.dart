@@ -62,7 +62,7 @@ class _ClientForgotPasswordScreenState
         SnackBar(
           content: Text(
             _authController.errorMessage!,
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.white),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white),
           ),
           backgroundColor: const Color(0xFF1E1E24),
           behavior: SnackBarBehavior.floating,
@@ -104,9 +104,9 @@ class _ClientForgotPasswordScreenState
                 Text(
                   'Recover\npassword.',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (32.0 * sf).clamp(26.0, 40.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                     height: 1.15,
                   ),
@@ -117,7 +117,7 @@ class _ClientForgotPasswordScreenState
                 Text(
                   'Enter your registered email address and we will dispatch a secure password reset link to your inbox.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.5 * sf).clamp(11.0, 14.0),
                     color: kGrey,
                     height: 1.45,
@@ -165,9 +165,9 @@ class _ClientForgotPasswordScreenState
                   child: Text(
                     'Recovery Link Sent!',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (24.0 * sf).clamp(20.0, 28.0),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: kDark,
                     ),
                   ),
@@ -180,7 +180,7 @@ class _ClientForgotPasswordScreenState
                     'We sent password reset instructions to:\n${_emailController.text.trim()}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (13.0 * sf).clamp(11.5, 14.5),
                       color: kGrey,
                       height: 1.5,

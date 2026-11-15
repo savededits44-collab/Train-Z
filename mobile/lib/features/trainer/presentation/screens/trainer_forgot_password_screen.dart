@@ -101,9 +101,9 @@ class _TrainerForgotPasswordScreenState
               Text(
                 'Reset Trainer Password.',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (26.0 * sf).clamp(22.0, 32.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.15,
                 ),
@@ -114,7 +114,7 @@ class _TrainerForgotPasswordScreenState
               Text(
                 'Enter the email associated with your trainer account and we will send instructions to securely reset your password.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.0 * sf).clamp(11.5, 14.0),
                   color: kGrey,
                   height: 1.35,
@@ -153,7 +153,7 @@ class _TrainerForgotPasswordScreenState
                         child: Text(
                           _statusMessage!,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
                             color: _isSuccess
                                 ? const Color(0xFF2E7D32)

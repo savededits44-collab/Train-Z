@@ -132,12 +132,12 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
             children: [
               const Text(
                 'Change Profile Photo',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 16, color: kDark),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 16, color: kDark),
               ),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Iconsax.camera, color: kDark),
-                title: const Text('Take a Photo', style: TextStyle(fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.w600)),
+                title: const Text('Take a Photo', style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.camera);
@@ -145,7 +145,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
               ),
               ListTile(
                 leading: const Icon(Iconsax.gallery, color: kDark),
-                title: const Text('Choose from Gallery', style: TextStyle(fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.w600)),
+                title: const Text('Choose from Gallery', style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.gallery);
@@ -213,14 +213,14 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Update Email Address', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 16, color: kDark)),
+        title: const Text('Update Email Address', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 16, color: kDark)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'A verification email will be dispatched to your new address. Your account email will update once verified.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF6B7280)),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF6B7280)),
             ),
             const SizedBox(height: 14),
             TextField(
@@ -228,7 +228,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 hintText: 'New Email Address',
-                hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF9CA3AF)),
+                hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF9CA3AF)),
                 filled: true,
                 fillColor: const Color(0xFFF9FAFB),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -240,7 +240,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: Color(0xFF6B7280))),
+            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF6B7280))),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -269,7 +269,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: kDark, foregroundColor: kLime, elevation: 0),
-            child: const Text('Send Verification', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+            child: const Text('Send Verification', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -296,9 +296,9 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
         title: Text(
           'Personal Information',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -352,7 +352,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
                   onPressed: _showImagePickerSheet,
                   child: const Text(
                     'Change Profile Photo',
-                    style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 12, color: kDark),
+                    style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 12, color: kDark),
                   ),
                 ),
               ),
@@ -374,7 +374,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
                       Expanded(
                         child: Text(
                           _errorMessage!,
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFFDC2626)),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFFDC2626)),
                         ),
                       ),
                     ],
@@ -389,7 +389,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
                 controller: _nameController,
                 textCapitalization: TextCapitalization.words,
                 validator: Validators.validateName,
-                style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
                 decoration: _buildInputDecoration(hint: 'Enter your full name', icon: Iconsax.user),
               ),
 
@@ -400,7 +400,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
                 decoration: _buildInputDecoration(hint: 'e.g. +91 98765 43210', icon: Iconsax.call),
               ),
 
@@ -422,7 +422,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
                     Expanded(
                       child: Text(
                         currentEmail,
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Color(0xFF4B5563)),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFF4B5563)),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -430,7 +430,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
                       onTap: _showChangeEmailDialog,
                       child: const Text(
                         'Change',
-                        style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 12, color: kDark, decoration: TextDecoration.underline),
+                        style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 12, color: kDark, decoration: TextDecoration.underline),
                       ),
                     ),
                   ],
@@ -471,7 +471,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
                               ? '${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}'
                               : 'Select your date of birth',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 13,
                             color: _selectedDob != null ? kDark : const Color(0xFF9CA3AF),
                           ),
@@ -489,7 +489,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
               _buildInputLabel('Preferred Workout Venue', sf),
               DropdownButtonFormField<String>(
                 initialValue: _preferredVenue,
-                items: _venueOptions.map((v) => DropdownMenuItem(value: v, child: Text(v, style: const TextStyle(fontFamily: 'Poppins', fontSize: 13)))).toList(),
+                items: _venueOptions.map((v) => DropdownMenuItem(value: v, child: Text(v, style: const TextStyle(fontFamily: 'Outfit', fontSize: 13)))).toList(),
                 onChanged: (val) => setState(() => _preferredVenue = val),
                 decoration: _buildInputDecoration(hint: 'Select venue', icon: Iconsax.location),
               ),
@@ -500,7 +500,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
               _buildInputLabel('Fitness Experience Level', sf),
               DropdownButtonFormField<String>(
                 initialValue: _fitnessLevel,
-                items: _fitnessLevelOptions.map((l) => DropdownMenuItem(value: l, child: Text(l, style: const TextStyle(fontFamily: 'Poppins', fontSize: 13)))).toList(),
+                items: _fitnessLevelOptions.map((l) => DropdownMenuItem(value: l, child: Text(l, style: const TextStyle(fontFamily: 'Outfit', fontSize: 13)))).toList(),
                 onChanged: (val) => setState(() => _fitnessLevel = val),
                 decoration: _buildInputDecoration(hint: 'Select experience level', icon: Iconsax.activity),
               ),
@@ -511,7 +511,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
               _buildInputLabel('Emergency Contact (Name & Phone)', sf),
               TextFormField(
                 controller: _emergencyContactController,
-                style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
                 decoration: _buildInputDecoration(hint: 'e.g. Priya (Sister) +91 98765 00000', icon: Iconsax.call_calling),
               ),
 
@@ -538,9 +538,9 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
                     },
                     selectedColor: kDark,
                     labelStyle: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: FontWeight.w500,
                       color: isSelected ? kLime : kDark,
                     ),
                     backgroundColor: Colors.white,
@@ -568,7 +568,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: kLime))
                       : const Text(
                           'Save Changes',
-                          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 15, color: kLime),
+                          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 15, color: kLime),
                         ),
                 ),
               ),
@@ -586,9 +586,9 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
       child: Text(
         label,
         style: TextStyle(
-          fontFamily: 'Syne',
+          fontFamily: 'Outfit',
           fontSize: (12.0 * sf).clamp(11.0, 13.5),
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
           color: kDark,
         ),
       ),
@@ -598,7 +598,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
   InputDecoration _buildInputDecoration({required String hint, required IconData icon}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFFA0A0A0)),
+      hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFFA0A0A0)),
       prefixIcon: Icon(icon, size: 18, color: kDark),
       filled: true,
       fillColor: Colors.white,

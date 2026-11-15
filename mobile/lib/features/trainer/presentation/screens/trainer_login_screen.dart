@@ -166,7 +166,7 @@ class _TrainerLoginScreenState extends State<TrainerLoginScreen> {
                 child: const Text(
                   'TRAINER PORTAL LOGIN',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: kLime,
@@ -180,9 +180,9 @@ class _TrainerLoginScreenState extends State<TrainerLoginScreen> {
               Text(
                 'Welcome Back,\nCoach.',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (30.0 * sf).clamp(24.0, 36.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.15,
                 ),
@@ -193,7 +193,7 @@ class _TrainerLoginScreenState extends State<TrainerLoginScreen> {
               Text(
                 'Log in to manage your bookings, schedule availability & client progress.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.0 * sf).clamp(11.5, 14.0),
                   color: kGrey,
                   height: 1.35,
@@ -225,7 +225,7 @@ class _TrainerLoginScreenState extends State<TrainerLoginScreen> {
                         child: Text(
                           _inlineError!,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
                             color: Color(0xFFD32F2F),
                             fontWeight: FontWeight.w500,
@@ -282,9 +282,9 @@ class _TrainerLoginScreenState extends State<TrainerLoginScreen> {
                   child: const Text(
                     'Forgot Password?',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: kDark,
                     ),
                   ),
@@ -311,7 +311,7 @@ class _TrainerLoginScreenState extends State<TrainerLoginScreen> {
                     Text(
                       "New trainer? ",
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (13.0 * sf).clamp(11.5, 14.0),
                         color: kGrey,
                       ),
@@ -327,7 +327,7 @@ class _TrainerLoginScreenState extends State<TrainerLoginScreen> {
                       child: Text(
                         'Apply to Join',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (13.0 * sf).clamp(11.5, 14.0),
                           fontWeight: FontWeight.w700,
                           color: kDark,

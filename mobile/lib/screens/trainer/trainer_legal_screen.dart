@@ -24,7 +24,7 @@ class TrainerLegalScreen extends StatelessWidget {
         title: const Text(
           'Legal Information',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -79,7 +79,7 @@ class TrainerLegalScreen extends StatelessWidget {
                   child: const Text(
                     'TRAIN Z Coach • v1.0.0 (Build 100)',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: _kGrey,
@@ -90,7 +90,7 @@ class TrainerLegalScreen extends StatelessWidget {
                 const Text(
                   '© 2026 TRAIN Z Fitness Technologies. All rights reserved.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11,
                     color: _kGrey,
                   ),
@@ -129,7 +129,7 @@ class TrainerLegalScreen extends StatelessWidget {
             title: Text(
               title,
               style: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -138,7 +138,7 @@ class TrainerLegalScreen extends StatelessWidget {
             subtitle: Text(
               subtitle,
               style: const TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 11.5,
                 color: _kGrey,
               ),
@@ -147,7 +147,7 @@ class TrainerLegalScreen extends StatelessWidget {
               Text(
                 content,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 12.5,
                   color: Colors.white70,
                   height: 1.45,

@@ -75,7 +75,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                   submitForApproval
                       ? 'Package submitted for Admin approval successfully!'
                       : 'Package saved as draft.',
-                  style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                  style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
                 ),
               ),
             );
@@ -115,7 +115,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                   plan.approvalStatus == PackageApprovalStatus.approved
                       ? 'Plan updated. It has been resubmitted for Admin approval.'
                       : 'Plan updated successfully.',
-                  style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                  style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
                 ),
               ),
             );
@@ -133,7 +133,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Delete Custom Plan?',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -141,7 +141,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           children: [
             Text(
               'Are you sure you want to remove "${plan.title}"? Clients will no longer be able to discover or book this package.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
             ),
             const SizedBox(height: 12),
             Container(
@@ -159,7 +159,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                     child: Text(
                       'Purchase Safety: Any existing client purchases of this package remain 100% active and protected.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         color: Colors.white.withValues(alpha: 0.85),
                       ),
@@ -181,7 +181,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
               backgroundColor: Colors.redAccent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Delete Plan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            child: const Text('Delete Plan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -196,7 +196,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
               backgroundColor: _kDark,
               content: Text(
                 'Custom plan removed. Past purchases preserved.',
-                style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                style: TextStyle(fontFamily: 'Outfit', color: Colors.white),
               ),
             ),
           );
@@ -206,7 +206,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.redAccent,
-              content: Text('Failed to delete package: $e', style: const TextStyle(fontFamily: 'Poppins')),
+              content: Text('Failed to delete package: $e', style: const TextStyle(fontFamily: 'Outfit')),
             ),
           );
         }
@@ -222,16 +222,16 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Standard Trainer Policy',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
         ),
         content: Text(
           'Standard Trainers utilize the 6 fixed platform packages established by TRAIN Z. Custom package creation and pricing adjustments are reserved for verified Advanced Trainers with 3.5+ years of verified experience.\n\nPrices, session counts, and validities are standardized platform-wide.',
-          style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.white.withValues(alpha: 0.8), height: 1.4),
+          style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white.withValues(alpha: 0.8), height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Got It', style: TextStyle(color: _kLime, fontWeight: FontWeight.w700)),
+            child: const Text('Got It', style: TextStyle(color: _kLime, fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -251,7 +251,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
         ),
         title: Text(
           _isAdvanced ? 'Custom Training Plans' : 'Platform Packages',
-          style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white, fontSize: 18),
+          style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white, fontSize: 18),
         ),
         actions: [
           if (_isAdvanced)
@@ -269,7 +269,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
               icon: const Icon(Iconsax.add, color: _kDark),
               label: const Text(
                 'New Custom Plan',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: _kDark),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kDark),
               ),
             )
           : null,
@@ -308,9 +308,9 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                     child: const Text(
                       'STANDARD TRAINER',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 10,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: _kDark,
                         letterSpacing: 0.8,
                       ),
@@ -323,13 +323,13 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
               const SizedBox(height: 12),
               const Text(
                 'Platform-Standardized Packages',
-                style: TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
               ),
               const SizedBox(height: 6),
               Text(
                 'Standard Trainers operate under the 6 platform-wide packages below. Pricing, session counts, and validity are fixed to deliver consistent value across TRAIN Z. Standard Trainers cannot create custom plans or modify prices.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 12,
                   color: Colors.white.withValues(alpha: 0.7),
                   height: 1.4,
@@ -345,7 +345,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           children: [
             const Text(
               'Assigned Packages (6)',
-              style: TextStyle(fontFamily: 'Syne', fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -355,7 +355,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
               ),
               child: const Text(
                 'Read-Only',
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: _kGrey, fontWeight: FontWeight.w600),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: _kGrey, fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -391,9 +391,9 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 child: Text(
                   plan.title,
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 17,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                 ),
@@ -408,9 +408,9 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                   child: const Text(
                     'MOST POPULAR',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 9,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: _kDark,
                     ),
                   ),
@@ -425,9 +425,9 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                   child: const Text(
                     'FLAGSHIP',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 9,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: _kDark,
                     ),
                   ),
@@ -438,7 +438,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           Text(
             plan.description,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 12,
               color: Colors.white.withValues(alpha: 0.65),
               height: 1.35,
@@ -476,7 +476,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 child: Text(
                   'Platform package • Pricing & terms locked',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11,
                     color: _kGrey,
                   ),
@@ -486,7 +486,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 Text(
                   'Save ${plan.savingsPercent}%',
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: _kLime,
@@ -538,9 +538,9 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                         child: const Text(
                           'ADVANCED TRAINER',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 10,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: _kDark,
                             letterSpacing: 0.8,
                           ),
@@ -553,13 +553,13 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                   const SizedBox(height: 10),
                   const Text(
                     'Custom Package Management',
-                    style: TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     'As an approved Advanced Trainer, you can set your own prices, session counts, and validities. Every package requires Admin approval before it is published to clients. Existing client purchases are always protected.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
                       color: Colors.white.withValues(alpha: 0.8),
                       height: 1.4,
@@ -624,9 +624,9 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
                 color: isSelected ? _kDark : Colors.white70,
               ),
             ),
@@ -640,7 +640,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
               child: Text(
                 '$count',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   color: isSelected ? _kLime : Colors.white,
@@ -671,7 +671,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           const SizedBox(height: 16),
           Text(
             hasNoPlansAtAll ? 'No Custom Packages Yet' : 'No Packages in this Status',
-            style: const TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
           ),
           const SizedBox(height: 8),
           Text(
@@ -679,7 +679,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 ? 'Create custom packages with personalized rates, sessions, and validity for your clients.'
                 : 'Try selecting a different filter above or create a new custom package.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Colors.white.withValues(alpha: 0.6)),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.white.withValues(alpha: 0.6)),
           ),
           if (hasNoPlansAtAll) ...[
             const SizedBox(height: 20),
@@ -688,7 +688,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
               icon: const Icon(Iconsax.add, color: _kDark, size: 16),
               label: const Text(
                 'Create Custom Package',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: _kDark),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: _kDark),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _kLime,
@@ -735,16 +735,16 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                     Text(
                       plan.title,
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 17,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Created on ${_formatDate(plan.createdAt)}',
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: _kGrey),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: _kGrey),
                     ),
                   ],
                 ),
@@ -765,7 +765,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                     Text(
                       plan.approvalStatus.displayName,
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
                         color: statusColor,
@@ -781,7 +781,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
           Text(
             plan.description,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 12,
               color: Colors.white.withValues(alpha: 0.7),
               height: 1.35,
@@ -832,7 +832,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                         const Text(
                           'Admin Rejection Feedback:',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 11.5,
                             fontWeight: FontWeight.w700,
                             color: Colors.redAccent,
@@ -842,7 +842,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                         Text(
                           plan.adminRejectionReason!,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             color: Colors.white.withValues(alpha: 0.85),
                             height: 1.35,
@@ -867,7 +867,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                   child: Text(
                     'Submitted for Admin review. Unavailable for client purchase until approved.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       color: Colors.white.withValues(alpha: 0.6),
                     ),
@@ -887,7 +887,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                   child: Text(
                     'Published & available to clients for booking.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       color: Colors.greenAccent.withValues(alpha: 0.9),
                     ),
@@ -910,7 +910,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 icon: const Icon(Iconsax.trash, size: 14, color: Colors.redAccent),
                 label: const Text(
                   'Delete',
-                  style: TextStyle(fontFamily: 'Syne', fontSize: 11.5, color: Colors.redAccent),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Colors.redAccent),
                 ),
               ),
               const SizedBox(width: 8),
@@ -919,7 +919,7 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
                 icon: const Icon(Iconsax.edit, size: 14, color: _kDark),
                 label: Text(
                   isRejected ? 'Edit & Resubmit' : 'Edit Plan',
-                  style: const TextStyle(fontFamily: 'Syne', fontSize: 11.5, fontWeight: FontWeight.w700, color: _kDark),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w500, color: _kDark),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _kLime,
@@ -939,15 +939,15 @@ class _TrainerPackageManagementScreenState extends State<TrainerPackageManagemen
       children: [
         Text(
           label,
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 10, color: _kGrey),
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: _kGrey),
         ),
         const SizedBox(height: 3),
         Text(
           value,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: isHighlight ? 14 : 12.5,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: isHighlight ? _kLime : Colors.white,
           ),
         ),
@@ -1131,15 +1131,15 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                           Text(
                             isEditing ? 'Edit Custom Plan' : 'Create Custom Training Plan',
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 17,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
                           const Text(
                             'Advanced Trainer Custom Pricing',
-                            style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                            style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
                           ),
                         ],
                       ),
@@ -1167,7 +1167,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                           child: Text(
                             'Notice: Updating an approved plan resets its status to "Pending Approval". It must be reviewed by Admin before new clients can purchase it. Existing client purchases are 100% safe.',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               color: Colors.white.withValues(alpha: 0.9),
                               height: 1.35,
@@ -1189,7 +1189,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                     ),
                     child: Text(
                       _errorMessage!,
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Colors.redAccent),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.redAccent),
                     ),
                   ),
 
@@ -1197,7 +1197,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                 _buildFieldLabel('Package Title'),
                 TextFormField(
                   controller: _titleCtrl,
-                  style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 14),
+                  style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 14),
                   decoration: _inputDecoration('e.g. 10-Session Hypertrophy Blueprint'),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Please enter a package title';
@@ -1220,7 +1220,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                             controller: _priceCtrl,
                             keyboardType: TextInputType.number,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 14),
+                            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 14),
                             decoration: _inputDecoration('₹ 4,500'),
                             onChanged: (_) => setState(() {}),
                             validator: (v) {
@@ -1243,7 +1243,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                             controller: _sessionsCtrl,
                             keyboardType: TextInputType.number,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 14),
+                            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 14),
                             decoration: _inputDecoration('e.g. 10'),
                             onChanged: (_) => setState(() {}),
                             validator: (v) {
@@ -1266,7 +1266,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                   controller: _validityCtrl,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 14),
+                  style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 14),
                   decoration: _inputDecoration('e.g. 30'),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Please specify validity in days';
@@ -1292,7 +1292,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                         const SizedBox(width: 8),
                         Text(
                           'Effective rate: ₹${_calculatedPricePerSession.round()} per 60-min session',
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: _kLime, fontWeight: FontWeight.w600),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: _kLime, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -1303,7 +1303,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                 TextFormField(
                   controller: _descCtrl,
                   maxLines: 3,
-                  style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 13),
+                  style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 13),
                   decoration: _inputDecoration('Detailed breakdown of workout structure, milestones, and target goals...'),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Please enter a description';
@@ -1331,8 +1331,8 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                           child: Text(
                             isEditing ? 'Update & Submit for Approval' : 'Submit for Admin Approval',
                             style: const TextStyle(
-                              fontFamily: 'Syne',
-                              fontWeight: FontWeight.w800,
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w500,
                               fontSize: 14,
                               color: _kDark,
                             ),
@@ -1352,8 +1352,8 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
                           child: const Text(
                             'Save as Draft',
                             style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w500,
                               fontSize: 13,
                               color: Colors.white70,
                             ),
@@ -1376,7 +1376,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
       child: Text(
         label,
         style: const TextStyle(
-          fontFamily: 'Syne',
+          fontFamily: 'Outfit',
           fontSize: 12,
           fontWeight: FontWeight.w700,
           color: Colors.white70,
@@ -1388,7 +1388,7 @@ class _CustomPlanFormSheetState extends State<_CustomPlanFormSheet> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(fontFamily: 'Poppins', color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
+      hintStyle: TextStyle(fontFamily: 'Outfit', color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
       filled: true,
       fillColor: Colors.white.withValues(alpha: 0.05),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

@@ -50,7 +50,7 @@ Powered by Razorpay & TRAIN Z Platform
           children: [
             Icon(Icons.copy_rounded, color: kLime, size: 18),
             SizedBox(width: 10),
-            Text('Receipt details copied to clipboard!', style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Colors.white)),
+            Text('Receipt details copied to clipboard!', style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.white)),
           ],
         ),
       ),
@@ -73,9 +73,9 @@ Powered by Razorpay & TRAIN Z Platform
         title: Text(
           'Payment Receipt',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 21.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -122,9 +122,9 @@ Powered by Razorpay & TRAIN Z Platform
                   Text(
                     'Payment Successful',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (20.0 * sf).clamp(18.0, 23.0),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: kDark,
                     ),
                   ),
@@ -132,9 +132,9 @@ Powered by Razorpay & TRAIN Z Platform
                   Text(
                     '₹${payment.amount}',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (32.0 * sf).clamp(28.0, 38.0),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: kDark,
                     ),
                   ),
@@ -148,9 +148,9 @@ Powered by Razorpay & TRAIN Z Platform
                     child: Text(
                       'RECEIPT: ${payment.displayReceiptNumber}',
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 10.5,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: Color(0xFF15803D),
                         letterSpacing: 0.5,
                       ),
@@ -179,11 +179,11 @@ Powered by Razorpay & TRAIN Z Platform
                             children: [
                               Text(
                                 '+${payment.sessionsCount ?? 1} Session Credits Activated',
-                                style: const TextStyle(fontFamily: 'Syne', fontSize: 12.5, fontWeight: FontWeight.w800, color: Color(0xFF14532D)),
+                                style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5, fontWeight: FontWeight.w600, color: Color(0xFF14532D)),
                               ),
                               const Text(
                                 'Added to your athlete ledger balance.',
-                                style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Color(0xFF166534)),
+                                style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF166534)),
                               ),
                             ],
                           ),
@@ -224,7 +224,7 @@ Powered by Razorpay & TRAIN Z Platform
                         children: [
                           Icon(Icons.check_circle, size: 14, color: Color(0xFF2563EB)),
                           SizedBox(width: 6),
-                          Text('Booking Automatically Confirmed', style: TextStyle(fontFamily: 'Syne', fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF1E40AF))),
+                          Text('Booking Automatically Confirmed', style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF1E40AF))),
                         ],
                       ),
                     ),
@@ -263,7 +263,7 @@ Powered by Razorpay & TRAIN Z Platform
                     children: [
                       Icon(Icons.share, size: 16, color: kDark),
                       SizedBox(width: 6),
-                      Text('Share / Save', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark, fontSize: 13)),
+                      Text('Share / Save', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: kDark, fontSize: 13)),
                     ],
                   ),
                 ),
@@ -284,7 +284,7 @@ Powered by Razorpay & TRAIN Z Platform
                   ),
                   child: Text(
                     booking != null ? 'View My Bookings' : 'Find a Trainer & Book',
-                    style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: kLime, fontSize: 13),
+                    style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kLime, fontSize: 13),
                   ),
                 ),
               ),
@@ -301,11 +301,11 @@ Powered by Razorpay & TRAIN Z Platform
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey)),
+          Text(label, style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey)),
           Flexible(
             child: Text(
               value,
-              style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, fontWeight: FontWeight.w600, color: kDark),
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w600, color: kDark),
               overflow: TextOverflow.ellipsis,
             ),
           ),

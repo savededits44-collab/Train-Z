@@ -52,9 +52,9 @@ class _ClientLegalScreenState extends State<ClientLegalScreen>
         title: Text(
           'Legal & Compliance',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -63,8 +63,8 @@ class _ClientLegalScreenState extends State<ClientLegalScreen>
           isScrollable: true,
           labelColor: kDark,
           unselectedLabelColor: const Color(0xFF9CA3AF),
-          labelStyle: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 13),
-          unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500, fontSize: 13),
+          labelStyle: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 13),
+          unselectedLabelStyle: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 13),
           indicatorColor: kDark,
           indicatorWeight: 3,
           tabs: const [
@@ -97,7 +97,7 @@ class _ClientLegalScreenState extends State<ClientLegalScreen>
             const Expanded(
               child: Text(
                 'Legal & compliance questions: legal@trainz.fit',
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF4B5563)),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF4B5563)),
               ),
             ),
           ],
@@ -244,16 +244,16 @@ class _ClientLegalScreenState extends State<ClientLegalScreen>
           Text(
             title,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (16.0 * sf).clamp(15.0, 18.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: kDark,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF6B7280)),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF6B7280)),
           ),
           const Divider(height: 24, color: Color(0xFFEEEEEE)),
         ],
@@ -267,7 +267,7 @@ class _ClientLegalScreenState extends State<ClientLegalScreen>
       child: Text(
         title,
         style: TextStyle(
-          fontFamily: 'Syne',
+          fontFamily: 'Outfit',
           fontSize: (13.5 * sf).clamp(12.5, 15.0),
           fontWeight: FontWeight.w700,
           color: kDark,
@@ -280,7 +280,7 @@ class _ClientLegalScreenState extends State<ClientLegalScreen>
     return Text(
       text,
       style: const TextStyle(
-        fontFamily: 'Poppins',
+        fontFamily: 'Outfit',
         fontSize: 12,
         height: 1.6,
         color: Color(0xFF4B5563),

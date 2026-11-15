@@ -192,9 +192,9 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
         title: Text(
           _currentStatus.title,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (17.0 * sf).clamp(15.0, 19.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -249,7 +249,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
                 ),
                 child: Text(
                   _retryError!,
-                  style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFFDC2626)),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFFDC2626)),
                 ),
               ),
             ],
@@ -304,9 +304,9 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
           _currentStatus.title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (22.0 * sf).clamp(19.0, 25.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -317,7 +317,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
             _currentStatus.subtitle,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 13,
               color: kGrey,
               height: 1.4,
@@ -368,9 +368,9 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
                   const Text(
                     'PACKAGE ACTIVATED',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 13,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: Color(0xFF15803D),
                       letterSpacing: 0.5,
                     ),
@@ -385,7 +385,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
                 ),
                 child: const Text(
                   'ACTIVE',
-                  style: TextStyle(fontFamily: 'Syne', fontSize: 10.5, fontWeight: FontWeight.w800, color: kDark),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, fontWeight: FontWeight.w600, color: kDark),
                 ),
               ),
             ],
@@ -394,16 +394,16 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
           Text(
             pkgName,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (18.0 * sf).clamp(16.0, 20.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: kDark,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             '$sessions Sessions (60 mins each) • $validity Days Validity',
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: Color(0xFF4B5563)),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: Color(0xFF4B5563)),
           ),
           const SizedBox(height: 12),
           Container(
@@ -421,7 +421,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
                   child: Text(
                     'Credits Granted: +$sessions Sessions credited to your balance.',
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF15803D),
@@ -465,9 +465,9 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
               const Text(
                 'BOOKING CONFIRMED',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 13,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   letterSpacing: 0.5,
                 ),
@@ -477,18 +477,18 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
           const SizedBox(height: 12),
           Text(
             'Coach: $trainerName',
-            style: const TextStyle(fontFamily: 'Syne', fontSize: 15, fontWeight: FontWeight.w700, color: kDark),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 15, fontWeight: FontWeight.w700, color: kDark),
           ),
           const SizedBox(height: 4),
           Text(
             'Date: ${b.sessionDate.day}/${b.sessionDate.month}/${b.sessionDate.year} at ${b.startTime} (60 min session)',
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF4B5563)),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF4B5563)),
           ),
           if ((b.locationReference ?? b.meetingLocation ?? '').isNotEmpty) ...[
             const SizedBox(height: 2),
             Text(
               'Location: ${b.locationReference ?? b.meetingLocation}',
-              style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
             ),
           ],
         ],
@@ -515,9 +515,9 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
           const Text(
             'TRANSACTION SUMMARY',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: 12,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: kDark,
               letterSpacing: 0.5,
             ),
@@ -554,9 +554,9 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
               Text(
                 'PAYMENT INCOMPLETE',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 13,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: Color(0xFFDC2626),
                 ),
               ),
@@ -567,12 +567,12 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
             widget.errorMessage ??
                 _payment?.errorMessage ??
                 'The transaction could not be processed by your bank or the payment gateway.',
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Color(0xFF374151), height: 1.4),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFF374151), height: 1.4),
           ),
           const SizedBox(height: 12),
           const Text(
             'You can retry with the same payment method or choose another UPI, Card, or Netbanking option.',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
           ),
         ],
       ),
@@ -598,9 +598,9 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
               Text(
                 'CHECKOUT CANCELLED',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 13,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: Color(0xFFD97706),
                 ),
               ),
@@ -609,7 +609,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
           SizedBox(height: 12),
           Text(
             'You dismissed the Razorpay checkout window before payment completion.',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Color(0xFF374151), height: 1.4),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFF374151), height: 1.4),
           ),
         ],
       ),
@@ -635,13 +635,13 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
           SizedBox(height: 16),
           Text(
             'Verifying with Payment Gateway',
-            style: TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w700, color: kDark),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w700, color: kDark),
           ),
           SizedBox(height: 8),
           Text(
             'We are confirming your transaction with Razorpay. This page will update automatically once verified. Please do not close the app.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: kGrey, height: 1.4),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: kGrey, height: 1.4),
           ),
         ],
       ),
@@ -664,7 +664,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
           Expanded(
             child: Text(
               'Funds Safe: No session credits have been deducted. If any amount was debited by your bank, it will be automatically refunded within 3-5 business days.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFF166534), height: 1.4),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFF166534), height: 1.4),
             ),
           ),
         ],
@@ -676,8 +676,8 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey)),
-        Text(val, style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: FontWeight.w600, color: kDark)),
+        Text(title, style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey)),
+        Text(val, style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w600, color: kDark)),
       ],
     );
   }
@@ -718,7 +718,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
                 icon: const Icon(Iconsax.receipt_2, color: kDark, size: 18),
                 label: const Text(
                   'View Official Receipt',
-                  style: TextStyle(fontFamily: 'Syne', fontSize: 14, fontWeight: FontWeight.w800, color: kDark),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w500, color: kDark),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kLime,
@@ -742,7 +742,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
                 ),
                 child: const Text(
                   'Go to Dashboard',
-                  style: TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w700, color: kDark),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w500, color: kDark),
                 ),
               ),
             ] else if (_currentStatus == PaymentStatusType.failed || _currentStatus == PaymentStatusType.cancelled) ...[
@@ -757,7 +757,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
                     : const Icon(Iconsax.refresh, color: kLime, size: 18),
                 label: Text(
                   _isRetrying ? 'Preparing Checkout...' : 'Retry Payment',
-                  style: const TextStyle(fontFamily: 'Syne', fontSize: 14, fontWeight: FontWeight.w800, color: kLime),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w500, color: kLime),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kDark,
@@ -776,7 +776,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
                 ),
                 child: const Text(
                   'Choose Another Package',
-                  style: TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w700, color: kDark),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w500, color: kDark),
                 ),
               ),
             ] else if (_currentStatus == PaymentStatusType.pendingVerification) ...[
@@ -795,7 +795,7 @@ class _ClientPaymentStatusScreenState extends State<ClientPaymentStatusScreen> {
                 ),
                 child: const Text(
                   'View Payment History',
-                  style: TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w700, color: kLime),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w500, color: kLime),
                 ),
               ),
             ],

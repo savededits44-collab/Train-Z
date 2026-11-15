@@ -75,7 +75,7 @@ class _TrainerNotificationPreferencesScreenState
         title: const Text(
           'Notification Preferences',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -108,7 +108,7 @@ class _TrainerNotificationPreferencesScreenState
                               Text(
                                 'Essential Notifications',
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
@@ -125,9 +125,9 @@ class _TrainerNotificationPreferencesScreenState
                             child: const Text(
                               'ALWAYS ON',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 10,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: Color(0xFF64B5F6),
                               ),
                             ),
@@ -138,7 +138,7 @@ class _TrainerNotificationPreferencesScreenState
                       const Text(
                         'Account security, password changes, and administrator certificate verification status notifications cannot be disabled to protect your account.',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 11.5,
                           color: _kGrey,
                           height: 1.4,
@@ -166,16 +166,16 @@ class _TrainerNotificationPreferencesScreenState
                 const Text(
                   'Optional Notification Channels',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 16,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 6),
                 const Text(
                   'Customize which optional notification categories you receive on your registered devices.',
-                  style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: _kGrey),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kGrey),
                 ),
                 const SizedBox(height: 14),
 
@@ -268,9 +268,9 @@ class _TrainerNotificationPreferencesScreenState
                   label: const Text(
                     'Reset to Recommended Defaults',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: _kGrey,
                     ),
                   ),
@@ -306,7 +306,7 @@ class _TrainerNotificationPreferencesScreenState
                 Text(
                   title,
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -316,7 +316,7 @@ class _TrainerNotificationPreferencesScreenState
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11,
                     color: _kGrey,
                   ),
@@ -351,7 +351,7 @@ class _TrainerNotificationPreferencesScreenState
                 Text(
                   title,
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -361,7 +361,7 @@ class _TrainerNotificationPreferencesScreenState
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11.5,
                     color: _kGrey,
                   ),

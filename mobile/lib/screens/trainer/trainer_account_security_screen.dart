@@ -61,7 +61,7 @@ class _TrainerAccountSecurityScreenState
             verified
                 ? 'Email verified successfully!'
                 : 'Email is still unverified. Please check your inbox.',
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 13),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13),
           ),
           backgroundColor: verified ? _kSuccess : _kCardSubBg,
           behavior: SnackBarBehavior.floating,
@@ -88,7 +88,7 @@ class _TrainerAccountSecurityScreenState
         const SnackBar(
           content: Text(
             'Verification link sent to your email address.',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 13),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
           ),
           backgroundColor: _kCardSubBg,
           behavior: SnackBarBehavior.floating,
@@ -163,7 +163,7 @@ class _TrainerAccountSecurityScreenState
         const SnackBar(
           content: Text(
             'Password changed successfully',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 13),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
           ),
           backgroundColor: _kSuccess,
           behavior: SnackBarBehavior.floating,
@@ -200,7 +200,7 @@ class _TrainerAccountSecurityScreenState
         title: const Text(
           'Account & Security',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -231,7 +231,7 @@ class _TrainerAccountSecurityScreenState
                         Text(
                           'Email Address',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -251,9 +251,9 @@ class _TrainerAccountSecurityScreenState
                       child: Text(
                         isEmailVerified ? 'VERIFIED' : 'UNVERIFIED',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 10,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: isEmailVerified ? _kSuccess : _kWarning,
                         ),
                       ),
@@ -264,7 +264,7 @@ class _TrainerAccountSecurityScreenState
                 Text(
                   user?.email ?? 'No email linked',
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 13,
                     color: Colors.white70,
                   ),
@@ -278,7 +278,7 @@ class _TrainerAccountSecurityScreenState
                           backgroundColor: _kLime,
                           foregroundColor: _kDark,
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          textStyle: const TextStyle(fontFamily: 'Syne', fontSize: 12, fontWeight: FontWeight.w700),
+                          textStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w700),
                         ),
                         onPressed: _sendVerificationEmail,
                         icon: const Icon(Iconsax.send_1, size: 14),
@@ -290,7 +290,7 @@ class _TrainerAccountSecurityScreenState
                           foregroundColor: Colors.white,
                           side: const BorderSide(color: _kBorder),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          textStyle: const TextStyle(fontFamily: 'Syne', fontSize: 12),
+                          textStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12),
                         ),
                         onPressed: _isCheckingVerification ? null : _checkEmailVerification,
                         icon: _isCheckingVerification
@@ -327,7 +327,7 @@ class _TrainerAccountSecurityScreenState
                   Expanded(
                     child: Text(
                       'Your account is secured via Google OAuth. Password changes are managed through Google Security.',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: _kGrey),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: _kGrey),
                     ),
                   ),
                 ],
@@ -353,9 +353,9 @@ class _TrainerAccountSecurityScreenState
                         Text(
                           'Change Password',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 15,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
                         ),
@@ -364,7 +364,7 @@ class _TrainerAccountSecurityScreenState
                     const SizedBox(height: 6),
                     const Text(
                       'Passwords are encrypted and authenticated directly with Firebase Authentication.',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: _kGrey),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kGrey),
                     ),
                     const SizedBox(height: 16),
 
@@ -435,7 +435,7 @@ class _TrainerAccountSecurityScreenState
                             : const Text(
                                 'Update Password',
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -451,7 +451,7 @@ class _TrainerAccountSecurityScreenState
                         child: Text(
                           _isSendingReset ? 'Sending reset link...' : 'Forgot current password?',
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
                             color: _kGrey,
                             decoration: TextDecoration.underline,
@@ -485,9 +485,9 @@ class _TrainerAccountSecurityScreenState
                     Text(
                       'Session & Data Protection',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: Colors.white,
                       ),
                     ),
@@ -497,7 +497,7 @@ class _TrainerAccountSecurityScreenState
                 Text(
                   '• Passwords are never stored in plain text or Firestore.\n• Sensitive account modifications require reauthentication.\n• All active sessions are token-verified and encrypted via TLS.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12,
                     color: _kGrey,
                     height: 1.5,
@@ -521,10 +521,10 @@ class _TrainerAccountSecurityScreenState
     return TextFormField(
       controller: controller,
       obscureText: obscure,
-      style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+      style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Poppins', fontSize: 13),
+        labelStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit', fontSize: 13),
         filled: true,
         fillColor: _kCardSubBg,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

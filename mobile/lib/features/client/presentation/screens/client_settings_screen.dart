@@ -75,16 +75,16 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Confirm Sign Out',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: kDark, fontSize: 18),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: kDark, fontSize: 18),
         ),
         content: const Text(
           'Are you sure you want to sign out of TRAIN Z? You will need your credentials to log back in.',
-          style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Color(0xFF4B5563)),
+          style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFF4B5563)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: Color(0xFF6B7280))),
+            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF6B7280))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -94,7 +94,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               elevation: 0,
             ),
-            child: const Text('Sign Out', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+            child: const Text('Sign Out', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -133,9 +133,9 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
         title: Text(
           'Settings & Account',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -177,7 +177,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                             child: (photoUrl == null || photoUrl.isEmpty)
                                 ? Text(
                                     displayName.isNotEmpty ? displayName[0].toUpperCase() : 'A',
-                                    style: const TextStyle(fontFamily: 'Syne', fontSize: 22, color: kLime, fontWeight: FontWeight.w800),
+                                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 22, color: kLime, fontWeight: FontWeight.w600),
                                   )
                                 : null,
                           ),
@@ -192,9 +192,9 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                                       child: Text(
                                         displayName,
                                         style: TextStyle(
-                                          fontFamily: 'Syne',
+                                          fontFamily: 'Outfit',
                                           fontSize: (16.0 * sf).clamp(14.0, 18.0),
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w600,
                                           color: kDark,
                                         ),
                                         overflow: TextOverflow.ellipsis,
@@ -211,7 +211,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                                 const SizedBox(height: 2),
                                 Text(
                                   email,
-                                  style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF6B7280)),
+                                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF6B7280)),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 6),
@@ -223,7 +223,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                                   ),
                                   child: Text(
                                     'TRAIN Z Athlete',
-                                    style: TextStyle(fontFamily: 'Poppins', fontSize: 10, fontWeight: FontWeight.w600, color: kDark.withValues(alpha: 0.8)),
+                                    style: TextStyle(fontFamily: 'Outfit', fontSize: 10, fontWeight: FontWeight.w600, color: kDark.withValues(alpha: 0.8)),
                                   ),
                                 ),
                               ],
@@ -419,8 +419,8 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                           Text(
                             'TRAIN Z',
                             style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w700,
                               fontSize: 14,
                               letterSpacing: 1.5,
                               color: kDark.withValues(alpha: 0.6),
@@ -430,7 +430,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                           const Text(
                             'Personal Training Platform • Version 1.0.0+1',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 10.5,
                               color: Color(0xFF9CA3AF),
                             ),
@@ -439,7 +439,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
                           const Text(
                             'Strict 1-on-1 Fitness Coaching • Indian Rupee Billing',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 10,
                               color: Color(0xFFB0B7C3),
                             ),
@@ -461,9 +461,9 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          fontFamily: 'Syne',
+          fontFamily: 'Outfit',
           fontSize: (11.0 * sf).clamp(10.0, 12.5),
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w600,
           color: const Color(0xFF6B7280),
           letterSpacing: 0.8,
         ),
@@ -506,7 +506,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       title: Text(
         title,
         style: TextStyle(
-          fontFamily: 'Syne',
+          fontFamily: 'Outfit',
           fontWeight: FontWeight.w700,
           fontSize: 13,
           color: titleColor ?? kDark,
@@ -514,7 +514,7 @@ class _ClientSettingsScreenState extends State<ClientSettingsScreen> {
       ),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF6B7280)),
+        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF6B7280)),
       ),
       trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF9CA3AF)),
       onTap: () {

@@ -43,7 +43,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                     child: Text(
                       title,
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -91,7 +91,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Reject Application',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -99,13 +99,13 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
           children: [
             const Text(
               'Please provide a reason for the rejection so the trainer can resolve the issue:',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: kGrey),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: kGrey),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: reasonController,
               maxLines: 3,
-              style: const TextStyle(fontFamily: 'Poppins', fontSize: 13),
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 13),
               decoration: InputDecoration(
                 filled: true,
                 fillColor: kField,
@@ -121,7 +121,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: kGrey)),
+            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: kGrey)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -135,7 +135,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                   const SnackBar(
                     content: Text(
                       'Trainer application marked as Rejected.',
-                      style: TextStyle(fontFamily: 'Poppins'),
+                      style: TextStyle(fontFamily: 'Outfit'),
                     ),
                     backgroundColor: Color(0xFFE53935),
                   ),
@@ -148,7 +148,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
             ),
             child: const Text(
               'Confirm Rejection',
-              style: TextStyle(fontFamily: 'Syne', color: Colors.white, fontWeight: FontWeight.w700),
+              style: TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -175,7 +175,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
         title: Text(
           'Admin Review & Approvals',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (16.0 * sf).clamp(14.0, 18.0),
             fontWeight: FontWeight.w700,
             color: kDark,
@@ -198,7 +198,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                 Text(
                   'Admin Mode',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -280,7 +280,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                         ? 'Status: Rejected'
                                         : 'Status: Pending Admin Decision',
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: (14.5 * sf).clamp(13.0, 16.0),
                                   fontWeight: FontWeight.w700,
                                   color: isApproved
@@ -298,7 +298,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                         ? 'Application rejected: ${service.adminNotes ?? "Incomplete credentials"}'
                                         : 'Review submitted credentials below and choose to Approve or Reject.',
                                 style: TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: (11.5 * sf).clamp(10.0, 13.0),
                                   color: kDark.withValues(alpha: 0.8),
                                 ),
@@ -316,7 +316,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                   Text(
                     'Coach Identity & Details',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (14.5 * sf).clamp(13.0, 16.5),
                       fontWeight: FontWeight.w700,
                       color: kDark,
@@ -386,7 +386,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                   Text(
                                     service.fullName ?? 'Coach (Name Pending)',
                                     style: TextStyle(
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Outfit',
                                       fontSize: (16.0 * sf).clamp(14.0, 18.0),
                                       fontWeight: FontWeight.w700,
                                       color: kDark,
@@ -396,7 +396,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                   Text(
                                     'Mobile: ${service.mobileNumber ?? "Not provided"}',
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: (12.0 * sf).clamp(10.5, 13.0),
                                       color: kGrey,
                                     ),
@@ -405,7 +405,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                   Text(
                                     'Age: ${service.age != null ? "${service.age} Years" : "Not specified"}',
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: (12.0 * sf).clamp(10.5, 13.0),
                                       color: kGrey,
                                     ),
@@ -446,7 +446,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                   Text(
                     'Uploaded Certification',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (14.5 * sf).clamp(13.0, 16.5),
                       fontWeight: FontWeight.w700,
                       color: kDark,
@@ -503,7 +503,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                         Text(
                                           'Certificate Attached',
                                           style: TextStyle(
-                                            fontFamily: 'Syne',
+                                            fontFamily: 'Outfit',
                                             fontSize: 11.5,
                                             fontWeight: FontWeight.w700,
                                             color: Color(0xFF2E7D32),
@@ -517,7 +517,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
-                                        fontFamily: 'Poppins',
+                                        fontFamily: 'Outfit',
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: kDark,
@@ -527,7 +527,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                     const Text(
                                       'Tap image to enlarge document',
                                       style: TextStyle(
-                                        fontFamily: 'Poppins',
+                                        fontFamily: 'Outfit',
                                         fontSize: 11,
                                         color: kGrey,
                                       ),
@@ -549,9 +549,9 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                 child: const Text(
                                   'View',
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: 11,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w500,
                                     color: kLime,
                                   ),
                                 ),
@@ -566,7 +566,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                 child: Text(
                                   'No certification document uploaded (Optional for Standard Trainers).',
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: 12.5,
                                     color: kGrey,
                                   ),
@@ -582,7 +582,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                   Text(
                     'Specialties & Coaching Philosophy',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (14.5 * sf).clamp(13.0, 16.5),
                       fontWeight: FontWeight.w700,
                       color: kDark,
@@ -614,7 +614,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                               child: Text(
                                 s,
                                 style: const TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: 11.5,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,
@@ -627,7 +627,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                         Text(
                           '"${service.philosophy}"',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (12.0 * sf).clamp(10.5, 13.0),
                             fontStyle: FontStyle.italic,
                             color: kDark,
@@ -643,7 +643,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                   Text(
                     'Admin Decision',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (14.5 * sf).clamp(13.0, 16.5),
                       fontWeight: FontWeight.w700,
                       color: kDark,
@@ -661,8 +661,8 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                           label: const Text(
                             'Reject',
                             style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w500,
                               color: Color(0xFFE53935),
                               fontSize: 13,
                             ),
@@ -697,8 +697,8 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                                         child: Text(
                                           'Trainer approved! Eligible to deliver sessions on TrainZ.',
                                           style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'Outfit',
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
                                       ),
@@ -714,8 +714,8 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                           label: const Text(
                             'Approve Application',
                             style: TextStyle(
-                              fontFamily: 'Syne',
-                              fontWeight: FontWeight.w800,
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w600,
                               color: kDark,
                               fontSize: 13,
                             ),
@@ -746,7 +746,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                             const SnackBar(
                               content: Text(
                                 'Application reset to Pending Review.',
-                                style: TextStyle(fontFamily: 'Poppins'),
+                                style: TextStyle(fontFamily: 'Outfit'),
                               ),
                               backgroundColor: Color(0xFF424242),
                             ),
@@ -757,7 +757,7 @@ class _AdminTrainerReviewScreenState extends State<AdminTrainerReviewScreen> {
                       label: const Text(
                         'Reset Application to Pending (Demo)',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
                           color: kGrey,
                           fontWeight: FontWeight.w500,
@@ -799,7 +799,7 @@ class _AdminRow extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (11.5 * sf).clamp(10.0, 12.5),
             color: kGrey,
           ),
@@ -812,9 +812,9 @@ class _AdminRow extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (12.0 * sf).clamp(10.5, 13.0),
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               color: kDark,
             ),
           ),

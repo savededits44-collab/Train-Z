@@ -87,7 +87,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
         title: const Text(
           'Reviews & Ratings',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -122,7 +122,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       const Text(
                         'Client Feedback',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -133,12 +133,12 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       // Search Input
                       TextField(
                         controller: _searchCtrl,
-                        style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 13),
+                        style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 13),
                         onChanged: (val) => setState(() => _searchQuery = val),
                         decoration: InputDecoration(
                           hintText: 'Search reviews by client, package, or comment...',
                           hintStyle: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12.5,
                             color: Colors.white.withValues(alpha: 0.35),
                           ),
@@ -235,7 +235,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                               const Text(
                                 'No Reviews Found',
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white70,
@@ -246,7 +246,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                                 'Reviews appear automatically as verified clients complete scheduled workout sessions with you.',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: 12,
                                   color: _kGrey,
                                 ),
@@ -302,9 +302,9 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                   Text(
                     _metrics.formattedAverage,
                     style: const TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 40,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: Colors.white,
                       height: 1.0,
                     ),
@@ -324,7 +324,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                   Text(
                     '${_metrics.totalReviews} Verified ${_metrics.totalReviews == 1 ? "Review" : "Reviews"}',
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       color: _kGrey,
                       fontWeight: FontWeight.w500,
@@ -372,7 +372,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                         child: Text(
                           '${_metrics.positivePercentage.round()}% Positive Feedback',
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -400,7 +400,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                         child: Text(
                           '${_metrics.responseRatePercent.round()}% Response Rate',
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -424,7 +424,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
       children: [
         Text(
           '$star',
-          style: const TextStyle(fontFamily: 'Syne', fontSize: 10, color: Colors.white70, fontWeight: FontWeight.w700),
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: Colors.white70, fontWeight: FontWeight.w700),
         ),
         const SizedBox(width: 2),
         const Icon(Icons.star_rounded, size: 10, color: Color(0xFFFFB300)),
@@ -446,7 +446,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
           child: Text(
             '$count',
             textAlign: TextAlign.end,
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 10, color: _kGrey),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: _kGrey),
           ),
         ),
       ],
@@ -467,9 +467,9 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 11.5,
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
             color: isSelected ? _kDark : Colors.white70,
           ),
         ),
@@ -491,9 +491,9 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 11.5,
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w600,
             color: isSelected ? _kDark : Colors.white70,
           ),
         ),
@@ -521,7 +521,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                 backgroundColor: _kLime.withValues(alpha: 0.2),
                 child: Text(
                   r.displayClientName.isNotEmpty ? r.displayClientName[0].toUpperCase() : 'C',
-                  style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: _kLime, fontSize: 13),
+                  style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kLime, fontSize: 13),
                 ),
               ),
               const SizedBox(width: 10),
@@ -532,7 +532,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                     Text(
                       r.displayClientName,
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 14.5,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -553,7 +553,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                         const SizedBox(width: 8),
                         Text(
                           r.formattedDate,
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: _kGrey),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: _kGrey),
                         ),
                       ],
                     ),
@@ -583,7 +583,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
               ),
               child: Text(
                 'Package: ${r.packageName}',
-                style: const TextStyle(fontFamily: 'Poppins', fontSize: 10, color: Colors.white60),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: Colors.white60),
               ),
             ),
           ],
@@ -593,7 +593,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
           Text(
             r.comment,
             style: const TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 12.5,
               color: Colors.white,
               height: 1.45,
@@ -617,7 +617,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                   Expanded(
                     child: Text(
                       'Reported to Admin: ${r.reportReason ?? "Policy violation"}',
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Colors.amber),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Colors.amber),
                     ),
                   ),
                 ],
@@ -657,7 +657,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                           const Text(
                             'Your Public Response',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: _kLime,
@@ -666,7 +666,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                           const SizedBox(width: 6),
                           Text(
                             '• ${r.formattedResponseDate}',
-                            style: const TextStyle(fontFamily: 'Poppins', fontSize: 10, color: _kGrey),
+                            style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: _kGrey),
                           ),
                         ],
                       ),
@@ -677,7 +677,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                             onTap: () => _openResponseSheet(r, isEditing: true),
                             child: const Text(
                               'Edit',
-                              style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: _kLime, fontWeight: FontWeight.w600),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: _kLime, fontWeight: FontWeight.w600),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -685,7 +685,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                             onTap: () => _confirmDeleteResponse(r),
                             child: const Text(
                               'Delete',
-                              style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Colors.redAccent, fontWeight: FontWeight.w600),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Colors.redAccent, fontWeight: FontWeight.w600),
                             ),
                           ),
                         ],
@@ -696,7 +696,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                   Text(
                     r.trainerResponse!,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11.5,
                       color: Colors.white70,
                       height: 1.4,
@@ -715,9 +715,9 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                   label: const Text(
                     'Reply to Client',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: _kLime,
                     ),
                   ),
@@ -774,7 +774,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                     Text(
                       isEditing ? 'Edit Public Response' : 'Reply to Client Review',
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -783,7 +783,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                     const SizedBox(height: 4),
                     Text(
                       'Your response will be visible publicly on your coach profile beneath ${review.displayClientName}\'s review.',
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
                     ),
                     const SizedBox(height: 14),
 
@@ -791,10 +791,10 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       controller: responseController,
                       maxLines: 4,
                       maxLength: 500,
-                      style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 13),
+                      style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 13),
                       decoration: InputDecoration(
                         hintText: 'Write a professional, courteous reply...',
-                        hintStyle: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: Colors.white.withValues(alpha: 0.35)),
+                        hintStyle: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: Colors.white.withValues(alpha: 0.35)),
                         filled: true,
                         fillColor: Colors.white.withValues(alpha: 0.05),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _kBorder)),
@@ -807,7 +807,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       const SizedBox(height: 4),
                       Text(
                         errorMessage!,
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Colors.redAccent),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Colors.redAccent),
                       ),
                     ],
                     const SizedBox(height: 14),
@@ -822,7 +822,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 13),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
-                            child: const Text('Cancel', style: TextStyle(fontFamily: 'Syne', color: Colors.white70)),
+                            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: Colors.white70)),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -859,7 +859,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                             ),
                             child: Text(
                               isEditing ? 'Update' : 'Publish Reply',
-                              style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: _kDark),
+                              style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: _kDark),
                             ),
                           ),
                         ),
@@ -880,15 +880,15 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: _kCardBg,
-        title: const Text('Delete Response?', style: TextStyle(fontFamily: 'Syne', color: Colors.white, fontWeight: FontWeight.w700)),
+        title: const Text('Delete Response?', style: TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w700)),
         content: const Text(
           'Are you sure you want to remove your public response to this review? You can submit another reply at any time.',
-          style: TextStyle(fontFamily: 'Poppins', color: Colors.white70, fontSize: 12.5),
+          style: TextStyle(fontFamily: 'Outfit', color: Colors.white70, fontSize: 12.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Keep', style: TextStyle(fontFamily: 'Syne', color: _kGrey)),
+            child: const Text('Keep', style: TextStyle(fontFamily: 'Outfit', color: _kGrey)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -908,7 +908,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            child: const Text('Delete', style: TextStyle(fontFamily: 'Syne', color: Colors.white)),
+            child: const Text('Delete', style: TextStyle(fontFamily: 'Outfit', color: Colors.white)),
           ),
         ],
       ),
@@ -970,16 +970,16 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                     const Text(
                       'Report Review to Administrators',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 17,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 4),
                     const Text(
                       'Report reviews that violate TRAIN Z code of conduct. Reports are audited impartially by Platform Administrators.',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
                     ),
                     const SizedBox(height: 14),
 
@@ -996,7 +996,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                           value: selectedReason,
                           dropdownColor: _kCardBg,
                           isExpanded: true,
-                          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 12.5),
+                          style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 12.5),
                           items: reasons.map((r) {
                             return DropdownMenuItem<String>(value: r, child: Text(r));
                           }).toList(),
@@ -1012,10 +1012,10 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                       controller: detailsController,
                       maxLines: 3,
                       maxLength: 300,
-                      style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 12.5),
+                      style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 12.5),
                       decoration: InputDecoration(
                         hintText: 'Additional details for administrators (optional)...',
-                        hintStyle: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Colors.white.withValues(alpha: 0.3)),
+                        hintStyle: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.white.withValues(alpha: 0.3)),
                         filled: true,
                         fillColor: Colors.white.withValues(alpha: 0.05),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: _kBorder)),
@@ -1024,7 +1024,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
 
                     if (reportError != null) ...[
                       const SizedBox(height: 4),
-                      Text(reportError!, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Colors.redAccent)),
+                      Text(reportError!, style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Colors.redAccent)),
                     ],
                     const SizedBox(height: 14),
 
@@ -1038,7 +1038,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 13),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
-                            child: const Text('Cancel', style: TextStyle(fontFamily: 'Syne', color: Colors.white70)),
+                            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: Colors.white70)),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -1075,7 +1075,7 @@ class _TrainerReviewsScreenState extends State<TrainerReviewsScreen> {
                             ),
                             child: const Text(
                               'Submit Report',
-                              style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+                              style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Colors.white),
                             ),
                           ),
                         ),

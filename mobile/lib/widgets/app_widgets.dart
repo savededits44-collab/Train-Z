@@ -27,9 +27,9 @@ class AppLogo extends StatelessWidget {
           TextSpan(
             text: 'Train',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: fontSize,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               color: textColor ?? kDark,
               letterSpacing: fontSize * 0.04,
             ),
@@ -37,9 +37,9 @@ class AppLogo extends StatelessWidget {
           TextSpan(
             text: 'Z',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: fontSize,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               color: kLime,
               letterSpacing: fontSize * 0.04,
             ),
@@ -88,7 +88,7 @@ class AppTextField extends StatelessWidget {
       keyboardType: keyboardType,
       validator: validator,
       style: TextStyle(
-        fontFamily: 'Poppins',
+        fontFamily: 'Outfit',
         fontSize: fontSize,
         fontWeight: FontWeight.w500,
         color: kDark,
@@ -96,7 +96,7 @@ class AppTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          fontFamily: 'Poppins',
+          fontFamily: 'Outfit',
           fontSize: fontSize - 1,
           color: kGrey,
         ),
@@ -181,9 +181,9 @@ class AppPrimaryButton extends StatelessWidget {
             : Text(
                 label,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: fontSize,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: 0.5,
                   color: Colors.white,
                 ),
@@ -283,7 +283,7 @@ class OrDivider extends StatelessWidget {
           child: Text(
             'or',
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (12.0 * sf).clamp(10, 13),
               color: const Color(0xFFCCCCCC),
             ),
@@ -329,7 +329,7 @@ class GoogleSignInButton extends StatelessWidget {
             Text(
               'Continue with Google',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: fontSize,
                 fontWeight: FontWeight.w500,
                 color: kDark,

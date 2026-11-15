@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 class AppTheme {
   AppTheme._();
 
-  static const String fontFamily = 'Poppins';
+  static const String fontFamily = 'Outfit';
 
   // Primary Palette - Deep Absolute Monochrome
   static const Color pureBlack = Color(0xFF000000);
@@ -50,50 +50,111 @@ class AppTheme {
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontFamily: fontFamily,
-          fontSize: 36,
-          fontWeight: FontWeight.w800,
+          fontSize: 32,
+          fontWeight: FontWeight.w600,
           color: pureWhite,
-          letterSpacing: 2.0,
+          letterSpacing: -0.5,
         ),
         displayMedium: TextStyle(
           fontFamily: fontFamily,
-          fontSize: 28,
-          fontWeight: FontWeight.w700,
+          fontSize: 26,
+          fontWeight: FontWeight.w600,
           color: pureWhite,
-          letterSpacing: 1.5,
+          letterSpacing: -0.5,
         ),
-        headlineLarge: TextStyle(
+        displaySmall: TextStyle(
           fontFamily: fontFamily,
           fontSize: 22,
           fontWeight: FontWeight.w600,
           color: pureWhite,
-          letterSpacing: 1.2,
+          letterSpacing: -0.3,
+        ),
+        headlineLarge: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: pureWhite,
+          letterSpacing: -0.2,
+        ),
+        headlineMedium: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: pureWhite,
+        ),
+        headlineSmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: pureWhite,
+        ),
+        titleLarge: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: pureWhite,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: pureWhite,
+        ),
+        titleSmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: mutedWhite,
         ),
         bodyLarge: TextStyle(
           fontFamily: fontFamily,
-          fontSize: 16,
+          fontSize: 15,
           fontWeight: FontWeight.w400,
           color: mutedWhite,
-          letterSpacing: 0.5,
+          letterSpacing: 0.15,
         ),
         bodyMedium: TextStyle(
           fontFamily: fontFamily,
           fontSize: 14,
           fontWeight: FontWeight.w400,
           color: slateGrey,
-          letterSpacing: 0.25,
+          letterSpacing: 0.15,
+        ),
+        bodySmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          color: slateGrey,
         ),
         labelLarge: TextStyle(
           fontFamily: fontFamily,
           fontSize: 14,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
           color: pureWhite,
-          letterSpacing: 1.5,
+          letterSpacing: 0.2,
+        ),
+        labelMedium: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: pureWhite,
+        ),
+        labelSmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: slateGrey,
         ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: pureBlack,
         elevation: 0,
+        titleTextStyle: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: pureWhite,
+        ),
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarBrightness: Brightness.dark,
           statusBarIconBrightness: Brightness.light,

@@ -98,7 +98,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
               title: const Text(
                 'My Clients',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -178,7 +178,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                       TextField(
                         controller: _searchCtrl,
                         onChanged: (val) => setState(() => _searchQuery = val),
-                        style: const TextStyle(color: Colors.white, fontFamily: 'Poppins', fontSize: 13),
+                        style: const TextStyle(color: Colors.white, fontFamily: 'Outfit', fontSize: 13),
                         decoration: InputDecoration(
                           hintText: 'Search by athlete name, package, or goal...',
                           hintStyle: TextStyle(color: _kGrey.withValues(alpha: 0.6), fontSize: 13),
@@ -283,7 +283,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                   child: Text(
                     label,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 10,
                       color: highlight ? Colors.white : _kGrey,
                     ),
@@ -297,9 +297,9 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
             Text(
               value,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 16,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: highlight ? _kLime : Colors.white,
               ),
             ),
@@ -331,7 +331,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
             child: Text(
               title,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: isSelected ? _kDark : Colors.white,
@@ -370,9 +370,9 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                 child: Text(
                   client.displayInitial,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 18,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: client.isActive ? _kLime : _kGrey,
                   ),
                 ),
@@ -388,7 +388,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                           child: Text(
                             client.name,
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -409,9 +409,9 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                           child: Text(
                             client.status.displayName.toUpperCase(),
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 9,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: client.isActive ? const Color(0xFF66BB6A) : _kGrey,
                             ),
                           ),
@@ -422,7 +422,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                     Text(
                       client.packageSummary,
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 12,
                         color: _kGrey,
                       ),
@@ -459,7 +459,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                     const Text(
                       'Next Session:',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 12,
                         color: _kGrey,
                       ),
@@ -469,7 +469,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                       child: Text(
                         client.formattedNextSession,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: client.hasUpcomingSession ? Colors.white : _kGrey,
@@ -488,7 +488,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                     const Text(
                       'Last Completed:',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 12,
                         color: _kGrey,
                       ),
@@ -498,7 +498,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                       child: Text(
                         client.formattedLastSession,
                         style: const TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFFCCCCCC),
@@ -517,7 +517,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                         child: Text(
                           '${client.remainingSessions} Left',
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: _kLime,
@@ -550,8 +550,8 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
               label: const Text(
                 'View Profile, Notes & Milestones',
                 style: TextStyle(
-                  fontFamily: 'Syne',
-                  fontWeight: FontWeight.w800,
+                  fontFamily: 'Outfit',
+                  fontWeight: FontWeight.w500,
                   fontSize: 13,
                   color: _kDark,
                 ),
@@ -591,9 +591,9 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
             Text(
               noClientsOverall ? 'No Connected Athletes Yet' : 'No Matching Athletes',
               style: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 17,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
             ),
@@ -604,7 +604,7 @@ class _TrainerClientsScreenState extends State<TrainerClientsScreen> {
                   : 'Try adjusting your search query or switching filters between Active and Past.',
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 12,
                 color: _kGrey,
               ),

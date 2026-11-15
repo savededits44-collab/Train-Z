@@ -129,10 +129,10 @@ class _TrainerEmailVerificationScreenState
             label: const Text(
               'Sign Out',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 12,
                 color: kGrey,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -169,9 +169,9 @@ class _TrainerEmailVerificationScreenState
                 'Verify Your Email.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (26.0 * sf).clamp(22.0, 32.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.2,
                 ),
@@ -183,7 +183,7 @@ class _TrainerEmailVerificationScreenState
                 'We have sent an authentication link to:',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.0 * sf).clamp(12.0, 14.0),
                   color: kGrey,
                 ),
@@ -195,7 +195,7 @@ class _TrainerEmailVerificationScreenState
                 widget.email,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (14.0 * sf).clamp(12.5, 15.0),
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -234,7 +234,7 @@ class _TrainerEmailVerificationScreenState
                         child: Text(
                           _statusMessage!,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
                             color: _isSuccessMessage
                                 ? const Color(0xFF2E7D32)
@@ -281,7 +281,7 @@ class _TrainerEmailVerificationScreenState
                       : const Text(
                           'Resend Verification Email',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
                             color: kDark,
@@ -296,7 +296,7 @@ class _TrainerEmailVerificationScreenState
                 'Trainer accounts must maintain a verified email address for account security and administrative notices.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (11.5 * sf).clamp(10.5, 12.5),
                   color: kGrey,
                   height: 1.4,

@@ -83,7 +83,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                 const Expanded(
                   child: Text(
                     'Report Review',
-                    style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 16),
+                    style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                 ),
               ],
@@ -94,7 +94,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
               children: [
                 const Text(
                   'Help keep TRAIN Z a professional training community. Please tell us why you are reporting this review:',
-                  style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF4B5563)),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF4B5563)),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
@@ -102,7 +102,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   isExpanded: true,
                   decoration: InputDecoration(
                     labelText: 'Reason',
-                    labelStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                    labelStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   ),
@@ -140,18 +140,18 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   maxLines: 2,
                   decoration: InputDecoration(
                     hintText: 'Additional details (optional)...',
-                    hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFF9CA3AF)),
+                    hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFF9CA3AF)),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   ),
-                  style: const TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 12),
                 ),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: Color(0xFF6B7280))),
+                child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF6B7280))),
               ),
               ElevatedButton(
                 onPressed: isReporting
@@ -185,7 +185,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                 ),
                 child: isReporting
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Text('Submit Report', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+                    : const Text('Submit Report', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
               ),
             ],
           );
@@ -231,9 +231,9 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                 Text(
                   'Access Restricted',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (22.0 * sf).clamp(18.0, 26.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                   ),
                 ),
@@ -242,7 +242,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   'This trainer profile is not eligible for booking with your current account profile. Only verified eligible personal trainers can be booked.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.5 * sf).clamp(11.5, 14.0),
                     color: const Color(0xFF666666),
                     height: 1.5,
@@ -258,7 +258,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   ),
                   child: const Text(
                     'Return to Trainers',
-                    style: TextStyle(fontFamily: 'Syne', color: Colors.white, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
@@ -281,9 +281,9 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
         title: Text(
           trainer.displayName,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (16.0 * sf).clamp(15.0, 18.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -365,9 +365,9 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                         ? Text(
                             trainer.displayName.isNotEmpty ? trainer.displayName[0].toUpperCase() : 'C',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (36.0 * sf).clamp(30.0, 42.0),
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: kLime,
                             ),
                           )
@@ -398,9 +398,9 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                           trainer.displayName,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (22.0 * sf).clamp(18.0, 26.0),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -413,7 +413,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   Text(
                     trainer.gymName ?? 'Certified Personal Trainer',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (12.5 * sf).clamp(11.5, 14.0),
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFF555555),
@@ -437,7 +437,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                               ? 'Professional Trainer • Coming Soon'
                               : 'Trainer',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: trainer.category == TrainerCategory.advancedTrainer
@@ -457,7 +457,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                       Text(
                         trainer.displayLocation,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.5 * sf).clamp(10.5, 13.0),
                           color: kGrey,
                         ),
@@ -493,7 +493,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                             Text(
                               trainer.availabilityText,
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 color: trainer.hasAvailableSlots
@@ -557,7 +557,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   ? trainer.profile.bio!
                   : 'Dedicated personal fitness trainer specializing in structured progressive overload, nutritional balance, movement longevity, and athletic conditioning.',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (12.5 * sf).clamp(11.5, 14.0),
                 color: const Color(0xFF444444),
                 height: 1.55,
@@ -633,7 +633,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                 Text(
                                   vq.certificateName,
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: (12.5 * sf).clamp(11.5, 14.0),
                                     fontWeight: FontWeight.w700,
                                     color: kDark,
@@ -643,7 +643,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                 Text(
                                   '${vq.courseName} • ${vq.issuingOrganization} (${vq.yearOfCompletion})',
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: (11.0 * sf).clamp(10.0, 12.0),
                                     color: const Color(0xFF444444),
                                   ),
@@ -653,7 +653,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                   Text(
                                     vq.qualificationDetails!,
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: (10.5 * sf).clamp(9.5, 11.5),
                                       color: const Color(0xFF666666),
                                     ),
@@ -687,7 +687,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                           Text(
                             cert,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.0 * sf).clamp(10.0, 12.5),
                               fontWeight: FontWeight.w600,
                               color: kDark,
@@ -718,7 +718,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   child: Text(
                     spec,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.5),
                       fontWeight: FontWeight.w600,
                       color: kDark,
@@ -793,7 +793,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                         child: Text(
                           trainer.displayLocation,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (14.0 * sf).clamp(13.0, 16.0),
                             fontWeight: FontWeight.w700,
                             color: kDark,
@@ -806,7 +806,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   Text(
                     'Available for 1-on-1 training across commercial gyms, residential clubhouses, and private partner studios in ${trainer.displayLocation}.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.5 * sf).clamp(10.5, 13.0),
                       color: const Color(0xFF555555),
                       height: 1.4,
@@ -829,7 +829,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                           child: Text(
                             'Strict Privacy: Client home addresses and trainer personal phone numbers are never shared or made public.',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (10.0 * sf).clamp(9.0, 11.5),
                               color: const Color(0xFF4B5563),
                               fontWeight: FontWeight.w500,
@@ -871,7 +871,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                       selectedColor: kDark,
                       backgroundColor: const Color(0xFFF7F7F7),
                       labelStyle: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (11.0 * sf).clamp(10.0, 12.5),
                         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                         color: isSelected ? Colors.white : kDark,
@@ -942,7 +942,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                           Text(
                             '${slot.start} - ${slot.end}',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.0 * sf).clamp(10.0, 12.5),
                               fontWeight: isAvailable ? FontWeight.w600 : FontWeight.w400,
                               color: isAvailable ? kDark : kGrey,
@@ -1002,7 +1002,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                             Text(
                               'No written reviews yet',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (13.5 * sf).clamp(12.5, 15.0),
                                 fontWeight: FontWeight.w700,
                                 color: kDark,
@@ -1012,7 +1012,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                             const Text(
                               'Be the first athlete to complete a session and leave a review for this trainer!',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
                             ),
                           ],
                         ),
@@ -1039,9 +1039,9 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                     Text(
                                       avgRating.toStringAsFixed(1),
                                       style: TextStyle(
-                                        fontFamily: 'Syne',
+                                        fontFamily: 'Outfit',
                                         fontSize: (28.0 * sf).clamp(24.0, 32.0),
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w600,
                                         color: kDark,
                                       ),
                                     ),
@@ -1049,7 +1049,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                     Text(
                                       '/ 5.0',
                                       style: TextStyle(
-                                        fontFamily: 'Poppins',
+                                        fontFamily: 'Outfit',
                                         fontSize: (11.0 * sf).clamp(10.0, 12.0),
                                         fontWeight: FontWeight.w600,
                                         color: const Color(0xFF6B7280),
@@ -1080,7 +1080,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                   Text(
                                     '$reviewCount Verified Athlete ${reviewCount == 1 ? 'Review' : 'Reviews'}',
                                     style: TextStyle(
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Outfit',
                                       fontSize: (12.5 * sf).clamp(11.5, 13.5),
                                       fontWeight: FontWeight.w700,
                                       color: kDark,
@@ -1090,7 +1090,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                   Text(
                                     'Ratings submitted following verified 60-minute training sessions.',
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: (10.0 * sf).clamp(9.0, 11.0),
                                       color: const Color(0xFF6B7280),
                                     ),
@@ -1135,9 +1135,9 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                         ? Text(
                                             r.clientName.isNotEmpty ? r.clientName[0].toUpperCase() : 'A',
                                             style: const TextStyle(
-                                              fontFamily: 'Syne',
+                                              fontFamily: 'Outfit',
                                               fontSize: 12,
-                                              fontWeight: FontWeight.w800,
+                                              fontWeight: FontWeight.w600,
                                               color: kLime,
                                             ),
                                           )
@@ -1151,7 +1151,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                         Text(
                                           r.clientName,
                                           style: TextStyle(
-                                            fontFamily: 'Syne',
+                                            fontFamily: 'Outfit',
                                             fontSize: (12.5 * sf).clamp(11.5, 13.5),
                                             fontWeight: FontWeight.w700,
                                             color: kDark,
@@ -1164,7 +1164,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                             const Text(
                                               'Verified Athlete',
                                               style: TextStyle(
-                                                fontFamily: 'Poppins',
+                                                fontFamily: 'Outfit',
                                                 fontSize: 9.5,
                                                 color: Color(0xFF16A34A),
                                                 fontWeight: FontWeight.w600,
@@ -1174,7 +1174,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                             Text(
                                               '• ${r.formattedDate}',
                                               style: const TextStyle(
-                                                fontFamily: 'Poppins',
+                                                fontFamily: 'Outfit',
                                                 fontSize: 9.5,
                                                 color: Color(0xFF9CA3AF),
                                               ),
@@ -1202,7 +1202,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                             Text(
                                               r.ratingText,
                                               style: const TextStyle(
-                                                fontFamily: 'Syne',
+                                                fontFamily: 'Outfit',
                                                 fontSize: 10.5,
                                                 fontWeight: FontWeight.w700,
                                                 color: Color(0xFF92400E),
@@ -1238,7 +1238,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                       child: Text(
                                         cat,
                                         style: const TextStyle(
-                                          fontFamily: 'Poppins',
+                                          fontFamily: 'Outfit',
                                           fontSize: 9.5,
                                           fontWeight: FontWeight.w600,
                                           color: Color(0xFF374151),
@@ -1252,7 +1252,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                               Text(
                                 '"${r.comment}"',
                                 style: TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: (11.5 * sf).clamp(10.5, 12.5),
                                   color: const Color(0xFF333333),
                                   height: 1.4,
@@ -1292,13 +1292,13 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Starting from', style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey)),
+                  const Text('Starting from', style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey)),
                   Text(
                     '₹${trainer.hourlyRate} / Session',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (16.0 * sf).clamp(15.0, 20.0),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: kDark,
                     ),
                   ),
@@ -1320,9 +1320,9 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                       label: Text(
                         isProfessional ? 'Coming Soon' : 'Book Trainer',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 14,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w500,
                           color: isProfessional ? const Color(0xFF92400E) : kDark,
                         ),
                       ),
@@ -1361,7 +1361,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
               Text(
                 title,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.5 * sf).clamp(10.5, 13.0),
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -1370,7 +1370,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
               Text(
                 subtitle,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (10.0 * sf).clamp(9.0, 11.5),
                   color: kGrey,
                 ),
@@ -1418,7 +1418,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                     Text(
                       title,
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (13.0 * sf).clamp(12.0, 14.5),
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -1429,7 +1429,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                         Text(
                           format,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 10.5,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF15803D),
@@ -1439,7 +1439,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                         Text(
                           duration,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 10.5,
                             color: kGrey,
                           ),
@@ -1455,7 +1455,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
           Text(
             description,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.0 * sf).clamp(10.0, 12.5),
               color: const Color(0xFF555555),
               height: 1.4,
@@ -1487,7 +1487,7 @@ class _MetricPill extends StatelessWidget {
         Text(
           label.toUpperCase(),
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (9.0 * sf).clamp(8.0, 10.5),
             fontWeight: FontWeight.w600,
             color: kGrey,
@@ -1498,16 +1498,16 @@ class _MetricPill extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (15.0 * sf).clamp(13.5, 17.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
         Text(
           subtext,
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (9.5 * sf).clamp(8.5, 11.0),
             color: kGrey,
           ),
@@ -1531,9 +1531,9 @@ class _SectionHeading extends StatelessWidget {
     return Text(
       title,
       style: TextStyle(
-        fontFamily: 'Syne',
+        fontFamily: 'Outfit',
         fontSize: (11.5 * sf).clamp(10.5, 13.0),
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
         color: kDark,
         letterSpacing: 1.1,
       ),

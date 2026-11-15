@@ -225,7 +225,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
             backgroundColor: const Color(0xFFE53935),
             content: Text(
               '${day.dayName}: $error',
-              style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+              style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
             ),
           ),
         );
@@ -252,7 +252,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
               SizedBox(width: 10),
               Text(
                 'Weekly availability saved successfully.',
-                style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                style: TextStyle(fontFamily: 'Outfit', color: Colors.white),
               ),
             ],
           ),
@@ -267,7 +267,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
           backgroundColor: const Color(0xFFE53935),
           content: Text(
             'Failed to save: $e',
-            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
           ),
         ),
       );
@@ -295,7 +295,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
           backgroundColor: kDark,
           content: Text(
             'Date $dateStr unblocked. Regular weekly schedule restored.',
-            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
           ),
         ),
       );
@@ -310,7 +310,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Text(
             'Block Date',
-            style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark),
+            style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: kDark),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -318,7 +318,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
             children: [
               Text(
                 'Block $dateStr so clients cannot book training sessions on this day.',
-                style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kGrey),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kGrey),
               ),
               const SizedBox(height: 12),
               Container(
@@ -336,7 +336,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     Expanded(
                       child: Text(
                         'Confirmed client bookings cannot be cancelled via availability. Any booked sessions will remain valid.',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF856404)),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF856404)),
                       ),
                     ),
                   ],
@@ -347,7 +347,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                 controller: reasonController,
                 decoration: const InputDecoration(
                   labelText: 'Reason for leave',
-                  labelStyle: TextStyle(fontFamily: 'Poppins', fontSize: 13),
+                  labelStyle: TextStyle(fontFamily: 'Outfit', fontSize: 13),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -356,12 +356,12 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: kGrey)),
+              child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: kGrey)),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(ctx).pop(true),
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE53935)),
-              child: const Text('Block Date', style: TextStyle(fontFamily: 'Syne', color: Colors.white)),
+              child: const Text('Block Date', style: TextStyle(fontFamily: 'Outfit', color: Colors.white)),
             ),
           ],
         ),
@@ -386,7 +386,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: kDark,
-            content: Text(msg, style: const TextStyle(fontFamily: 'Poppins', color: Colors.white)),
+            content: Text(msg, style: const TextStyle(fontFamily: 'Outfit', color: Colors.white)),
           ),
         );
         _loadAvailability();
@@ -434,7 +434,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     children: [
                       Text(
                         'Custom Hours: $dateStr',
-                        style: const TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w700, color: kDark),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w500, color: kDark),
                       ),
                       IconButton(
                         icon: const Icon(Icons.close, size: 20, color: kGrey),
@@ -445,7 +445,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                   const SizedBox(height: 6),
                   const Text(
                     'Set custom availability windows for this date only. Minimum 60 min per window.',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
                   ),
                   const SizedBox(height: 14),
                   ...List.generate(tempWindows.length, (idx) {
@@ -504,7 +504,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                       });
                     },
                     icon: const Icon(Iconsax.add, size: 18, color: kDark),
-                    label: const Text('Add Another Window', style: TextStyle(fontFamily: 'Poppins', color: kDark, fontWeight: FontWeight.w600)),
+                    label: const Text('Add Another Window', style: TextStyle(fontFamily: 'Outfit', color: kDark, fontWeight: FontWeight.w500)),
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
@@ -523,7 +523,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                           messenger.showSnackBar(
                             SnackBar(
                               backgroundColor: kDark,
-                              content: Text('Custom hours saved for $dateStr.', style: const TextStyle(fontFamily: 'Poppins', color: Colors.white)),
+                              content: Text('Custom hours saved for $dateStr.', style: const TextStyle(fontFamily: 'Outfit', color: Colors.white)),
                             ),
                           );
                           _loadAvailability();
@@ -531,7 +531,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                           messenger.showSnackBar(
                             SnackBar(
                               backgroundColor: const Color(0xFFE53935),
-                              content: Text('$e', style: const TextStyle(fontFamily: 'Poppins', color: Colors.white)),
+                              content: Text('$e', style: const TextStyle(fontFamily: 'Outfit', color: Colors.white)),
                             ),
                           );
                         }
@@ -541,7 +541,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Apply Custom Hours', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white)),
+                      child: const Text('Apply Custom Hours', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Colors.white)),
                     ),
                   ),
                 ],
@@ -568,7 +568,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
         title: Text(
           'Availability & Calendar',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18 * sf).clamp(16, 22),
             fontWeight: FontWeight.w700,
             color: kDark,
@@ -590,7 +590,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                 const SizedBox(width: 4),
                 Text(
                   'IST (Asia/Kolkata)',
-                  style: TextStyle(fontFamily: 'Poppins', fontSize: 10 * sf, color: kDark, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 10 * sf, color: kDark, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -602,7 +602,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
           unselectedLabelColor: kGrey,
           indicatorColor: kDark,
           indicatorWeight: 3,
-          labelStyle: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13),
+          labelStyle: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 13),
           tabs: const [
             Tab(text: 'Weekly Schedule'),
             Tab(text: 'Calendar & Overrides'),
@@ -653,12 +653,12 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                   children: [
                     Text(
                       '60-Minute Session Slots',
-                      style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13 * sf, color: kDark),
+                      style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 13 * sf, color: kDark),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Windows are divided into 60-min sessions. Gaps between windows are automatic breaks.',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 11 * sf, color: kGrey),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 11 * sf, color: kGrey),
                     ),
                   ],
                 ),
@@ -709,7 +709,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                             SizedBox(width: 8),
                             Text(
                               'Save Weekly Availability',
-                              style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
+                              style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
                             ),
                           ],
                         ),
@@ -757,9 +757,9 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                       child: Text(
                         day.dayShort,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 11 * sf,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: day.isEnabled ? kLime : kGrey,
                         ),
                       ),
@@ -768,7 +768,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     Text(
                       day.dayName,
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 14 * sf,
                         fontWeight: FontWeight.w700,
                         color: day.isEnabled ? kDark : kGrey,
@@ -794,7 +794,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                 child: Center(
                   child: Text(
                     'No windows configured. Day is currently off.',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 12 * sf, color: kGrey),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 12 * sf, color: kGrey),
                   ),
                 ),
               )
@@ -831,7 +831,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     Expanded(
                       child: Text(
                         validationError,
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFFE53935)),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFFE53935)),
                       ),
                     ),
                   ],
@@ -847,14 +847,14 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                 children: [
                   Text(
                     '${day.generateSlots().length} session slots',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 11 * sf, color: kGrey, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 11 * sf, color: kGrey, fontWeight: FontWeight.w500),
                   ),
                   TextButton.icon(
                     onPressed: () => _addWindow(dayIndex),
                     icon: const Icon(Iconsax.add_circle, size: 16, color: kDark),
                     label: Text(
                       'Add Time Window',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 12 * sf, color: kDark, fontWeight: FontWeight.w600),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 12 * sf, color: kDark, fontWeight: FontWeight.w500),
                     ),
                   ),
                 ],
@@ -886,7 +886,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                 isExpanded: true,
                 value: _timeOptions.contains(window.start) ? window.start : _timeOptions.first,
                 isDense: true,
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 12 * sf, color: kDark, fontWeight: FontWeight.w600),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 12 * sf, color: kDark, fontWeight: FontWeight.w600),
                 items: _timeOptions.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                 onChanged: (newStart) {
                   if (newStart != null) {
@@ -898,7 +898,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 6),
-            child: Text('→', style: TextStyle(color: kGrey, fontWeight: FontWeight.bold)),
+            child: Text('→', style: TextStyle(fontFamily: 'Outfit', color: kGrey, fontWeight: FontWeight.w600)),
           ),
           // End Time Picker
           Expanded(
@@ -907,7 +907,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                 isExpanded: true,
                 value: _timeOptions.contains(window.end) ? window.end : _timeOptions.last,
                 isDense: true,
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 12 * sf, color: kDark, fontWeight: FontWeight.w600),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 12 * sf, color: kDark, fontWeight: FontWeight.w600),
                 items: _timeOptions.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                 onChanged: (newEnd) {
                   if (newEnd != null) {
@@ -928,7 +928,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
             ),
             child: Text(
               '$slotCount slots',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 10 * sf, color: kDark, fontWeight: FontWeight.w600),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 10 * sf, color: kDark, fontWeight: FontWeight.w600),
             ),
           ),
           IconButton(
@@ -968,7 +968,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
             Text(
               'Break: ${w1.end} - ${w2.start} ($durationStr)',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 10 * sf,
                 color: const Color(0xFFF57F17),
                 fontWeight: FontWeight.w600,
@@ -1044,7 +1044,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 11 * sf,
             fontWeight: FontWeight.w700,
             color: isSelected ? Colors.white : kGrey,
@@ -1102,7 +1102,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     Text(
                       _formatDateTitle(_selectedDate),
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 14 * sf,
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -1168,7 +1168,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                         Text(
                           ['M', 'T', 'W', 'T', 'F', 'S', 'S'][day.weekday - 1],
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 11 * sf,
                             fontWeight: FontWeight.w700,
                             color: isSelected ? Colors.white : kGrey,
@@ -1178,7 +1178,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                         Text(
                           '${day.day}',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 13 * sf,
                             fontWeight: FontWeight.w700,
                             color: isSelected
@@ -1249,7 +1249,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                               ? 'CUSTOM HOURS'
                               : 'WEEKLY SCHEDULE',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 10 * sf,
                         fontWeight: FontWeight.w700,
                         color: isBlocked || hasCustomHours ? Colors.white : kLime,
@@ -1260,7 +1260,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     const SizedBox(width: 8),
                     Text(
                       '(${override!.reason})',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 11 * sf, color: kGrey),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 11 * sf, color: kGrey),
                     ),
                   ],
                 ],
@@ -1270,7 +1270,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                   onPressed: _toggleBlockSelectedDate,
                   child: const Text(
                     'Unblock Date',
-                    style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w700, color: Color(0xFFE53935)),
+                    style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Color(0xFFE53935)),
                   ),
                 )
               else if (hasCustomHours)
@@ -1284,7 +1284,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                   },
                   child: const Text(
                     'Reset to Weekly',
-                    style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w700, color: kDark),
+                    style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark),
                   ),
                 ),
             ],
@@ -1300,7 +1300,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     icon: const Icon(Iconsax.slash, size: 16, color: Color(0xFFE53935)),
                     label: Text(
                       'Block Date',
-                      style: TextStyle(fontFamily: 'Syne', fontSize: 12 * sf, color: const Color(0xFFE53935), fontWeight: FontWeight.w700),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 12 * sf, color: const Color(0xFFE53935), fontWeight: FontWeight.w500),
                     ),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFFE53935)),
@@ -1316,7 +1316,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     icon: const Icon(Iconsax.clock, size: 16, color: Colors.white),
                     label: Text(
                       'Custom Hours',
-                      style: TextStyle(fontFamily: 'Syne', fontSize: 12 * sf, color: Colors.white, fontWeight: FontWeight.w700),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 12 * sf, color: Colors.white, fontWeight: FontWeight.w500),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: kDark,
@@ -1357,7 +1357,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                       const SizedBox(width: 8),
                       Text(
                         'Confirmed Client Sessions',
-                        style: TextStyle(fontFamily: 'Syne', fontSize: 14 * sf, fontWeight: FontWeight.w700, color: kDark),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 14 * sf, fontWeight: FontWeight.w700, color: kDark),
                       ),
                     ],
                   ),
@@ -1370,7 +1370,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     child: Text(
                       '${bookings.length}',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 11 * sf,
                         fontWeight: FontWeight.w700,
                         color: bookings.isNotEmpty ? kLime : kGrey,
@@ -1395,7 +1395,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     Expanded(
                       child: Text(
                         'Confirmed bookings are protected and cannot be cancelled through availability settings.',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 10 * sf, color: kDark),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 10 * sf, color: kDark),
                       ),
                     ),
                   ],
@@ -1408,7 +1408,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                   child: Center(
                     child: Text(
                       'No confirmed client sessions scheduled for this date.',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 12 * sf, color: kGrey),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 12 * sf, color: kGrey),
                     ),
                   ),
                 )
@@ -1440,7 +1440,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                               Text(
                                 b.clientName ?? 'TRAIN Z Athlete',
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 13 * sf,
                                   fontWeight: FontWeight.w700,
                                   color: kDark,
@@ -1449,7 +1449,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                               const SizedBox(height: 2),
                               Text(
                                 '${b.startTime} - ${b.endTime} • 60 min session',
-                                style: TextStyle(fontFamily: 'Poppins', fontSize: 11 * sf, color: kGrey),
+                                style: TextStyle(fontFamily: 'Outfit', fontSize: 11 * sf, color: kGrey),
                               ),
                             ],
                           ),
@@ -1463,7 +1463,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                           child: Text(
                             'CONFIRMED',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 9 * sf,
                               fontWeight: FontWeight.w700,
                               color: kDark,
@@ -1509,13 +1509,13 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                       const SizedBox(width: 8),
                       Text(
                         '60-Minute Slots Breakdown',
-                        style: TextStyle(fontFamily: 'Syne', fontSize: 14 * sf, fontWeight: FontWeight.w700, color: kDark),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 14 * sf, fontWeight: FontWeight.w700, color: kDark),
                       ),
                     ],
                   ),
                   Text(
                     '${slots.where((s) => s.isAvailable).length} Available',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 11 * sf, color: kDark, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 11 * sf, color: kDark, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -1531,12 +1531,12 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                         const SizedBox(height: 8),
                         Text(
                           'No available slots on this date.',
-                          style: TextStyle(fontFamily: 'Syne', fontSize: 13 * sf, fontWeight: FontWeight.w700, color: kDark),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 13 * sf, fontWeight: FontWeight.w700, color: kDark),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Date is blocked or outside working hours.',
-                          style: TextStyle(fontFamily: 'Poppins', fontSize: 11 * sf, color: kGrey),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 11 * sf, color: kGrey),
                         ),
                       ],
                     ),
@@ -1596,13 +1596,13 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
         children: [
           Text(
             '${slot.start} - ${slot.end}',
-            style: TextStyle(fontFamily: 'Syne', fontSize: 11 * sf, fontWeight: FontWeight.w700, color: text),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 11 * sf, fontWeight: FontWeight.w700, color: text),
           ),
           const SizedBox(height: 2),
           Text(
             statusLabel,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 9 * sf,
               fontWeight: FontWeight.w600,
               color: slot.isBooked ? kLime : text,
@@ -1647,7 +1647,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                       child: Text(
                         '${day.day}',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 13 * sf,
                           fontWeight: FontWeight.w700,
                           color: isBlocked ? const Color(0xFFE53935) : kDark,
@@ -1661,7 +1661,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     children: [
                       Text(
                         ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day.weekday - 1],
-                        style: TextStyle(fontFamily: 'Syne', fontSize: 13 * sf, fontWeight: FontWeight.w700, color: kDark),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 13 * sf, fontWeight: FontWeight.w700, color: kDark),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -1671,7 +1671,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                                 ? 'Weekly Rest Day'
                                 : '${dayConfig.windows.length} windows • ${dayConfig.generateSlots().length} sessions',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 11 * sf,
                           color: isBlocked ? const Color(0xFFE53935) : kGrey,
                         ),
@@ -1713,7 +1713,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
         children: [
           Text(
             _formatMonthYear(_selectedDate),
-            style: TextStyle(fontFamily: 'Syne', fontSize: 16 * sf, fontWeight: FontWeight.w700, color: kDark),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 16 * sf, fontWeight: FontWeight.w700, color: kDark),
           ),
           const SizedBox(height: 12),
           GridView.builder(
@@ -1756,7 +1756,7 @@ class _TrainerAvailabilityScreenState extends State<TrainerAvailabilityScreen>
                     child: Text(
                       '$dayNum',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 12 * sf,
                         fontWeight: FontWeight.w700,
                         color: isSelected

@@ -92,7 +92,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.white),
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white),
         ),
         backgroundColor: const Color(0xFF1E1E24),
         behavior: SnackBarBehavior.floating,
@@ -153,7 +153,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                     Text(
                       'Client Portal',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (11.0 * sf).clamp(10.0, 12.5),
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF15803D),
@@ -168,9 +168,9 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
               Text(
                 'Welcome\nback.',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (32.0 * sf).clamp(26.0, 40.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.15,
                 ),
@@ -181,7 +181,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
               Text(
                 'Sign in to book sessions, review your trainer schedule & track workouts.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (12.5 * sf).clamp(11.0, 14.0),
                   color: kGrey,
                   height: 1.4,
@@ -234,7 +234,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                   child: Text(
                     'Forgot password?',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (12.0 * sf).clamp(11.0, 13.5),
                       fontWeight: FontWeight.w600,
                       color: kDark,
@@ -263,7 +263,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                     child: Text(
                       'OR',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (11.0 * sf).clamp(10.0, 12.5),
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFFBBBBBB),
@@ -296,7 +296,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                     Text(
                       "Don't have an account? ",
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (13.0 * sf).clamp(11.0, 14.5),
                         color: kGrey,
                       ),
@@ -310,7 +310,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
                       child: Text(
                         'Sign Up',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (13.0 * sf).clamp(11.0, 14.5),
                           fontWeight: FontWeight.w700,
                           color: kDark,
@@ -360,7 +360,7 @@ class _GoogleSignInButton extends StatelessWidget {
             Text(
               'Continue with Google',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (13.0 * sf).clamp(12.0, 15.0),
                 fontWeight: FontWeight.w600,
                 color: kDark,

@@ -105,7 +105,7 @@ class _TrainerRegisterScreenState extends State<TrainerRegisterScreen> {
                   child: const Text(
                     'COACH / TRAINER PORTAL',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: kLime,
@@ -119,9 +119,9 @@ class _TrainerRegisterScreenState extends State<TrainerRegisterScreen> {
                 Text(
                   'Join as a Trainer.',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (28.0 * sf).clamp(24.0, 34.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                     height: 1.15,
                   ),
@@ -132,7 +132,7 @@ class _TrainerRegisterScreenState extends State<TrainerRegisterScreen> {
                 Text(
                   'Create your professional coaching profile and begin your application for TRAIN Z partnership.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (13.0 * sf).clamp(11.5, 14.0),
                     color: kGrey,
                     height: 1.35,
@@ -164,7 +164,7 @@ class _TrainerRegisterScreenState extends State<TrainerRegisterScreen> {
                           child: Text(
                             _inlineError!,
                             style: const TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 12,
                               color: Color(0xFFD32F2F),
                               fontWeight: FontWeight.w500,
@@ -262,7 +262,7 @@ class _TrainerRegisterScreenState extends State<TrainerRegisterScreen> {
                       Text(
                         'Already registered as trainer? ',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (12.5 * sf).clamp(11.0, 13.5),
                           color: kGrey,
                         ),
@@ -278,7 +278,7 @@ class _TrainerRegisterScreenState extends State<TrainerRegisterScreen> {
                         child: Text(
                           'Log in',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (12.5 * sf).clamp(11.0, 13.5),
                             fontWeight: FontWeight.w700,
                             color: kDark,

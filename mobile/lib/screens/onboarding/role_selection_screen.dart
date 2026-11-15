@@ -37,9 +37,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
               Text(
                 'Tell us who\nyou are.',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (30.0 * sf).clamp(24.0, 38.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.15,
                 ),
@@ -48,7 +48,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
               Text(
                 'Choose how you want to use TRAIN Z to tailor your experience.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.0 * sf).clamp(11.0, 14.0),
                   color: kGrey,
                 ),
@@ -115,9 +115,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                   label: const Text(
                     'Admin Portal (Trainer Approvals)',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: kGrey,
                     ),
                   ),
@@ -194,7 +194,7 @@ class _RoleOptionCard extends StatelessWidget {
                         child: Text(
                           title,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (14.5 * sf).clamp(12.5, 16.5),
                             fontWeight: FontWeight.w700,
                             color: selected ? Colors.white : kDark,
@@ -213,7 +213,7 @@ class _RoleOptionCard extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.5 * sf).clamp(9.5, 12.5),
                       color: selected
                           ? Colors.white.withValues(alpha: 0.65)

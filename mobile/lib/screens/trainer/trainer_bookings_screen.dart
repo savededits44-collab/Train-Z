@@ -98,7 +98,7 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
         title: const Text(
           'My Scheduled Bookings',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -113,12 +113,12 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 child: TextField(
                   controller: _searchCtrl,
-                  style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 13),
+                  style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 13),
                   onChanged: (val) => setState(() => _searchQuery = val),
                   decoration: InputDecoration(
                     hintText: 'Search by client, package, or booking ID...',
                     hintStyle: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12.5,
                       color: Colors.white.withValues(alpha: 0.35),
                     ),
@@ -157,8 +157,8 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                 indicatorWeight: 3,
                 labelColor: _kLime,
                 unselectedLabelColor: Colors.white60,
-                labelStyle: const TextStyle(fontFamily: 'Syne', fontSize: 12, fontWeight: FontWeight.w700),
-                unselectedLabelStyle: const TextStyle(fontFamily: 'Syne', fontSize: 12, fontWeight: FontWeight.w500),
+                labelStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w500),
+                unselectedLabelStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w500),
                 tabs: const [
                   Tab(text: 'Upcoming'),
                   Tab(text: 'Pending'),
@@ -214,13 +214,13 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
               const SizedBox(height: 16),
               Text(
                 emptyTitle,
-                style: const TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
               ),
               const SizedBox(height: 6),
               Text(
                 emptySubtitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Colors.white.withValues(alpha: 0.6)),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.white.withValues(alpha: 0.6)),
               ),
             ],
           ),
@@ -276,8 +276,8 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                           ? Text(
                               _initials(booking.displayClientName),
                               style: const TextStyle(
-                                fontFamily: 'Syne',
-                                fontWeight: FontWeight.w800,
+                                fontFamily: 'Outfit',
+                                fontWeight: FontWeight.w600,
                                 fontSize: 13,
                                 color: _kLime,
                               ),
@@ -292,7 +292,7 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                           Text(
                             booking.displayClientName,
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -301,7 +301,7 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                           const SizedBox(height: 2),
                           Text(
                             'Ref #${booking.id}',
-                            style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: _kGrey),
+                            style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: _kGrey),
                           ),
                         ],
                       ),
@@ -317,7 +317,7 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                       child: Text(
                         booking.displayStatus,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: statusColor,
@@ -341,14 +341,14 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                       const SizedBox(width: 8),
                       Text(
                         _formatFullDate(booking.sessionDate),
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
                       ),
                       const Spacer(),
                       const Icon(Iconsax.clock, size: 15, color: _kLime),
                       const SizedBox(width: 6),
                       Text(
                         '${booking.startTime} - ${booking.endTime}',
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
                       ),
                     ],
                   ),
@@ -363,7 +363,7 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                     Expanded(
                       child: Text(
                         booking.resolvedPackageName,
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Colors.white70),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Colors.white70),
                       ),
                     ),
                     Container(
@@ -374,7 +374,7 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                       ),
                       child: const Text(
                         '60 min',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: _kLime, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: _kLime, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -396,7 +396,7 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                             ? (booking.meetingLocation ?? 'Client Home / Fitness Facility')
                             : 'Location address hidden until booking is confirmed',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           color: isConfirmed ? Colors.white70 : Colors.white38,
                           fontStyle: isConfirmed ? FontStyle.normal : FontStyle.italic,
@@ -422,7 +422,7 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                         Expanded(
                           child: Text(
                             'Reason: ${booking.cancellationReason}',
-                            style: const TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Colors.redAccent),
+                            style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Colors.redAccent),
                           ),
                         ),
                       ],
@@ -507,7 +507,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Complete Training Session?',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -515,7 +515,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
           children: [
             Text(
               'Mark this 60-minute session with ${widget.booking.displayClientName} as completed?',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
             ),
             const SizedBox(height: 12),
             Container(
@@ -532,7 +532,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
                   Expanded(
                     child: Text(
                       'Session Credit: 1 session credit will be authoritatively consumed from the client package ledger.',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Colors.white.withValues(alpha: 0.85)),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Colors.white.withValues(alpha: 0.85)),
                     ),
                   ),
                 ],
@@ -542,10 +542,10 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
             TextField(
               controller: notesCtrl,
               maxLines: 2,
-              style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 12),
+              style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 12),
               decoration: InputDecoration(
                 hintText: 'Workout notes (e.g. Completed chest routine, 30kg bench)...',
-                hintStyle: TextStyle(fontFamily: 'Poppins', color: Colors.white.withValues(alpha: 0.3), fontSize: 11.5),
+                hintStyle: TextStyle(fontFamily: 'Outfit', color: Colors.white.withValues(alpha: 0.3), fontSize: 11.5),
                 filled: true,
                 fillColor: Colors.white.withValues(alpha: 0.05),
                 contentPadding: const EdgeInsets.all(10),
@@ -565,7 +565,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
               backgroundColor: _kLime,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Confirm Completion', style: TextStyle(fontFamily: 'Syne', color: _kDark, fontWeight: FontWeight.w700)),
+            child: const Text('Confirm Completion', style: TextStyle(fontFamily: 'Outfit', color: _kDark, fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -584,7 +584,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: Color(0xFF2E7D32),
-              content: Text('Session completed successfully! 1 credit consumed.', style: TextStyle(fontFamily: 'Poppins')),
+              content: Text('Session completed successfully! 1 credit consumed.', style: TextStyle(fontFamily: 'Outfit')),
             ),
           );
         }
@@ -594,7 +594,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.redAccent,
-              content: Text('Error completing session: $e', style: const TextStyle(fontFamily: 'Poppins')),
+              content: Text('Error completing session: $e', style: const TextStyle(fontFamily: 'Outfit')),
             ),
           );
         }
@@ -612,7 +612,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Cancel Scheduled Session?',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -620,7 +620,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
           children: [
             Text(
               'Are you sure you need to cancel this session with ${widget.booking.displayClientName}?',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
             ),
             const SizedBox(height: 10),
             Container(
@@ -637,7 +637,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
                   Expanded(
                     child: Text(
                       'Trainer Cancellation Policy: 1 session credit will be returned to the client and availability slot will be freed.',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Colors.white.withValues(alpha: 0.85)),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Colors.white.withValues(alpha: 0.85)),
                     ),
                   ),
                 ],
@@ -647,10 +647,10 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
             TextField(
               controller: reasonCtrl,
               maxLines: 2,
-              style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 12),
+              style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 12),
               decoration: InputDecoration(
                 hintText: 'Cancellation reason (e.g. Schedule emergency, medical)...',
-                hintStyle: TextStyle(fontFamily: 'Poppins', color: Colors.white.withValues(alpha: 0.3), fontSize: 11.5),
+                hintStyle: TextStyle(fontFamily: 'Outfit', color: Colors.white.withValues(alpha: 0.3), fontSize: 11.5),
                 filled: true,
                 fillColor: Colors.white.withValues(alpha: 0.05),
                 contentPadding: const EdgeInsets.all(10),
@@ -678,7 +678,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
               backgroundColor: Colors.redAccent,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Cancel Session', style: TextStyle(fontFamily: 'Syne', color: Colors.white, fontWeight: FontWeight.w700)),
+            child: const Text('Cancel Session', style: TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -698,7 +698,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: _kDark,
-              content: Text('Session cancelled. Client credited and notified.', style: TextStyle(fontFamily: 'Poppins')),
+              content: Text('Session cancelled. Client credited and notified.', style: TextStyle(fontFamily: 'Outfit')),
             ),
           );
         }
@@ -720,7 +720,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
       SnackBar(
         content: Text(
           'Contact $phone copied to clipboard!',
-          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+          style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
         ),
         backgroundColor: const Color(0xFF141416),
         behavior: SnackBarBehavior.floating,
@@ -767,7 +767,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
                     child: (b.clientPhotoUrl == null || b.clientPhotoUrl!.isEmpty)
                         ? Text(
                             _initials(b.displayClientName),
-                            style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: _kLime, fontSize: 16),
+                            style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: _kLime, fontSize: 16),
                           )
                         : null,
                   ),
@@ -778,12 +778,12 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
                       children: [
                         Text(
                           b.displayClientName,
-                          style: const TextStyle(fontFamily: 'Syne', fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           'Booking Ref: #${b.id}',
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
                         ),
                       ],
                     ),
@@ -836,7 +836,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
                         child: OutlinedButton.icon(
                           onPressed: _handleCancelSession,
                           icon: const Icon(Iconsax.close_circle, size: 16, color: Colors.redAccent),
-                          label: const Text('Cancel Session', style: TextStyle(fontFamily: 'Syne', color: Colors.redAccent, fontSize: 12.5)),
+                          label: const Text('Cancel Session', style: TextStyle(fontFamily: 'Outfit', color: Colors.redAccent, fontSize: 12.5)),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.redAccent),
                             padding: const EdgeInsets.symmetric(vertical: 13),
@@ -849,7 +849,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
                         child: ElevatedButton.icon(
                           onPressed: _handleCompleteSession,
                           icon: const Icon(Iconsax.tick_circle, size: 16, color: _kDark),
-                          label: const Text('Mark Completed', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: _kDark, fontSize: 12.5)),
+                          label: const Text('Mark Completed', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: _kDark, fontSize: 12.5)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _kLime,
                             padding: const EdgeInsets.symmetric(vertical: 13),
@@ -871,7 +871,7 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
                       padding: const EdgeInsets.symmetric(vertical: 13),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('Close', style: TextStyle(fontFamily: 'Syne', color: Colors.white, fontWeight: FontWeight.w700)),
+                    child: const Text('Close', style: TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w500)),
                   ),
                 ),
               ],
@@ -892,14 +892,14 @@ class _BookingDetailModalSheetState extends State<_BookingDetailModalSheet> {
             width: 130,
             child: Text(
               label,
-              style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: _kGrey),
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kGrey),
             ),
           ),
           Expanded(
             child: Text(
               value,
               style: TextStyle(
-                fontFamily: isHighlight ? 'Syne' : 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 12.5,
                 fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w500,
                 color: isAlert

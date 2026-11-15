@@ -85,27 +85,27 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Add Screenshot or Document', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 16)),
+        title: const Text('Add Screenshot or Document', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Attach a relevant screenshot or document to help us resolve your issue faster (Max 5MB: JPG, PNG, PDF):',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF4B5563)),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF4B5563)),
             ),
             const SizedBox(height: 12),
             ListTile(
               leading: const Icon(Iconsax.image, color: kDark),
-              title: const Text('Workout Screenshot', style: TextStyle(fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('workout_error_proof.png (1.2 MB)', style: TextStyle(fontFamily: 'Poppins', fontSize: 11)),
+              title: const Text('Workout Screenshot', style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: const Text('workout_error_proof.png (1.2 MB)', style: TextStyle(fontFamily: 'Outfit', fontSize: 11)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               onTap: () => Navigator.pop(ctx, 'workout_error_proof.png'),
             ),
             ListTile(
               leading: const Icon(Iconsax.receipt, color: kDark),
-              title: const Text('Payment Transaction Proof', style: TextStyle(fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.w600)),
-              subtitle: const Text('razorpay_receipt_proof.jpg (850 KB)', style: TextStyle(fontFamily: 'Poppins', fontSize: 11)),
+              title: const Text('Payment Transaction Proof', style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600)),
+              subtitle: const Text('razorpay_receipt_proof.jpg (850 KB)', style: TextStyle(fontFamily: 'Outfit', fontSize: 11)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               onTap: () => Navigator.pop(ctx, 'razorpay_receipt_proof.jpg'),
             ),
@@ -114,7 +114,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(fontFamily: 'Poppins', color: Color(0xFF6B7280))),
+            child: const Text('Cancel', style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF6B7280))),
           ),
         ],
       ),
@@ -157,7 +157,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
             const Expanded(
               child: Text(
                 'Submit Support Request?',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 16),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 16),
               ),
             ),
           ],
@@ -168,7 +168,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
           children: [
             const Text(
               'Please confirm that the information provided is accurate. Our support specialists will review your ticket promptly.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF4B5563)),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF4B5563)),
             ),
             const SizedBox(height: 12),
             Container(
@@ -181,12 +181,12 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Category: ${_selectedCategory.label}', style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, fontWeight: FontWeight.w600, color: kDark)),
+                  Text('Category: ${_selectedCategory.label}', style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w600, color: kDark)),
                   const SizedBox(height: 4),
-                  Text('Subject: ${_subjectController.text.trim()}', style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFF4B5563))),
+                  Text('Subject: ${_subjectController.text.trim()}', style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFF4B5563))),
                   if (_selectedBooking != null) ...[
                     const SizedBox(height: 4),
-                    Text('Booking: ${_selectedBooking!.bookingReference}', style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFF4B5563))),
+                    Text('Booking: ${_selectedBooking!.bookingReference}', style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFF4B5563))),
                   ],
                 ],
               ),
@@ -196,7 +196,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Back to Edit', style: TextStyle(fontFamily: 'Poppins', color: Color(0xFF6B7280))),
+            child: const Text('Back to Edit', style: TextStyle(fontFamily: 'Outfit', color: Color(0xFF6B7280))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -205,7 +205,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
               foregroundColor: kLime,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Confirm & Submit', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+            child: const Text('Confirm & Submit', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -272,9 +272,9 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
         title: Text(
           'Raise a Request',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -305,7 +305,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                       child: Text(
                         'Submit your inquiry or report a problem. Our support team will review your case and reply in your ticket thread.',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.0),
                           color: const Color(0xFF4B5563),
                           height: 1.35,
@@ -338,7 +338,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                     child: Text(
                       cat.label,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (12.5 * sf).clamp(11.5, 13.5),
                         fontWeight: FontWeight.w600,
                         color: kDark,
@@ -366,7 +366,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                     border: Border.all(color: const Color(0xFFE5E7EB)),
                   ),
                   alignment: Alignment.centerLeft,
-                  child: const Text('Loading your recent bookings...', style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF9CA3AF))),
+                  child: const Text('Loading your recent bookings...', style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF9CA3AF))),
                 )
               else
                 DropdownButtonFormField<BookingModel?>(
@@ -383,7 +383,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                   items: [
                     const DropdownMenuItem<BookingModel?>(
                       value: null,
-                      child: Text('None / General Inquiry', style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF6B7280))),
+                      child: Text('None / General Inquiry', style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF6B7280))),
                     ),
                     ..._clientBookings.map((b) {
                       return DropdownMenuItem<BookingModel?>(
@@ -391,7 +391,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                         child: Text(
                           '${b.bookingReference} • ${b.displayTrainerName} (${b.displayStatus})',
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: FontWeight.w600, color: kDark),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w600, color: kDark),
                         ),
                       );
                     }),
@@ -415,7 +415,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Brief summary of the problem or request...',
-                  hintStyle: TextStyle(fontFamily: 'Poppins', fontSize: (12.0 * sf).clamp(11.0, 13.0), color: const Color(0xFF9CA3AF)),
+                  hintStyle: TextStyle(fontFamily: 'Outfit', fontSize: (12.0 * sf).clamp(11.0, 13.0), color: const Color(0xFF9CA3AF)),
                   filled: true,
                   fillColor: const Color(0xFFF9FAFB),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
@@ -424,7 +424,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   counterText: '',
                 ),
-                style: TextStyle(fontFamily: 'Poppins', fontSize: (12.5 * sf).clamp(11.5, 13.5), color: kDark),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: (12.5 * sf).clamp(11.5, 13.5), color: kDark),
               ),
 
               const SizedBox(height: 18),
@@ -445,7 +445,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Provide complete details regarding the situation, steps to reproduce, or workout context...',
-                  hintStyle: TextStyle(fontFamily: 'Poppins', fontSize: (12.0 * sf).clamp(11.0, 13.0), color: const Color(0xFF9CA3AF)),
+                  hintStyle: TextStyle(fontFamily: 'Outfit', fontSize: (12.0 * sf).clamp(11.0, 13.0), color: const Color(0xFF9CA3AF)),
                   filled: true,
                   fillColor: const Color(0xFFF9FAFB),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
@@ -453,7 +453,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                   focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kDark, width: 1.5)),
                   contentPadding: const EdgeInsets.all(14),
                 ),
-                style: TextStyle(fontFamily: 'Poppins', fontSize: (12.5 * sf).clamp(11.5, 13.5), color: kDark),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: (12.5 * sf).clamp(11.5, 13.5), color: kDark),
               ),
 
               const SizedBox(height: 14),
@@ -478,7 +478,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                           _attachmentName!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166534)),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166534)),
                         ),
                       ),
                       IconButton(
@@ -510,7 +510,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                         Text(
                           'Upload Screenshot or Proof (Max 5MB)',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.5 * sf).clamp(10.5, 12.5),
                             fontWeight: FontWeight.w600,
                             color: kDark,
@@ -539,7 +539,7 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                       Expanded(
                         child: Text(
                           _errorMessage!,
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFFDC2626)),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFFDC2626)),
                         ),
                       ),
                     ],
@@ -570,9 +570,9 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
                       : const Text(
                           'Submit Support Request',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 14,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kLime,
                           ),
                         ),
@@ -589,9 +589,9 @@ class _ClientSubmitTicketScreenState extends State<ClientSubmitTicketScreen> {
     return Text(
       label,
       style: TextStyle(
-        fontFamily: 'Syne',
+        fontFamily: 'Outfit',
         fontSize: (11.0 * sf).clamp(10.0, 12.0),
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
         color: const Color(0xFF888888),
         letterSpacing: 0.8,
       ),

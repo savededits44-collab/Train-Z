@@ -63,9 +63,9 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
                 'Application Received!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (26.0 * sf).clamp(22.0, 32.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.2,
                 ),
@@ -77,7 +77,7 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
                 'Welcome, $fullName. Your trainer application has been submitted to the TRAIN Z administration network.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.5 * sf).clamp(12.0, 14.5),
                   color: kGrey,
                   height: 1.4,
@@ -101,7 +101,7 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
                     const Text(
                       'APPLICATION DETAILS',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: kGrey,
@@ -126,7 +126,7 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
                         const Text(
                           'Initial Status',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12.5,
                             color: kGrey,
                           ),
@@ -144,7 +144,7 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
                           child: const Text(
                             'PENDING APPROVAL',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFFE65100),
@@ -174,7 +174,7 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
                     const Text(
                       'Next Steps for Activation:',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -233,7 +233,7 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: 12.5,
             color: kGrey,
           ),
@@ -241,7 +241,7 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: 12.5,
             fontWeight: FontWeight.w600,
             color: kDark,
@@ -270,7 +270,7 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
           child: Text(
             step,
             style: const TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: kLime,
@@ -285,7 +285,7 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
                   color: kDark,
@@ -295,7 +295,7 @@ class TrainerRegistrationSuccessScreen extends StatelessWidget {
               Text(
                 desc,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 11.5,
                   color: kGrey,
                   height: 1.3,

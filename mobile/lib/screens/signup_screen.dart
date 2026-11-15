@@ -222,9 +222,9 @@ class _SignupScreenState extends State<SignupScreen>
                 Text(
                   'Create an\naccount.',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (30.0 * sf).clamp(24.0, 38.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                     height: 1.15,
                   ),
@@ -233,7 +233,7 @@ class _SignupScreenState extends State<SignupScreen>
                 Text(
                   'Join Trainzto connect with trainers and track your progress.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (13.0 * sf).clamp(11.0, 14.0),
                     color: kGrey,
                   ),
@@ -299,7 +299,7 @@ class _SignupScreenState extends State<SignupScreen>
                       Text(
                         'Already have an account?  ',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (12.5 * sf).clamp(11.0, 13.5),
                           color: kGrey,
                         ),
@@ -315,7 +315,7 @@ class _SignupScreenState extends State<SignupScreen>
                         child: Text(
                           'Log in',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (12.5 * sf).clamp(11.0, 13.5),
                             fontWeight: FontWeight.w700,
                             color: kDark,

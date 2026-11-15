@@ -30,7 +30,7 @@ class ClientGenderSelector extends StatelessWidget {
             Text(
               'Select Your Gender',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (12.5 * sf).clamp(11.0, 14.0),
                 fontWeight: FontWeight.w600,
                 color: kDark,
@@ -140,7 +140,7 @@ class _GenderOptionCard extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: fontSize,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                     color: isSelected ? Colors.white : kDark,

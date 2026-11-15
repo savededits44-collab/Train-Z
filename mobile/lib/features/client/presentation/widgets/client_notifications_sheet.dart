@@ -69,9 +69,9 @@ class ClientNotificationsSheet extends StatelessWidget {
                     Text(
                       'Session Notifications',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (16.0 * sf).clamp(15.0, 18.0),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: kDark,
                       ),
                     ),
@@ -217,9 +217,9 @@ class ClientNotificationsSheet extends StatelessWidget {
                         child: Text(
                           notif.title,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (12.5 * sf).clamp(11.5, 14.0),
-                            fontWeight: notif.isRead ? FontWeight.w700 : FontWeight.w800,
+                            fontWeight: notif.isRead ? FontWeight.w700 : FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -239,7 +239,7 @@ class ClientNotificationsSheet extends StatelessWidget {
                   Text(
                     notif.body,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.0),
                       color: const Color(0xFF4B5563),
                       height: 1.35,
@@ -249,7 +249,7 @@ class ClientNotificationsSheet extends StatelessWidget {
                   Text(
                     dateStr,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (9.5 * sf).clamp(9.0, 10.5),
                       color: const Color(0xFF9CA3AF),
                     ),
@@ -281,9 +281,9 @@ class ClientNotificationsSheet extends StatelessWidget {
           Text(
             'No New Notifications',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (15.0 * sf).clamp(14.0, 17.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: kDark,
             ),
           ),
@@ -292,7 +292,7 @@ class ClientNotificationsSheet extends StatelessWidget {
             'Booking confirmations, 12-hour session reminders, cancellation updates, and rescheduling alerts will appear here in real time.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.5 * sf).clamp(10.5, 12.5),
               color: kGrey,
               height: 1.4,
@@ -349,7 +349,7 @@ class ClientNotificationsSheet extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (11.5 * sf).clamp(10.5, 12.5),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -358,7 +358,7 @@ class ClientNotificationsSheet extends StatelessWidget {
                 Text(
                   description,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (10.0 * sf).clamp(9.0, 11.0),
                     color: const Color(0xFF6B7280),
                   ),

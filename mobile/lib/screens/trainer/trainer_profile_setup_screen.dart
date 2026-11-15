@@ -395,7 +395,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                 Text(
                   'Upload Profile Photo',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (18.0 * sf).clamp(16.0, 22.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -405,7 +405,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                 Text(
                   'Upload a clear, professional photo to display on your trainer profile.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.5 * sf).clamp(11.0, 14.0),
                     color: kGrey,
                   ),
@@ -423,14 +423,14 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   title: const Text(
                     'Take Photo (Camera)',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontWeight: FontWeight.w600,
                       color: kDark,
                     ),
                   ),
                   subtitle: const Text(
                     'Capture directly from camera',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 12),
                   ),
                   onTap: () {
                     Navigator.pop(ctx);
@@ -450,14 +450,14 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   title: const Text(
                     'Choose From Gallery',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontWeight: FontWeight.w600,
                       color: kDark,
                     ),
                   ),
                   subtitle: const Text(
                     'Select saved photo from your library',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 12),
                   ),
                   onTap: () {
                     Navigator.pop(ctx);
@@ -554,7 +554,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
               Expanded(
                 child: Text(
                   'Profile draft saved (${completion.score}% complete). You can resume anytime.',
-                  style: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
+                  style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -619,15 +619,15 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                             Text(
                               'Profile Incomplete (${completion.score}%)',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (16.0 * sf).clamp(15.0, 18.0),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: kDark,
                               ),
                             ),
                             const Text(
                               'All required details must be filled before Admin review.',
-                              style: TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey),
                             ),
                           ],
                         ),
@@ -638,7 +638,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   const Text(
                     'Please complete the following required items:',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: kDark,
@@ -660,7 +660,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                               child: Text(
                                 completion.missingFields[idx],
                                 style: const TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: 12,
                                   color: Color(0xFF424242),
                                 ),
@@ -731,7 +731,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
               Expanded(
                 child: Text(
                   'Profile completed and submitted for Admin verification!',
-                  style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
+                  style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -788,7 +788,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
         title: Text(
           'Trainer Profile Setup',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (16.0 * sf).clamp(14.0, 18.0),
             fontWeight: FontWeight.w700,
             color: kDark,
@@ -807,7 +807,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                 : const Text(
                     'Save Draft',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
                       color: kDark,
@@ -904,7 +904,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   const Text(
                     'Advanced Trainer eligibility requires minimum 3.5 years of verifiable coaching experience.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       color: Color(0xFF2E7D32),
                       fontWeight: FontWeight.w500,
@@ -997,7 +997,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   const Text(
                     'Advanced Trainer status is verified independently by Admin before activation.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       color: kGrey,
                     ),
@@ -1026,7 +1026,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                       const Text(
                         'Supported Training Locations:',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
                           color: kDark,
@@ -1041,7 +1041,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                         activeTrackColor: kLime,
                         title: const Text(
                           'Home Training (Client\'s Residence)',
-                          style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
                         ),
                         onChanged: (val) => setState(() => _trainsAtHome = val),
                       ),
@@ -1053,7 +1053,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                         activeTrackColor: kLime,
                         title: const Text(
                           'Gym Training (Partner / Commercial Gyms)',
-                          style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
                         ),
                         onChanged: (val) => setState(() => _trainsAtGym = val),
                       ),
@@ -1062,7 +1062,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                       // Other supported locations
                       const Text(
                         'Other Locations (Society Clubhouses, Parks, etc.):',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey),
                       ),
                       const SizedBox(height: 6),
                       Row(
@@ -1070,7 +1070,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                           Expanded(
                             child: TextField(
                               controller: _newOtherLocationController,
-                              style: const TextStyle(fontFamily: 'Poppins', fontSize: 12.5),
+                              style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5),
                               decoration: InputDecoration(
                                 hintText: 'e.g. Society Gym, Outdoor Park',
                                 filled: true,
@@ -1100,7 +1100,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                             ),
-                            child: const Text('Add', style: TextStyle(fontFamily: 'Syne', color: kLime)),
+                            child: const Text('Add', style: TextStyle(fontFamily: 'Outfit', color: kLime)),
                           ),
                         ],
                       ),
@@ -1111,7 +1111,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                           runSpacing: 6,
                           children: _otherTrainingLocations.map((loc) {
                             return Chip(
-                              label: Text(loc, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11)),
+                              label: Text(loc, style: const TextStyle(fontFamily: 'Outfit', fontSize: 11)),
                               backgroundColor: Colors.white,
                               deleteIcon: const Icon(Icons.close, size: 14),
                               onDeleted: () => setState(() => _otherTrainingLocations.remove(loc)),
@@ -1139,16 +1139,16 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                       const Text(
                         'Service Areas & Localities (Dynamic Across India):',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: kDark,
                         ),
                       ),
                       const SizedBox(height: 4),
                       const Text(
                         'Specify the areas or neighborhoods where you offer personal training services.',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
                       ),
                       const SizedBox(height: 10),
                       Row(
@@ -1156,7 +1156,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                           Expanded(
                             child: TextField(
                               controller: _newAreaController,
-                              style: const TextStyle(fontFamily: 'Poppins', fontSize: 12.5),
+                              style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5),
                               decoration: InputDecoration(
                                 hintText: 'Enter locality (e.g. Koregaon Park, Baner, Indiranagar)',
                                 filled: true,
@@ -1186,7 +1186,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                             ),
-                            child: const Text('Add', style: TextStyle(fontFamily: 'Syne', color: kLime)),
+                            child: const Text('Add', style: TextStyle(fontFamily: 'Outfit', color: kLime)),
                           ),
                         ],
                       ),
@@ -1197,7 +1197,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                           runSpacing: 6,
                           children: _serviceAreas.map((area) {
                             return Chip(
-                              label: Text(area, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, fontWeight: FontWeight.w500)),
+                              label: Text(area, style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w500)),
                               backgroundColor: Colors.white,
                               deleteIcon: const Icon(Icons.close, size: 14, color: Color(0xFFD32F2F)),
                               onDeleted: () => setState(() => _serviceAreas.remove(area)),
@@ -1214,7 +1214,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                 // Preferred Working Days
                 const Text(
                   'Preferred Working Days:',
-                  style: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, fontWeight: FontWeight.w600, color: kDark),
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, fontWeight: FontWeight.w500, color: kDark),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -1226,7 +1226,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                       label: Text(
                         d['label']!,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
                           fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
                           color: isSel ? kDark : const Color(0xFF424242),
@@ -1295,7 +1295,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                             : const Text(
                                 'Save Progress',
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                   color: kDark,
@@ -1332,7 +1332,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                                   Text(
                                     'Submit for Review',
                                     style: TextStyle(
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Outfit',
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
                                       color: completion.isComplete ? kLime : Colors.white,
@@ -1400,7 +1400,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                       Text(
                         category.displayName,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (14.0 * sf).clamp(13.0, 16.0),
                           fontWeight: FontWeight.w700,
                           color: kDark,
@@ -1419,9 +1419,9 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                     child: Text(
                       '${certs.length} Submitted',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: eligibility.isEligible
                             ? const Color(0xFF16A34A)
                             : const Color(0xFFD97706),
@@ -1436,7 +1436,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                     ? 'Advanced Trainers must submit relevant professional trainer certificates and have at least 3.5 years of experience.'
                     : 'Standard Trainers must submit at least one beginner-level trainer certificate for Admin verification.',
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 12,
                   color: Color(0xFF555555),
                   height: 1.4,
@@ -1458,7 +1458,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                       child: Text(
                         'Stored privately: Clients never see full certificate files or links.',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           color: Color(0xFF166534),
                         ),
@@ -1482,9 +1482,9 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                 label: Text(
                   certs.isEmpty ? 'Upload Certificates' : 'Manage Certificates (${certs.length})',
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: kDark,
                   ),
                 ),
@@ -1509,9 +1509,9 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
         Text(
           title,
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (14.0 * sf).clamp(13.0, 16.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
             letterSpacing: 0.6,
           ),
@@ -1547,9 +1547,9 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   Text(
                     'Profile Completion: ${completion.score}%',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (14.0 * sf).clamp(13.0, 16.0),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: color,
                     ),
                   ),
@@ -1564,7 +1564,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                 child: Text(
                   isDone ? 'READY FOR REVIEW' : 'DRAFT',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                     color: color,
@@ -1592,7 +1592,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   Text(
                     '${completion.missingFields.length} required items remaining',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,
                       color: color,
@@ -1618,7 +1618,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                       const SizedBox(width: 6),
                       Text(
                         field,
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF555555)),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF555555)),
                       ),
                     ],
                   ),
@@ -1693,7 +1693,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   const SizedBox(height: 4),
                   Text(
                     'Uploading ${(_uploadProgress * 100).toInt()}%',
-                    style: const TextStyle(fontFamily: 'Poppins', fontSize: 10, color: kGrey),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: kGrey),
                   ),
                 ],
               ),
@@ -1702,7 +1702,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
           const SizedBox(height: 8),
           const Text(
             'Upload Profile Photo (JPG, PNG, WebP < 5MB)',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
           ),
         ],
       ),
@@ -1734,13 +1734,13 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                 children: [
                   const Text(
                     'Date of Birth',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     formattedDob,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: _selectedDob != null ? kDark : kGrey,
@@ -1774,7 +1774,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
               Text(
                 'Gender (Protected for matching eligibility)',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: kDark,
@@ -1785,7 +1785,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
           const SizedBox(height: 4),
           const Text(
             'Enforces TRAIN Z private gender matching rules in backend logic. Never displayed publicly to clients.',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: kGrey),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: kGrey),
           ),
           const SizedBox(height: 10),
           Row(
@@ -1797,9 +1797,9 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   selectedColor: kLime,
                   backgroundColor: Colors.white,
                   labelStyle: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12.5,
-                    fontWeight: _selectedGender == Gender.male ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: _selectedGender == Gender.male ? FontWeight.w600 : FontWeight.w500,
                     color: kDark,
                   ),
                   onSelected: (val) {
@@ -1815,9 +1815,9 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   selectedColor: kLime,
                   backgroundColor: Colors.white,
                   labelStyle: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12.5,
-                    fontWeight: _selectedGender == Gender.female ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: _selectedGender == Gender.female ? FontWeight.w600 : FontWeight.w500,
                     color: kDark,
                   ),
                   onSelected: (val) {
@@ -1847,7 +1847,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
         Text(
           title,
           style: const TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: 12.5,
             fontWeight: FontWeight.w600,
             color: kDark,
@@ -1863,7 +1863,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
               label: Text(
                 opt,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 11.5,
                   fontWeight: isSel ? FontWeight.w600 : FontWeight.w400,
                   color: isSel ? kDark : const Color(0xFF424242),
@@ -1895,7 +1895,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
               Expanded(
                 child: TextField(
                   controller: customController,
-                  style: const TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 12),
                   decoration: InputDecoration(
                     hintText: customPlaceholder ?? 'Add other...',
                     filled: true,
@@ -1924,7 +1924,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 ),
-                child: const Text('Add', style: TextStyle(fontFamily: 'Syne', color: kLime)),
+                child: const Text('Add', style: TextStyle(fontFamily: 'Outfit', color: kLime)),
               ),
             ],
           ),

@@ -153,7 +153,7 @@ class _TrainerCategorySelectionScreenState
                     child: const Text(
                       'STEP 2 OF 2',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: kLime,
@@ -169,9 +169,9 @@ class _TrainerCategorySelectionScreenState
               Text(
                 'Select Trainer Category.',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (26.0 * sf).clamp(22.0, 32.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.15,
                 ),
@@ -182,7 +182,7 @@ class _TrainerCategorySelectionScreenState
               Text(
                 'Choose the tier that matches your qualifications and coaching experience.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.0 * sf).clamp(11.5, 14.0),
                   color: kGrey,
                   height: 1.35,
@@ -214,7 +214,7 @@ class _TrainerCategorySelectionScreenState
                         child: Text(
                           _inlineError!,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
                             color: Color(0xFFD32F2F),
                             fontWeight: FontWeight.w500,
@@ -267,7 +267,7 @@ class _TrainerCategorySelectionScreenState
                       const Text(
                         'Years of Relevant Coaching Experience (Min. 3.5 Years Required):',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: kDark,
@@ -327,7 +327,7 @@ class _TrainerCategorySelectionScreenState
                                 ? 'I confirm I possess relevant professional certificates and qualifications & at least 3.5 years of training experience. I understand that Advanced Trainer status requires Admin verification of private certificates.'
                                 : 'I agree to the standard TRAIN Z predefined package guidelines and platform terms.',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (12.0 * sf).clamp(11.0, 13.0),
                               color: kDark,
                               height: 1.35,

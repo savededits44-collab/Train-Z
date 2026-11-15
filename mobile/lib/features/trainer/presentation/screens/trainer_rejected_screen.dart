@@ -48,10 +48,10 @@ class TrainerRejectedScreen extends StatelessWidget {
             label: const Text(
               'Sign Out',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 12,
                 color: kGrey,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -91,9 +91,9 @@ class TrainerRejectedScreen extends StatelessWidget {
                 'Application Not Approved.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (26.0 * sf).clamp(22.0, 32.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.2,
                 ),
@@ -105,7 +105,7 @@ class TrainerRejectedScreen extends StatelessWidget {
                 'Thank you for your interest in joining the TRAIN Z Trainer Network. After careful review, our administration team could not approve your application at this time.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.0 * sf).clamp(11.5, 14.0),
                   color: kGrey,
                   height: 1.4,
@@ -132,7 +132,7 @@ class TrainerRejectedScreen extends StatelessWidget {
                         const Text(
                           'REVIEW DECISION',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFFD32F2F),
@@ -151,7 +151,7 @@ class TrainerRejectedScreen extends StatelessWidget {
                           child: const Text(
                             'REJECTED',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFFD32F2F),
@@ -164,7 +164,7 @@ class TrainerRejectedScreen extends StatelessWidget {
                     const Text(
                       'Explanation / Feedback:',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: kDark,
@@ -174,7 +174,7 @@ class TrainerRejectedScreen extends StatelessWidget {
                     Text(
                       reasonText,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (12.5 * sf).clamp(11.5, 13.5),
                         color: const Color(0xFF424242),
                         height: 1.4,
@@ -201,7 +201,7 @@ class TrainerRejectedScreen extends StatelessWidget {
                     const Text(
                       'Next Steps & Appeals:',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -211,7 +211,7 @@ class TrainerRejectedScreen extends StatelessWidget {
                     Text(
                       '1. Review certificate and qualification guidelines.\n2. If you believe this decision was made in error or have updated credentials to provide, please contact our administrative team directly.\n3. Send an email with your application email to trainers@trainz.app.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (12.0 * sf).clamp(11.0, 13.0),
                         color: const Color(0xFF424242),
                         height: 1.5,

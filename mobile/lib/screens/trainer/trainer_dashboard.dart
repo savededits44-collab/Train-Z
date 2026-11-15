@@ -84,13 +84,13 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
                     SizedBox(height: 16),
                     Text(
                       'Account Suspended',
-                      style: TextStyle(fontFamily: 'Syne', fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 20, fontWeight: FontWeight.w600),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'Your coach account has been suspended by platform administration. Please contact support@trainz.fit.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 14, color: Colors.grey),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 14, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -261,7 +261,7 @@ class _TrainerHomeTab extends StatelessWidget {
                                 Text(
                                   isAdvanced ? 'Advanced Trainer' : 'Trainer',
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: (11.0 * sf).clamp(9, 13),
                                     fontWeight: FontWeight.w700,
                                     color: isAdvanced ? const Color(0xFFE65100) : kDark,
@@ -314,9 +314,9 @@ class _TrainerHomeTab extends StatelessWidget {
                                         child: Text(
                                           '${nService.unreadCount}',
                                           style: const TextStyle(
-                                            fontFamily: 'Syne',
+                                            fontFamily: 'Outfit',
                                             fontSize: 9,
-                                            fontWeight: FontWeight.w800,
+                                            fontWeight: FontWeight.w600,
                                             color: Colors.white,
                                           ),
                                         ),
@@ -369,7 +369,7 @@ class _TrainerHomeTab extends StatelessWidget {
                           Text(
                             'Welcome back,',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (13.0 * sf).clamp(11, 15),
                               color: kGrey,
                             ),
@@ -394,7 +394,7 @@ class _TrainerHomeTab extends StatelessWidget {
                                 Text(
                                   isApproved ? 'Approved & Active' : 'Under Review',
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: 9.5,
                                     fontWeight: FontWeight.w700,
                                     color: isApproved ? const Color(0xFF2E7D32) : const Color(0xFFE65100),
@@ -409,9 +409,9 @@ class _TrainerHomeTab extends StatelessWidget {
                       Text(
                         trainerName,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (26.0 * sf).clamp(20, 32),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                           height: 1.15,
                         ),
@@ -465,7 +465,7 @@ class _TrainerHomeTab extends StatelessWidget {
                       Text(
                         'Overview',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (15.0 * sf).clamp(13, 18),
                           fontWeight: FontWeight.w700,
                           color: kDark,
@@ -563,7 +563,7 @@ class _TrainerHomeTab extends StatelessWidget {
                       Text(
                         'Quick Actions',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (15.0 * sf).clamp(13, 18),
                           fontWeight: FontWeight.w700,
                           color: kDark,
@@ -713,7 +713,7 @@ class _TrainerHomeTab extends StatelessWidget {
                           Text(
                             'Upcoming Sessions',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (15.0 * sf).clamp(13, 18),
                               fontWeight: FontWeight.w700,
                               color: kDark,
@@ -725,7 +725,7 @@ class _TrainerHomeTab extends StatelessWidget {
                               child: Text(
                                 'View Schedule',
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: (11.5 * sf).clamp(10, 13),
                                   fontWeight: FontWeight.w700,
                                   color: const Color(0xFF1565C0),
@@ -769,7 +769,7 @@ class _TrainerHomeTab extends StatelessWidget {
                           Text(
                             'Recent Updates',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (15.0 * sf).clamp(13, 18),
                               fontWeight: FontWeight.w700,
                               color: kDark,
@@ -780,7 +780,7 @@ class _TrainerHomeTab extends StatelessWidget {
                             child: Text(
                               'View All',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (11.5 * sf).clamp(10, 13),
                                 fontWeight: FontWeight.w700,
                                 color: const Color(0xFF1565C0),
@@ -827,9 +827,9 @@ class _TrainerHomeTab extends StatelessWidget {
         child: Text(
           initial,
           style: const TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 16,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kLime,
           ),
         ),
@@ -889,9 +889,9 @@ class _TStatCard extends StatelessWidget {
               TrainerCountUp(
                 value: numValue,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (20.0 * sf).clamp(16, 26),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                 ),
               )
@@ -899,9 +899,9 @@ class _TStatCard extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (20.0 * sf).clamp(16, 26),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                 ),
               ),
@@ -909,7 +909,7 @@ class _TStatCard extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (10.0 * sf).clamp(9, 12),
                 color: accent ? kDark.withValues(alpha: 0.7) : kGrey,
               ),
@@ -1009,9 +1009,9 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                             Text(
                               "CURRENT EARNINGS",
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (11.0 * sf).clamp(9.5, 12.5),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 letterSpacing: 1.2,
                                 color: kLime,
                               ),
@@ -1020,7 +1020,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                             Text(
                               'Verified Session Revenue',
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: (11.0 * sf).clamp(9.5, 12.0),
                                 color: Colors.white.withValues(alpha: 0.65),
                               ),
@@ -1048,7 +1048,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                             Text(
                               'Live',
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white,
@@ -1070,9 +1070,9 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                       Text(
                         '₹',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (22.0 * sf).clamp(18.0, 26.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kLime,
                         ),
                       ),
@@ -1080,9 +1080,9 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                       TrainerCountUp(
                         value: income,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (34.0 * sf).clamp(28.0, 40.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white,
                           height: 1.0,
                         ),
@@ -1100,7 +1100,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                         child: Text(
                           '₹$rate / Session',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (11.0 * sf).clamp(9.5, 12.5),
                             fontWeight: FontWeight.w700,
                             color: kLime,
@@ -1133,7 +1133,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                               ? '$todayCount session${todayCount == 1 ? '' : 's'} scheduled for today'
                               : '0 sessions scheduled for today',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.5 * sf).clamp(10.0, 12.5),
                             fontWeight: FontWeight.w500,
                             color: Colors.white.withValues(alpha: 0.85),
@@ -1148,7 +1148,7 @@ class _TrainerTodaysIncomeCard extends StatelessWidget {
                             Text(
                               'View Schedule',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (11.0 * sf).clamp(9.5, 12.0),
                                 fontWeight: FontWeight.w700,
                                 color: kLime,
@@ -1211,7 +1211,7 @@ class _StatusChip extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (10.5 * sf).clamp(9, 12),
               fontWeight: FontWeight.w700,
               color: color,
@@ -1261,9 +1261,9 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
                 child: const Text(
                   'STANDARD TRAINER',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 9.5,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                     letterSpacing: 0.8,
                   ),
@@ -1277,9 +1277,9 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
           Text(
             'TRAIN Z Platform Packages',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (16.0 * sf).clamp(14, 18),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
           ),
@@ -1287,7 +1287,7 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
           Text(
             'Standard Trainers deliver coaching using the 6 predefined TRAIN Z packages. Pricing, session counts and validity are standardized platform-wide. Custom packages cannot be created.',
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.0 * sf).clamp(9.5, 12),
               color: Colors.white.withValues(alpha: 0.65),
               height: 1.35,
@@ -1312,7 +1312,7 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
                           Text(
                             p.$1,
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -1321,7 +1321,7 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
                           Text(
                             '${p.$2} • ${p.$3} (${p.$4})',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 10.5,
                               color: kLime.withValues(alpha: 0.9),
                               fontWeight: FontWeight.w600,
@@ -1350,9 +1350,9 @@ class _StandardTrainerPackageModelCard extends StatelessWidget {
             label: const Text(
               'View Package Details',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 11.5,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: kDark,
               ),
             ),
@@ -1406,9 +1406,9 @@ class _AdvancedTrainerCard extends StatelessWidget {
                 child: const Text(
                   'ADVANCED TRAINER',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 9.5,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: Color(0xFFE65100),
                     letterSpacing: 0.8,
                   ),
@@ -1422,9 +1422,9 @@ class _AdvancedTrainerCard extends StatelessWidget {
           Text(
             'Custom Training Plans Eligible',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (16.0 * sf).clamp(14, 18),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: kDark,
             ),
           ),
@@ -1432,7 +1432,7 @@ class _AdvancedTrainerCard extends StatelessWidget {
           Text(
             'As an approved Advanced Trainer with verified qualifications (3.5+ years experience), you can create custom training plans and set independent pricing.',
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.5 * sf).clamp(10, 12.5),
               color: const Color(0xFF5D4037),
               height: 1.35,
@@ -1454,7 +1454,7 @@ class _AdvancedTrainerCard extends StatelessWidget {
                   child: Text(
                     'Policy Requirement: Every custom training plan requires separate Admin approval before publication.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 10.5,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFFE65100),
@@ -1471,9 +1471,9 @@ class _AdvancedTrainerCard extends StatelessWidget {
             label: const Text(
               'Manage Custom Plans',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 11.5,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: kDark,
               ),
             ),
@@ -1533,11 +1533,11 @@ void _showAdvancedCustomPlanSheet(BuildContext context, double sf, {String? trai
                     children: [
                       Text(
                         'Custom Training Plans',
-                        style: TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w800, color: kDark),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w600, color: kDark),
                       ),
                       Text(
                         'Advanced Trainer Privileges',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
                       ),
                     ],
                   ),
@@ -1547,7 +1547,7 @@ void _showAdvancedCustomPlanSheet(BuildContext context, double sf, {String? trai
             const SizedBox(height: 16),
             const Text(
               'As an approved Advanced Trainer, you have the privilege to create tailored training plans with custom session counts and pricing.\n\nMandatory Platform Policy:\nEvery custom training plan requires separate TRAIN Z Admin verification and approval before it can be published to clients. Unpublished, draft, or pending plans will remain private to your account.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12.5, color: Color(0xFF4E342E), height: 1.45),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, color: Color(0xFF4E342E), height: 1.45),
             ),
             const SizedBox(height: 20),
             Row(
@@ -1559,7 +1559,7 @@ void _showAdvancedCustomPlanSheet(BuildContext context, double sf, {String? trai
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Got It', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark)),
+                    child: const Text('Got It', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1581,7 +1581,7 @@ void _showAdvancedCustomPlanSheet(BuildContext context, double sf, {String? trai
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Open Manager', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white)),
+                    child: const Text('Open Manager', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Colors.white)),
                   ),
                 ),
               ],
@@ -1639,7 +1639,7 @@ class _QuickActionButton extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (12.5 * sf).clamp(11, 14),
                 fontWeight: FontWeight.w700,
                 color: kDark,
@@ -1649,7 +1649,7 @@ class _QuickActionButton extends StatelessWidget {
             Text(
               subtitle,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (10.0 * sf).clamp(9, 11),
                 color: kGrey,
               ),
@@ -1720,7 +1720,7 @@ class _UpcomingSessionCard extends StatelessWidget {
                   Text(
                     b.displayClientName,
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (13.5 * sf).clamp(12, 15),
                       fontWeight: FontWeight.w700,
                       color: kDark,
@@ -1734,7 +1734,7 @@ class _UpcomingSessionCard extends StatelessWidget {
                       Text(
                         '${_formatSessionDate(b.sessionDate)} • ${b.startTime}',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(9.5, 12),
                           color: kGrey,
                         ),
@@ -1749,7 +1749,7 @@ class _UpcomingSessionCard extends StatelessWidget {
                         child: const Text(
                           '60m',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 9.5,
                             fontWeight: FontWeight.w600,
                             color: kDark,
@@ -1769,7 +1769,7 @@ class _UpcomingSessionCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (10.5 * sf).clamp(9, 11.5),
                             color: kGrey,
                           ),
@@ -1789,7 +1789,7 @@ class _UpcomingSessionCard extends StatelessWidget {
               child: const Text(
                 'CONFIRMED',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 9.5,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF2E7D32),
@@ -1868,9 +1868,9 @@ class _NotificationTile extends StatelessWidget {
                   Text(
                     n.title,
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (12.0 * sf).clamp(10.5, 13.5),
-                      fontWeight: n.isRead ? FontWeight.w600 : FontWeight.w800,
+                      fontWeight: n.isRead ? FontWeight.w600 : FontWeight.w600,
                       color: kDark,
                     ),
                   ),
@@ -1880,7 +1880,7 @@ class _NotificationTile extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(9.5, 12.0),
                       color: kGrey,
                     ),
@@ -1939,7 +1939,7 @@ class _EmptyStateCard extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (13.0 * sf).clamp(11.5, 15),
               fontWeight: FontWeight.w700,
               color: kDark,
@@ -1950,7 +1950,7 @@ class _EmptyStateCard extends StatelessWidget {
             subtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.0 * sf).clamp(9.5, 12),
               color: kGrey,
             ),
@@ -1988,7 +1988,7 @@ class _DetailInfoRow extends StatelessWidget {
                 Text(
                   label,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11,
                     color: kGrey,
                   ),
@@ -1997,7 +1997,7 @@ class _DetailInfoRow extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -2068,16 +2068,16 @@ void _showBookingDetailSheet(BuildContext context, BookingModel booking, double 
                       Text(
                         booking.displayClientName,
                         style: const TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 16,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                         ),
                       ),
                       Text(
                         booking.workoutType ?? 'Personal Training',
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
                           color: kGrey,
                         ),
@@ -2094,7 +2094,7 @@ void _showBookingDetailSheet(BuildContext context, BookingModel booking, double 
                   child: const Text(
                     'CONFIRMED',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF2E7D32),
@@ -2153,7 +2153,7 @@ void _showBookingDetailSheet(BuildContext context, BookingModel booking, double 
                     padding: const EdgeInsets.symmetric(vertical: 13),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Manage in Bookings', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark)),
+                  child: const Text('Manage in Bookings', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark)),
                 ),
               ),
               const SizedBox(height: 10),
@@ -2169,7 +2169,7 @@ void _showBookingDetailSheet(BuildContext context, BookingModel booking, double 
                 ),
                 child: const Text(
                   'Close',
-                  style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+                  style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Colors.white),
                 ),
               ),
             ),
@@ -2223,11 +2223,11 @@ void _showAvailabilitySheet(BuildContext context, String trainerId, double sf) {
                     children: [
                       Text(
                         'Trainer Availability',
-                        style: TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w800, color: kDark),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w600, color: kDark),
                       ),
                       Text(
                         'Weekly Working Hours & Slots',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
                       ),
                     ],
                   ),
@@ -2237,7 +2237,7 @@ void _showAvailabilitySheet(BuildContext context, String trainerId, double sf) {
             const SizedBox(height: 16),
             const Text(
               'The Availability Management module is scheduled for the upcoming release. Your sessions currently default to standard 60-minute slots during your preferred hours (06:00 AM - 08:00 PM).',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Color(0xFF555555), height: 1.4),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFF555555), height: 1.4),
             ),
             const SizedBox(height: 22),
             Row(
@@ -2250,7 +2250,7 @@ void _showAvailabilitySheet(BuildContext context, String trainerId, double sf) {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Understood', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white)),
+                    child: const Text('Understood', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Colors.white)),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -2269,7 +2269,7 @@ void _showAvailabilitySheet(BuildContext context, String trainerId, double sf) {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Manage Calendar', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark)),
+                    child: const Text('Manage Calendar', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark)),
                   ),
                 ),
               ],
@@ -2307,12 +2307,12 @@ void _showEarningsDetailSheet(BuildContext context, double sf, int totalEarnings
             const SizedBox(height: 18),
             const Text(
               'Trainer Earnings Overview',
-              style: TextStyle(fontFamily: 'Syne', fontSize: 17, fontWeight: FontWeight.w800, color: kDark),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 17, fontWeight: FontWeight.w600, color: kDark),
             ),
             const SizedBox(height: 4),
             const Text(
               'Calculated from confirmed & completed sessions',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
             ),
             const SizedBox(height: 16),
             Container(
@@ -2327,17 +2327,17 @@ void _showEarningsDetailSheet(BuildContext context, double sf, int totalEarnings
                 children: [
                   const Text(
                     'TOTAL EARNINGS',
-                    style: TextStyle(fontFamily: 'Syne', fontSize: 11, fontWeight: FontWeight.w800, color: kLime, letterSpacing: 1.1),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w600, color: kLime, letterSpacing: 1.1),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     '₹$totalEarnings',
-                    style: const TextStyle(fontFamily: 'Syne', fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 28, fontWeight: FontWeight.w600, color: Colors.white),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${completed.length} completed sessions • ${upcoming.length} upcoming scheduled',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Colors.white.withValues(alpha: 0.65)),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Colors.white.withValues(alpha: 0.65)),
                   ),
                 ],
               ),
@@ -2345,7 +2345,7 @@ void _showEarningsDetailSheet(BuildContext context, double sf, int totalEarnings
             const SizedBox(height: 14),
             const Text(
               'All trainer earnings are reconciled with completed session verification and processed securely in Indian Rupees (INR).',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey, height: 1.4),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -2365,7 +2365,7 @@ void _showEarningsDetailSheet(BuildContext context, double sf, int totalEarnings
                 icon: const Icon(Iconsax.wallet_3, size: 16, color: kDark),
                 label: const Text(
                   'View Detailed Earnings & Payouts',
-                  style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark),
+                  style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kLime,
@@ -2384,7 +2384,7 @@ void _showEarningsDetailSheet(BuildContext context, double sf, int totalEarnings
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Close', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark)),
+                child: const Text('Close', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark)),
               ),
             ),
           ],
@@ -2421,12 +2421,12 @@ void _showCompletedSessionsSheet(BuildContext context, List<BookingModel> comple
             const SizedBox(height: 18),
             Text(
               'Completed Sessions (${completed.length})',
-              style: const TextStyle(fontFamily: 'Syne', fontSize: 17, fontWeight: FontWeight.w800, color: kDark),
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 17, fontWeight: FontWeight.w600, color: kDark),
             ),
             const SizedBox(height: 4),
             const Text(
               'Verified sessions delivered to your clients.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
             ),
             const SizedBox(height: 16),
             if (completed.isEmpty)
@@ -2434,7 +2434,7 @@ void _showCompletedSessionsSheet(BuildContext context, List<BookingModel> comple
                 child: Center(
                   child: Text(
                     'No sessions completed yet.',
-                    style: TextStyle(fontFamily: 'Poppins', color: kGrey),
+                    style: TextStyle(fontFamily: 'Outfit', color: kGrey),
                   ),
                 ),
               )
@@ -2450,8 +2450,8 @@ void _showCompletedSessionsSheet(BuildContext context, List<BookingModel> comple
                         backgroundColor: Color(0xFFE8F5E9),
                         child: Icon(Icons.check_rounded, color: Color(0xFF2E7D32)),
                       ),
-                      title: Text(b.displayClientName, style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700)),
-                      subtitle: Text('${_formatSessionDate(b.sessionDate)} • ${b.startTime} • ${b.resolvedPackageName}', style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey)),
+                      title: Text(b.displayClientName, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700)),
+                      subtitle: Text('${_formatSessionDate(b.sessionDate)} • ${b.startTime} • ${b.resolvedPackageName}', style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey)),
                     );
                   },
                 ),
@@ -2484,9 +2484,9 @@ Widget _initialsWidget(String name) {
     child: Text(
       initial,
       style: const TextStyle(
-        fontFamily: 'Syne',
+        fontFamily: 'Outfit',
         fontSize: 18,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
         color: Colors.white,
       ),
     ),
@@ -2569,9 +2569,9 @@ class _TrainerProfileTab extends StatelessWidget {
                       child: Text(
                         'Coach Profile',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (24.0 * sf).clamp(20.0, 30.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                         ),
                       ),
@@ -2602,7 +2602,7 @@ class _TrainerProfileTab extends StatelessWidget {
                       child: Text(
                         badgeText,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: badgeTextColor,
@@ -2683,7 +2683,7 @@ class _TrainerProfileTab extends StatelessWidget {
                             Text(
                               service.fullName ?? 'Coach Profile',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (16.0 * sf).clamp(14.0, 18.0),
                                 fontWeight: FontWeight.w700,
                                 color: kDark,
@@ -2693,7 +2693,7 @@ class _TrainerProfileTab extends StatelessWidget {
                             Text(
                               service.mobileNumber ?? 'Mobile number not added',
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: (12.0 * sf).clamp(10.5, 13.0),
                                 color: kGrey,
                               ),
@@ -2708,7 +2708,7 @@ class _TrainerProfileTab extends StatelessWidget {
                                     child: Text(
                                       service.gymName!,
                                       style: TextStyle(
-                                        fontFamily: 'Poppins',
+                                        fontFamily: 'Outfit',
                                         fontSize: (11.5 * sf).clamp(10.0, 12.5),
                                         fontWeight: FontWeight.w500,
                                         color: kDark,
@@ -2743,7 +2743,7 @@ class _TrainerProfileTab extends StatelessWidget {
                 Text(
                   'Coaching Identity',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (14.0 * sf).clamp(12.5, 16.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -2867,7 +2867,7 @@ class _TrainerProfileTab extends StatelessWidget {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                        fontFamily: 'Syne',
+                                        fontFamily: 'Outfit',
                                         fontSize: (12.0 * sf).clamp(11.0, 13.0),
                                         fontWeight: FontWeight.w700,
                                         color: kDark,
@@ -2882,7 +2882,7 @@ class _TrainerProfileTab extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: 11,
                                   color: kGrey,
                                 ),
@@ -2901,8 +2901,8 @@ class _TrainerProfileTab extends StatelessWidget {
                           child: const Text(
                             'Edit',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w500,
                               color: kDark,
                               fontSize: 12,
                             ),
@@ -2919,7 +2919,7 @@ class _TrainerProfileTab extends StatelessWidget {
                 Text(
                   'Specialties',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (14.0 * sf).clamp(12.5, 16.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -2944,7 +2944,7 @@ class _TrainerProfileTab extends StatelessWidget {
                           Text(
                             spec,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.5 * sf).clamp(10.0, 12.5),
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
@@ -2962,7 +2962,7 @@ class _TrainerProfileTab extends StatelessWidget {
                 Text(
                   'Training Philosophy',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (14.0 * sf).clamp(12.5, 16.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -2986,7 +2986,7 @@ class _TrainerProfileTab extends StatelessWidget {
                         child: Text(
                           service.philosophy,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (12.5 * sf).clamp(11.0, 13.5),
                             fontStyle: FontStyle.italic,
                             color: kDark,
@@ -3004,7 +3004,7 @@ class _TrainerProfileTab extends StatelessWidget {
                 Text(
                   'Coach Settings',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (14.0 * sf).clamp(12.5, 16.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -3101,9 +3101,9 @@ class _TrainerProfileTab extends StatelessWidget {
                     label: const Text(
                       'Log Out',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: Color(0xFFE53935),
                       ),
                     ),
@@ -3149,7 +3149,7 @@ class _DetailRow extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (12.0 * sf).clamp(10.5, 13.0),
             color: kGrey,
           ),
@@ -3162,7 +3162,7 @@ class _DetailRow extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (12.5 * sf).clamp(11.0, 13.5),
               fontWeight: FontWeight.w600,
               color: kDark,
@@ -3209,7 +3209,7 @@ class _CoachProfileTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (13.0 * sf).clamp(11.0, 14.0),
                     fontWeight: FontWeight.w500,
                     color: kDark,
@@ -3287,10 +3287,10 @@ class _TrainerBottomNav extends StatelessWidget {
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 180),
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: labelSz,
                           fontWeight: selected
-                              ? FontWeight.w700
+                              ? FontWeight.w500
                               : FontWeight.w400,
                           color: selected ? kDark : const Color(0xFFBBBBBB),
                         ),

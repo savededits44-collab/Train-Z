@@ -45,7 +45,7 @@ class WelcomeScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: AppTheme.fontFamily,
                                 fontSize: 16,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 letterSpacing: 2.0,
                                 color: AppTheme.pureWhite,
                               ),
@@ -55,7 +55,7 @@ class WelcomeScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: AppTheme.fontFamily,
                                 fontSize: 16,
-                                fontWeight: FontWeight.w300,
+                                fontWeight: FontWeight.w400,
                                 letterSpacing: 2.0,
                                 color: AppTheme.mutedWhite,
                               ),
@@ -78,7 +78,7 @@ class WelcomeScreen extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: AppTheme.fontFamily,
                             fontSize: 9,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: 1.0,
                             color: AppTheme.pureBlack,
                           ),
@@ -128,7 +128,7 @@ class WelcomeScreen extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: AppTheme.fontFamily,
                   fontSize: 34,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   height: 1.15,
                   letterSpacing: 1.5,
                   color: AppTheme.pureWhite,

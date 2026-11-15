@@ -180,7 +180,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                               Text(
                                 loc.currentFormattedLocation,
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: (11.5 * sf).clamp(10.5, 13.0),
                                   fontWeight: FontWeight.w700,
                                   color: kDark,
@@ -227,7 +227,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                       child: Text(
                                         unreadCount > 9 ? '9+' : '$unreadCount',
                                         style: const TextStyle(
-                                          fontFamily: 'Poppins',
+                                          fontFamily: 'Outfit',
                                           fontSize: 9,
                                           fontWeight: FontWeight.w700,
                                           color: Colors.white,
@@ -362,9 +362,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           ? Text(
                               displayName.isNotEmpty ? displayName[0].toUpperCase() : 'A',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (18.0 * sf).clamp(16.0, 22.0),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: kLime,
                               ),
                             )
@@ -393,7 +393,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     Text(
                       '${_getGreeting()},',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (11.5 * sf).clamp(10.5, 13.0),
                         color: kGrey,
                         fontWeight: FontWeight.w500,
@@ -406,9 +406,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             displayName,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (20.0 * sf).clamp(17.0, 24.0),
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: kDark,
                             ),
                           ),
@@ -443,7 +443,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               decoration: InputDecoration(
                 hintText: 'Search trainers by name, specialty, or gym...',
                 hintStyle: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (12.0 * sf).clamp(11.0, 13.5),
                   color: const Color(0xFFA0A0A0),
                 ),
@@ -495,9 +495,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         Text(
                           'SESSION CREDITS',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: const Color(0xFFAAAAAA),
                             letterSpacing: 0.8,
                           ),
@@ -511,7 +511,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           child: Text(
                             '60 Min / Session',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (9.5 * sf).clamp(9.0, 11.0),
                               fontWeight: FontWeight.w700,
                               color: kLime,
@@ -532,9 +532,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             Text(
                               '$available',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (38.0 * sf).clamp(30.0, 44.0),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: Colors.white,
                               ),
                             ),
@@ -542,7 +542,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             Text(
                               'Available Sessions',
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: (12.0 * sf).clamp(11.0, 13.5),
                                 fontWeight: FontWeight.w500,
                                 color: const Color(0xFFCCCCCC),
@@ -562,9 +562,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             child: const Text(
                               '+ Add Credits',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 11,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: kDark,
                               ),
                             ),
@@ -581,7 +581,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         Text(
                           'Reserved: $reserved',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.0 * sf).clamp(10.0, 12.5),
                             color: const Color(0xFF999999),
                           ),
@@ -589,7 +589,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         Text(
                           'Completed: $consumed',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.0 * sf).clamp(10.0, 12.5),
                             color: const Color(0xFF999999),
                           ),
@@ -599,7 +599,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           child: Text(
                             'View Plans',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.0 * sf).clamp(10.0, 12.5),
                               fontWeight: FontWeight.w700,
                               color: kLime,
@@ -671,7 +671,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       Text(
                         'No upcoming workouts scheduled',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (13.5 * sf).clamp(12.5, 15.0),
                           fontWeight: FontWeight.w700,
                           color: kDark,
@@ -682,7 +682,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         'Book a personal trainer to schedule your next workout session.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.5),
                           color: kGrey,
                         ),
@@ -694,9 +694,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         label: const Text(
                           'Schedule Workout',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w500,
                             color: kDark,
                           ),
                         ),
@@ -768,7 +768,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       Text(
                         'No trainers found',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (13.5 * sf).clamp(12.5, 15.0),
                           fontWeight: FontWeight.w700,
                           color: kDark,
@@ -779,7 +779,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         'Trainers are currently onboarding in this area. Check back shortly!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.5),
                           color: kGrey,
                         ),
@@ -814,7 +814,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           Text(
             'Fixed rates from ₹500. Credits never expire during validity window.',
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.0 * sf).clamp(10.0, 12.5),
               color: kGrey,
             ),
@@ -907,9 +907,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     Text(
                       'Discover Trainers',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (22.0 * sf).clamp(18.0, 26.0),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: kDark,
                       ),
                     ),
@@ -917,7 +917,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     Text(
                       'Explore professional trainers, compare experience and find training that fits your fitness goals.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (11.5 * sf).clamp(10.5, 13.0),
                         color: kGrey,
                       ),
@@ -943,7 +943,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               decoration: InputDecoration(
                 hintText: 'Search by trainer name, specialization, goal or gym...',
                 hintStyle: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (12.0 * sf).clamp(11.0, 13.5),
                   color: const Color(0xFFA0A0A0),
                 ),
@@ -983,7 +983,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       children: [
                         Icon(Icons.star_rounded, size: 18, color: Color(0xFFD97706)),
                         SizedBox(width: 8),
-                        Text('Highest Rating', style: TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                        Text('Highest Rating', style: TextStyle(fontFamily: 'Outfit', fontSize: 13)),
                       ],
                     ),
                   ),
@@ -993,7 +993,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       children: [
                         Icon(Iconsax.award, size: 18, color: kDark),
                         SizedBox(width: 8),
-                        Text('Most Experience', style: TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                        Text('Most Experience', style: TextStyle(fontFamily: 'Outfit', fontSize: 13)),
                       ],
                     ),
                   ),
@@ -1003,7 +1003,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       children: [
                         Icon(Iconsax.magicpen, size: 18, color: kDark),
                         SizedBox(width: 8),
-                        Text('Relevance', style: TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                        Text('Relevance', style: TextStyle(fontFamily: 'Outfit', fontSize: 13)),
                       ],
                     ),
                   ),
@@ -1035,7 +1035,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                 ? 'Experience'
                                 : 'Relevance',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.5),
                           fontWeight: FontWeight.w700,
                           color: kDark,
@@ -1089,7 +1089,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       Text(
                         'Filters',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.5),
                           fontWeight: FontWeight.w700,
                           color: _filterState.hasActiveFilters ? Colors.white : kDark,
@@ -1106,9 +1106,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           child: Text(
                             '${_filterState.activeFilterCount}',
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 9,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: kDark,
                             ),
                           ),
@@ -1141,9 +1141,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   child: const Text(
                     'Reset',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: Color(0xFFEF4444),
                     ),
                   ),
@@ -1168,7 +1168,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     selectedColor: kDark,
                     backgroundColor: const Color(0xFFF7F7F7),
                     labelStyle: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (10.5 * sf).clamp(9.5, 12.0),
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
                       color: isSelected ? Colors.white : kDark,
@@ -1225,7 +1225,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           Text(
                             'Unable to load trainers',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (14.0 * sf).clamp(13.0, 16.0),
                               fontWeight: FontWeight.w700,
                               color: kDark,
@@ -1236,7 +1236,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             '${trainerSnap.error}',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.0 * sf).clamp(10.0, 12.5),
                               color: kGrey,
                             ),
@@ -1248,7 +1248,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                               backgroundColor: kDark,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
-                            child: const Text('Retry', style: TextStyle(fontFamily: 'Syne', color: Colors.white)),
+                            child: const Text('Retry', style: TextStyle(fontFamily: 'Outfit', color: Colors.white)),
                           ),
                         ],
                       ),
@@ -1379,9 +1379,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           Text(
                             'No trainers found',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (15.0 * sf).clamp(14.0, 17.0),
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               color: kDark,
                             ),
                           ),
@@ -1390,7 +1390,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             'No verified trainers match your search or filters. Try expanding your criteria.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.0 * sf).clamp(10.0, 12.5),
                               color: kGrey,
                               height: 1.4,
@@ -1410,9 +1410,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                             label: const Text(
                               'Reset All Filters',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 12,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w500,
                                 color: kDark,
                               ),
                             ),
@@ -1471,9 +1471,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                               child: Text(
                                 'Load More Coaches (${sortedList.length - _trainerLimit} remaining)',
                                 style: const TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 12,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w500,
                                   color: kDark,
                                 ),
                               ),
@@ -1511,9 +1511,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           Text(
             'Messages',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (22.0 * sf).clamp(18.0, 26.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: kDark,
             ),
           ),
@@ -1521,7 +1521,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           Text(
             'Direct communication with your booked 1-on-1 trainers.',
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.5 * sf).clamp(10.5, 13.0),
               color: kGrey,
             ),
@@ -1545,7 +1545,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   child: Text(
                     'Direct chat is active with your booked trainers. Discuss scheduling, fitness goals, and session details.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (10.5 * sf).clamp(9.5, 12.0),
                       color: const Color(0xFF555555),
                     ),
@@ -1590,9 +1590,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                   'Messages',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: (18.0 * sf).clamp(16.0, 20.0),
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w600,
                                     color: kDark,
                                   ),
                                 ),
@@ -1601,7 +1601,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                   'Your conversations with trainers will appear here.',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: (12.0 * sf).clamp(11.0, 13.5),
                                     color: kGrey,
                                   ),
@@ -1616,7 +1616,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                   ),
                                   child: const Text(
                                     'Find a Trainer',
-                                    style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kLime),
+                                    style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kLime),
                                   ),
                                 ),
                               ],
@@ -1639,9 +1639,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                   Text(
                                     'Messages',
                                     style: TextStyle(
-                                      fontFamily: 'Syne',
+                                      fontFamily: 'Outfit',
                                       fontSize: (16.0 * sf).clamp(14.0, 18.0),
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w600,
                                       color: kDark,
                                     ),
                                   ),
@@ -1650,7 +1650,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                     'Your conversations with trainers will appear here.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: (11.5 * sf).clamp(10.5, 12.5),
                                       color: kGrey,
                                     ),
@@ -1663,7 +1663,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           Text(
                             'Your Booked Trainers',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (14.0 * sf).clamp(13.0, 16.0),
                               fontWeight: FontWeight.w700,
                               color: kDark,
@@ -1740,7 +1740,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   child: (conv.trainerPhotoUrl == null || conv.trainerPhotoUrl!.isEmpty)
                       ? Text(
                           conv.trainerName.isNotEmpty ? conv.trainerName[0].toUpperCase() : 'T',
-                          style: const TextStyle(fontFamily: 'Syne', color: kLime, fontWeight: FontWeight.w800),
+                          style: const TextStyle(fontFamily: 'Outfit', color: kLime, fontWeight: FontWeight.w600),
                         )
                       : null,
                 ),
@@ -1773,9 +1773,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (13.5 * sf).clamp(12.5, 15.0),
-                            fontWeight: conv.clientUnreadCount > 0 ? FontWeight.w800 : FontWeight.w700,
+                            fontWeight: conv.clientUnreadCount > 0 ? FontWeight.w600 : FontWeight.w700,
                             color: kDark,
                           ),
                         ),
@@ -1783,10 +1783,10 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       Text(
                         timeStr,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (10.0 * sf).clamp(9.0, 11.0),
                           color: conv.clientUnreadCount > 0 ? kDark : const Color(0xFF9CA3AF),
-                          fontWeight: conv.clientUnreadCount > 0 ? FontWeight.w600 : FontWeight.normal,
+                          fontWeight: conv.clientUnreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
                         ),
                       ),
                     ],
@@ -1800,10 +1800,10 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.0 * sf).clamp(10.0, 12.5),
                             color: conv.clientUnreadCount > 0 ? kDark : kGrey,
-                            fontWeight: conv.clientUnreadCount > 0 ? FontWeight.w600 : FontWeight.normal,
+                            fontWeight: conv.clientUnreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
                           ),
                         ),
                       ),
@@ -1818,7 +1818,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           child: Text(
                             '${conv.clientUnreadCount}',
                             style: const TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: kLime,
@@ -1856,7 +1856,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             child: (booking.trainerPhotoUrl == null || booking.trainerPhotoUrl!.isEmpty)
                 ? Text(
                     booking.displayTrainerName.isNotEmpty ? booking.displayTrainerName[0].toUpperCase() : 'T',
-                    style: const TextStyle(fontFamily: 'Syne', color: kLime, fontWeight: FontWeight.w800),
+                    style: const TextStyle(fontFamily: 'Outfit', color: kLime, fontWeight: FontWeight.w600),
                   )
                 : null,
           ),
@@ -1868,7 +1868,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 Text(
                   booking.displayTrainerName,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (13.5 * sf).clamp(12.5, 15.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -1877,7 +1877,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 Text(
                   'Booked Trainer • Ready to chat',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (10.5 * sf).clamp(9.5, 11.5),
                     color: const Color(0xFF16A34A),
                     fontWeight: FontWeight.w600,
@@ -1914,7 +1914,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             ),
             child: const Text(
               'Chat',
-              style: TextStyle(fontFamily: 'Syne', fontSize: 11, fontWeight: FontWeight.w700, color: kLime),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w500, color: kLime),
             ),
           ),
         ],
@@ -1973,9 +1973,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               Text(
                 'My Profile',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (22.0 * sf).clamp(18.0, 26.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                 ),
               ),
@@ -2010,7 +2010,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     icon: const Icon(Iconsax.edit_2, size: 14, color: kDark),
                     label: const Text(
                       'Edit',
-                      style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark, fontSize: 12),
+                      style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark, fontSize: 12),
                     ),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFFCCCCCC)),
@@ -2044,7 +2044,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   child: (clientUser?.photoUrl == null || clientUser!.photoUrl!.isEmpty)
                       ? Text(
                           displayName.isNotEmpty ? displayName[0].toUpperCase() : 'A',
-                          style: const TextStyle(fontFamily: 'Syne', fontSize: 22, color: kLime, fontWeight: FontWeight.w800),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 22, color: kLime, fontWeight: FontWeight.w600),
                         )
                       : null,
                 ),
@@ -2055,19 +2055,19 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     children: [
                       Text(
                         displayName,
-                        style: const TextStyle(fontFamily: 'Syne', fontSize: 16, fontWeight: FontWeight.w800, color: kDark),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 16, fontWeight: FontWeight.w600, color: kDark),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         clientUser?.email ?? '',
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
                       ),
                       if (clientUser?.phoneNumber != null && clientUser!.phoneNumber!.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
                           clientUser.phoneNumber!,
-                          style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF666666)),
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF666666)),
                         ),
                       ],
                     ],
@@ -2096,7 +2096,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     Text(
                       'Profile Completion',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (12.0 * sf).clamp(11.0, 13.5),
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -2105,9 +2105,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     Text(
                       '$completion%',
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 13,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: Color(0xFF16A34A),
                       ),
                     ),
@@ -2149,7 +2149,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                         children: [
                           Text(
                             'Account Profile Verified',
-                            style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+                            style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
                           ),
                           SizedBox(width: 6),
                           Icon(Icons.verified, size: 14, color: Color(0xFF16A34A)),
@@ -2158,7 +2158,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       SizedBox(height: 2),
                       Text(
                         'Platform profile verified for 1-on-1 personal training.',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: kGrey),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: kGrey),
                       ),
                     ],
                   ),
@@ -2185,7 +2185,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   children: [
                     const Text(
                       'Location & Workout Venue',
-                      style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+                      style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
                     ),
                     InkWell(
                       onTap: () {
@@ -2198,15 +2198,15 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       },
                       child: const Text(
                         'Change',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 11, fontWeight: FontWeight.w700, color: kDark, decoration: TextDecoration.underline),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w700, color: kDark, decoration: TextDecoration.underline),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text('City: $cityName', style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF444444))),
+                Text('City: $cityName', style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF444444))),
                 const SizedBox(height: 4),
-                Text('Preferred Venue: $preferredVenue', style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF444444))),
+                Text('Preferred Venue: $preferredVenue', style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF444444))),
               ],
             ),
           ),
@@ -2227,7 +2227,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 children: [
                   const Text(
                     'Fitness Goals & Focus',
-                    style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+                    style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -2240,7 +2240,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           color: const Color(0xFFF7F7F7),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(g, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kDark)),
+                        child: Text(g, style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kDark)),
                       );
                     }).toList(),
                   ),
@@ -2270,11 +2270,11 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   ),
                   title: const Text(
                     'Help & Support Center',
-                    style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+                    style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
                   ),
                   subtitle: const Text(
                     'FAQs, booking guides, and policy information',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF6B7280)),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF6B7280)),
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF9CA3AF)),
                   onTap: () {
@@ -2309,12 +2309,12 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       ),
                       title: const Text(
                         'Support Requests & Complaints',
-                        style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+                        style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
                       ),
                       subtitle: Text(
                         activeCount > 0 ? '$activeCount active request${activeCount == 1 ? '' : 's'}' : 'Track your tickets and complaints',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           color: activeCount > 0 ? const Color(0xFF2563EB) : const Color(0xFF6B7280),
                           fontWeight: activeCount > 0 ? FontWeight.w600 : FontWeight.w400,
@@ -2333,7 +2333,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                               ),
                               child: Text(
                                 '$activeCount',
-                                style: const TextStyle(fontFamily: 'Poppins', fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white),
+                                style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white),
                               ),
                             ),
                           const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF9CA3AF)),
@@ -2377,11 +2377,11 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               ),
               title: const Text(
                 'Settings & Account Management',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 13, color: kDark),
               ),
               subtitle: const Text(
                 'Security, notifications, privacy & account controls',
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF6B7280)),
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF6B7280)),
               ),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF9CA3AF)),
               onTap: () {
@@ -2410,7 +2410,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               icon: const Icon(Iconsax.logout, color: Color(0xFFDC2626), size: 16),
               label: const Text(
                 'Sign Out',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Color(0xFFDC2626)),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Color(0xFFDC2626)),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFFFECACA)),
@@ -2455,9 +2455,9 @@ class _SectionHeader extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (11.5 * sf).clamp(10.5, 13.0),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: const Color(0xFF888888),
               letterSpacing: 0.8,
             ),
@@ -2469,7 +2469,7 @@ class _SectionHeader extends StatelessWidget {
             child: Text(
               actionLabel!,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (11.0 * sf).clamp(10.0, 12.5),
                 fontWeight: FontWeight.w700,
                 color: kDark,

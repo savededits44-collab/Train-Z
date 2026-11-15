@@ -305,20 +305,20 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
             Expanded(
               child: Text(
                 'Slot Unavailable',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 17),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 17),
               ),
             ),
           ],
         ),
         content: Text(
           message,
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Color(0xFF444444), height: 1.4),
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFF444444), height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Choose Another Slot',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kDark)),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark)),
           ),
         ],
       ),
@@ -344,9 +344,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
         title: Text(
           'Schedule Session',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 21.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -393,7 +393,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                       child: Text(
                         _errorMessage!,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
                           color: Color(0xFFB91C1C),
                           fontWeight: FontWeight.w500,
@@ -432,7 +432,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                     Text(
                       'TOTAL PAYABLE',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (10.0 * sf).clamp(9.0, 11.0),
                         fontWeight: FontWeight.w600,
                         color: kGrey,
@@ -442,9 +442,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                     Text(
                       widget.plan.formattedPrice,
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (22.0 * sf).clamp(19.0, 25.0),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: kDark,
                       ),
                     ),
@@ -477,9 +477,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                             Text(
                               _selectedStartTime != null ? 'Reserve & Proceed' : 'Select a Slot',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (14.5 * sf).clamp(13.0, 16.5),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: _selectedStartTime != null ? kLime : const Color(0xFF9CA3AF),
                               ),
                             ),
@@ -559,9 +559,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                                 ? widget.trainer.displayName[0].toUpperCase()
                                 : 'T',
                             style: const TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 20,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w500,
                               color: kLime,
                             ),
                           ),
@@ -579,9 +579,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                           child: Text(
                             widget.trainer.displayName,
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (15.5 * sf).clamp(14.0, 17.5),
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: kDark,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -603,7 +603,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                           child: Text(
                             categoryLabel,
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 9.5,
                               fontWeight: FontWeight.w700,
                               color: categoryText,
@@ -615,7 +615,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                           child: Text(
                             widget.trainer.displayLocation,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.0 * sf).clamp(10.0, 12.0),
                               color: kGrey,
                             ),
@@ -643,16 +643,16 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                   Text(
                     widget.plan.title,
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (14.5 * sf).clamp(13.0, 16.0),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: kDark,
                     ),
                   ),
                   Text(
                     '${widget.plan.sessionsCount} Sessions (${widget.plan.sessionDurationMinutes} mins each) • ${widget.plan.validityDays}d Validity',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.5),
                       color: const Color(0xFF15803D),
                       fontWeight: FontWeight.w600,
@@ -669,9 +669,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                 child: Text(
                   widget.plan.formattedPrice,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (15.0 * sf).clamp(13.5, 17.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                   ),
                 ),
@@ -699,9 +699,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
             Text(
               'Select Training Date',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (15.0 * sf).clamp(13.5, 17.0),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
               ),
             ),
@@ -717,7 +717,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                     Text(
                       'Calendar',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (11.5 * sf).clamp(10.5, 13.0),
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -788,7 +788,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                       Text(
                         _getShortDay(date.weekday),
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 10.5,
                           fontWeight: FontWeight.w600,
                           color: !isTrainerWorking
@@ -802,9 +802,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                       Text(
                         '${date.day}',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: !isTrainerWorking
                               ? const Color(0xFF9CA3AF)
                               : isSelected
@@ -815,7 +815,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                       Text(
                         isTrainerWorking ? _getShortMonth(date.month) : 'Off',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 9.5,
                           fontWeight: isTrainerWorking ? FontWeight.w500 : FontWeight.w700,
                           color: !isTrainerWorking
@@ -847,9 +847,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
             Text(
               'Select Time Slot (60 Mins)',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (15.0 * sf).clamp(13.5, 17.0),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
               ),
             ),
@@ -860,7 +860,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                 Text(
                   'Live Availability',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 10.5,
                     color: Color(0xFF16A34A),
                     fontWeight: FontWeight.w600,
@@ -909,7 +909,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                 child: const Center(
                   child: Text(
                     'No available time slots on this date. Please choose another date.',
-                    style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
                   ),
                 ),
               );
@@ -989,7 +989,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                             Text(
                               slot.start,
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (12.5 * sf).clamp(11.5, 14.0),
                                 fontWeight: FontWeight.w700,
                                 color: isAvailable ? kDark : const Color(0xFF6B7280),
@@ -998,7 +998,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                             Text(
                               statusLabel,
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 9.5,
                                 color: statusColor,
                                 fontWeight: FontWeight.w600,
@@ -1036,9 +1036,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
         Text(
           'Training Location',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (15.0 * sf).clamp(13.5, 17.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -1046,7 +1046,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
         Text(
           'Trainer Service Area: ${widget.trainer.displayLocation}',
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (11.0 * sf).clamp(10.0, 12.0),
             color: kGrey,
           ),
@@ -1098,7 +1098,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
           child: TextField(
             controller: _locationController,
             onChanged: (_) => setState(() {}),
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
             decoration: InputDecoration(
               prefixIcon: Icon(
                 _locationMode == TrainingLocationMode.home ? Iconsax.home : Iconsax.location,
@@ -1111,7 +1111,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
               hintText: _locationMode == TrainingLocationMode.home
                   ? 'Enter house/flat no., building & residential area'
                   : 'Enter gym or fitness club address',
-              hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: kGrey),
+              hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
@@ -1136,7 +1136,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                       ? 'Strict Privacy: Your residential address is encrypted and shared only with your confirmed trainer for this session.'
                       : 'Strict Privacy: Training address is encrypted and accessible only to your verified trainer for confirmed sessions.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (10.0 * sf).clamp(9.0, 11.5),
                     color: const Color(0xFF4B5563),
                     fontWeight: FontWeight.w500,
@@ -1191,7 +1191,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (12.0 * sf).clamp(11.0, 13.5),
                 fontWeight: FontWeight.w700,
                 color: isSelected ? Colors.white : kDark,
@@ -1228,9 +1228,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
               Text(
                 'BOOKING SUMMARY',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                 ),
               ),
@@ -1248,8 +1248,8 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total Package Price', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 13, color: kDark)),
-              Text(widget.plan.formattedPrice, style: const TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 15, color: kDark)),
+              const Text('Total Package Price', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13, color: kDark)),
+              Text(widget.plan.formattedPrice, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 15, color: kDark)),
             ],
           ),
           const SizedBox(height: 10),
@@ -1262,7 +1262,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
             ),
             child: const Text(
               '• 12-Hour Cancellation Rule: full session credit returned if cancelled >= 12h before start.\n• 15-Minute Checkout Hold: reserved slot is temporarily locked during payment.\n• All sessions are 60 minutes with verified personal trainers.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: Color(0xFF78350F), height: 1.4),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 10, color: Color(0xFF78350F), height: 1.4),
             ),
           ),
         ],
@@ -1276,11 +1276,11 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: kGrey)),
+          Text(label, style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey)),
           Flexible(
             child: Text(
               value,
-              style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, fontWeight: FontWeight.w600, color: kDark),
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w600, color: kDark),
               overflow: TextOverflow.ellipsis,
             ),
           ),

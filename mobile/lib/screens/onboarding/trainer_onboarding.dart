@@ -67,7 +67,7 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
                     child: const Text(
                       'Trainer Setup',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -80,9 +80,9 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
               Text(
                 'Coach profile\ncredentials.',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (28.0 * sf).clamp(22.0, 36.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.15,
                 ),
@@ -91,7 +91,7 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
               Text(
                 'Showcase your expertise to prospective athletes.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.0 * sf).clamp(11.0, 14.0),
                   color: kGrey,
                 ),
@@ -100,7 +100,7 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
               Text(
                 'Specialties',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (15.0 * sf).clamp(13.0, 18.0),
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -116,7 +116,7 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
                     label: Text(
                       spec,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (11.5 * sf).clamp(10.0, 13.0),
                         color: selected ? Colors.white : kDark,
                         fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
@@ -152,7 +152,7 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
               Text(
                 'Years of Experience',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (15.0 * sf).clamp(13.0, 18.0),
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -168,7 +168,7 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
               Text(
                 'Your Philosophy',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (15.0 * sf).clamp(13.0, 18.0),
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -178,7 +178,7 @@ class _TrainerOnboardingScreenState extends State<TrainerOnboardingScreen> {
               Text(
                 'Share your coaching mindset and training methodology.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (12.0 * sf).clamp(10.5, 13.0),
                   color: kGrey,
                 ),

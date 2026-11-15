@@ -145,9 +145,9 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
         title: Text(
           'Account & Security',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -193,16 +193,16 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                             Text(
                               _emailVerified ? 'Email Address Verified' : 'Email Not Verified',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (14.0 * sf).clamp(13.0, 15.5),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: kDark,
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               widget.userEmail,
-                              style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF6B7280)),
+                              style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF6B7280)),
                             ),
                           ],
                         ),
@@ -214,7 +214,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                     _emailVerified
                         ? 'Your registered email is verified. You will receive booking notifications, Razorpay receipts, and coach updates.'
                         : 'Please verify your email address to ensure prompt booking updates, coach arrivals, and account security.',
-                    style: const TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: Color(0xFF4B5563)),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFF4B5563)),
                   ),
                   if (!_emailVerified) ...[
                     const SizedBox(height: 14),
@@ -230,7 +230,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                             ),
                             child: const Text(
                               'Resend Email',
-                              style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 12, color: kDark),
+                              style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 12, color: kDark),
                             ),
                           ),
                         ),
@@ -249,7 +249,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                                 ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: kLime))
                                 : const Text(
                                     'Check Status',
-                                    style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 12, color: kLime),
+                                    style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 12, color: kLime),
                                   ),
                           ),
                         ),
@@ -266,9 +266,9 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
             Text(
               'CHANGE PASSWORD',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (11.0 * sf).clamp(10.0, 12.5),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: const Color(0xFF6B7280),
                 letterSpacing: 0.8,
               ),
@@ -290,7 +290,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                     Expanded(
                       child: Text(
                         _errorMessage!,
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFFDC2626)),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFFDC2626)),
                       ),
                     ),
                   ],
@@ -314,7 +314,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                     Expanded(
                       child: Text(
                         _successMessage!,
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFF16A34A)),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFF16A34A)),
                       ),
                     ),
                   ],
@@ -341,7 +341,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                       controller: _currentPasswordController,
                       obscureText: _obscureCurrent,
                       validator: (v) => (v == null || v.isEmpty) ? 'Please enter your current password.' : null,
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
                       decoration: _buildPasswordInputDecoration(
                         hint: 'Enter your existing password',
                         isObscured: _obscureCurrent,
@@ -357,7 +357,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                       controller: _newPasswordController,
                       obscureText: _obscureNew,
                       validator: (v) => ClientSettingsService.validateNewPassword(v ?? ''),
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
                       decoration: _buildPasswordInputDecoration(
                         hint: 'At least 8 chars with uppercase, lowercase & digit',
                         isObscured: _obscureNew,
@@ -377,7 +377,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                         if (v != _newPasswordController.text) return 'Passwords do not match.';
                         return null;
                       },
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kDark),
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
                       decoration: _buildPasswordInputDecoration(
                         hint: 'Re-enter your new password',
                         isObscured: _obscureConfirm,
@@ -399,13 +399,13 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                         children: [
                           Text(
                             'Password Requirements:',
-                            style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 11, color: kDark),
+                            style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 11, color: kDark),
                           ),
                           SizedBox(height: 4),
-                          Text('• Minimum 8 characters in length', style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Color(0xFF6B7280))),
-                          Text('• At least one uppercase letter (A-Z)', style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Color(0xFF6B7280))),
-                          Text('• At least one lowercase letter (a-z)', style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Color(0xFF6B7280))),
-                          Text('• At least one number (0-9)', style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Color(0xFF6B7280))),
+                          Text('• Minimum 8 characters in length', style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF6B7280))),
+                          Text('• At least one uppercase letter (A-Z)', style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF6B7280))),
+                          Text('• At least one lowercase letter (a-z)', style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF6B7280))),
+                          Text('• At least one number (0-9)', style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF6B7280))),
                         ],
                       ),
                     ),
@@ -428,7 +428,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                             ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: kLime))
                             : const Text(
                                 'Update Password',
-                                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 14, color: kLime),
+                                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14, color: kLime),
                               ),
                       ),
                     ),
@@ -453,9 +453,9 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                 child: const Text(
                   'Forgot your current password? Recover Account',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: kDark,
                     decoration: TextDecoration.underline,
                   ),
@@ -482,12 +482,12 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
                       children: [
                         Text(
                           'Zero-Knowledge Credential Security',
-                          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, fontSize: 12, color: kDark),
+                          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, fontSize: 12, color: kDark),
                         ),
                         SizedBox(height: 2),
                         Text(
                           'TRAIN Z never stores plaintext passwords in Firestore databases or local storage. All authentication is cryptographically salted and tokenized via Firebase Auth.',
-                          style: TextStyle(fontFamily: 'Poppins', fontSize: 10.5, color: Color(0xFF6B7280)),
+                          style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF6B7280)),
                         ),
                       ],
                     ),
@@ -508,7 +508,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
       child: Text(
         label,
         style: TextStyle(
-          fontFamily: 'Syne',
+          fontFamily: 'Outfit',
           fontSize: (12.0 * sf).clamp(11.0, 13.0),
           fontWeight: FontWeight.w700,
           color: kDark,
@@ -524,7 +524,7 @@ class _ClientAccountSecurityScreenState extends State<ClientAccountSecurityScree
   }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFFA0A0A0)),
+      hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFFA0A0A0)),
       prefixIcon: const Icon(Iconsax.key, size: 18, color: kDark),
       suffixIcon: IconButton(
         icon: Icon(isObscured ? Icons.visibility_off : Icons.visibility, size: 18, color: const Color(0xFF6B7280)),

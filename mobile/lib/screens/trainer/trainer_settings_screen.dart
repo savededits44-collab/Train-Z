@@ -71,7 +71,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
         title: const Text(
           'Settings & Account',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -101,7 +101,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                       ? Text(
                           displayName.isNotEmpty ? displayName[0].toUpperCase() : 'T',
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
                             color: _kLime,
@@ -120,7 +120,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                             child: Text(
                               displayName,
                               style: const TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
@@ -135,7 +135,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                       Text(
                         email.isNotEmpty ? email : 'Verified Coach',
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
                           color: _kGrey,
                         ),
@@ -153,9 +153,9 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                         child: Text(
                           isAdvanced ? 'ADVANCED TRAINER' : 'STANDARD TRAINER',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 9.5,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: isAdvanced ? const Color(0xFFFB8C00) : _kLime,
                           ),
                         ),
@@ -293,9 +293,9 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
               label: const Text(
                 'Log Out',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: Colors.white,
                 ),
               ),
@@ -330,7 +330,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                       Text(
                         'Delete Account',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: _kDanger,
@@ -339,7 +339,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                       SizedBox(height: 2),
                       Text(
                         'Deactivate profile and request closure of coaching account',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
                       ),
                     ],
                   ),
@@ -355,9 +355,9 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
                   child: const Text(
                     'Delete',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       color: _kDanger,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -376,7 +376,7 @@ class _TrainerSettingsScreenState extends State<TrainerSettingsScreen> {
       child: Text(
         title,
         style: const TextStyle(
-          fontFamily: 'Syne',
+          fontFamily: 'Outfit',
           fontSize: 13,
           fontWeight: FontWeight.w700,
           color: _kGrey,
@@ -441,7 +441,7 @@ class _SettingsTile extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -451,7 +451,7 @@ class _SettingsTile extends StatelessWidget {
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11.5,
                         color: _kGrey,
                       ),

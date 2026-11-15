@@ -72,9 +72,9 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
             title: Text(
               'Notification Centre',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (17.0 * sf).clamp(16.0, 19.0),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
               ),
             ),
@@ -88,9 +88,9 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
                   child: Text(
                     'Mark all read',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.5 * sf).clamp(10.5, 13.0),
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: kDark,
                     ),
                   ),
@@ -115,7 +115,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
                           Text(
                             '${filteredList.length} ${filteredList.length == 1 ? "notification" : "notifications"}',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.0 * sf).clamp(10.0, 12.0),
                               fontWeight: FontWeight.w500,
                               color: const Color(0xFF6B7280),
@@ -146,7 +146,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
                                   Text(
                                     'Unread ($unreadTotal)',
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: (10.5 * sf).clamp(9.5, 11.5),
                                       fontWeight: _showOnlyUnread ? FontWeight.w600 : FontWeight.w500,
                                       color: _showOnlyUnread ? Colors.white : const Color(0xFF4B5563),
@@ -196,7 +196,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
                               child: Text(
                                 chipLabel,
                                 style: TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: (11.0 * sf).clamp(10.0, 12.0),
                                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                                   color: isSelected ? kLime : const Color(0xFF4B5563),
@@ -240,7 +240,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
           SnackBar(
             content: const Text(
               'Notification removed',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 12),
             ),
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 2),
@@ -372,9 +372,9 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
                         child: Text(
                           notif.title,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (13.0 * sf).clamp(12.0, 14.5),
-                            fontWeight: notif.isRead ? FontWeight.w700 : FontWeight.w800,
+                            fontWeight: notif.isRead ? FontWeight.w700 : FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -394,7 +394,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
                   Text(
                     notif.body,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.5, 12.0),
                       color: const Color(0xFF4B5563),
                       height: 1.35,
@@ -419,7 +419,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
                               child: Text(
                                 ref,
                                 style: TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: (9.0 * sf).clamp(8.5, 10.0),
                                   fontWeight: FontWeight.w600,
                                   color: const Color(0xFF4B5563),
@@ -431,7 +431,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
                           Text(
                             dateStr,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (9.5 * sf).clamp(9.0, 10.5),
                               color: const Color(0xFF9CA3AF),
                               fontWeight: FontWeight.w500,
@@ -475,7 +475,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
         Text(
           label,
           style: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (10.0 * sf).clamp(9.5, 11.0),
             fontWeight: FontWeight.w600,
             color: kDark,
@@ -624,9 +624,9 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
             Text(
               title,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (16.0 * sf).clamp(15.0, 18.0),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
               ),
             ),
@@ -635,7 +635,7 @@ class _ClientNotificationsScreenState extends State<ClientNotificationsScreen> {
               description,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (11.5 * sf).clamp(10.5, 12.5),
                 color: kGrey,
                 height: 1.4,

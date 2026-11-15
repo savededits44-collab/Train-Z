@@ -85,7 +85,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
         SnackBar(
           content: Text(
             'Session rescheduled to ${_formatDate(_selectedDate)} at ${_selectedSlot!.start} - ${_selectedSlot!.end}',
-            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w600),
           ),
           backgroundColor: const Color(0xFF16A34A),
           behavior: SnackBarBehavior.floating,
@@ -156,16 +156,16 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                         Text(
                           'Reschedule Session',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (16.0 * sf).clamp(15.0, 18.0),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kDark,
                           ),
                         ),
                         Text(
                           'Trainer: ${widget.booking.displayTrainerName}',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (10.5 * sf).clamp(9.5, 11.5),
                             color: kGrey,
                           ),
@@ -206,7 +206,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                           child: Text(
                             'Current slot: ${_formatDate(widget.booking.sessionDate)} • ${widget.booking.startTime} - ${widget.booking.endTime}',
                             style: const TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 11,
                               color: Color(0xFF4B5563),
                             ),
@@ -222,9 +222,9 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                   Text(
                     'SELECT NEW DATE',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: const Color(0xFF888888),
                       letterSpacing: 0.8,
                     ),
@@ -270,7 +270,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                                 Text(
                                   _weekdayShort(d.weekday),
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.w600,
                                     color: isSelected ? kLime : const Color(0xFF6B7280),
@@ -280,16 +280,16 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                                 Text(
                                   '${d.day}',
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: 18,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w600,
                                     color: isSelected ? Colors.white : kDark,
                                   ),
                                 ),
                                 Text(
                                   _monthShort(d.month),
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: 9.5,
                                     color: isSelected ? const Color(0xFFD1D5DB) : const Color(0xFF9CA3AF),
                                   ),
@@ -311,9 +311,9 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                       Text(
                         'AVAILABLE 60-MIN SLOTS',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: const Color(0xFF888888),
                           letterSpacing: 0.8,
                         ),
@@ -327,7 +327,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                         child: const Text(
                           '60 Mins',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: kDark,
@@ -370,7 +370,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                                 child: Text(
                                   'Trainer is not available on this date. Please choose another date.',
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: 11.5,
                                     color: Color(0xFF4B5563),
                                   ),
@@ -438,7 +438,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                                   Text(
                                     '${slot.start} - ${slot.end}',
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: 11.5,
                                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                                       color: !isAvailable
@@ -475,7 +475,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                             child: Text(
                               _errorMessage!,
                               style: const TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 11.5,
                                 color: Color(0xFFB91C1C),
                               ),
@@ -522,7 +522,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                           SizedBox(width: 10),
                           Text(
                             'Rescheduling Session...',
-                            style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: kLime),
+                            style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: kLime),
                           ),
                         ],
                       )
@@ -533,7 +533,7 @@ class _ClientRescheduleModalState extends State<ClientRescheduleModal> {
                           SizedBox(width: 8),
                           Text(
                             'Confirm Reschedule',
-                            style: TextStyle(fontFamily: 'Syne', fontSize: 14, fontWeight: FontWeight.w800, color: kLime),
+                            style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w600, color: kLime),
                           ),
                         ],
                       ),

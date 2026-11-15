@@ -183,7 +183,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                 Text(
                   'Select Profile Picture',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (16.0 * sf).clamp(14.0, 18.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -192,12 +192,12 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                 const SizedBox(height: 16),
                 ListTile(
                   leading: const Icon(Iconsax.camera, color: kDark),
-                  title: const Text('Take a photo (Camera)', style: TextStyle(fontFamily: 'Poppins')),
+                  title: const Text('Take a photo (Camera)', style: TextStyle(fontFamily: 'Outfit')),
                   onTap: () => _pickImage(ImageSource.camera),
                 ),
                 ListTile(
                   leading: const Icon(Iconsax.gallery, color: kDark),
-                  title: const Text('Choose from Gallery', style: TextStyle(fontFamily: 'Poppins')),
+                  title: const Text('Choose from Gallery', style: TextStyle(fontFamily: 'Outfit')),
                   onTap: () => _pickImage(ImageSource.gallery),
                 ),
               ],
@@ -268,7 +268,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
         const SnackBar(
           content: Text(
             'Profile saved successfully!',
-            style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+            style: TextStyle(fontFamily: 'Outfit', color: Colors.white),
           ),
           backgroundColor: Color(0xFF16A34A),
           behavior: SnackBarBehavior.floating,
@@ -288,7 +288,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
         SnackBar(
           content: Text(
             _controller.errorMessage!,
-            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
           ),
           backgroundColor: const Color(0xFF1E1E24),
           behavior: SnackBarBehavior.floating,
@@ -346,9 +346,9 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                           Text(
                             widget.isEditMode ? 'Edit Profile' : 'Profile Setup',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (26.0 * sf).clamp(22.0, 32.0),
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: kDark,
                               height: 1.15,
                             ),
@@ -357,7 +357,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                           Text(
                             'Personalize your profile for personal training and fitness goals.',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (12.0 * sf).clamp(11.0, 13.5),
                               color: kGrey,
                             ),
@@ -378,16 +378,16 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                           Text(
                             '$completion%',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: (14.0 * sf).clamp(12.0, 16.0),
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: const Color(0xFF15803D),
                             ),
                           ),
                           Text(
                             'Completed',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (9.0 * sf).clamp(8.0, 10.5),
                               fontWeight: FontWeight.w600,
                               color: const Color(0xFF15803D),
@@ -435,9 +435,9 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                                       ? _nameController.text[0].toUpperCase()
                                       : 'A',
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: (32.0 * sf).clamp(26.0, 38.0),
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w600,
                                     color: kLime,
                                   ),
                                 )
@@ -510,7 +510,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                                 ? 'Date of Birth: ${_dateOfBirth!.day}/${_dateOfBirth!.month}/${_dateOfBirth!.year}'
                                 : 'Select Date of Birth *',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (13.0 * sf).clamp(11.5, 14.5),
                               color: _dateOfBirth != null ? kDark : kGrey,
                               fontWeight: _dateOfBirth != null ? FontWeight.w500 : FontWeight.w400,
@@ -550,7 +550,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                                 Text(
                                   'Gender: $genderStr Athlete',
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: (13.0 * sf).clamp(12.0, 14.5),
                                     fontWeight: FontWeight.w700,
                                     color: kDark,
@@ -564,7 +564,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                             Text(
                               'Account detail locked after registration.',
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: (10.5 * sf).clamp(9.5, 12.0),
                                 color: kGrey,
                               ),
@@ -585,7 +585,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                 Text(
                   'Primary Fitness Goals (Select multiple)',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(11.0, 13.5),
                     fontWeight: FontWeight.w600,
                     color: kDark,
@@ -602,7 +602,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                       label: Text(goal),
                       selected: isSelected,
                       labelStyle: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (11.5 * sf).clamp(10.5, 13.0),
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                         color: isSelected ? Colors.white : kDark,
@@ -635,7 +635,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                 Text(
                   'Fitness Experience Level',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(11.0, 13.5),
                     fontWeight: FontWeight.w600,
                     color: kDark,
@@ -671,7 +671,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                                 Text(
                                   opt['title']!,
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: (12.0 * sf).clamp(11.0, 13.5),
                                     fontWeight: FontWeight.w700,
                                     color: isSelected ? Colors.white : kDark,
@@ -681,7 +681,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                                 Text(
                                   opt['desc']!,
                                   style: TextStyle(
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Outfit',
                                     fontSize: (10.0 * sf).clamp(9.0, 11.5),
                                     color: isSelected ? const Color(0xFFBBBBBB) : kGrey,
                                   ),
@@ -700,7 +700,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                 Text(
                   'Preferred Training Type',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(11.0, 13.5),
                     fontWeight: FontWeight.w600,
                     color: kDark,
@@ -717,7 +717,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                       label: Text(type),
                       selected: isSelected,
                       labelStyle: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (11.5 * sf).clamp(10.5, 13.0),
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                         color: isSelected ? Colors.white : kDark,
@@ -750,7 +750,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                 Text(
                   'Special Focus & Fitness Interests',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(11.0, 13.5),
                     fontWeight: FontWeight.w600,
                     color: kDark,
@@ -767,7 +767,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                       label: Text(interest),
                       selected: isSelected,
                       labelStyle: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: (11.5 * sf).clamp(10.5, 13.0),
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                         color: isSelected ? Colors.white : kDark,
@@ -805,7 +805,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                 Text(
                   'City of Residence',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(11.0, 13.5),
                     fontWeight: FontWeight.w600,
                     color: kDark,
@@ -834,7 +834,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                                 ? '${city.name} (${city.state})'
                                 : '${city.name} (${city.state}) - Coming Soon',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (13.0 * sf).clamp(12.0, 14.5),
                               fontWeight: FontWeight.w500,
                               color: city.isActive ? kDark : const Color(0xFF999999),
@@ -855,7 +855,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                 Text(
                   'Preferred Workout Venue',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(11.0, 13.5),
                     fontWeight: FontWeight.w600,
                     color: kDark,
@@ -881,7 +881,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                           child: Text(
                             loc,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (13.0 * sf).clamp(12.0, 14.5),
                               fontWeight: FontWeight.w500,
                               color: kDark,
@@ -913,7 +913,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
                       child: Text(
                         'Kept strictly private and only shared with your confirmed trainer.',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (10.5 * sf).clamp(9.5, 12.0),
                           color: const Color(0xFF16A34A),
                           fontWeight: FontWeight.w500,
@@ -963,9 +963,9 @@ class _SectionTitle extends StatelessWidget {
     return Text(
       title,
       style: TextStyle(
-        fontFamily: 'Syne',
+        fontFamily: 'Outfit',
         fontSize: (11.5 * sf).clamp(10.5, 13.0),
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
         color: const Color(0xFF888888),
         letterSpacing: 0.8,
       ),

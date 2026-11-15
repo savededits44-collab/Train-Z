@@ -130,9 +130,9 @@ class _HomeTab extends StatelessWidget {
                                     child: Text(
                                       '$count',
                                       style: const TextStyle(
-                                        fontFamily: 'Syne',
+                                        fontFamily: 'Outfit',
                                         fontSize: 9,
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w600,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -155,7 +155,7 @@ class _HomeTab extends StatelessWidget {
             Text(
               'Good morning 👋',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (13.0 * sf).clamp(11, 15),
                 color: kGrey,
               ),
@@ -164,9 +164,9 @@ class _HomeTab extends StatelessWidget {
             Text(
               'Let\'s get moving.',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (26.0 * sf).clamp(20, 32),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
                 height: 1.1,
               ),
@@ -183,7 +183,7 @@ class _HomeTab extends StatelessWidget {
             Text(
               'Featured Trainers',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (15.0 * sf).clamp(13, 18),
                 fontWeight: FontWeight.w700,
                 color: kDark,
@@ -212,7 +212,7 @@ class _HomeTab extends StatelessWidget {
             Text(
               'Your Progress',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (15.0 * sf).clamp(13, 18),
                 fontWeight: FontWeight.w700,
                 color: kDark,
@@ -269,7 +269,7 @@ class _StreakCard extends StatelessWidget {
                   Text(
                     'Book a Training Session',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (16.0 * sf).clamp(13, 19),
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -279,7 +279,7 @@ class _StreakCard extends StatelessWidget {
                   Text(
                     'Find a trainer and request a live slot.',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (12.0 * sf).clamp(10, 13),
                       color: Colors.white.withValues(alpha: 0.6),
                     ),
@@ -297,7 +297,7 @@ class _StreakCard extends StatelessWidget {
                     child: Text(
                       'Book Now',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (12.0 * sf).clamp(10, 14),
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -356,7 +356,7 @@ class _TrainerCard extends StatelessWidget {
             Text(
               trainer['name']!,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (13.0 * sf).clamp(11, 15),
                 fontWeight: FontWeight.w700,
                 color: kDark,
@@ -366,7 +366,7 @@ class _TrainerCard extends StatelessWidget {
             Text(
               trainer['spec']!,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (10.0 * sf).clamp(9, 12),
                 color: kGrey,
               ),
@@ -411,9 +411,9 @@ class _StatCard extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (22.0 * sf).clamp(18, 28),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: accent ? Colors.white : kDark,
             ),
           ),
@@ -421,7 +421,7 @@ class _StatCard extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (11.0 * sf).clamp(9, 13),
               color: accent ? Colors.white.withValues(alpha: 0.6) : kGrey,
             ),
@@ -483,9 +483,9 @@ class _ClientFindTrainersTab extends StatelessWidget {
             Text(
               'Certified Coaches',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (22.0 * sf).clamp(18.0, 28.0),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
               ),
             ),
@@ -493,7 +493,7 @@ class _ClientFindTrainersTab extends StatelessWidget {
             Text(
               'Select a trainer to book a direct 1-on-1 personal workout.',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (12.0 * sf).clamp(10.5, 13.5),
                 color: kGrey,
               ),
@@ -538,7 +538,7 @@ class _ClientFindTrainersTab extends StatelessWidget {
                                 child: Text(
                                   c['name']!,
                                   style: TextStyle(
-                                    fontFamily: 'Syne',
+                                    fontFamily: 'Outfit',
                                     fontSize: (14.5 * sf).clamp(13.0, 16.5),
                                     fontWeight: FontWeight.w700,
                                     color: kDark,
@@ -552,7 +552,7 @@ class _ClientFindTrainersTab extends StatelessWidget {
                                   Text(
                                     c['rating']!,
                                     style: const TextStyle(
-                                      fontFamily: 'Poppins',
+                                      fontFamily: 'Outfit',
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
                                       color: kDark,
@@ -566,7 +566,7 @@ class _ClientFindTrainersTab extends StatelessWidget {
                           Text(
                             c['spec']!,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (11.0 * sf).clamp(9.5, 12.0),
                               color: kGrey,
                             ),
@@ -577,7 +577,7 @@ class _ClientFindTrainersTab extends StatelessWidget {
                           Text(
                             '${c['gym']} • ${c['exp']}',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (10.5 * sf).clamp(9.0, 11.5),
                               color: kDark.withValues(alpha: 0.7),
                             ),
@@ -601,9 +601,9 @@ class _ClientFindTrainersTab extends StatelessWidget {
                       child: const Text(
                         'Book',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: kDark,
                         ),
                       ),
@@ -649,9 +649,9 @@ class _ClientSessionsTab extends StatelessWidget {
                     Text(
                       'Your Sessions',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: (22.0 * sf).clamp(18.0, 28.0),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: kDark,
                       ),
                     ),
@@ -661,9 +661,9 @@ class _ClientSessionsTab extends StatelessWidget {
                       label: const Text(
                         'Book Session',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: kDark,
                         ),
                       ),
@@ -680,7 +680,7 @@ class _ClientSessionsTab extends StatelessWidget {
                 Text(
                   'Live real-time status of your training sessions and coach responses.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(10.5, 13.5),
                     color: kGrey,
                   ),
@@ -707,7 +707,7 @@ class _ClientSessionsTab extends StatelessWidget {
                         Text(
                           'No active bookings yet',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (14.0 * sf).clamp(12.5, 16.0),
                             fontWeight: FontWeight.w700,
                             color: kDark,
@@ -717,7 +717,7 @@ class _ClientSessionsTab extends StatelessWidget {
                         Text(
                           'Tap below to request a live session with your coach.',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: (11.5 * sf).clamp(10.0, 13.0),
                             color: kGrey,
                           ),
@@ -763,15 +763,15 @@ class _ClientBookingItem extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Text('Cancel Training Session?', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800)),
+        title: const Text('Cancel Training Session?', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
         content: Text(
           'Are you sure you want to cancel your session with Coach ${booking.displayTrainerName}? The coach will be notified immediately.',
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: kGrey),
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kGrey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Keep Session', style: TextStyle(fontFamily: 'Poppins', color: kDark, fontWeight: FontWeight.w600)),
+            child: const Text('Keep Session', style: TextStyle(fontFamily: 'Outfit', color: kDark, fontWeight: FontWeight.w500)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
@@ -784,7 +784,7 @@ class _ClientBookingItem extends StatelessWidget {
                 reason: 'Client requested cancellation',
               );
             },
-            child: const Text('Cancel Session', style: TextStyle(fontFamily: 'Syne', color: Colors.white, fontWeight: FontWeight.w700)),
+            child: const Text('Cancel Session', style: TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -862,7 +862,7 @@ class _ClientBookingItem extends StatelessWidget {
                 child: Text(
                   b.displayWorkoutType,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (14.5 * sf).clamp(13.0, 16.0),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -878,7 +878,7 @@ class _ClientBookingItem extends StatelessWidget {
                 child: Text(
                   badgeText,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                     color: badgeTextColor,
@@ -895,7 +895,7 @@ class _ClientBookingItem extends StatelessWidget {
               Text(
                 '${b.startTime} - ${b.endTime}  •  ${b.sessionDate.day}/${b.sessionDate.month}/${b.sessionDate.year}',
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: kDark,
@@ -912,7 +912,7 @@ class _ClientBookingItem extends StatelessWidget {
                 Text(
                   'Coach: ${b.displayTrainerName}',
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 11.5,
                     color: kGrey,
                   ),
@@ -930,7 +930,7 @@ class _ClientBookingItem extends StatelessWidget {
                   child: Text(
                     b.meetingLocation!,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: 11.5,
                       color: kGrey,
                     ),
@@ -951,7 +951,7 @@ class _ClientBookingItem extends StatelessWidget {
               child: const Text(
                 '📡 Waiting for trainer to accept in real-time.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 11,
                   color: Color(0xFFB78103),
                 ),
@@ -969,7 +969,7 @@ class _ClientBookingItem extends StatelessWidget {
               child: Text(
                 '🔄 Coach rescheduled this session to ${b.startTime} on ${b.sessionDate.day}/${b.sessionDate.month}.',
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 11,
                   color: Color(0xFF7C3AED),
                 ),
@@ -987,7 +987,7 @@ class _ClientBookingItem extends StatelessWidget {
               child: const Text(
                 '✕ Trainer was unavailable for this time slot.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 11,
                   color: Color(0xFFC62828),
                 ),
@@ -1006,9 +1006,9 @@ class _ClientBookingItem extends StatelessWidget {
                 label: const Text(
                   'Cancel Session',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 11.5,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: Color(0xFFDC2626),
                   ),
                 ),
@@ -1054,9 +1054,9 @@ class _ClientProfileTab extends StatelessWidget {
                 Text(
                   'Profile',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (24.0 * sf).clamp(20.0, 30.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                   ),
                 ),
@@ -1069,7 +1069,7 @@ class _ClientProfileTab extends StatelessWidget {
                   child: const Text(
                     'Athlete',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: kDark,
@@ -1105,7 +1105,7 @@ class _ClientProfileTab extends StatelessWidget {
                         const Text(
                           'Alex Hunter',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: kDark,
@@ -1115,7 +1115,7 @@ class _ClientProfileTab extends StatelessWidget {
                         Text(
                           'alex.hunter@example.com',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
                             color: kGrey,
                           ),
@@ -1130,7 +1130,7 @@ class _ClientProfileTab extends StatelessWidget {
             Text(
               'Account',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: kDark,
@@ -1154,9 +1154,9 @@ class _ClientProfileTab extends StatelessWidget {
                 label: const Text(
                   'Log Out',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: Color(0xFFE53935),
                   ),
                 ),
@@ -1210,7 +1210,7 @@ class _ProfileTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (13.0 * sf).clamp(11.0, 14.0),
                     fontWeight: FontWeight.w500,
                     color: kDark,
@@ -1279,7 +1279,7 @@ class _BottomNav extends StatelessWidget {
                       Text(
                         item.$3,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: labelSz,
                           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                           color: selected ? kDark : const Color(0xFFBBBBBB),

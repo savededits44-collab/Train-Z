@@ -53,7 +53,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
         title: const Text(
           'Help & Support',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -92,7 +92,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                           Text(
                             'TRAIN Z Coach Support',
                             style: TextStyle(
-                              fontFamily: 'Syne',
+                              fontFamily: 'Outfit',
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -101,7 +101,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                           SizedBox(height: 2),
                           Text(
                             'Priority coach assistance desk',
-                            style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: _kGrey),
+                            style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kGrey),
                           ),
                         ],
                       ),
@@ -112,7 +112,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                 const Text(
                   'Have an issue regarding payouts, booking schedules, account verification, or athlete conduct? Our dedicated coach desk is available 7 days a week.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12.5,
                     color: Colors.white70,
                     height: 1.4,
@@ -134,7 +134,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                             const SnackBar(
                               content: Text(
                                 'Support desk email: support@trainz.fit',
-                                style: TextStyle(fontFamily: 'Poppins', fontSize: 13),
+                                style: TextStyle(fontFamily: 'Outfit', fontSize: 13),
                               ),
                               backgroundColor: _kCardSubBg,
                               behavior: SnackBarBehavior.floating,
@@ -144,7 +144,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                         icon: const Icon(Iconsax.sms, size: 16),
                         label: const Text(
                           'support@trainz.fit',
-                          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700),
+                          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500),
                         ),
                       ),
                     ),
@@ -160,7 +160,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
           const Text(
             'Frequently Asked Questions',
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -190,7 +190,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                     title: Text(
                       faq['question']!,
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 13.5,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -200,7 +200,7 @@ class TrainerHelpSupportScreen extends StatelessWidget {
                       Text(
                         faq['answer']!,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12.5,
                           color: Colors.white70,
                           height: 1.45,

@@ -567,7 +567,7 @@ class AppRouter {
                     SizedBox(height: 16),
                     Text(
                       'Account Suspended',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 22, fontWeight: FontWeight.w600),
                     ),
                     SizedBox(height: 8),
                     Text(

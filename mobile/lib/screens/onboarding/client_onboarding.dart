@@ -50,9 +50,9 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
               Text(
                 'Personalize\nyour journey.',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (28.0 * sf).clamp(22.0, 36.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.15,
                 ),
@@ -61,7 +61,7 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
               Text(
                 'Set your fitness goals to find the right training packages and trainers.',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.0 * sf).clamp(11.0, 14.0),
                   color: kGrey,
                 ),
@@ -70,7 +70,7 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
               Text(
                 'What is your primary goal?',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (15.0 * sf).clamp(13.0, 18.0),
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -109,7 +109,7 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
                             child: Text(
                               _goals[i],
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: (13.0 * sf).clamp(11.0, 14.0),
                                 fontWeight: selected
                                     ? FontWeight.w600
@@ -128,7 +128,7 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
               Text(
                 'Fitness Level',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (15.0 * sf).clamp(13.0, 18.0),
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -156,7 +156,7 @@ class _ClientOnboardingScreenState extends State<ClientOnboardingScreen> {
                           child: Text(
                             _levels[i],
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: (12.0 * sf).clamp(10.0, 13.0),
                               fontWeight: selected
                                   ? FontWeight.w600

@@ -113,7 +113,7 @@ class _ClientEmailVerificationScreenState
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.white),
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white),
         ),
         backgroundColor: const Color(0xFF1E1E24),
         behavior: SnackBarBehavior.floating,
@@ -141,9 +141,9 @@ class _ClientEmailVerificationScreenState
             label: Text(
               'Sign Out',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (12.0 * sf).clamp(11.0, 13.5),
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 color: kDark,
               ),
             ),
@@ -200,9 +200,9 @@ class _ClientEmailVerificationScreenState
                 'Verify your email',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (26.0 * sf).clamp(22.0, 32.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                 ),
               ),
@@ -213,7 +213,7 @@ class _ClientEmailVerificationScreenState
                 'We have dispatched a verification link to:',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (12.5 * sf).clamp(11.0, 14.0),
                   color: kGrey,
                 ),
@@ -239,7 +239,7 @@ class _ClientEmailVerificationScreenState
                         widget.email,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (13.0 * sf).clamp(11.5, 14.5),
                           fontWeight: FontWeight.w600,
                           color: kDark,
@@ -256,7 +256,7 @@ class _ClientEmailVerificationScreenState
                 'Please click the link in your email to activate your account. You can return here immediately after verifying.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (12.0 * sf).clamp(11.0, 13.5),
                   color: const Color(0xFF777777),
                   height: 1.45,
@@ -282,9 +282,9 @@ class _ClientEmailVerificationScreenState
                       ? 'Resend link in ${_resendCooldown}s'
                       : 'Resend Verification Link',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (13.0 * sf).clamp(11.5, 14.5),
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: _resendCooldown > 0 ? kGrey : kDark,
                     decoration: _resendCooldown > 0 ? null : TextDecoration.underline,
                   ),

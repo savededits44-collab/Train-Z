@@ -203,7 +203,7 @@ class PushNotificationService {
               Text(
                 notification.title ?? 'New Notification',
                 style: const TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
@@ -213,7 +213,7 @@ class PushNotificationService {
                   notification.body!,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Colors.white70),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.white70),
                 ),
             ],
           ),

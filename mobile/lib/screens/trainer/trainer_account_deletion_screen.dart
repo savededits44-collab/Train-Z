@@ -109,13 +109,13 @@ class _TrainerAccountDeletionScreenState
               SizedBox(width: 8),
               Text(
                 'Request Submitted',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: Colors.white),
               ),
             ],
           ),
           content: const Text(
             'Your account deletion request has been submitted to platform administrators. Your coach profile is now deactivated.\n\nAll historical financial, booking, and payout ledger entries will be preserved for required audit and tax compliance.',
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.white70, height: 1.4),
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Colors.white70, height: 1.4),
           ),
           actions: [
             ElevatedButton(
@@ -129,7 +129,7 @@ class _TrainerAccountDeletionScreenState
                 if (!mounted) return;
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
-              child: const Text('Log Out & Exit', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700)),
+              child: const Text('Log Out & Exit', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
             ),
           ],
         ),
@@ -164,7 +164,7 @@ class _TrainerAccountDeletionScreenState
         title: const Text(
           'Delete Account',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -196,7 +196,7 @@ class _TrainerAccountDeletionScreenState
                             Text(
                               'Permanent Account Action',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
                                 color: _kDanger,
@@ -208,7 +208,7 @@ class _TrainerAccountDeletionScreenState
                         Text(
                           'Requesting deletion will immediately deactivate your public coach profile and remove you from athlete search results. You will no longer receive session bookings or client inquiries.',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12.5,
                             color: Colors.white,
                             height: 1.4,
@@ -239,7 +239,7 @@ class _TrainerAccountDeletionScreenState
                               Text(
                                 'Account Deletion Restricted',
                                 style: TextStyle(
-                                  fontFamily: 'Syne',
+                                  fontFamily: 'Outfit',
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                   color: _kDanger,
@@ -251,7 +251,7 @@ class _TrainerAccountDeletionScreenState
                           Text(
                             _eligibility!.blockerReason ?? 'Account cannot be deleted at this time.',
                             style: const TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 12.5,
                               color: Colors.white70,
                               height: 1.4,
@@ -261,12 +261,12 @@ class _TrainerAccountDeletionScreenState
                           if (_eligibility!.hasActiveBookings)
                             const Text(
                               '• All upcoming sessions must be completed or settled.\n• Notify booked athletes prior to resolving sessions.',
-                              style: TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: _kGrey, height: 1.4),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: _kGrey, height: 1.4),
                             ),
                           if (_eligibility!.hasPendingPayouts)
                             const Text(
                               '• Wait for pending bank payouts to complete successfully.',
-                              style: TextStyle(fontFamily: 'Poppins', fontSize: 11.5, color: _kGrey, height: 1.4),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: _kGrey, height: 1.4),
                             ),
                         ],
                       ),
@@ -292,7 +292,7 @@ class _TrainerAccountDeletionScreenState
                             Text(
                               'Financial & Audit Record Retention',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
@@ -304,7 +304,7 @@ class _TrainerAccountDeletionScreenState
                         Text(
                           'To comply with financial regulations and tax requirements, your historical transaction records, completed booking references, and payout statements will be preserved securely in our audit ledger and cannot be erased.',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 12,
                             color: _kGrey,
                             height: 1.4,
@@ -319,16 +319,16 @@ class _TrainerAccountDeletionScreenState
                   // ── Deletion Reason ───────────────────────────────
                   const Text(
                     'Reason for leaving (Optional)',
-                    style: TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
                     controller: _reasonCtrl,
                     maxLines: 3,
-                    style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontSize: 13),
+                    style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: 'Please share your feedback or reason for closing your account...',
-                      hintStyle: const TextStyle(color: _kGrey, fontFamily: 'Poppins', fontSize: 12),
+                      hintStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit', fontSize: 12),
                       filled: true,
                       fillColor: _kCardBg,
                       border: OutlineInputBorder(
@@ -352,16 +352,16 @@ class _TrainerAccountDeletionScreenState
                   if (!isGoogleAuth) ...[
                     const Text(
                       'Reauthenticate with Password',
-                      style: TextStyle(fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
                     ),
                     const SizedBox(height: 6),
                     TextFormField(
                       controller: _passwordCtrl,
                       obscureText: _obscurePassword,
-                      style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                      style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Enter your current password to confirm',
-                        hintStyle: const TextStyle(color: _kGrey, fontFamily: 'Poppins', fontSize: 12),
+                        hintStyle: const TextStyle(color: _kGrey, fontFamily: 'Outfit', fontSize: 12),
                         filled: true,
                         fillColor: _kCardBg,
                         suffixIcon: IconButton(
@@ -409,7 +409,7 @@ class _TrainerAccountDeletionScreenState
                       activeColor: _kDanger,
                       title: const Text(
                         'I understand that my trainer profile will be permanently deactivated and I will lose access to my coaching profile.',
-                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Colors.white70),
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Colors.white70),
                       ),
                       controlAffinity: ListTileControlAffinity.leading,
                     ),
@@ -440,7 +440,7 @@ class _TrainerAccountDeletionScreenState
                           : const Text(
                               'Request Account Deletion',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
                               ),

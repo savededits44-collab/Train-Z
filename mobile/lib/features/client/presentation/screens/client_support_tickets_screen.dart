@@ -60,9 +60,9 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
         title: Text(
           'Support Tickets',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -94,12 +94,12 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
           indicatorColor: kDark,
           indicatorWeight: 2.5,
           labelStyle: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (13.0 * sf).clamp(12.0, 14.5),
             fontWeight: FontWeight.w700,
           ),
           unselectedLabelStyle: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: (12.0 * sf).clamp(11.0, 13.5),
             fontWeight: FontWeight.w500,
           ),
@@ -150,7 +150,7 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
         icon: const Icon(Iconsax.add, size: 18),
         label: const Text(
           'New Request',
-          style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 13),
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13),
         ),
       ),
     );
@@ -176,7 +176,7 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
               Text(
                 emptyMsg,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (15.0 * sf).clamp(14.0, 17.0),
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -187,7 +187,7 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
                 'Have a question, feedback, or training issue? Tap below to submit a support request.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 11.5,
                   color: Color(0xFF6B7280),
                 ),
@@ -210,7 +210,7 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
                 icon: const Icon(Iconsax.add, size: 16, color: kDark),
                 label: const Text(
                   'Submit a Request',
-                  style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 13, color: kDark),
+                  style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, fontSize: 13, color: kDark),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kLime,
@@ -284,9 +284,9 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
                       child: Text(
                         ticket.ticketNumber,
                         style: const TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 10,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kLime,
                         ),
                       ),
@@ -301,7 +301,7 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
                       child: Text(
                         ticket.category.label,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF374151),
@@ -322,9 +322,9 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (14.0 * sf).clamp(13.0, 16.0),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
               ),
             ),
@@ -337,7 +337,7 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (11.0 * sf).clamp(10.0, 12.5),
                 color: const Color(0xFF6B7280),
                 height: 1.35,
@@ -359,7 +359,7 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
                     Text(
                       ticket.formattedDate,
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 10.5,
                         color: Color(0xFF9CA3AF),
                       ),
@@ -376,7 +376,7 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
                         child: Text(
                           ticket.bookingReference!,
                           style: const TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 9.5,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF4B5563),
@@ -417,7 +417,7 @@ class _ClientSupportTicketsScreenState extends State<ClientSupportTicketsScreen>
           Text(
             status.label,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: 10,
               fontWeight: FontWeight.w700,
               color: status.color,

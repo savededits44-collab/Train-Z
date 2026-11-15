@@ -71,7 +71,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
             const Expanded(
               child: Text(
                 'Cancel Session?',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, fontSize: 17),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 17),
               ),
             ),
           ],
@@ -84,7 +84,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
               isEarly
                   ? 'You are cancelling ${hoursUntil.toStringAsFixed(1)} hours before your workout.'
                   : 'You are cancelling only ${hoursUntil.toStringAsFixed(1)} hours before your workout.',
-              style: const TextStyle(fontFamily: 'Poppins', fontSize: 12.5, fontWeight: FontWeight.w600, color: kDark),
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5, fontWeight: FontWeight.w600, color: kDark),
             ),
             const SizedBox(height: 10),
             Container(
@@ -111,7 +111,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                           ? 'Full Credit Return: Since this is >= 12h before start, 1 session credit will be returned to your account balance.'
                           : 'Late Cancellation Penalty: Cancellations within 12h forfeit the session credit per Section 8 policy.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11.5,
                         color: isEarly ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
                         height: 1.35,
@@ -124,14 +124,14 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
             const SizedBox(height: 10),
             const Text(
               'Your trainer will be notified immediately.',
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: kGrey),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Keep Booking', style: TextStyle(fontFamily: 'Poppins', color: kDark)),
+            child: const Text('Keep Booking', style: TextStyle(fontFamily: 'Outfit', color: kDark)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -142,7 +142,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
             ),
             child: const Text(
               'Confirm Cancel',
-              style: TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w600),
+              style: TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -175,7 +175,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
             returned
                 ? 'Booking cancelled. 1 session credit returned to your balance.'
                 : 'Booking cancelled. Credit forfeited due to late cancellation (<12h).',
-            style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontFamily: 'Outfit', color: Colors.white, fontWeight: FontWeight.w600),
           ),
           backgroundColor: returned ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
           behavior: SnackBarBehavior.floating,
@@ -261,9 +261,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
             title: Text(
               'Booking Details',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (16.5 * sf).clamp(15.0, 18.0),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: kDark,
               ),
             ),
@@ -350,9 +350,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                           ? 'Session Cancelled • 1 Credit Forfeited'
                           : 'Session Cancelled'),
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (13.0 * sf).clamp(12.0, 14.5),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: isReturned ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
                   ),
                 ),
@@ -362,7 +362,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                       ? 'Because this session was cancelled >= 12h before start (or by trainer/platform), 1 session credit has been safely returned to your available balance.'
                       : 'Because this session was cancelled within 12h of workout start, 1 session credit was forfeited in accordance with Section 8 policy.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (11.0 * sf).clamp(10.0, 12.0),
                     color: isReturned ? const Color(0xFF166534) : const Color(0xFF991B1B),
                     height: 1.35,
@@ -399,7 +399,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                     _currentBooking.displayTrainerName.isNotEmpty
                         ? _currentBooking.displayTrainerName[0].toUpperCase()
                         : 'C',
-                    style: const TextStyle(fontFamily: 'Syne', fontSize: 20, color: kLime, fontWeight: FontWeight.w800),
+                    style: const TextStyle(fontFamily: 'Outfit', fontSize: 20, color: kLime, fontWeight: FontWeight.w600),
                   )
                 : null,
           ),
@@ -416,9 +416,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (16.0 * sf).clamp(14.5, 17.5),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: kDark,
                         ),
                       ),
@@ -431,7 +431,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 Text(
                   '${_currentBooking.displayWorkoutType} • Personal Trainer',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (11.5 * sf).clamp(10.5, 12.5),
                     color: const Color(0xFF6B7280),
                   ),
@@ -446,7 +446,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                   child: Text(
                     'Certified Personal Trainer • Verified',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (10.0 * sf).clamp(9.0, 11.0),
                       fontWeight: FontWeight.w600,
                       color: kDark,
@@ -489,7 +489,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                         Text(
                           'Message Trainer',
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -524,9 +524,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
               Text(
                 'WORKOUT SCHEDULE',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: const Color(0xFF888888),
                   letterSpacing: 0.8,
                 ),
@@ -540,7 +540,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 child: const Text(
                   '60 Mins',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -587,7 +587,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                     child: Text(
                       'Rescheduled from ${_formatShortDate(_currentBooking.previousSessionDate)} (${_currentBooking.previousStartTime ?? "prev slot"})',
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         color: Color(0xFF92400E),
                         fontWeight: FontWeight.w500,
@@ -637,9 +637,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                   Text(
                     'TRAINING ADDRESS',
                     style: TextStyle(
-                      fontFamily: 'Syne',
+                      fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: const Color(0xFF888888),
                       letterSpacing: 0.8,
                     ),
@@ -660,7 +660,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                       Text(
                         'Private Residence',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 9.5,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF16A34A),
@@ -675,7 +675,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
           Text(
             meetingLoc,
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Outfit',
               fontSize: (12.5 * sf).clamp(11.5, 13.5),
               fontWeight: FontWeight.w600,
               color: kDark,
@@ -699,7 +699,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                         ? 'Athlete\'s Private Residence • Protected • Disclosed only to your booked trainer'
                         : 'Verified service area • Private client address protected',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (10.0 * sf).clamp(9.0, 11.0),
                       color: const Color(0xFF4B5563),
                     ),
@@ -730,9 +730,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
               Text(
                 'PACKAGE & STATUS DETAILS',
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: const Color(0xFF888888),
                   letterSpacing: 0.8,
                 ),
@@ -754,7 +754,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                     Text(
                       _currentBooking.bookingReference,
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
                         color: kDark,
@@ -836,7 +836,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 Text(
                   '12-Hour Cancellation Rule (Section 8)',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (11.5 * sf).clamp(10.5, 12.5),
                     fontWeight: FontWeight.w700,
                     color: kDark,
@@ -846,7 +846,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 Text(
                   '• Cancellations 12+ hours before session: full credit returned.\n• Cancellations < 12 hours: session credit forfeited.\n• Trainer or platform cancellation: credit returned.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (10.5 * sf).clamp(9.5, 11.5),
                     color: const Color(0xFF4B5563),
                     height: 1.35,
@@ -878,7 +878,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
               Text(
                 'Have an issue with this session?',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (11.0 * sf).clamp(10.0, 12.0),
                   color: const Color(0xFF4B5563),
                 ),
@@ -904,7 +904,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
             child: const Text(
               'Report Issue',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF2563EB),
@@ -943,9 +943,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                       Text(
                         review != null ? 'YOUR SESSION REVIEW' : 'RATE THIS WORKOUT',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           color: const Color(0xFF888888),
                           letterSpacing: 0.8,
                         ),
@@ -966,7 +966,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                           Text(
                             'Verified Review',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Outfit',
                               fontSize: 9.5,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFF16A34A),
@@ -998,9 +998,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                         Text(
                           review.ratingText,
                           style: TextStyle(
-                            fontFamily: 'Syne',
+                            fontFamily: 'Outfit',
                             fontSize: (14.0 * sf).clamp(13.0, 16.0),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: kDark,
                           ),
                         ),
@@ -1019,9 +1019,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                       label: const Text(
                         'Edit',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: kDark,
                         ),
                       ),
@@ -1043,7 +1043,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                         child: Text(
                           cat,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF374151),
@@ -1065,7 +1065,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                   child: Text(
                     '"${review.comment}"',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (12.0 * sf).clamp(11.0, 13.0),
                       color: const Color(0xFF333333),
                       height: 1.4,
@@ -1076,7 +1076,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 Text(
                   'Submitted on ${review.formattedDate}',
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 10,
                     color: Color(0xFF9CA3AF),
                   ),
@@ -1090,8 +1090,8 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 label: const Text(
                   'Receipt',
                   style: TextStyle(
-                    fontFamily: 'Syne',
-                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.w500,
                     fontSize: 12.5,
                     color: kDark,
                   ),
@@ -1128,8 +1128,8 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                     label: Text(
                       review != null ? 'Edit Review (${review.ratingText} ★)' : 'Rate & Review',
                       style: const TextStyle(
-                        fontFamily: 'Syne',
-                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Outfit',
+                        fontWeight: FontWeight.w500,
                         fontSize: 13,
                         color: kDark,
                       ),
@@ -1149,7 +1149,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 Text(
                   'How was your 60-minute training session with ${_currentBooking.displayTrainerName}? Share your feedback to help your trainer and keep training standards high.',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (11.5 * sf).clamp(10.5, 12.5),
                     color: const Color(0xFF4B5563),
                     height: 1.4,
@@ -1170,9 +1170,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                     label: const Text(
                       'Rate & Review Session',
                       style: TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 13,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w500,
                         color: kDark,
                       ),
                     ),
@@ -1209,7 +1209,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (11.5 * sf).clamp(10.5, 12.5),
                 color: const Color(0xFF6B7280),
               ),
@@ -1222,7 +1222,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
           Text(
             value,
             style: TextStyle(
-              fontFamily: 'Syne',
+              fontFamily: 'Outfit',
               fontSize: (12.5 * sf).clamp(11.5, 13.5),
               fontWeight: FontWeight.w700,
               color: kDark,
@@ -1278,7 +1278,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
       child: Text(
         booking.displayStatus,
         style: TextStyle(
-          fontFamily: 'Poppins',
+          fontFamily: 'Outfit',
           fontSize: 10.5,
           fontWeight: FontWeight.w600,
           color: fg,
@@ -1300,7 +1300,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
       child: Text(
         isPaid ? 'Paid & Verified' : 'Pending Payment',
         style: TextStyle(
-          fontFamily: 'Poppins',
+          fontFamily: 'Outfit',
           fontSize: 10.5,
           fontWeight: FontWeight.w600,
           color: isPaid ? const Color(0xFF16A34A) : const Color(0xFFD97706),
@@ -1340,7 +1340,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                     : const Text(
                         'Cancel Session',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
                           color: Color(0xFFDC2626),
@@ -1363,8 +1363,8 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 child: const Text(
                   'Reschedule',
                   style: TextStyle(
-                    fontFamily: 'Syne',
-                    fontWeight: FontWeight.w800,
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.w500,
                     fontSize: 13,
                     color: kLime,
                   ),
@@ -1380,8 +1380,8 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 label: const Text(
                   'Receipt',
                   style: TextStyle(
-                    fontFamily: 'Syne',
-                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.w500,
                     fontSize: 12.5,
                     color: kDark,
                   ),
@@ -1418,8 +1418,8 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                     label: Text(
                       review != null ? 'Edit Review (${review.ratingText} ★)' : 'Rate & Review',
                       style: const TextStyle(
-                        fontFamily: 'Syne',
-                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Outfit',
+                        fontWeight: FontWeight.w500,
                         fontSize: 13,
                         color: kDark,
                       ),
@@ -1444,8 +1444,8 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 label: const Text(
                   'View Payment Receipt',
                   style: TextStyle(
-                    fontFamily: 'Syne',
-                    fontWeight: FontWeight.w800,
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.w500,
                     fontSize: 13,
                     color: kDark,
                   ),

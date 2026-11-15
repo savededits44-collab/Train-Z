@@ -95,10 +95,10 @@ class _TrainerPendingApprovalScreenState
             label: const Text(
               'Sign Out',
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 12,
                 color: kGrey,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -139,9 +139,9 @@ class _TrainerPendingApprovalScreenState
                 'Under Admin Review.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (26.0 * sf).clamp(22.0, 32.0),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: kDark,
                   height: 1.2,
                 ),
@@ -153,7 +153,7 @@ class _TrainerPendingApprovalScreenState
                 'Every Trainer and Advanced Trainer account requires Admin verification before accessing platform coaching tools.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (13.0 * sf).clamp(11.5, 14.0),
                   color: kGrey,
                   height: 1.4,
@@ -180,7 +180,7 @@ class _TrainerPendingApprovalScreenState
                         const Text(
                           'REVIEW STATUS',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: kGrey,
@@ -209,7 +209,7 @@ class _TrainerPendingApprovalScreenState
                               Text(
                                 'PENDING APPROVAL',
                                 style: TextStyle(
-                                  fontFamily: 'Poppins',
+                                  fontFamily: 'Outfit',
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xFFE65100),
@@ -257,7 +257,7 @@ class _TrainerPendingApprovalScreenState
                       child: Text(
                         'Trainers cannot approve themselves or alter their own verification status. Advanced Trainer eligibility is verified separately via submitted credentials.',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.5 * sf).clamp(10.5, 12.5),
                           color: const Color(0xFF424242),
                           height: 1.35,
@@ -274,7 +274,7 @@ class _TrainerPendingApprovalScreenState
                   _statusMessage!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 12,
                     color: Color(0xFFE65100),
                     fontWeight: FontWeight.w500,
@@ -302,7 +302,7 @@ class _TrainerPendingApprovalScreenState
                   Text(
                     'Need assistance? Contact trainers@trainz.app',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.5 * sf).clamp(10.5, 12.5),
                       color: kGrey,
                     ),
@@ -325,7 +325,7 @@ class _TrainerPendingApprovalScreenState
         Text(
           label,
           style: const TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: 12,
             color: kGrey,
           ),
@@ -333,7 +333,7 @@ class _TrainerPendingApprovalScreenState
         Text(
           value,
           style: const TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: 'Outfit',
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: kDark,

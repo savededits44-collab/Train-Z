@@ -194,8 +194,8 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                 child: Text(
                   initial,
                   style: const TextStyle(
-                    fontFamily: 'Syne',
-                    fontWeight: FontWeight.w800,
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.w600,
                     fontSize: 14,
                     color: _kLime,
                   ),
@@ -209,7 +209,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                     Text(
                       clientName,
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -224,7 +224,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                         Text(
                           'Booked Athlete • Active',
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Outfit',
                             fontSize: 11,
                             color: _kGrey,
                           ),
@@ -263,7 +263,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                     child: Text(
                       'Private 1-on-1 coaching chat. Restricted to booked session inquiries.',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 11,
                         color: _kGrey,
                       ),
@@ -316,7 +316,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                                     icon: const Icon(Icons.history, size: 14, color: _kGrey),
                                     label: const Text(
                                       'Load older messages',
-                                      style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: _kGrey),
+                                      style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: _kGrey),
                                     ),
                                   ),
                           ),
@@ -364,7 +364,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                     Expanded(
                       child: Text(
                         _errorMessage!,
-                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 11, color: Color(0xFFEF5350)),
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: Color(0xFFEF5350)),
                       ),
                     ),
                   ],
@@ -402,7 +402,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
       ),
       child: Text(
         text,
-        style: const TextStyle(fontFamily: 'Poppins', fontSize: 10, color: _kGrey, fontWeight: FontWeight.w600),
+        style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, color: _kGrey, fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -439,7 +439,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
             Text(
               msg.text,
               style: const TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: 13.5,
                 color: Colors.white,
                 height: 1.4,
@@ -452,7 +452,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
                 Text(
                   timeStr,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: 10,
                     color: _kGrey.withValues(alpha: 0.8),
                   ),
@@ -489,7 +489,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
               controller: _textCtrl,
               maxLines: 4,
               minLines: 1,
-              style: const TextStyle(color: Colors.white, fontFamily: 'Poppins', fontSize: 13.5),
+              style: const TextStyle(color: Colors.white, fontFamily: 'Outfit', fontSize: 13.5),
               decoration: InputDecoration(
                 hintText: 'Type a message to your athlete...',
                 hintStyle: TextStyle(color: _kGrey.withValues(alpha: 0.6), fontSize: 13),
@@ -556,7 +556,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
             Text(
               'Direct Chat with ${widget.conversation.clientName}',
               style: const TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -567,7 +567,7 @@ class _TrainerConversationScreenState extends State<TrainerConversationScreen> {
             const Text(
               'Send a welcome message or coordinate training location and session preparation.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: _kGrey),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: _kGrey),
             ),
           ],
         ),

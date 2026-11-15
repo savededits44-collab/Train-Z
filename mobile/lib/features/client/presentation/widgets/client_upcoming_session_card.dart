@@ -51,9 +51,9 @@ class ClientUpcomingSessionCard extends StatelessWidget {
                 child: Text(
                   'Cancel Session?',
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (18.0 * sf).clamp(16.0, 20.0),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                   ),
                 ),
@@ -67,7 +67,7 @@ class ClientUpcomingSessionCard extends StatelessWidget {
               Text(
                 'Session on ${_formatDate(booking.sessionDate)} at ${booking.startTime}.',
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: kDark,
@@ -98,7 +98,7 @@ class ClientUpcomingSessionCard extends StatelessWidget {
                             ? '12+ Hours Policy Met: Your 1 session credit will be refunded to your available balance.'
                             : 'Late Cancellation Warning (< 12 hours): Your session credit will be forfeited per platform policy.',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 11.5,
                           fontWeight: FontWeight.w500,
                           color: isEarly ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
@@ -113,7 +113,7 @@ class ClientUpcomingSessionCard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Keep Session', style: TextStyle(fontFamily: 'Poppins', color: kGrey)),
+              child: const Text('Keep Session', style: TextStyle(fontFamily: 'Outfit', color: kGrey)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -133,7 +133,7 @@ class ClientUpcomingSessionCard extends StatelessWidget {
                       returned
                           ? 'Session cancelled. 1 session credit returned to your balance.'
                           : 'Session cancelled. Credit forfeited due to late cancellation (< 12 hours).',
-                      style: const TextStyle(fontFamily: 'Poppins', color: Colors.white),
+                      style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
                     ),
                     backgroundColor: returned ? const Color(0xFF16A34A) : const Color(0xFF1E1E24),
                     behavior: SnackBarBehavior.floating,
@@ -146,7 +146,7 @@ class ClientUpcomingSessionCard extends StatelessWidget {
               ),
               child: const Text(
                 'Confirm Cancellation',
-                style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w700, color: Colors.white),
+                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: Colors.white),
               ),
             ),
           ],
@@ -191,9 +191,9 @@ class ClientUpcomingSessionCard extends StatelessWidget {
                   booking.displayWorkoutType,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Syne',
+                    fontFamily: 'Outfit',
                     fontSize: (14.5 * sf).clamp(13.0, 16.5),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: kDark,
                   ),
                 ),
@@ -213,9 +213,9 @@ class ClientUpcomingSessionCard extends StatelessWidget {
                     Text(
                       booking.status == BookingStatus.confirmed ? 'CONFIRMED' : booking.status.name.toUpperCase(),
                       style: const TextStyle(
-                        fontFamily: 'Syne',
+                        fontFamily: 'Outfit',
                         fontSize: 10,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: Color(0xFF15803D),
                       ),
                     ),
@@ -237,7 +237,7 @@ class ClientUpcomingSessionCard extends StatelessWidget {
                   'Coach: ${booking.displayTrainerName}',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(11.0, 13.5),
                     fontWeight: FontWeight.w600,
                     color: kDark,
@@ -257,7 +257,7 @@ class ClientUpcomingSessionCard extends StatelessWidget {
               Text(
                 '${_formatDate(booking.sessionDate)} • ${booking.startTime} - ${booking.endTime}',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (11.5 * sf).clamp(10.5, 13.0),
                   color: const Color(0xFF555555),
                   fontWeight: FontWeight.w500,
@@ -277,7 +277,7 @@ class ClientUpcomingSessionCard extends StatelessWidget {
                     booking.meetingLocation!,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Outfit',
                       fontSize: (11.5 * sf).clamp(10.5, 13.0),
                       color: kGrey,
                     ),
@@ -298,7 +298,7 @@ class ClientUpcomingSessionCard extends StatelessWidget {
               Text(
                 '60-min personal session',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (10.5 * sf).clamp(9.5, 12.0),
                   color: kGrey,
                 ),
@@ -315,7 +315,7 @@ class ClientUpcomingSessionCard extends StatelessWidget {
                       Text(
                         'Cancel',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFFDC2626),

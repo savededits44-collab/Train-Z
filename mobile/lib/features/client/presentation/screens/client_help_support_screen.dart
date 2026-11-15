@@ -55,9 +55,9 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
         title: Text(
           'Help & Support',
           style: TextStyle(
-            fontFamily: 'Syne',
+            fontFamily: 'Outfit',
             fontSize: (18.0 * sf).clamp(16.0, 20.0),
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: kDark,
           ),
         ),
@@ -148,7 +148,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search help articles, policies, FAQs...',
                   hintStyle: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Outfit',
                     fontSize: (12.0 * sf).clamp(11.0, 13.0),
                     color: const Color(0xFF9CA3AF),
                   ),
@@ -166,7 +166,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
                 style: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Outfit',
                   fontSize: (12.5 * sf).clamp(11.5, 13.5),
                   color: kDark,
                 ),
@@ -179,9 +179,9 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
             Text(
               'FREQUENTLY ASKED QUESTIONS',
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (11.5 * sf).clamp(10.5, 12.5),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: const Color(0xFF888888),
                 letterSpacing: 0.8,
               ),
@@ -221,9 +221,9 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                             Text(
                               'Still Need Assistance?',
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (14.0 * sf).clamp(13.0, 15.5),
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: kDark,
                               ),
                             ),
@@ -231,7 +231,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                             const Text(
                               'Our support team typically reviews requests within 24 business hours.',
                               style: TextStyle(
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Outfit',
                                 fontSize: 11,
                                 color: Color(0xFF6B7280),
                               ),
@@ -268,9 +268,9 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                       child: const Text(
                         'Submit a Support Request',
                         style: TextStyle(
-                          fontFamily: 'Syne',
+                          fontFamily: 'Outfit',
                           fontSize: 13,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w500,
                           color: kLime,
                         ),
                       ),
@@ -324,7 +324,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                     child: Text(
                       '$badgeCount',
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Outfit',
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -337,9 +337,9 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
             Text(
               title,
               style: TextStyle(
-                fontFamily: 'Syne',
+                fontFamily: 'Outfit',
                 fontSize: (14.0 * sf).clamp(13.0, 15.5),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: isDark ? Colors.white : kDark,
               ),
             ),
@@ -347,7 +347,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
             Text(
               subtitle,
               style: TextStyle(
-                fontFamily: 'Poppins',
+                fontFamily: 'Outfit',
                 fontSize: (10.5 * sf).clamp(9.5, 11.5),
                 color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
               ),
@@ -472,7 +472,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
               title: Text(
                 section['category'] as String,
                 style: TextStyle(
-                  fontFamily: 'Syne',
+                  fontFamily: 'Outfit',
                   fontSize: (13.5 * sf).clamp(12.5, 15.0),
                   fontWeight: FontWeight.w700,
                   color: kDark,
@@ -493,12 +493,12 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Q: ', style: TextStyle(fontFamily: 'Syne', fontWeight: FontWeight.w800, color: kDark)),
+                          const Text('Q: ', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: kDark)),
                           Expanded(
                             child: Text(
                               faq['q']!,
                               style: TextStyle(
-                                fontFamily: 'Syne',
+                                fontFamily: 'Outfit',
                                 fontSize: (12.0 * sf).clamp(11.0, 13.0),
                                 fontWeight: FontWeight.w700,
                                 color: kDark,
@@ -511,7 +511,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                       Text(
                         faq['a']!,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Outfit',
                           fontSize: (11.0 * sf).clamp(10.0, 12.0),
                           color: const Color(0xFF4B5563),
                           height: 1.4,
@@ -538,7 +538,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'No matching FAQs found for "$_searchQuery"',
-                  style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF6B7280)),
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: Color(0xFF6B7280)),
                 ),
               ],
             ),
