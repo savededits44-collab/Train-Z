@@ -59,9 +59,7 @@ class _ClientLocationSheetState extends State<ClientLocationSheet> {
 
   final List<String> _venueOptions = [
     'Commercial Gym',
-    'Personal Gym / Home',
-    'Outdoor Park / Society',
-    "Trainer's Private Studio",
+    'Partner Fitness Center',
   ];
 
   @override

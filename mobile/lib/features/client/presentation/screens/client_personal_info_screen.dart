@@ -45,9 +45,7 @@ class _ClientPersonalInfoScreenState extends State<ClientPersonalInfoScreen> {
 
   static const List<String> _venueOptions = [
     'Commercial Gym',
-    'Home Gym',
-    'Outdoor Park',
-    'Trainer Studio',
+    'Partner Fitness Center',
   ];
 
   static const List<String> _fitnessLevelOptions = [

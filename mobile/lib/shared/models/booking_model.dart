@@ -94,6 +94,20 @@ class BookingModel {
   final String? meetingLocation;
   final String? locationReference;
   final String? notes;
+
+  // Client Selected Commercial Gym Details & Trainer Travel
+  final String? gymId;
+  final String? gymName;
+  final String? gymAddress;
+  final double? gymLat;
+  final double? gymLng;
+  final String? gymMapsUrl;
+  final double? trainerTravelDistanceKm;
+
+  // Gym Partnership & Settlement Tracking
+  final String? gymSettlementStatus; // 'pending', 'settled', 'exempt'
+  final double? gymCompensationAmount;
+
   final bool _isRescheduled;
   final DateTime? rescheduledAt;
   final DateTime? previousSessionDate;
@@ -143,6 +157,15 @@ class BookingModel {
     this.meetingLocation,
     this.locationReference,
     this.notes,
+    this.gymId,
+    this.gymName,
+    this.gymAddress,
+    this.gymLat,
+    this.gymLng,
+    this.gymMapsUrl,
+    this.trainerTravelDistanceKm,
+    this.gymSettlementStatus = 'pending',
+    this.gymCompensationAmount = 0.0,
     this._isRescheduled = false,
     this.rescheduledAt,
     this.previousSessionDate,
@@ -177,7 +200,8 @@ class BookingModel {
 
   /// Reservation expiry check
   bool get isReservationExpired =>
-      expiresAt != null && expiresAt!.isBefore(DateTime.now()) && status == BookingStatus.reserved;
+      status == BookingStatus.expired ||
+      (expiresAt != null && expiresAt!.isBefore(DateTime.now()) && status == BookingStatus.reserved);
 
   /// Verified confirmed check
   bool get isConfirmed =>
@@ -251,6 +275,69 @@ class BookingModel {
 
   /// Explicit 60-minute duration string
   String get sessionDurationDisplay => '60 Minutes (Personal 1-on-1)';
+
+  /// Formatted commercial gym training venue
+  String get displayLocation {
+    if (gymName != null && gymName!.trim().isNotEmpty) {
+      if (gymAddress != null && gymAddress!.trim().isNotEmpty) {
+        return '${gymName!.trim()} (${gymAddress!.trim()})';
+      }
+      return gymName!.trim();
+    }
+    if (meetingLocation != null && meetingLocation!.trim().isNotEmpty) {
+      return meetingLocation!.trim();
+    }
+    if (locationReference != null && locationReference!.trim().isNotEmpty) {
+      return locationReference!.trim();
+    }
+    return 'Commercial Partner Gym';
+  }
+
+  /// Prominent display gym name
+  String get displayGymName {
+    if (gymName != null && gymName!.trim().isNotEmpty) {
+      return gymName!.trim();
+    }
+    if (meetingLocation != null && meetingLocation!.trim().isNotEmpty) {
+      return meetingLocation!.trim();
+    }
+    return 'Commercial Partner Gym';
+  }
+
+  /// Prominent display gym address
+  String get displayGymAddress {
+    if (gymAddress != null && gymAddress!.trim().isNotEmpty) {
+      return gymAddress!.trim();
+    }
+    if (locationReference != null && locationReference!.trim().isNotEmpty) {
+      return locationReference!.trim();
+    }
+    return '';
+  }
+
+  /// Web or Google Maps navigational link
+  String get googleMapsUrl {
+    if (gymMapsUrl != null && gymMapsUrl!.isNotEmpty) return gymMapsUrl!;
+    if (gymLat != null && gymLng != null && gymLat != 0.0 && gymLng != 0.0) {
+      return 'https://www.google.com/maps/search/?api=1&query=$gymLat,$gymLng';
+    }
+    final q = Uri.encodeComponent('$displayGymName $displayGymAddress');
+    return 'https://www.google.com/maps/search/?api=1&query=$q';
+  }
+
+  /// Remaining duration in the 15-minute checkout hold
+  Duration get remainingReservationTime {
+    if (status != BookingStatus.reserved || expiresAt == null) return Duration.zero;
+    final diff = expiresAt!.difference(DateTime.now());
+    return diff.isNegative ? Duration.zero : diff;
+  }
+
+  /// Whether the 15-minute checkout window is currently active
+  bool get isAwaitingPayment {
+    return status == BookingStatus.reserved &&
+        paymentStatus == PaymentStatus.pending &&
+        !isReservationExpired;
+  }
 
   /// Exact DateTime of the session start by combining sessionDate with startTime
   DateTime get fullSessionStartDateTime {
@@ -438,6 +525,15 @@ class BookingModel {
     String? meetingLocation,
     String? locationReference,
     String? notes,
+    String? gymId,
+    String? gymName,
+    String? gymAddress,
+    double? gymLat,
+    double? gymLng,
+    String? gymMapsUrl,
+    double? trainerTravelDistanceKm,
+    String? gymSettlementStatus,
+    double? gymCompensationAmount,
     bool? isRescheduled,
     DateTime? rescheduledAt,
     DateTime? previousSessionDate,
@@ -487,6 +583,15 @@ class BookingModel {
       meetingLocation: meetingLocation ?? this.meetingLocation,
       locationReference: locationReference ?? this.locationReference,
       notes: notes ?? this.notes,
+      gymId: gymId ?? this.gymId,
+      gymName: gymName ?? this.gymName,
+      gymAddress: gymAddress ?? this.gymAddress,
+      gymLat: gymLat ?? this.gymLat,
+      gymLng: gymLng ?? this.gymLng,
+      gymMapsUrl: gymMapsUrl ?? this.gymMapsUrl,
+      trainerTravelDistanceKm: trainerTravelDistanceKm ?? this.trainerTravelDistanceKm,
+      gymSettlementStatus: gymSettlementStatus ?? this.gymSettlementStatus,
+      gymCompensationAmount: gymCompensationAmount ?? this.gymCompensationAmount,
       isRescheduled: isRescheduled ?? this.isRescheduled,
       rescheduledAt: rescheduledAt ?? this.rescheduledAt,
       previousSessionDate: previousSessionDate ?? this.previousSessionDate,
@@ -542,6 +647,15 @@ class BookingModel {
       'meetingLocation': meetingLocation,
       'locationReference': locationReference ?? meetingLocation,
       'notes': notes,
+      'gymId': gymId,
+      'gymName': gymName,
+      'gymAddress': gymAddress,
+      'gymLat': gymLat,
+      'gymLng': gymLng,
+      'gymMapsUrl': gymMapsUrl,
+      'trainerTravelDistanceKm': trainerTravelDistanceKm,
+      'gymSettlementStatus': gymSettlementStatus,
+      'gymCompensationAmount': gymCompensationAmount,
       'isRescheduled': isRescheduled,
       'rescheduledAt': rescheduledAt != null ? Timestamp.fromDate(rescheduledAt!) : null,
       'previousSessionDate': previousSessionDate != null ? Timestamp.fromDate(previousSessionDate!) : null,
@@ -600,6 +714,15 @@ class BookingModel {
       meetingLocation: map['meetingLocation'] as String?,
       locationReference: map['locationReference'] as String? ?? map['meetingLocation'] as String?,
       notes: map['notes'] as String?,
+      gymId: map['gymId'] as String?,
+      gymName: map['gymName'] as String?,
+      gymAddress: map['gymAddress'] as String?,
+      gymLat: (map['gymLat'] as num?)?.toDouble(),
+      gymLng: (map['gymLng'] as num?)?.toDouble(),
+      gymMapsUrl: map['gymMapsUrl'] as String?,
+      trainerTravelDistanceKm: (map['trainerTravelDistanceKm'] as num?)?.toDouble(),
+      gymSettlementStatus: map['gymSettlementStatus'] as String? ?? 'pending',
+      gymCompensationAmount: (map['gymCompensationAmount'] as num?)?.toDouble() ?? 0.0,
       isRescheduled: map['isRescheduled'] as bool? ?? false,
       rescheduledAt: parseTimestamp(map['rescheduledAt']),
       previousSessionDate: parseTimestamp(map['previousSessionDate']),

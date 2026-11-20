@@ -140,18 +140,15 @@ class SupportService {
     _mockTickets[ticketNumber] = ticket;
     _mockMessages[ticketId] = [initialMessage];
 
-    // Persist to Firestore if available
+    // Persist to Firestore if available (sequential write ensures parent doc exists for subcollection rule evaluation)
     final fs = _firestore;
     if (fs != null) {
       try {
-        final batch = fs.batch();
         final ticketRef = fs.collection(FirestoreCollections.supportTickets).doc(ticketId);
-        batch.set(ticketRef, ticket.toMap());
+        await ticketRef.set(ticket.toMap());
 
         final msgRef = ticketRef.collection(FirestoreCollections.supportMessages).doc(initialMessage.id);
-        batch.set(msgRef, initialMessage.toMap());
-
-        await batch.commit();
+        await msgRef.set(initialMessage.toMap());
       } catch (_) {}
     }
 

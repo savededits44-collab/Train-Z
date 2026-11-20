@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../core/constants/firestore_collections.dart';
+import '../core/errors/app_exceptions.dart';
 import '../shared/models/booking_model.dart';
 import '../shared/models/user_model.dart';
 import 'client_package_service.dart';
@@ -25,7 +26,8 @@ class BookingService extends ChangeNotifier {
       return null;
     }
   }
-  StreamSubscription<QuerySnapshot>? _firestoreSub;
+  StreamSubscription<QuerySnapshot>? _clientSub;
+  StreamSubscription<QuerySnapshot>? _trainerSub;
   StreamSubscription<User?>? _authSub;
 
   final List<BookingModel> _bookings = [];
@@ -42,6 +44,8 @@ class BookingService extends ChangeNotifier {
       _authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
         if (user != null) {
           _initFirestoreListener();
+        } else {
+          clearBookings();
         }
       });
     } catch (e) {
@@ -50,6 +54,7 @@ class BookingService extends ChangeNotifier {
   }
 
   Stream<List<BookingModel>> get stream => _streamController.stream;
+  Stream<List<BookingModel>> get streamBookings => _streamController.stream;
   List<BookingModel> get allBookings => List.unmodifiable(_bookings);
 
   List<BookingModel> get pendingBookings => _bookings.where((b) {
@@ -93,6 +98,22 @@ class BookingService extends ChangeNotifier {
     ).toList();
     list.sort((a, b) => a.sessionDate.compareTo(b.sessionDate));
     return list;
+  }
+
+  /// Scoped query helpers for a specific client
+  List<BookingModel> bookingsForClient(String clientId) {
+    if (clientId.isEmpty) return const [];
+    return _bookings.where((b) => b.clientId == clientId).toList();
+  }
+
+  List<BookingModel> pendingBookingsForClient(String clientId) {
+    if (clientId.isEmpty) return const [];
+    return _bookings.where((b) => b.clientId == clientId && b.status == BookingStatus.pending).toList();
+  }
+
+  List<BookingModel> reservedBookingsForClient(String clientId) {
+    if (clientId.isEmpty) return const [];
+    return _bookings.where((b) => b.clientId == clientId && b.status == BookingStatus.reserved && !b.isReservationExpired).toList();
   }
 
   List<BookingModel> todaySessionsForTrainer(String trainerId) {
@@ -203,42 +224,37 @@ class BookingService extends ChangeNotifier {
 
   void _initFirestoreListener() {
     if (_firestore == null) return;
-    _firestoreSub?.cancel();
+    _cancelFirestoreSubs();
     try {
-      // Real-time Firestore stream: listens to the bookings collection live
-      _firestoreSub = _firestore!
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        clearBookings();
+        return;
+      }
+      final uid = user.uid;
+      if (uid.isEmpty) return;
+
+      // Scoped Client bookings listener (satisfies rule: resource.data.clientId == request.auth.uid)
+      _clientSub = _firestore!
           .collection(FirestoreCollections.bookings)
+          .where('clientId', isEqualTo: uid)
           .snapshots()
           .listen(
-        (snapshot) {
-          bool changed = false;
-          for (final change in snapshot.docChanges) {
-            final doc = change.doc;
-            final item = BookingModel.fromDocument(doc);
-            final index = _bookings.indexWhere((b) => b.id == item.id);
-
-            if (change.type == DocumentChangeType.removed) {
-              if (index >= 0) {
-                _bookings.removeAt(index);
-                changed = true;
-              }
-            } else {
-              if (index >= 0) {
-                _bookings[index] = item;
-                changed = true;
-              } else {
-                _bookings.insert(0, item);
-                changed = true;
-              }
-            }
-          }
-          if (changed) {
-            _notify();
-          }
-        },
+        _handleSnapshot,
         onError: (err) {
-          debugPrint('Notice: BookingService live stream Firestore fallback active: $err');
-          _initScopedListener();
+          debugPrint('Notice: BookingService client stream notice: $err');
+        },
+      );
+
+      // Scoped Trainer bookings listener (satisfies rule: resource.data.trainerId == request.auth.uid)
+      _trainerSub = _firestore!
+          .collection(FirestoreCollections.bookings)
+          .where('trainerId', isEqualTo: uid)
+          .snapshots()
+          .listen(
+        _handleSnapshot,
+        onError: (err) {
+          debugPrint('Notice: BookingService trainer stream notice: $err');
         },
       );
     } catch (e) {
@@ -246,43 +262,43 @@ class BookingService extends ChangeNotifier {
     }
   }
 
-  void _initScopedListener() {
-    if (_firestore == null) return;
-    try {
-      final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid == null || uid.isEmpty) return;
+  void _handleSnapshot(QuerySnapshot snapshot) {
+    bool changed = false;
+    for (final change in snapshot.docChanges) {
+      final doc = change.doc;
+      final item = BookingModel.fromDocument(doc);
+      final index = _bookings.indexWhere((b) => b.id == item.id);
 
-      _firestoreSub?.cancel();
-      _firestoreSub = _firestore!
-          .collection(FirestoreCollections.bookings)
-          .where('trainerId', isEqualTo: uid)
-          .snapshots()
-          .listen(
-        (snapshot) {
-          for (final doc in snapshot.docs) {
-            final item = BookingModel.fromDocument(doc);
-            final index = _bookings.indexWhere((b) => b.id == item.id);
-            if (index >= 0) {
-              _bookings[index] = item;
-            } else {
-              _bookings.insert(0, item);
-            }
-          }
-          _notify();
-        },
-        onError: (e) {
-          debugPrint('Notice: Scoped listener error: $e');
-        },
-      );
-    } catch (e) {
-      debugPrint('Notice: Scoped listener exception: $e');
+      if (change.type == DocumentChangeType.removed) {
+        if (index >= 0) {
+          _bookings.removeAt(index);
+          changed = true;
+        }
+      } else {
+        if (index >= 0) {
+          _bookings[index] = item;
+          changed = true;
+        } else {
+          _bookings.insert(0, item);
+          changed = true;
+        }
+      }
     }
+    if (changed) {
+      _notify();
+    }
+  }
+
+  void _cancelFirestoreSubs() {
+    _clientSub?.cancel();
+    _clientSub = null;
+    _trainerSub?.cancel();
+    _trainerSub = null;
   }
 
   /// Clears in-memory bookings and active subscriptions on user sign-out to prevent data leaks
   void clearBookings() {
-    _firestoreSub?.cancel();
-    _firestoreSub = null;
+    _cancelFirestoreSubs();
     _bookings.clear();
     _notify();
   }
@@ -319,17 +335,38 @@ class BookingService extends ChangeNotifier {
     required String endTime,
     required String workoutType,
     required String meetingLocation,
+    String? gymId,
+    String? gymName,
+    String? gymAddress,
+    double? gymLat,
+    double? gymLng,
+    String? gymMapsUrl,
+    double? trainerTravelDistanceKm,
+    String? packageId,
+    int? packagePrice,
+    int? sessionsCount,
+    int? validityDays,
     String? notes,
     String? trainerId,
+    String? clientId,
     Gender clientGender = Gender.male,
     Gender trainerGender = Gender.male,
   }) async {
+    if (isProhibitedTrainingLocation(meetingLocation) ||
+        (gymName != null && isProhibitedTrainingLocation(gymName)) ||
+        (gymAddress != null && isProhibitedTrainingLocation(gymAddress))) {
+      throw const LocationPolicyException(
+        'All TRAIN Z personal training sessions take place exclusively at commercial gyms.',
+      );
+    }
+
     final now = DateTime.now();
     final newId = 'book_${now.millisecondsSinceEpoch}';
+    final effectiveGymName = (gymName != null && gymName.trim().isNotEmpty) ? gymName.trim() : meetingLocation.trim();
 
     final booking = BookingModel(
       id: newId,
-      clientId: 'client_${now.millisecondsSinceEpoch}',
+      clientId: clientId ?? 'client_${now.millisecondsSinceEpoch}',
       trainerId: trainerId ?? 'trainer_active',
       clientGender: clientGender,
       trainerGender: trainerGender,
@@ -339,9 +376,22 @@ class BookingService extends ChangeNotifier {
       sessionDate: sessionDate,
       startTime: startTime,
       endTime: endTime,
+      gymId: gymId,
+      gymName: effectiveGymName,
+      gymAddress: gymAddress?.trim(),
+      gymLat: gymLat,
+      gymLng: gymLng,
+      gymMapsUrl: gymMapsUrl,
+      trainerTravelDistanceKm: trainerTravelDistanceKm,
       meetingLocation: meetingLocation.trim(),
+      packageId: packageId,
+      planId: packageId,
+      packagePrice: packagePrice,
+      sessionsCount: sessionsCount,
+      validityDays: validityDays,
       notes: notes?.trim(),
       status: BookingStatus.pending,
+      paymentStatus: PaymentStatus.pending,
       createdAt: now,
       updatedAt: now,
     );
@@ -361,11 +411,12 @@ class BookingService extends ChangeNotifier {
       await NotificationService.instance.sendNotification(
         userId: booking.trainerId,
         title: 'New Session Request! 📅',
-        body: '${booking.displayClientName} requested a session for ${_formatDate(sessionDate)} at $startTime.',
+        body: '${booking.displayClientName} requested a session at $effectiveGymName on ${_formatDate(sessionDate)} at $startTime.',
         type: 'BOOKING_RECEIVED',
         relatedId: booking.id,
         data: {
           'clientId': booking.clientId,
+          'gymName': effectiveGymName,
           'date': sessionDate.toIso8601String(),
           'startTime': startTime,
           'endTime': endTime,
@@ -378,14 +429,22 @@ class BookingService extends ChangeNotifier {
     return booking;
   }
 
-  /// Trainer accepts a booking in real-time
+  /// Trainer accepts a booking in real-time (Starts 15-Minute Payment Window if unpaid, confirms if already paid)
   Future<void> acceptBooking(String bookingId) async {
     final index = _bookings.indexWhere((b) => b.id == bookingId);
     BookingModel? target;
+    final now = DateTime.now();
+    final expiresAt = now.add(const Duration(minutes: 15));
+
     if (index >= 0) {
-      final updated = _bookings[index].copyWith(
-        status: BookingStatus.confirmed,
-        updatedAt: DateTime.now(),
+      final current = _bookings[index];
+      final isPaid = current.paymentStatus == PaymentStatus.completed;
+      final updated = current.copyWith(
+        status: isPaid ? BookingStatus.confirmed : BookingStatus.reserved,
+        paymentStatus: isPaid ? PaymentStatus.completed : PaymentStatus.pending,
+        reservedAt: isPaid ? null : now,
+        expiresAt: isPaid ? null : expiresAt,
+        updatedAt: now,
       );
       _bookings[index] = updated;
       target = updated;
@@ -393,21 +452,50 @@ class BookingService extends ChangeNotifier {
     }
 
     try {
+      final isPaid = target?.paymentStatus == PaymentStatus.completed;
       await _firestore
           ?.collection(FirestoreCollections.bookings)
           .doc(bookingId)
           .set({
-        'status': 'CONFIRMED',
+        'status': isPaid ? 'CONFIRMED' : 'RESERVED',
+        'paymentStatus': isPaid ? 'COMPLETED' : 'PENDING',
+        'reservedAt': isPaid ? null : FieldValue.serverTimestamp(),
+        'expiresAt': isPaid ? null : Timestamp.fromDate(expiresAt),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
       if (target != null) {
+        // Update slot lock with temporary reservation or confirmed
+        final dateKey = target.sessionDate.toIso8601String().substring(0, 10);
+        final safeTime = target.startTime.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+        final slotLockId = '${target.trainerId}_${dateKey}_$safeTime';
+
+        await _firestore
+            ?.collection(FirestoreCollections.slotLocks)
+            .doc(slotLockId)
+            .set({
+          'id': slotLockId,
+          'bookingId': bookingId,
+          'trainerId': target.trainerId,
+          'clientId': target.clientId,
+          'status': isPaid ? 'CONFIRMED' : 'RESERVED',
+          'expiresAt': isPaid ? null : Timestamp.fromDate(expiresAt),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+
         await NotificationService.instance.sendNotification(
           userId: target.clientId,
-          title: 'Session Confirmed! ✅',
-          body: 'Coach ${target.displayTrainerName} accepted your session on ${_formatDate(target.sessionDate)} at ${target.startTime}.',
-          type: 'BOOKING_CONFIRMED',
+          title: isPaid ? 'Session Confirmed! ✅' : 'Session Request Accepted! ⚡',
+          body: isPaid
+              ? 'Coach ${target.displayTrainerName} accepted your session on ${_formatDate(target.sessionDate)} at ${target.startTime}.'
+              : 'Coach ${target.displayTrainerName} accepted your session at ${target.displayGymName}. Complete payment within 15 minutes to lock in your session.',
+          type: isPaid ? 'BOOKING_CONFIRMED' : 'TRAINER_ACCEPTED',
           relatedId: bookingId,
+          data: {
+            'bookingId': bookingId,
+            'expiresAt': expiresAt.toIso8601String(),
+            'gymName': target.displayGymName,
+          },
         );
       }
     } catch (e) {
@@ -423,6 +511,9 @@ class BookingService extends ChangeNotifier {
       final current = _bookings[index];
       final updated = current.copyWith(
         status: BookingStatus.rejected,
+        cancellationReason: reason != null && reason.trim().isNotEmpty
+            ? 'Declined by coach: $reason'
+            : 'Declined by coach',
         notes: reason != null && reason.trim().isNotEmpty
             ? '${current.notes != null ? "${current.notes}\n" : ""}[Trainer Rejection Reason: $reason]'
             : current.notes,
@@ -439,15 +530,22 @@ class BookingService extends ChangeNotifier {
           .doc(bookingId)
           .set({
         'status': 'REJECTED',
+        'cancellationReason': reason != null ? 'Declined by coach: $reason' : 'Declined by coach',
         'updatedAt': FieldValue.serverTimestamp(),
         ...?reason != null ? {'rejectionReason': reason} : null,
       }, SetOptions(merge: true));
 
       if (target != null) {
+        // Release slot lock if any existed
+        final dateKey = target.sessionDate.toIso8601String().substring(0, 10);
+        final safeTime = target.startTime.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+        final slotLockId = '${target.trainerId}_${dateKey}_$safeTime';
+        await _firestore?.collection(FirestoreCollections.slotLocks).doc(slotLockId).delete();
+
         await NotificationService.instance.sendNotification(
           userId: target.clientId,
           title: 'Session Request Declined ✕',
-          body: 'Coach ${target.displayTrainerName} was unable to accept your session request.${reason != null && reason.trim().isNotEmpty ? " Reason: $reason" : ""}',
+          body: 'Coach ${target.displayTrainerName} was unable to accept your session request at ${target.displayGymName}.${reason != null && reason.trim().isNotEmpty ? " Reason: $reason" : ""}',
           type: 'BOOKING_REJECTED',
           relatedId: bookingId,
         );
@@ -689,7 +787,7 @@ class BookingService extends ChangeNotifier {
   @override
   void dispose() {
     _authSub?.cancel();
-    _firestoreSub?.cancel();
+    _cancelFirestoreSubs();
     _streamController.close();
     super.dispose();
   }

@@ -391,7 +391,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Privacy & Data Protection'), findsOneWidget);
-      expect(find.text('Private Residential Address Protection'), findsOneWidget);
+      expect(find.text('Commercial Gym Training & Data Privacy'), findsOneWidget);
       expect(find.text('Athlete Name Masking on Reviews'), findsOneWidget);
       expect(find.text('Data Deletion & Retention Policy'), findsOneWidget);
       expect(find.text('View Complete Privacy Policy'), findsOneWidget);

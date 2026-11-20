@@ -454,7 +454,7 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
           },
           {
             'q': 'How do I choose and book a Personal Trainer?',
-            'a': 'You can browse certified trainers via the "Find Trainer" tab, filter by training venue (commercial gym or home residence), review credentials, and select your preferred 60-minute time slot.',
+            'a': 'You can browse certified trainers via the "Find Trainer" tab, view affiliated commercial gyms, review credentials, and select your preferred 60-minute time slot.',
           },
           {
             'q': 'What happens if two athletes pick the same slot simultaneously?',
@@ -503,8 +503,8 @@ class _ClientHelpSupportScreenState extends State<ClientHelpSupportScreen> {
         'icon': Iconsax.shield_security,
         'items': [
           {
-            'q': 'How is my private address protected?',
-            'a': 'Your residential address is strictly confidential. It is never displayed publicly on reviews, profiles, or public trainer listings, and is disclosed solely to your confirmed trainer for coaching arrival.',
+            'q': 'Where do TRAIN Z training sessions take place?',
+            'a': 'All TRAIN Z personal training sessions take place exclusively at verified commercial gyms and partner fitness facilities. Home and residential sessions are not permitted, ensuring optimal equipment access and safety.',
           },
           {
             'q': 'What is the Strict Gender Policy?',

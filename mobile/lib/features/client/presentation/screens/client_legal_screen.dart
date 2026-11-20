@@ -152,11 +152,11 @@ class _ClientLegalScreenState extends State<ClientLegalScreen>
           ),
           _buildSectionTitle('1. Information We Collect', sf),
           _buildParagraph(
-            'We collect your full name, email address, phone number, gender, fitness goals, and selected workout venue. For residential workouts, your street address is captured to facilitate coach navigation.',
+            'We collect your full name, email address, phone number, gender, fitness goals, and selected commercial gym location.',
           ),
-          _buildSectionTitle('2. Address Confidentiality Guarantee', sf),
+          _buildSectionTitle('2. Commercial Gym Policy & Privacy', sf),
           _buildParagraph(
-            'Your residential address is strictly confidential. It is NEVER displayed publicly on trainer listings, reviews, or promotional materials. It is transmitted solely to your confirmed coach for coaching arrival.',
+            'All personal training sessions occur exclusively at commercial gyms and partner fitness facilities. Athlete personal contact details are strictly protected and never displayed publicly.',
           ),
           _buildSectionTitle('3. Review Identity Protection', sf),
           _buildParagraph(

@@ -76,9 +76,7 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
 
   final List<String> _locationOptions = [
     'Commercial Gym',
-    'Personal Gym / Home',
-    'Outdoor Park / Society',
-    "Trainer's Private Studio",
+    'Partner Fitness Center',
   ];
 
   @override
@@ -898,20 +896,20 @@ class _ClientProfileSetupScreenState extends State<ClientProfileSetupScreen> {
 
                 const SizedBox(height: 16),
 
-                // Private Address with Privacy Badge
+                // Preferred Gym Facility with Privacy Badge
                 AppTextField(
                   controller: _addressController,
-                  label: 'Street / Society Address (Optional)',
-                  icon: Iconsax.home_2,
+                  label: 'Preferred Gym Name / Branch (Optional)',
+                  icon: Iconsax.building,
                 ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.lock_outline, size: 13, color: Color(0xFF16A34A)),
+                    const Icon(Icons.shield_outlined, size: 13, color: Color(0xFF16A34A)),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'Kept strictly private and only shared with your confirmed trainer.',
+                        'All TRAIN Z personal training takes place exclusively at commercial gyms.',
                         style: TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: (10.5 * sf).clamp(9.5, 12.0),

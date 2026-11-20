@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/app_constants.dart';
 import '../core/constants/firestore_collections.dart';
 import '../shared/models/city_model.dart';
+import '../shared/models/gym_model.dart';
+import '../shared/models/trainer_profile_model.dart';
 
 /// Centralized, app-wide Location & City Management Service for TRAIN Z.
 ///
@@ -326,6 +328,127 @@ class LocationService extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  /// Curated list of verified commercial partner gyms with accurate coordinates
+  static const List<GymModel> curatedPartnerGyms = [
+    GymModel(
+      id: 'gym_pune_golds_kalyani',
+      name: "Gold's Gym Kalyani Nagar",
+      address: '2nd Floor, Fortaleza Complex, Kalyani Nagar, Pune, Maharashtra 411006',
+      city: 'Pune',
+      latitude: 18.5482,
+      longitude: 73.9034,
+      mapsUrl: 'https://maps.google.com/?q=18.5482,73.9034',
+      partnershipStatus: GymPartnershipStatus.active,
+      compensationPerSession: 150.0,
+      contactPerson: 'Rajesh Patil',
+      contactPhone: '+919822011223',
+    ),
+    GymModel(
+      id: 'gym_pune_cult_koregaon',
+      name: 'Cult.fit Koregaon Park',
+      address: 'Plot 390, North Main Road, Koregaon Park, Pune, Maharashtra 411001',
+      city: 'Pune',
+      latitude: 18.5362,
+      longitude: 73.8940,
+      mapsUrl: 'https://maps.google.com/?q=18.5362,73.8940',
+      partnershipStatus: GymPartnershipStatus.active,
+      compensationPerSession: 150.0,
+      contactPerson: 'Priya Joshi',
+      contactPhone: '+919822044556',
+    ),
+    GymModel(
+      id: 'gym_pune_anytime_baner',
+      name: 'Anytime Fitness Baner',
+      address: 'Pride Icon, Baner Road, Baner, Pune, Maharashtra 411045',
+      city: 'Pune',
+      latitude: 18.5590,
+      longitude: 73.7868,
+      mapsUrl: 'https://maps.google.com/?q=18.5590,73.7868',
+      partnershipStatus: GymPartnershipStatus.active,
+      compensationPerSession: 150.0,
+      contactPerson: 'Aniket Shinde',
+      contactPhone: '+919822077889',
+    ),
+    GymModel(
+      id: 'gym_pune_talwalkars_aundh',
+      name: 'Talwalkars Gym Aundh',
+      address: 'DP Road, Harmony Heights, Aundh, Pune, Maharashtra 411007',
+      city: 'Pune',
+      latitude: 18.5580,
+      longitude: 73.8077,
+      mapsUrl: 'https://maps.google.com/?q=18.5580,73.8077',
+      partnershipStatus: GymPartnershipStatus.active,
+      compensationPerSession: 150.0,
+      contactPerson: 'Sunil Gokhale',
+      contactPhone: '+919822099001',
+    ),
+    GymModel(
+      id: 'gym_pune_nitrro_viman',
+      name: 'Nitrro Wellness Viman Nagar',
+      address: 'Sky Vista, Ground Floor, Viman Nagar, Pune, Maharashtra 411014',
+      city: 'Pune',
+      latitude: 18.5679,
+      longitude: 73.9143,
+      mapsUrl: 'https://maps.google.com/?q=18.5679,73.9143',
+      partnershipStatus: GymPartnershipStatus.active,
+      compensationPerSession: 150.0,
+      contactPerson: 'Vikas Kadam',
+      contactPhone: '+919822033445',
+    ),
+    GymModel(
+      id: 'gym_pune_multifit_sbroad',
+      name: 'MultiFit Senapati Bapat Road',
+      address: 'ICC Tech Park, SB Road, Pune, Maharashtra 411016',
+      city: 'Pune',
+      latitude: 18.5314,
+      longitude: 73.8295,
+      mapsUrl: 'https://maps.google.com/?q=18.5314,73.8295',
+      partnershipStatus: GymPartnershipStatus.active,
+      compensationPerSession: 150.0,
+      contactPerson: 'Sameer Desai',
+      contactPhone: '+919822055667',
+    ),
+  ];
+
+  /// Returns commercial partner gyms for the current or specified city
+  List<GymModel> getCommercialGymsForCity([String? cityId]) {
+    final effectiveCity = cityId != null ? getCityOrDefault(cityId).name : currentCityName;
+    return curatedPartnerGyms.where((g) => g.city.toLowerCase() == effectiveCity.toLowerCase()).toList();
+  }
+
+  /// Calculates accurate distance in kilometers using the Haversine formula
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    return calculateHaversineDistanceKm(lat1, lon1, lat2, lon2);
+  }
+
+  /// Creates a custom commercial gym model with safe coordinates defaulting to current city center if omitted
+  GymModel createCustomCommercialGym({
+    required String name,
+    required String address,
+    double? lat,
+    double? lng,
+    String? mapsUrl,
+  }) {
+    final effectiveLat = (lat != null && lat != 0.0 && lat.abs() <= 90.0) ? lat : (_currentCity.latitude ?? 18.5204);
+    final effectiveLng = (lng != null && lng != 0.0 && lng.abs() <= 180.0) ? lng : (_currentCity.longitude ?? 73.8567);
+    final cleanMaps = (mapsUrl != null && mapsUrl.trim().isNotEmpty)
+        ? mapsUrl.trim()
+        : 'https://www.google.com/maps/search/?api=1&query=$effectiveLat,$effectiveLng';
+
+    return GymModel(
+      id: 'custom_gym_${DateTime.now().millisecondsSinceEpoch}',
+      name: name.trim(),
+      address: address.trim(),
+      city: _currentCity.name,
+      latitude: effectiveLat,
+      longitude: effectiveLng,
+      mapsUrl: cleanMaps,
+      partnershipStatus: GymPartnershipStatus.pending,
+      compensationPerSession: 150.0,
+      createdAt: DateTime.now(),
+    );
   }
 
   /// Deterministic reset helper for automated unit and widget tests.

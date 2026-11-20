@@ -421,7 +421,7 @@ class _ClientReviewModalState extends State<ClientReviewModal> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Athlete Privacy: Published as "Rahul S." (Verified Athlete). Your private home address and personal contact details are never shared.',
+                        'Athlete Privacy: Published as "Rahul S." (Verified Athlete). Your personal contact details and private account data are never shared.',
                         style: TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: (10.0 * sf).clamp(9.0, 11.0),

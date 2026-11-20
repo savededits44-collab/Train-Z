@@ -900,6 +900,13 @@ class FirestoreService {
       );
     }
 
+    // Commercial Gym Policy: Validate that training venue is a commercial gym
+    if (isProhibitedTrainingLocation(trainingLocation)) {
+      throw const LocationPolicyException(
+        'All TRAIN Z personal training sessions take place exclusively at commercial gyms.',
+      );
+    }
+
     // 2. Authoritative package lookup
     final plan = await getTrainingPlan(packageId);
     final planPrice = plan?.price ?? 10799;

@@ -55,14 +55,14 @@ class ClientPrivacySettingsScreen extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            // ── 1. Address Confidentiality Card ──
+            // ── 1. Commercial Gym Policy & Privacy Card ──
             _buildPrivacyCard(
               icon: Iconsax.shield_tick,
-              title: 'Private Residential Address Protection',
-              badge: 'Confidential',
+              title: 'Commercial Gym Training & Data Privacy',
+              badge: 'Protected',
               badgeColor: const Color(0xFF16A34A),
               description:
-                  'Your residential address and home location details are strictly private. They are never published on trainer profiles, community forums, or review lists. Your address is disclosed solely to your confirmed 1-on-1 coach for training arrival.',
+                  'All TRAIN Z personal training sessions take place exclusively at commercial gyms and partner fitness facilities. Your personal contact details and private account data are strictly confidential and protected.',
               sf: sf,
             ),
 

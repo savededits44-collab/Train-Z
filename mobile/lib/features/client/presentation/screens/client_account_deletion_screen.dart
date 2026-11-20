@@ -231,7 +231,7 @@ class _ClientAccountDeletionScreenState
                     ),
                     SizedBox(height: 10),
                     _DeletionBullet(
-                      text: 'Your athlete profile, avatar, emergency contacts, and residential addresses are permanently erased.',
+                      text: 'Your athlete profile, avatar, emergency contacts, and saved preferences are permanently erased.',
                     ),
                     _DeletionBullet(
                       text: 'Any upcoming confirmed training sessions are automatically cancelled.',

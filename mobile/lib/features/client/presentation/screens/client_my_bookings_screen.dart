@@ -11,6 +11,7 @@ import '../../../../shared/models/review_model.dart';
 import '../../../../shared/models/session_credit_model.dart';
 import '../../../../widgets/app_widgets.dart';
 import '../widgets/client_review_modal.dart';
+import 'client_booking_confirmation_screen.dart';
 import 'client_booking_detail_screen.dart';
 import 'client_notifications_screen.dart';
 
@@ -692,25 +693,148 @@ class _ClientMyBookingsScreenState extends State<ClientMyBookingsScreen>
 
             const SizedBox(height: 8),
 
-            // Location Tag
+            // Commercial Gym Location
             Row(
               children: [
-                const Icon(Iconsax.location, size: 14, color: Color(0xFF6B7280)),
+                const Icon(Icons.fitness_center_rounded, size: 14, color: kDark),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    booking.meetingLocation ?? 'Training Location',
+                    booking.displayGymName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontFamily: 'Outfit',
-                      fontSize: (11.0 * sf).clamp(10.0, 12.0),
-                      color: const Color(0xFF6B7280),
+                      fontSize: (11.5 * sf).clamp(10.5, 12.5),
+                      fontWeight: FontWeight.w600,
+                      color: kDark,
                     ),
                   ),
                 ),
+                if (booking.trainerTravelDistanceKm != null) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      '${booking.trainerTravelDistanceKm!.toStringAsFixed(1)} km coach travel',
+                      style: const TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2563EB),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
+            if (booking.displayGymAddress.isNotEmpty && booking.displayGymAddress != booking.displayGymName) ...[
+              const SizedBox(height: 3),
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: Text(
+                  booking.displayGymAddress,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: (10.0 * sf).clamp(9.0, 11.0),
+                    color: const Color(0xFF6B7280),
+                  ),
+                ),
+              ),
+            ],
+
+            if (booking.status == BookingStatus.reserved && !booking.isReservationExpired) ...[
+              const SizedBox(height: 10),
+              InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ClientBookingConfirmationScreen(booking: booking),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFFDE68A)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.timer_outlined, size: 15, color: Color(0xFFB45309)),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Coach Accepted • 15m Hold Active',
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontSize: (11.5 * sf).clamp(10.5, 12.5),
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF92400E),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: kDark,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text(
+                          'PAY NOW',
+                          style: TextStyle(
+                            fontFamily: 'Outfit',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: kLime,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ] else if (booking.status == BookingStatus.pending) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.hourglass_top_rounded, size: 12, color: Color(0xFF6B7280)),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        'Request sent to coach. Awaiting coach acceptance.',
+                        style: TextStyle(
+                          fontFamily: 'Outfit',
+                          fontSize: (10.0 * sf).clamp(9.0, 11.0),
+                          color: const Color(0xFF4B5563),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
 
             if (booking.isCompleted) ...[
               const SizedBox(height: 8),

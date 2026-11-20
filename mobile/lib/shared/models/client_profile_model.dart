@@ -8,8 +8,8 @@ class ClientProfileModel {
   final List<String> fitnessInterests; // Core Strength, Posture, Nutrition, Recovery
   final DateTime? dateOfBirth;
   final String? preferredCityId;
-  final String? preferredTrainingLocation; // Home Gym, Commercial Gym, Outdoor Park, Trainer Studio
-  final String? privateAddress; // Kept private, never shown publicly
+  final String? preferredTrainingLocation; // Commercial Gym, Partner Fitness Center
+  final String? privateAddress; // Kept private, preferred gym name / area
   final String? activePackageId;
   final String? emergencyContact;
   final List<String> favoriteTrainerIds;

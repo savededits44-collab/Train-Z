@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../services/review_service.dart';
 import '../../../../shared/models/booking_model.dart';
@@ -11,6 +12,7 @@ import '../../../../shared/models/review_model.dart';
 import '../../../../widgets/app_widgets.dart';
 import '../widgets/client_reschedule_modal.dart';
 import '../widgets/client_review_modal.dart';
+import 'client_booking_confirmation_screen.dart';
 import 'client_chat_screen.dart';
 import 'client_payment_receipt_screen.dart';
 import 'client_submit_ticket_screen.dart';
@@ -274,6 +276,9 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ── 0. RESERVED / PENDING PAYMENT BANNER ──
+                _buildAwaitingPaymentBanner(sf),
+
                 // ── 0. CANCELLATION OUTCOME BANNER (IF CANCELLED) ──
                 _buildCancellationOutcomeBanner(sf),
 
@@ -311,6 +316,53 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
           bottomSheet: _buildBottomActions(sf, hPad),
         );
       },
+    );
+  }
+
+  Widget _buildAwaitingPaymentBanner(double sf) {
+    if (!_currentBooking.isAwaitingPayment) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF3C7),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFDE68A)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.timer_outlined, size: 20, color: Color(0xFFD97706)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Coach Accepted • Pay within 15 Minutes',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: (13.0 * sf).clamp(12.0, 14.5),
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF92400E),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  'Your session slot at ${_currentBooking.displayGymName} is temporarily reserved. Complete payment to confirm your booking and lock in your coach.',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: (11.0 * sf).clamp(10.0, 12.0),
+                    color: const Color(0xFF92400E),
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -604,18 +656,10 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
   }
 
   Widget _buildLocationCard(double sf) {
-    final meetingLoc = _currentBooking.meetingLocation ??
-        _currentBooking.locationReference ??
-        'Training Location';
-
-    final isHomeAddress = meetingLoc.toLowerCase().contains('flat') ||
-        meetingLoc.toLowerCase().contains('apartment') ||
-        meetingLoc.toLowerCase().contains('house') ||
-        meetingLoc.toLowerCase().contains('home') ||
-        meetingLoc.toLowerCase().contains('residence') ||
-        meetingLoc.toLowerCase().contains('villa') ||
-        meetingLoc.toLowerCase().contains('tower') ||
-        meetingLoc.toLowerCase().contains('floor');
+    final mapsUrl = _currentBooking.gymMapsUrl ??
+        ((_currentBooking.gymLat != null && _currentBooking.gymLng != null)
+            ? 'https://maps.google.com/?q=${_currentBooking.gymLat},${_currentBooking.gymLng}'
+            : null);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -632,10 +676,10 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Iconsax.location, size: 16, color: kDark),
+                  const Icon(Icons.fitness_center_rounded, size: 16, color: kDark),
                   const SizedBox(width: 8),
                   Text(
-                    'TRAINING ADDRESS',
+                    'COMMERCIAL GYM LOCATION',
                     style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: (11.0 * sf).clamp(10.0, 12.0),
@@ -646,43 +690,130 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                   ),
                 ],
               ),
-              if (isHomeAddress)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFDCFCE7),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.shield_outlined, size: 11, color: Color(0xFF16A34A)),
-                      SizedBox(width: 3),
-                      Text(
-                        'Private Residence',
-                        style: TextStyle(
-                          fontFamily: 'Outfit',
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF16A34A),
-                        ),
-                      ),
-                    ],
-                  ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(4),
                 ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.shield_outlined, size: 11, color: Color(0xFF16A34A)),
+                    SizedBox(width: 3),
+                    Text(
+                      'Commercial Gym',
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF16A34A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 10),
           Text(
-            meetingLoc,
+            _currentBooking.displayGymName,
             style: TextStyle(
               fontFamily: 'Outfit',
-              fontSize: (12.5 * sf).clamp(11.5, 13.5),
-              fontWeight: FontWeight.w600,
+              fontSize: (13.5 * sf).clamp(12.5, 15.0),
+              fontWeight: FontWeight.w700,
               color: kDark,
-              height: 1.35,
+              height: 1.3,
             ),
           ),
-          const SizedBox(height: 8),
+          if (_currentBooking.displayGymAddress.isNotEmpty &&
+              _currentBooking.displayGymAddress != _currentBooking.displayGymName) ...[
+            const SizedBox(height: 4),
+            Text(
+              _currentBooking.displayGymAddress,
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: (11.5 * sf).clamp(10.5, 12.5),
+                color: const Color(0xFF4B5563),
+                height: 1.35,
+              ),
+            ),
+          ],
+          if (_currentBooking.trainerTravelDistanceKm != null) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.directions_car_filled_outlined, size: 13, color: Color(0xFF2563EB)),
+                  const SizedBox(width: 5),
+                  Text(
+                    '${_currentBooking.trainerTravelDistanceKm!.toStringAsFixed(1)} km coach travel to this gym',
+                    style: const TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1D4ED8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (mapsUrl != null) ...[
+            const SizedBox(height: 10),
+            InkWell(
+              onTap: () async {
+                HapticFeedback.lightImpact();
+                final uri = Uri.parse(mapsUrl);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  await Clipboard.setData(ClipboardData(text: mapsUrl));
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Maps link copied to clipboard!'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                }
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.map_outlined, size: 14, color: kDark),
+                    SizedBox(width: 6),
+                    Text(
+                      'Open Gym in Google Maps',
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: kDark,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(Icons.open_in_new, size: 12, color: Color(0xFF6B7280)),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -695,9 +826,7 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    isHomeAddress
-                        ? 'Athlete\'s Private Residence • Protected • Disclosed only to your booked trainer'
-                        : 'Verified service area • Private client address protected',
+                    'Partner commercial gym • Facility access fee handled by TRAIN Z. Client gym membership not required.',
                     style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: (10.0 * sf).clamp(9.0, 11.0),
@@ -1310,6 +1439,47 @@ class _ClientBookingDetailScreenState extends State<ClientBookingDetailScreen> {
   }
 
   Widget? _buildBottomActions(double sf, double hPad) {
+    if (_currentBooking.isAwaitingPayment) {
+      return Container(
+        padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ClientBookingConfirmationScreen(booking: _currentBooking),
+                ),
+              );
+            },
+            icon: const Icon(Iconsax.card_tick, size: 18, color: kDark),
+            label: Text(
+              'Complete Payment (₹${_currentBooking.packagePrice ?? 10799})',
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontWeight: FontWeight.w700,
+                fontSize: (14.0 * sf).clamp(13.0, 16.0),
+                color: kDark,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kLime,
+              foregroundColor: kDark,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+          ),
+        ),
+      );
+    }
+
     final canModify = _currentBooking.status == BookingStatus.confirmed ||
         _currentBooking.status == BookingStatus.pending;
 

@@ -462,9 +462,9 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
 
                 const SizedBox(height: 16),
 
-                // ── Meeting Gym Location ──
+                // ── Commercial Gym Training Location ──
                 Text(
-                  'Training Location / Gym',
+                  'Commercial Gym Location',
                   style: TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: (13.5 * sf).clamp(12.0, 15.0),
@@ -475,10 +475,16 @@ class _BookSessionSheetState extends State<BookSessionSheet> {
                 const SizedBox(height: 8),
                 AppTextField(
                   controller: _locationController,
-                  label: 'Gym or Studio address',
+                  label: 'Commercial Gym Name & Address',
                   icon: Iconsax.building,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Enter location' : null,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Enter commercial gym location';
+                    final lower = v.toLowerCase();
+                    if (lower.contains('flat') || lower.contains('apartment') || lower.contains('house') || lower.contains('home') || lower.contains('residence')) {
+                      return 'Training sessions take place exclusively at commercial gyms';
+                    }
+                    return null;
+                  },
                 ),
 
                 const SizedBox(height: 16),

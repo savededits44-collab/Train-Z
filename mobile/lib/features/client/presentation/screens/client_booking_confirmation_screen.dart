@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../../../services/booking_service.dart';
 import '../../../../services/credit_service.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../services/notification_service.dart';
@@ -9,6 +10,7 @@ import '../../../../shared/models/booking_model.dart';
 import '../../../../shared/models/session_credit_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../shared/models/training_plan_model.dart';
+import '../../../../shared/models/user_model.dart';
 import '../../../../widgets/app_widgets.dart';
 import 'client_home_screen.dart';
 import 'client_payment_screen.dart';
@@ -19,14 +21,14 @@ import 'client_payment_screen.dart';
 /// For confirmed bookings: displays booking details, verified credentials, and navigation to bookings.
 class ClientBookingConfirmationScreen extends StatefulWidget {
   final BookingModel booking;
-  final TrainerDisplayModel trainer;
-  final TrainingPlanModel plan;
+  final TrainerDisplayModel? trainer;
+  final TrainingPlanModel? plan;
 
   const ClientBookingConfirmationScreen({
     super.key,
     required this.booking,
-    required this.trainer,
-    required this.plan,
+    this.trainer,
+    this.plan,
   });
 
   @override
@@ -36,19 +38,78 @@ class ClientBookingConfirmationScreen extends StatefulWidget {
 class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmationScreen> {
   final _firestoreService = FirestoreService();
   late BookingModel _currentBooking;
+  StreamSubscription<List<BookingModel>>? _streamSubscription;
   Timer? _countdownTimer;
   int _secondsLeft = 900; // 15 mins default
   bool _isCancelling = false;
   bool _isConfirmingWithCredit = false;
   String? _statusMessage;
 
+  TrainerDisplayModel get effectiveTrainer {
+    if (widget.trainer != null) return widget.trainer!;
+    return TrainerDisplayModel(
+      profile: TrainerProfileModel(
+        uid: _currentBooking.trainerId,
+        fullName: _currentBooking.displayTrainerName,
+        primaryGymName: _currentBooking.displayGymName,
+        photoUrl: _currentBooking.trainerPhotoUrl,
+      ),
+      uid: _currentBooking.trainerId,
+      displayName: _currentBooking.displayTrainerName,
+      photoUrl: _currentBooking.trainerPhotoUrl,
+      gender: Gender.male,
+      specialties: [_currentBooking.displayWorkoutType],
+      experienceYears: 5.0,
+      ratingAvg: 5.0,
+      totalReviews: 12,
+      hourlyRate: 1500,
+      hasAvailableSlots: true,
+      trainingGoals: ['Strength', 'Fitness'],
+      certifications: ['Certified Commercial Gym Trainer'],
+    );
+  }
+
+  TrainingPlanModel get effectivePlan {
+    if (widget.plan != null) return widget.plan!;
+    return TrainingPlanModel(
+      id: _currentBooking.resolvedPackageId,
+      title: _currentBooking.resolvedPackageName,
+      description: 'Personal commercial gym training package',
+      sessionsCount: _currentBooking.resolvedTotalSessions > 0 ? _currentBooking.resolvedTotalSessions : 12,
+      validityDays: _currentBooking.resolvedTotalDays > 0 ? _currentBooking.resolvedTotalDays : 60,
+      price: _currentBooking.packagePrice ?? 10799,
+      isApproved: true,
+      approvalStatus: PackageApprovalStatus.approved,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _currentBooking = widget.booking;
-    _secondsLeft = _currentBooking.secondsRemaining > 0 ? _currentBooking.secondsRemaining : 900;
+    if (_currentBooking.status == BookingStatus.reserved) {
+      _secondsLeft = _currentBooking.secondsRemaining > 0 ? _currentBooking.secondsRemaining : 900;
+      _startCountdown();
+    }
 
-    _startCountdown();
+    // Live reactive listener for volunteer trainer acceptance / rejection
+    _streamSubscription = BookingService.instance.streamBookings.listen((bookings) {
+      if (!mounted) return;
+      final match = bookings.firstWhere(
+        (b) => b.id == _currentBooking.id,
+        orElse: () => _currentBooking,
+      );
+      if (match.status != _currentBooking.status || match.paymentStatus != _currentBooking.paymentStatus) {
+        final wasPending = _currentBooking.status == BookingStatus.pending;
+        setState(() {
+          _currentBooking = match;
+          if (wasPending && match.status == BookingStatus.reserved) {
+            _secondsLeft = match.secondsRemaining > 0 ? match.secondsRemaining : 900;
+            _startCountdown();
+          }
+        });
+      }
+    });
   }
 
   void _startCountdown() {
@@ -72,6 +133,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
 
   @override
   void dispose() {
+    _streamSubscription?.cancel();
     _countdownTimer?.cancel();
     super.dispose();
   }
@@ -89,8 +151,8 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
       context,
       MaterialPageRoute(
         builder: (_) => ClientPaymentScreen(
-          plan: widget.plan,
-          trainer: widget.trainer,
+          plan: effectivePlan,
+          trainer: effectiveTrainer,
           booking: _currentBooking,
           clientId: _currentBooking.clientId,
           clientName: _currentBooking.clientName ?? 'TRAIN Z Athlete',
@@ -200,7 +262,10 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
     final hPad = (w * 0.05).clamp(16.0, 24.0);
     final isConfirmed = _currentBooking.status == BookingStatus.confirmed &&
         _currentBooking.paymentStatus == PaymentStatus.completed;
-    final isExpired = _currentBooking.status == BookingStatus.expired || _secondsLeft == 0;
+    final isPending = _currentBooking.status == BookingStatus.pending;
+    final isReserved = _currentBooking.status == BookingStatus.reserved;
+    final isRejected = _currentBooking.status == BookingStatus.rejected;
+    final isExpired = _currentBooking.status == BookingStatus.expired || (isReserved && _secondsLeft == 0);
 
     return PopScope(
       canPop: isConfirmed,
@@ -216,7 +281,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           leading: IconButton(
             icon: const Icon(Icons.close, size: 20, color: kDark),
             onPressed: () {
-              if (isConfirmed) {
+              if (isConfirmed || isPending) {
                 Navigator.popUntil(context, (route) => route.isFirst);
               } else {
                 _handleCancelReservation();
@@ -224,11 +289,19 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
             },
           ),
           title: Text(
-            isConfirmed ? 'Booking Confirmed' : 'Checkout & Hold',
+            isConfirmed
+                ? 'Booking Confirmed'
+                : isPending
+                    ? 'Booking Requested'
+                    : isReserved
+                        ? 'Coach Accepted • Checkout'
+                        : isRejected
+                            ? 'Request Declined'
+                            : 'Checkout & Hold',
             style: TextStyle(
               fontFamily: 'Outfit',
               fontSize: (18.0 * sf).clamp(16.0, 21.0),
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               color: kDark,
             ),
           ),
@@ -242,15 +315,19 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
               // ── 1. STATUS HEADER CARD ──
               if (isConfirmed)
                 _buildConfirmedHeader(sf)
+              else if (isRejected)
+                _buildRejectedHeader(sf)
               else if (isExpired)
                 _buildExpiredHeader(sf)
+              else if (isReserved)
+                _buildPendingPaymentHeader(sf)
               else
-                _buildPendingPaymentHeader(sf),
+                _buildPendingRequestHeader(sf),
 
               const SizedBox(height: 20),
 
               // ── 2. BOOKING DETAILS CARD ──
-              _buildBookingDetailsCard(sf, isConfirmed),
+              _buildBookingDetailsCard(sf, isConfirmed, isPending, isReserved, isRejected),
 
               const SizedBox(height: 20),
 
@@ -341,7 +418,54 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                       ),
                     ],
                   )
-                : isExpired
+                : isPending
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const ClientHomeScreen(initialTab: 2),
+                                  ),
+                                  (r) => false,
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFFE5E5E5)),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: const Text('My Bookings', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark)),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            flex: 2,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const ClientHomeScreen(initialTab: 0),
+                                  ),
+                                  (r) => false,
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: kDark,
+                                foregroundColor: kLime,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                elevation: 0,
+                              ),
+                              child: const Text('Home Dashboard', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kLime)),
+                            ),
+                          ),
+                        ],
+                      )
+                : (isExpired || isRejected)
                     ? SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -352,7 +476,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: const Text('Select Another Slot', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
+                          child: const Text('Choose Another Slot / Coach', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
                         ),
                       )
                     : StreamBuilder<SessionCreditModel?>(
@@ -411,7 +535,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                     ),
                                     child: Text(
-                                      'Pay ₹${widget.plan.price} Online Instead',
+                                      'Pay ₹${effectivePlan.price} Online Instead',
                                       style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w500, color: kDark),
                                     ),
                                   ),
@@ -434,7 +558,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                                         const Icon(Iconsax.card_tick, size: 18, color: kLime),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'Pay ₹${widget.plan.price} & Confirm',
+                                          'Pay ₹${effectivePlan.price} & Confirm',
                                           style: TextStyle(
                                             fontFamily: 'Outfit',
                                             fontSize: (14.5 * sf).clamp(13.0, 16.5),
@@ -463,6 +587,100 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                       ),
           ),
         ),
+      ),
+    );
+  }
+
+  // ── Pending Request Banner ──
+  Widget _buildPendingRequestHeader(double sf) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: const BoxDecoration(
+              color: kDark,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Iconsax.clock, size: 24, color: kLime),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Booking Request Sent',
+            style: TextStyle(
+              fontFamily: 'Outfit',
+              fontSize: (18.0 * sf).clamp(16.0, 21.0),
+              fontWeight: FontWeight.w700,
+              color: kDark,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Waiting for Coach ${effectiveTrainer.displayName} to accept your session request at ${_currentBooking.displayGymName}.\n\nOnce accepted, your 15-minute checkout hold begins. No payment has been charged yet.',
+            style: TextStyle(
+              fontFamily: 'Outfit',
+              fontSize: (11.5 * sf).clamp(10.5, 13.0),
+              color: const Color(0xFF4B5563),
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFD1D5DB)),
+            ),
+            child: Text(
+              'REQUEST ID: ${_currentBooking.id.toUpperCase()}',
+              style: const TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF374151),
+                letterSpacing: 0.6,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Rejected / Declined Request Header ──
+  Widget _buildRejectedHeader(double sf) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFFCA5A5)),
+      ),
+      child: Column(
+        children: [
+          const Icon(Iconsax.close_circle, size: 32, color: Color(0xFFDC2626)),
+          const SizedBox(height: 8),
+          const Text(
+            'Session Request Declined',
+            style: TextStyle(fontFamily: 'Outfit', fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF991B1B)),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _currentBooking.cancellationReason ?? 'Coach was unable to accommodate this session. No charge was made.',
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFF7F1D1D)),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
@@ -576,7 +794,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           ),
           const SizedBox(height: 12),
           Text(
-            'Booking Not Yet Confirmed',
+            'Coach Accepted! Complete Payment',
             style: TextStyle(
               fontFamily: 'Outfit',
               fontSize: (17.0 * sf).clamp(15.0, 20.0),
@@ -630,7 +848,39 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
   }
 
   // ── 2. Booking Details ──
-  Widget _buildBookingDetailsCard(double sf, bool isConfirmed) {
+  Widget _buildBookingDetailsCard(
+    double sf,
+    bool isConfirmed,
+    bool isPending,
+    bool isReserved,
+    bool isRejected,
+  ) {
+    String statusBadgeLabel;
+    Color statusBadgeBg;
+    Color statusBadgeFg;
+
+    if (isConfirmed) {
+      statusBadgeLabel = 'CONFIRMED';
+      statusBadgeBg = const Color(0xFFDCFCE7);
+      statusBadgeFg = const Color(0xFF15803D);
+    } else if (isReserved) {
+      statusBadgeLabel = 'COACH ACCEPTED (15m HOLD)';
+      statusBadgeBg = const Color(0xFFFEF3C7);
+      statusBadgeFg = const Color(0xFFB45309);
+    } else if (isPending) {
+      statusBadgeLabel = 'PENDING COACH';
+      statusBadgeBg = const Color(0xFFF3F4F6);
+      statusBadgeFg = const Color(0xFF4B5563);
+    } else if (isRejected) {
+      statusBadgeLabel = 'DECLINED';
+      statusBadgeBg = const Color(0xFFFEE2E2);
+      statusBadgeFg = const Color(0xFFDC2626);
+    } else {
+      statusBadgeLabel = 'EXPIRED';
+      statusBadgeBg = const Color(0xFFFEE2E2);
+      statusBadgeFg = const Color(0xFFDC2626);
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -650,8 +900,8 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                   width: 44,
                   height: 44,
                   color: const Color(0xFFF3F4F6),
-                  child: (widget.trainer.photoUrl != null && widget.trainer.photoUrl!.isNotEmpty)
-                      ? Image.network(widget.trainer.photoUrl!, fit: BoxFit.cover, errorBuilder: (_, _, _) => const Icon(Iconsax.user))
+                  child: (effectiveTrainer.photoUrl != null && effectiveTrainer.photoUrl!.isNotEmpty)
+                      ? Image.network(effectiveTrainer.photoUrl!, fit: BoxFit.cover, errorBuilder: (_, _, _) => const Icon(Iconsax.user))
                       : const Icon(Iconsax.user),
                 ),
               ),
@@ -661,7 +911,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.trainer.displayName,
+                      effectiveTrainer.displayName,
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: (14.5 * sf).clamp(13.0, 16.5),
@@ -670,8 +920,8 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                       ),
                     ),
                     Text(
-                      'Personal Trainer',
-                      style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
+                      effectiveTrainer.category == TrainerCategory.advancedTrainer ? 'Advanced Trainer' : 'Personal Trainer',
+                      style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
                     ),
                   ],
                 ),
@@ -679,16 +929,16 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isConfirmed ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7),
+                  color: statusBadgeBg,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  isConfirmed ? 'CONFIRMED' : 'RESERVED',
+                  statusBadgeLabel,
                   style: TextStyle(
                     fontFamily: 'Outfit',
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: isConfirmed ? const Color(0xFF15803D) : const Color(0xFFB45309),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w700,
+                    color: statusBadgeFg,
                   ),
                 ),
               ),
@@ -699,7 +949,17 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           const SizedBox(height: 10),
           _buildInfoRow(Iconsax.clock, 'Session Time', '${_currentBooking.startTime} - ${_currentBooking.endTime} (60 min)'),
           const SizedBox(height: 10),
-          _buildInfoRow(Iconsax.location, 'Meeting Location', _currentBooking.meetingLocation ?? 'Client Selected Venue'),
+          _buildInfoRow(Iconsax.building, 'Commercial Gym', _currentBooking.displayGymName),
+          const SizedBox(height: 10),
+          _buildInfoRow(Iconsax.location, 'Complete Gym Address', _currentBooking.displayGymAddress),
+          if (_currentBooking.trainerTravelDistanceKm != null) ...[
+            const SizedBox(height: 10),
+            _buildInfoRow(Iconsax.routing_2, 'Coach Travel Distance', '${_currentBooking.trainerTravelDistanceKm!.toStringAsFixed(1)} km (Travel expenses included)'),
+          ],
+          if (_currentBooking.googleMapsUrl.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            _buildInfoRow(Iconsax.map, 'Google Maps Pin', _currentBooking.googleMapsUrl),
+          ],
         ],
       ),
     );
@@ -725,21 +985,21 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
                 style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600, color: kDark),
               ),
               Text(
-                widget.plan.title,
-                style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600, color: kDark),
+                effectivePlan.title,
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600, color: kDark),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          _buildSummaryLine('Sessions Included', '${widget.plan.sessionsCount} Sessions (60 mins each)'),
-          _buildSummaryLine('Package Validity', '${widget.plan.validityDays} Days'),
-          _buildSummaryLine('Rate Per Session', '₹${widget.plan.pricePerSession.round()}/session'),
+          _buildSummaryLine('Sessions Included', '${effectivePlan.sessionsCount} Sessions (60 mins each)'),
+          _buildSummaryLine('Package Validity', '${effectivePlan.validityDays} Days'),
+          _buildSummaryLine('Rate Per Session', '₹${effectivePlan.pricePerSession.round()}/session'),
           const Divider(height: 18, color: Color(0xFFF0F0F0)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Total Amount', style: TextStyle(fontFamily: 'Outfit', fontSize: 14, fontWeight: FontWeight.w600, color: kDark)),
-              Text('₹${widget.plan.price}', style: const TextStyle(fontFamily: 'Outfit', fontSize: 17, fontWeight: FontWeight.w600, color: kDark)),
+              Text('₹${effectivePlan.price}', style: const TextStyle(fontFamily: 'Outfit', fontSize: 17, fontWeight: FontWeight.w600, color: kDark)),
             ],
           ),
         ],
@@ -768,7 +1028,7 @@ class _ClientBookingConfirmationScreenState extends State<ClientBookingConfirmat
           ),
           SizedBox(height: 6),
           Text(
-            '• Exact residential address is kept private and accessible only to your assigned trainer.\n• Cancel at least 12 hours prior to start time to retain session credit.\n• Platform credit allocation is processed upon verified payment.',
+            '• Training session takes place at the designated commercial gym facility.\n• Cancel at least 12 hours prior to start time to retain session credit.\n• Platform credit allocation is processed upon verified payment.',
             style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: Color(0xFF555555), height: 1.45),
           ),
         ],

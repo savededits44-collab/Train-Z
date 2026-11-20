@@ -238,9 +238,11 @@ service cloud.firestore {
           // 1. Maintain identical status (e.g. updating notes or location)
           // 2. Cancellation by client or trainer
           // 3. Rescheduling
-          // 4. Completion of a CONFIRMED session by the assigned trainer
+          // 4. Trainer accepting a PENDING request into a 15-minute RESERVED checkout hold
+          // 5. Completion of a CONFIRMED session by the assigned trainer
           (resource.data.status == request.resource.data.status ||
            request.resource.data.status in ['CANCELLED', 'CANCELLED_TRAINER', 'CANCELLED_CLIENT_EARLY', 'REJECTED', 'RESCHEDULED'] ||
+           (resource.data.status == 'PENDING' && request.resource.data.status == 'RESERVED' && resource.data.trainerId == request.auth.uid) ||
            (resource.data.status == 'CONFIRMED' && request.resource.data.status == 'COMPLETED' && resource.data.trainerId == request.auth.uid))
         )
       );
@@ -618,6 +620,34 @@ service cloud.firestore {
       allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 23. gyms Collection (Commercial Gym Partnership Directory)
+    // ─────────────────────────────────────────────────────────────────────────
+    match /gyms/{gymId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 24. gym_settlements Collection (Commercial Gym Compensation Ledger)
+    // ─────────────────────────────────────────────────────────────────────────
+    match /gym_settlements/{settlementId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 25. gym_sessions Collection (Gym Hosted Session Records)
+    // ─────────────────────────────────────────────────────────────────────────
+    match /gym_sessions/{sessionId} {
+      allow read: if isAdmin() || (
+        isAuthenticated() && (
+          resource.data.trainerId == request.auth.uid ||
+          resource.data.clientId == request.auth.uid
+        )
+      );
+      allow write: if isAdmin();
     }
   }
 }

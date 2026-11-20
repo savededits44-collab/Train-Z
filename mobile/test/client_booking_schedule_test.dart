@@ -366,11 +366,10 @@ void main() {
       expect(find.text('Select Time Slot (60 Mins)'), findsOneWidget);
       expect(find.text('Live Availability'), findsOneWidget);
 
-      // 4. Verify Training Location Section & Location Mode selector
-      expect(find.text('Training Location'), findsWidgets);
-      expect(find.text('Gym Training'), findsWidgets);
-      expect(find.text('Home Training'), findsWidgets);
-      expect(find.textContaining('Strict Privacy'), findsOneWidget);
+      // 4. Verify Commercial Gym Location Section
+      expect(find.text('Commercial Gym Location'), findsOneWidget);
+      expect(find.text('Gym Exclusive'), findsOneWidget);
+      expect(find.textContaining('commercial gym facilities'), findsOneWidget);
 
       // 5. Verify Booking Summary Card
       expect(find.text('BOOKING SUMMARY'), findsOneWidget);
@@ -379,10 +378,10 @@ void main() {
 
       // 6. Verify Bottom Action Bar
       expect(find.text('TOTAL PAYABLE'), findsOneWidget);
-      expect(find.text('Reserve & Proceed'), findsOneWidget);
+      expect(find.text('Submit Booking Request'), findsOneWidget);
     });
 
-    testWidgets('Tapping Location Mode toggles between Gym and Home Training', (tester) async {
+    testWidgets('Enforces Commercial Gym training location and displays verified facility banner', (tester) async {
       tester.view.physicalSize = const Size(800, 1800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -393,7 +392,7 @@ void main() {
       final testTrainer = _buildTestTrainer(
         uid: 'tr_widget_02',
         displayName: 'Rohan Joshi',
-        trainsAtHome: true,
+        trainsAtHome: false,
         trainsAtGym: true,
         gymName: 'Powerhouse Gym',
         serviceArea: 'Central Park',
@@ -421,13 +420,14 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Tap Home Training chip
-      await tester.tap(find.widgetWithText(InkWell, 'Home Training').first);
-      await tester.pumpAndSettle();
+      // Verify Commercial Gym section & badges
+      expect(find.text('Commercial Gym Location'), findsOneWidget);
+      expect(find.text('Gym Exclusive'), findsOneWidget);
+      expect(find.textContaining('Powerhouse Gym'), findsWidgets);
 
-      // Verify privacy callout is updated for residential home address
+      // Verify commercial gym policy callout
       expect(
-        find.textContaining('residential address is encrypted and shared only with your confirmed trainer'),
+        find.textContaining('All TRAIN Z personal training sessions take place exclusively at verified commercial gym facilities'),
         findsOneWidget,
       );
     });

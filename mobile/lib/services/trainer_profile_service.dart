@@ -33,13 +33,29 @@ class TrainerProfileService extends ChangeNotifier {
   String? _professionalExperience;
   String? _trainingApproach;
 
-  // Training Services Fields
+  // Training Services Fields (Commercial Gym Standard)
   bool _trainsAtHome = false;
-  bool _trainsAtGym = false;
+  bool _trainsAtGym = true;
   List<String> _otherTrainingLocations = [];
   List<String> _serviceAreas = []; // Dynamic, NO hardcoded cities
   List<String> _workingDays = [];  // e.g. ["MON", "TUE", "WED"]
   String? _workingHours;           // e.g. "06:00 AM - 09:00 PM"
+
+  // Primary Working Location (Default commercial gym)
+  String? _primaryGymName;
+  String? _primaryGymAddress;
+  double? _primaryGymLat;
+  double? _primaryGymLng;
+
+  // Active Location (Updateable area when coaching elsewhere - separate from primary)
+  String? _activeLocationName;
+  String? _activeLocationAddress;
+  double? _activeLat;
+  double? _activeLng;
+  DateTime? _activeLocationUpdatedAt;
+
+  // Trainer-defined Travel Radius (in km)
+  double _travelRadiusKm = 15.0;
 
   // Legacy/Compatibility fields
   String? _gymName;
@@ -116,6 +132,142 @@ class TrainerProfileService extends ChangeNotifier {
   bool get isSuspended => _verificationStatus == TrainerVerificationStatus.suspended;
   bool get isAdvancedTrainer => _category == TrainerCategory.advancedTrainer;
 
+  String? get primaryGymName => _primaryGymName;
+  String? get primaryGymAddress => _primaryGymAddress;
+  double? get primaryGymLat => _primaryGymLat;
+  double? get primaryGymLng => _primaryGymLng;
+
+  String? get activeLocationName => _activeLocationName;
+  String? get activeLocationAddress => _activeLocationAddress;
+  double? get activeLat => _activeLat;
+  double? get activeLng => _activeLng;
+  DateTime? get activeLocationUpdatedAt => _activeLocationUpdatedAt;
+
+  double get travelRadiusKm => _travelRadiusKm;
+
+  double? get effectiveLat => _activeLat ?? _primaryGymLat;
+  double? get effectiveLng => _activeLng ?? _primaryGymLng;
+  String get effectiveLocationName =>
+      _activeLocationName ?? _primaryGymName ?? (_serviceAreas.isNotEmpty ? _serviceAreas.first : 'Commercial Partner Gym');
+  String get effectiveLocationAddress =>
+      _activeLocationAddress ?? _primaryGymAddress ?? '';
+
+  /// Updates Primary Working Location
+  Future<void> updatePrimaryLocation({
+    required String gymName,
+    required String gymAddress,
+    double? lat,
+    double? lng,
+  }) async {
+    _primaryGymName = gymName.trim();
+    _primaryGymAddress = gymAddress.trim();
+    _primaryGymLat = lat;
+    _primaryGymLng = lng;
+    notifyListeners();
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null && uid.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance
+            .collection(FirestoreCollections.trainerProfiles)
+            .doc(uid)
+            .set({
+          'primaryGymName': _primaryGymName,
+          'primaryGymAddress': _primaryGymAddress,
+          'primaryGymLat': _primaryGymLat,
+          'primaryGymLng': _primaryGymLng,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('Notice: Error saving primary location: $e');
+      }
+    }
+  }
+
+  /// Updates Active Location (separate from primary)
+  Future<void> updateActiveLocation({
+    required String locationName,
+    required String locationAddress,
+    double? lat,
+    double? lng,
+  }) async {
+    _activeLocationName = locationName.trim();
+    _activeLocationAddress = locationAddress.trim();
+    _activeLat = lat;
+    _activeLng = lng;
+    _activeLocationUpdatedAt = DateTime.now();
+    notifyListeners();
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null && uid.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance
+            .collection(FirestoreCollections.trainerProfiles)
+            .doc(uid)
+            .set({
+          'activeLocationName': _activeLocationName,
+          'activeLocationAddress': _activeLocationAddress,
+          'activeLat': _activeLat,
+          'activeLng': _activeLng,
+          'activeLocationUpdatedAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('Notice: Error saving active location: $e');
+      }
+    }
+  }
+
+  /// Resets Active Location to match Primary Location
+  Future<void> resetActiveLocationToPrimary() async {
+    _activeLocationName = _primaryGymName;
+    _activeLocationAddress = _primaryGymAddress;
+    _activeLat = _primaryGymLat;
+    _activeLng = _primaryGymLng;
+    _activeLocationUpdatedAt = DateTime.now();
+    notifyListeners();
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null && uid.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance
+            .collection(FirestoreCollections.trainerProfiles)
+            .doc(uid)
+            .set({
+          'activeLocationName': _activeLocationName,
+          'activeLocationAddress': _activeLocationAddress,
+          'activeLat': _activeLat,
+          'activeLng': _activeLng,
+          'activeLocationUpdatedAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('Notice: Error resetting active location: $e');
+      }
+    }
+  }
+
+  /// Updates Trainer-defined Travel Radius (in km)
+  Future<void> updateTravelRadius(double radiusKm) async {
+    _travelRadiusKm = radiusKm.clamp(1.0, 100.0);
+    notifyListeners();
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null && uid.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance
+            .collection(FirestoreCollections.trainerProfiles)
+            .doc(uid)
+            .set({
+          'travelRadiusKm': _travelRadiusKm,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('Notice: Error updating travel radius: $e');
+      }
+    }
+  }
+
   /// Sets test profile in memory for unit and widget testing
   void setTestProfile({
     String? fullName,
@@ -172,6 +324,16 @@ class TrainerProfileService extends ChangeNotifier {
     _serviceAreas.clear();
     _workingDays.clear();
     _workingHours = null;
+    _primaryGymName = null;
+    _primaryGymAddress = null;
+    _primaryGymLat = null;
+    _primaryGymLng = null;
+    _activeLocationName = null;
+    _activeLocationAddress = null;
+    _activeLat = null;
+    _activeLng = null;
+    _activeLocationUpdatedAt = null;
+    _travelRadiusKm = 15.0;
     _gymName = null;
     _sinceWhen = null;
     _certificatePath = null;
@@ -231,6 +393,16 @@ class TrainerProfileService extends ChangeNotifier {
     _serviceAreas = List.from(model.serviceAreas);
     _workingDays = List.from(model.workingDays);
     _workingHours = model.workingHours;
+    _primaryGymName = model.primaryGymName ?? _primaryGymName;
+    _primaryGymAddress = model.primaryGymAddress ?? _primaryGymAddress;
+    _primaryGymLat = model.primaryGymLat ?? _primaryGymLat;
+    _primaryGymLng = model.primaryGymLng ?? _primaryGymLng;
+    _activeLocationName = model.activeLocationName ?? _activeLocationName;
+    _activeLocationAddress = model.activeLocationAddress ?? _activeLocationAddress;
+    _activeLat = model.activeLat ?? _activeLat;
+    _activeLng = model.activeLng ?? _activeLng;
+    _activeLocationUpdatedAt = model.activeLocationUpdatedAt ?? _activeLocationUpdatedAt;
+    _travelRadiusKm = model.travelRadiusKm;
     _isProfileCompleted = model.isProfileCompleted;
     _profileCompletionScore = model.profileCompletionScore;
     _submittedAt = model.submittedAt;
@@ -316,6 +488,18 @@ class TrainerProfileService extends ChangeNotifier {
         }
 
         _workingHours = tData['workingHours'] as String? ?? _workingHours;
+        _primaryGymName = tData['primaryGymName'] as String? ?? _primaryGymName;
+        _primaryGymAddress = tData['primaryGymAddress'] as String? ?? _primaryGymAddress;
+        _primaryGymLat = (tData['primaryGymLat'] as num?)?.toDouble() ?? _primaryGymLat;
+        _primaryGymLng = (tData['primaryGymLng'] as num?)?.toDouble() ?? _primaryGymLng;
+        _activeLocationName = tData['activeLocationName'] as String? ?? _activeLocationName;
+        _activeLocationAddress = tData['activeLocationAddress'] as String? ?? _activeLocationAddress;
+        _activeLat = (tData['activeLat'] as num?)?.toDouble() ?? _activeLat;
+        _activeLng = (tData['activeLng'] as num?)?.toDouble() ?? _activeLng;
+        if (tData['activeLocationUpdatedAt'] is Timestamp) {
+          _activeLocationUpdatedAt = (tData['activeLocationUpdatedAt'] as Timestamp).toDate();
+        }
+        _travelRadiusKm = (tData['travelRadiusKm'] as num?)?.toDouble() ?? _travelRadiusKm;
         _gymName = tData['gymName'] as String? ?? _gymName;
         _sinceWhen = tData['sinceWhen'] as String? ?? _sinceWhen;
         _isProfileCompleted = tData['isProfileCompleted'] as bool? ?? _isProfileCompleted;
@@ -378,6 +562,11 @@ class TrainerProfileService extends ChangeNotifier {
     String? photoUrl,
     String? photoPath,
     String? gymName,
+    String? primaryGymName,
+    String? primaryGymAddress,
+    double? primaryGymLat,
+    double? primaryGymLng,
+    double? travelRadiusKm,
     String? sinceWhen,
     String? certificatePath,
     bool submitForReview = false,
@@ -395,12 +584,24 @@ class TrainerProfileService extends ChangeNotifier {
     _languages = List.from(languages);
     _professionalExperience = professionalExperience?.trim();
     _trainingApproach = trainingApproach?.trim();
-    _trainsAtHome = trainsAtHome;
-    _trainsAtGym = trainsAtGym;
+    _trainsAtHome = false;
+    _trainsAtGym = true;
     _otherTrainingLocations = List.from(otherTrainingLocations);
     _serviceAreas = List.from(serviceAreas);
     _workingDays = List.from(workingDays);
     _workingHours = workingHours.trim();
+
+    if (primaryGymName != null && primaryGymName.trim().isNotEmpty) {
+      _primaryGymName = primaryGymName.trim();
+    }
+    if (primaryGymAddress != null && primaryGymAddress.trim().isNotEmpty) {
+      _primaryGymAddress = primaryGymAddress.trim();
+    }
+    if (primaryGymLat != null) _primaryGymLat = primaryGymLat;
+    if (primaryGymLng != null) _primaryGymLng = primaryGymLng;
+    if (travelRadiusKm != null && travelRadiusKm > 0) {
+      _travelRadiusKm = travelRadiusKm;
+    }
 
     if (photoUrl != null && photoUrl.trim().isNotEmpty) {
       _photoUrl = photoUrl;
@@ -469,12 +670,22 @@ class TrainerProfileService extends ChangeNotifier {
         'languages': _languages,
         'professionalExperience': _professionalExperience,
         'trainingApproach': _trainingApproach,
-        'trainsAtHome': _trainsAtHome,
-        'trainsAtGym': _trainsAtGym,
+        'trainsAtHome': false,
+        'trainsAtGym': true,
         'otherTrainingLocations': _otherTrainingLocations,
         'serviceAreas': _serviceAreas,
         'workingDays': _workingDays,
         'workingHours': _workingHours,
+        'primaryGymName': _primaryGymName,
+        'primaryGymAddress': _primaryGymAddress,
+        'primaryGymLat': _primaryGymLat,
+        'primaryGymLng': _primaryGymLng,
+        'activeLocationName': _activeLocationName,
+        'activeLocationAddress': _activeLocationAddress,
+        'activeLat': _activeLat,
+        'activeLng': _activeLng,
+        'activeLocationUpdatedAt': _activeLocationUpdatedAt != null ? Timestamp.fromDate(_activeLocationUpdatedAt!) : null,
+        'travelRadiusKm': _travelRadiusKm,
         'gymName': _gymName,
         'sinceWhen': _sinceWhen,
         'profileCompletionScore': _profileCompletionScore,
@@ -515,12 +726,22 @@ class TrainerProfileService extends ChangeNotifier {
       trainingMethods: _trainingMethods,
       trainingApproach: _trainingApproach,
       professionalExperience: _professionalExperience,
-      trainsAtHome: _trainsAtHome,
-      trainsAtGym: _trainsAtGym,
+      trainsAtHome: false,
+      trainsAtGym: true,
       otherTrainingLocations: _otherTrainingLocations,
       serviceAreas: _serviceAreas,
       workingDays: _workingDays,
       workingHours: _workingHours,
+      primaryGymName: _primaryGymName,
+      primaryGymAddress: _primaryGymAddress,
+      primaryGymLat: _primaryGymLat,
+      primaryGymLng: _primaryGymLng,
+      activeLocationName: _activeLocationName,
+      activeLocationAddress: _activeLocationAddress,
+      activeLat: _activeLat,
+      activeLng: _activeLng,
+      activeLocationUpdatedAt: _activeLocationUpdatedAt,
+      travelRadiusKm: _travelRadiusKm,
       profileCompletionScore: _profileCompletionScore,
       isProfileCompleted: _isProfileCompleted,
       submittedAt: _submittedAt,

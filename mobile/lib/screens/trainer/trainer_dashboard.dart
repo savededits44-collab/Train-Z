@@ -88,7 +88,7 @@ class _TrainerDashboardState extends State<TrainerDashboard> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Your coach account has been suspended by platform administration. Please contact support@trainz.fit.',
+                      'Your coach account has been suspended by platform administration. Please contact trainzsupport@gmail.com.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontFamily: 'Outfit', fontSize: 14, color: Colors.grey),
                     ),
@@ -219,6 +219,9 @@ class _TrainerHomeTab extends StatelessWidget {
           final totalEarnings = effectiveUid.isNotEmpty
               ? bService.earningsForTrainer(effectiveUid)
               : bService.todaysIncome;
+          final pendingBookings = effectiveUid.isNotEmpty
+              ? bService.pendingBookingsForTrainer(effectiveUid)
+              : bService.pendingBookings;
 
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: hPad),
@@ -450,9 +453,108 @@ class _TrainerHomeTab extends StatelessWidget {
                             ),
                         ],
                       ),
+                      const SizedBox(height: 10),
+                      // Active Location & Travel Radius Bar
+                      InkWell(
+                        onTap: () => _showActiveLocationSheet(context, profileService, sf),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Iconsax.routing, size: 16, color: Color(0xFF15803D)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Active Location: ${profileService.effectiveLocationName} (${profileService.travelRadiusKm.toInt()} km radius)',
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontSize: (11.5 * sf).clamp(10.5, 13.0),
+                                    fontWeight: FontWeight.w600,
+                                    color: kDark,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF3F4F6),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'Update',
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontSize: (10.0 * sf).clamp(9.0, 11.5),
+                                    fontWeight: FontWeight.w600,
+                                    color: kDark,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
+
+                // ── Pending Session Requests Banner ──
+                if (pendingBookings.isNotEmpty) ...[
+                  SizedBox(height: (h * 0.02).clamp(12, 18)),
+                  TrainerFadeSlide(
+                    delayMs: 80,
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFFDE68A)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Iconsax.clock, size: 16, color: Color(0xFFB45309)),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Pending Session Requests (${pendingBookings.length})',
+                                    style: TextStyle(
+                                      fontFamily: 'Outfit',
+                                      fontSize: (13.0 * sf).clamp(12.0, 15.0),
+                                      fontWeight: FontWeight.w700,
+                                      color: const Color(0xFF92400E),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              InkWell(
+                                onTap: onGoToSchedule,
+                                child: const Text(
+                                  'View All',
+                                  style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFFB45309)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          ...pendingBookings.take(2).map((b) => _buildPendingRequestTile(context, b, bService, sf)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
 
                 SizedBox(height: (h * 0.025).clamp(16, 24)),
 
@@ -1773,7 +1875,7 @@ class _UpcomingSessionCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          b.meetingLocation ?? 'Personal Training Location',
+                          b.meetingLocation ?? 'Commercial Partner Gym',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -2126,8 +2228,8 @@ void _showBookingDetailSheet(BuildContext context, BookingModel booking, double 
               icon: Iconsax.location,
               label: 'Training Location',
               value: (booking.status == BookingStatus.confirmed)
-                  ? (booking.meetingLocation ?? 'Personal Training Location')
-                  : 'Location address hidden until booking is confirmed',
+                  ? (booking.meetingLocation ?? 'Commercial Partner Gym')
+                  : 'Gym address confirmed upon booking acceptance',
             ),
             _DetailInfoRow(
               icon: Iconsax.box,
@@ -2399,6 +2501,282 @@ void _showEarningsDetailSheet(BuildContext context, double sf, int totalEarnings
           ],
         ),
       ),
+    ),
+  );
+}
+
+void _showActiveLocationSheet(BuildContext context, TrainerProfileService profileService, double sf) {
+  final nameCtrl = TextEditingController(text: profileService.activeLocationName ?? '');
+  final addrCtrl = TextEditingController(text: profileService.activeLocationAddress ?? '');
+  double radius = profileService.travelRadiusKm;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) => StatefulBuilder(
+      builder: (modalContext, setModalState) => Container(
+        padding: EdgeInsets.fromLTRB(22, 22, 22, MediaQuery.of(modalContext).viewInsets.bottom + 22),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(color: const Color(0xFFDDDDDD), borderRadius: BorderRadius.circular(2)),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const Row(
+                  children: [
+                    Icon(Iconsax.routing, size: 20, color: kDark),
+                    SizedBox(width: 8),
+                    Text(
+                      'Active Location & Travel Radius',
+                      style: TextStyle(fontFamily: 'Outfit', fontSize: 17, fontWeight: FontWeight.w700, color: kDark),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Update where you are currently coaching clients without overwriting your primary home gym.',
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
+                ),
+                const SizedBox(height: 16),
+
+                // Primary Gym Info Box
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Iconsax.building, size: 16, color: kDark),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Primary Home Gym (Default)', style: TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: kGrey)),
+                            Text(
+                              profileService.primaryGymName ?? 'Gold\'s Gym Kalyani Nagar, Pune',
+                              style: const TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w600, color: kDark),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Active Location Name
+                const Text('Active Operating Area / City', style: TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w600, color: kDark)),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: nameCtrl,
+                  style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
+                  decoration: InputDecoration(
+                    hintText: 'e.g. Koregaon Park, Baner, Viman Nagar',
+                    filled: true,
+                    fillColor: const Color(0xFFF9FAFB),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Travel Radius Slider
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Travel Radius', style: TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w600, color: kDark)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(color: kDark, borderRadius: BorderRadius.circular(6)),
+                      child: Text(
+                        '${radius.toInt()} km',
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w700, color: kLime),
+                      ),
+                    ),
+                  ],
+                ),
+                Slider(
+                  value: radius,
+                  min: 5.0,
+                  max: 50.0,
+                  divisions: 9,
+                  activeColor: kDark,
+                  inactiveColor: const Color(0xFFE5E7EB),
+                  onChanged: (val) => setModalState(() => radius = val),
+                ),
+                const SizedBox(height: 16),
+
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          HapticFeedback.lightImpact();
+                          await profileService.resetActiveLocationToPrimary();
+                          if (ctx.mounted) Navigator.pop(ctx);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFFE5E7EB)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Reset to Primary', style: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, fontWeight: FontWeight.w500, color: kDark)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          HapticFeedback.mediumImpact();
+                          final area = nameCtrl.text.trim();
+                          if (area.isNotEmpty) {
+                            await profileService.updateActiveLocation(
+                              locationName: area,
+                              locationAddress: addrCtrl.text.trim().isNotEmpty ? addrCtrl.text.trim() : area,
+                            );
+                          }
+                          await profileService.updateTravelRadius(radius);
+                          if (ctx.mounted) Navigator.pop(ctx);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kDark,
+                          foregroundColor: kLime,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 0,
+                        ),
+                        child: const Text('Save Active Location', style: TextStyle(fontFamily: 'Outfit', fontSize: 13, fontWeight: FontWeight.w600, color: kLime)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _buildPendingRequestTile(BuildContext context, BookingModel b, BookingService bService, double sf) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 8),
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFFFDE68A)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              b.displayClientName,
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 13.5, fontWeight: FontWeight.w700, color: kDark),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                '15m Hold on Accept',
+                style: TextStyle(fontFamily: 'Outfit', fontSize: 9.5, fontWeight: FontWeight.w600, color: Color(0xFFB45309)),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '${b.sessionDate.day}/${b.sessionDate.month} • ${b.startTime} - ${b.endTime}',
+          style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            const Icon(Iconsax.building, size: 12, color: Color(0xFF15803D)),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                '${b.displayGymName}${b.trainerTravelDistanceKm != null ? " (${b.trainerTravelDistanceKm!.toStringAsFixed(1)} km)" : ""}',
+                style: const TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w600, color: kDark),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () async {
+                  HapticFeedback.lightImpact();
+                  await bService.rejectBooking(b.id, reason: 'Declined from dashboard');
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFFCA5A5)),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('Decline', style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: Color(0xFFDC2626))),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: ElevatedButton(
+                onPressed: () async {
+                  HapticFeedback.heavyImpact();
+                  await bService.acceptBooking(b.id);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: kDark,
+                        content: Text('Accepted! 15m payment hold started for ${b.displayClientName}.', style: const TextStyle(fontFamily: 'Outfit', color: Colors.white)),
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kDark,
+                  foregroundColor: kLime,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  elevation: 0,
+                ),
+                child: const Text('Accept Request', style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w600, color: kLime)),
+              ),
+            ),
+          ],
+        ),
+      ],
     ),
   );
 }

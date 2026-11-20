@@ -1336,7 +1336,7 @@ class _TrainerClientScheduleCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     b.status == BookingStatus.confirmed
-                        ? (b.meetingLocation ?? 'Standard Gym Studio')
+                        ? (b.meetingLocation ?? 'Commercial Partner Gym')
                         : 'Location hidden until confirmed',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -1912,7 +1912,7 @@ class _TrainerClientDetailsSheetState extends State<_TrainerClientDetailsSheet> 
                         Expanded(
                           child: Text(
                             b.status == BookingStatus.confirmed
-                                ? (b.meetingLocation ?? 'Standard Gym Studio')
+                                ? (b.meetingLocation ?? 'Commercial Partner Gym')
                                 : 'Location address hidden until booking is confirmed',
                             style: TextStyle(
                               fontFamily: 'Outfit',

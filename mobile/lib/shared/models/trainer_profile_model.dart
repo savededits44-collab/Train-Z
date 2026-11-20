@@ -1,6 +1,22 @@
+import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'trainer_certificate_model.dart';
 import 'user_model.dart';
+
+/// Accurate Haversine distance on Earth between two coordinate pairs in kilometers.
+double calculateHaversineDistanceKm(double lat1, double lon1, double lat2, double lon2) {
+  const earthRadiusKm = 6371.0;
+  final dLat = (lat2 - lat1) * (math.pi / 180.0);
+  final dLon = (lon2 - lon1) * (math.pi / 180.0);
+
+  final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+      math.cos(lat1 * (math.pi / 180.0)) *
+          math.cos(lat2 * (math.pi / 180.0)) *
+          math.sin(dLon / 2) *
+          math.sin(dLon / 2);
+  final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+  return earthRadiusKm * c;
+}
 
 enum TrainerVerificationStatus {
   pending,
@@ -137,6 +153,22 @@ class TrainerProfileModel {
   final List<String> workingDays; // e.g. ["MON","TUE","WED"]
   final String? workingHours; // e.g. "6:00 AM - 9:00 PM"
 
+  // Primary Location (Default working commercial gym)
+  final String? primaryGymName;
+  final String? primaryGymAddress;
+  final double? primaryGymLat;
+  final double? primaryGymLng;
+
+  // Active Location (Updateable area when coaching elsewhere - separate from primary)
+  final String? activeLocationName;
+  final String? activeLocationAddress;
+  final double? activeLat;
+  final double? activeLng;
+  final DateTime? activeLocationUpdatedAt;
+
+  // Trainer-defined Travel Radius (in kilometers)
+  final double travelRadiusKm;
+
   // Profile completion
   final int profileCompletionScore; // 0-100
   final bool isProfileCompleted;
@@ -182,6 +214,16 @@ class TrainerProfileModel {
     this.serviceAreas = const [],
     this.workingDays = const [],
     this.workingHours,
+    this.primaryGymName,
+    this.primaryGymAddress,
+    this.primaryGymLat,
+    this.primaryGymLng,
+    this.activeLocationName,
+    this.activeLocationAddress,
+    this.activeLat,
+    this.activeLng,
+    this.activeLocationUpdatedAt,
+    this.travelRadiusKm = 15.0,
     this.profileCompletionScore = 0,
     this.isProfileCompleted = false,
     this.submittedAt,
@@ -196,6 +238,122 @@ class TrainerProfileModel {
   bool get isStandardTrainer => category == TrainerCategory.trainer;
   bool get canBeBooked => isApproved && isActive;
   int get experienceYearsInt => experienceYears.floor();
+
+  /// Effective latitude for travel calculation (active location preferred, falls back to primary)
+  double? get effectiveLat => activeLat ?? primaryGymLat;
+
+  /// Effective longitude for travel calculation (active location preferred, falls back to primary)
+  double? get effectiveLng => activeLng ?? primaryGymLng;
+
+  /// Human-readable active location name
+  String get effectiveLocationName =>
+      activeLocationName ?? primaryGymName ?? (serviceAreas.isNotEmpty ? serviceAreas.first : 'Commercial Partner Gym');
+
+  /// Human-readable active location address
+  String get effectiveLocationAddress =>
+      activeLocationAddress ?? primaryGymAddress ?? '';
+
+  /// Whether trainer has valid geographic coordinates
+  bool get hasValidCoordinates =>
+      effectiveLat != null &&
+      effectiveLng != null &&
+      effectiveLat != 0.0 &&
+      effectiveLng != 0.0 &&
+      effectiveLat!.abs() <= 90.0 &&
+      effectiveLng!.abs() <= 180.0;
+
+  /// Accurate Haversine distance from trainer's active location to a target gym (in km)
+  double? calculateDistanceToGym(double gymLat, double gymLng) {
+    if (!hasValidCoordinates) return null;
+    return calculateHaversineDistanceKm(effectiveLat!, effectiveLng!, gymLat, gymLng);
+  }
+
+  /// Alias for calculateDistanceToGym
+  double? calculateDistanceToGymKm(double gymLat, double gymLng) => calculateDistanceToGym(gymLat, gymLng);
+
+  /// Whether the trainer has an active location overriding primary gym
+  bool get hasActiveLocationOverride => activeLat != null && activeLng != null;
+
+  /// Returns a new instance with updated active coaching location
+  TrainerProfileModel updateActiveLocation({
+    required String locationName,
+    required String locationAddress,
+    required double lat,
+    required double lng,
+  }) {
+    return copyWith(
+      activeLocationName: locationName,
+      activeLocationAddress: locationAddress,
+      activeLat: lat,
+      activeLng: lng,
+      activeLocationUpdatedAt: DateTime.now(),
+    );
+  }
+
+  /// Clears active location override, reverting to primary gym
+  TrainerProfileModel clearActiveLocation() {
+    return TrainerProfileModel(
+      uid: uid,
+      fullName: fullName,
+      phoneNumber: phoneNumber,
+      gender: gender,
+      bio: bio,
+      specialties: specialties,
+      experienceYears: experienceYears,
+      cityId: cityId,
+      hourlyRate: hourlyRate,
+      category: category,
+      verificationStatus: verificationStatus,
+      verificationDocuments: verificationDocuments,
+      certificationDocuments: certificationDocuments,
+      adminReviewNotes: adminReviewNotes,
+      approvedAt: approvedAt,
+      approvedBy: approvedBy,
+      isActive: isActive,
+      ratingAvg: ratingAvg,
+      totalReviews: totalReviews,
+      createdAt: createdAt,
+      updatedAt: DateTime.now(),
+      photoUrl: photoUrl,
+      dateOfBirth: dateOfBirth,
+      languages: languages,
+      clientTypes: clientTypes,
+      trainingGoals: trainingGoals,
+      trainingMethods: trainingMethods,
+      trainingApproach: trainingApproach,
+      professionalExperience: professionalExperience,
+      trainsAtHome: trainsAtHome,
+      trainsAtGym: trainsAtGym,
+      otherTrainingLocations: otherTrainingLocations,
+      serviceAreas: serviceAreas,
+      workingDays: workingDays,
+      workingHours: workingHours,
+      primaryGymName: primaryGymName,
+      primaryGymAddress: primaryGymAddress,
+      primaryGymLat: primaryGymLat,
+      primaryGymLng: primaryGymLng,
+      activeLocationName: null,
+      activeLocationAddress: null,
+      activeLat: null,
+      activeLng: null,
+      activeLocationUpdatedAt: null,
+      travelRadiusKm: travelRadiusKm,
+      profileCompletionScore: profileCompletionScore,
+      isProfileCompleted: isProfileCompleted,
+      submittedAt: submittedAt,
+      verifiedQualifications: verifiedQualifications,
+    );
+  }
+
+  /// Evaluates whether a target commercial gym is within this trainer's travel radius
+  bool isGymWithinTravelRadius(double gymLat, double gymLng) {
+    if (!hasValidCoordinates) {
+      return true; // Safe fallback when coordinates are unmapped
+    }
+    final dist = calculateDistanceToGym(gymLat, gymLng);
+    if (dist == null) return true;
+    return dist <= travelRadiusKm;
+  }
 
   /// Calculates profile completion (0 to 100%) and returns missing required fields.
   TrainerProfileCompletion calculateCompletion({
@@ -303,12 +461,12 @@ class TrainerProfileModel {
       missing.add('Training Approach Description');
     }
 
-    // 3. Training Services (25%)
-    final hasLocationType = trainsAtHome || trainsAtGym || otherTrainingLocations.isNotEmpty;
+    // 3. Training Services (25%) - Exclusive Commercial Gym Affiliation Standard
+    final hasLocationType = trainsAtGym || otherTrainingLocations.isNotEmpty;
     if (hasLocationType) {
       score += 8;
     } else {
-      missing.add('Training Locations (Home, Gym, or Other)');
+      missing.add('Commercial Gym Training Affiliation');
     }
 
     final hasAreas = serviceAreas.isNotEmpty;
@@ -369,6 +527,16 @@ class TrainerProfileModel {
     List<String>? serviceAreas,
     List<String>? workingDays,
     String? workingHours,
+    String? primaryGymName,
+    String? primaryGymAddress,
+    double? primaryGymLat,
+    double? primaryGymLng,
+    String? activeLocationName,
+    String? activeLocationAddress,
+    double? activeLat,
+    double? activeLng,
+    DateTime? activeLocationUpdatedAt,
+    double? travelRadiusKm,
     int? profileCompletionScore,
     bool? isProfileCompleted,
     DateTime? submittedAt,
@@ -410,6 +578,16 @@ class TrainerProfileModel {
       serviceAreas: serviceAreas ?? this.serviceAreas,
       workingDays: workingDays ?? this.workingDays,
       workingHours: workingHours ?? this.workingHours,
+      primaryGymName: primaryGymName ?? this.primaryGymName,
+      primaryGymAddress: primaryGymAddress ?? this.primaryGymAddress,
+      primaryGymLat: primaryGymLat ?? this.primaryGymLat,
+      primaryGymLng: primaryGymLng ?? this.primaryGymLng,
+      activeLocationName: activeLocationName ?? this.activeLocationName,
+      activeLocationAddress: activeLocationAddress ?? this.activeLocationAddress,
+      activeLat: activeLat ?? this.activeLat,
+      activeLng: activeLng ?? this.activeLng,
+      activeLocationUpdatedAt: activeLocationUpdatedAt ?? this.activeLocationUpdatedAt,
+      travelRadiusKm: travelRadiusKm ?? this.travelRadiusKm,
       profileCompletionScore: profileCompletionScore ?? this.profileCompletionScore,
       isProfileCompleted: isProfileCompleted ?? this.isProfileCompleted,
       submittedAt: submittedAt ?? this.submittedAt,
@@ -452,6 +630,16 @@ class TrainerProfileModel {
       'serviceAreas': serviceAreas,
       'workingDays': workingDays,
       'workingHours': workingHours,
+      'primaryGymName': primaryGymName,
+      'primaryGymAddress': primaryGymAddress,
+      'primaryGymLat': primaryGymLat,
+      'primaryGymLng': primaryGymLng,
+      'activeLocationName': activeLocationName,
+      'activeLocationAddress': activeLocationAddress,
+      'activeLat': activeLat,
+      'activeLng': activeLng,
+      'activeLocationUpdatedAt': activeLocationUpdatedAt != null ? Timestamp.fromDate(activeLocationUpdatedAt!) : null,
+      'travelRadiusKm': travelRadiusKm,
       'profileCompletionScore': profileCompletionScore,
       'isProfileCompleted': isProfileCompleted,
       'submittedAt': submittedAt != null ? Timestamp.fromDate(submittedAt!) : null,
@@ -505,6 +693,16 @@ class TrainerProfileModel {
       serviceAreas: (map['serviceAreas'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       workingDays: (map['workingDays'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       workingHours: map['workingHours'] as String?,
+      primaryGymName: map['primaryGymName'] as String?,
+      primaryGymAddress: map['primaryGymAddress'] as String?,
+      primaryGymLat: (map['primaryGymLat'] as num?)?.toDouble(),
+      primaryGymLng: (map['primaryGymLng'] as num?)?.toDouble(),
+      activeLocationName: map['activeLocationName'] as String?,
+      activeLocationAddress: map['activeLocationAddress'] as String?,
+      activeLat: (map['activeLat'] as num?)?.toDouble(),
+      activeLng: (map['activeLng'] as num?)?.toDouble(),
+      activeLocationUpdatedAt: parseTimestamp(map['activeLocationUpdatedAt']),
+      travelRadiusKm: (map['travelRadiusKm'] as num?)?.toDouble() ?? 15.0,
       profileCompletionScore: (map['profileCompletionScore'] as num?)?.toInt() ?? 0,
       isProfileCompleted: map['isProfileCompleted'] as bool? ?? false,
       submittedAt: parseTimestamp(map['submittedAt']),
@@ -572,6 +770,12 @@ class TrainerDisplayModel {
   String get availabilityText => hasAvailableSlots ? 'Slots Available' : 'Fully Booked';
   TrainerCategory get category => profile.category;
   List<VerifiedQualification> get verifiedQualifications => profile.verifiedQualifications;
+  double? get effectiveLat => profile.effectiveLat;
+  double? get effectiveLng => profile.effectiveLng;
+  double get travelRadiusKm => profile.travelRadiusKm;
+  String get effectiveLocationName => profile.effectiveLocationName;
+  bool isGymWithinTravelRadius(double gymLat, double gymLng) => profile.isGymWithinTravelRadius(gymLat, gymLng);
+  double? calculateDistanceToGym(double gymLat, double gymLng) => profile.calculateDistanceToGym(gymLat, gymLng);
 
   TrainerDisplayModel copyWith({
     TrainerProfileModel? profile,

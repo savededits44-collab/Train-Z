@@ -6,6 +6,7 @@ import '../../../../core/errors/app_exceptions.dart';
 import '../../../../services/booking_service.dart';
 import '../../../../services/firestore_service.dart';
 import '../../../../services/location_service.dart';
+import '../../../../shared/models/gym_model.dart';
 import '../../../../shared/models/trainer_availability_model.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../shared/models/training_plan_model.dart';
@@ -47,9 +48,17 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
   late DateTime _selectedDate;
   String? _selectedStartTime;
   String? _selectedEndTime;
-  late TrainingLocationMode _locationMode;
-  late TextEditingController _locationController;
   late TextEditingController _notesController;
+
+  // Commercial Gym Selection State
+  late List<GymModel> _partnerGyms;
+  GymModel? _selectedGym;
+  late TextEditingController _gymNameController;
+  late TextEditingController _gymAddressController;
+  late TextEditingController _gymMapsUrlController;
+  double? _gymLat;
+  double? _gymLng;
+  bool _isCustomGym = false;
 
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -72,31 +81,99 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
     _selectedDate = initial;
     _selectedStartTime = '07:00 AM';
     _selectedEndTime = '08:00 AM';
-
-    // Initialize location mode based on trainer offerings
-    if (widget.trainer.profile.trainsAtGym) {
-      _locationMode = TrainingLocationMode.gym;
-    } else if (widget.trainer.profile.trainsAtHome) {
-      _locationMode = TrainingLocationMode.home;
-    } else {
-      _locationMode = TrainingLocationMode.gym;
-    }
-
-    final defaultLocation = _locationMode == TrainingLocationMode.gym
-        ? (widget.trainer.gymName?.isNotEmpty == true
-            ? widget.trainer.gymName!
-            : (widget.trainer.serviceArea ?? 'Partner Fitness Center'))
-        : (widget.trainer.serviceArea ?? 'Residential Address');
-
-    _locationController = TextEditingController(text: defaultLocation);
     _notesController = TextEditingController();
+
+    // Curated commercial partner gyms for trainer's city
+    final gyms = LocationService.instance.getCommercialGymsForCity(widget.trainer.cityId);
+    final baseGyms = gyms.isNotEmpty ? List<GymModel>.from(gyms) : List<GymModel>.from(LocationService.curatedPartnerGyms);
+    if (widget.trainer.gymName != null && widget.trainer.gymName!.trim().isNotEmpty) {
+      final tGymName = widget.trainer.gymName!.trim();
+      if (!baseGyms.any((g) => g.name.toLowerCase() == tGymName.toLowerCase())) {
+        baseGyms.insert(
+          0,
+          GymModel(
+            id: 'gym_trainer_primary',
+            name: tGymName,
+            address: widget.trainer.profile.primaryGymAddress ?? '$tGymName Commercial Facility, Pune',
+            city: widget.trainer.cityId ?? 'Pune',
+            latitude: widget.trainer.effectiveLat ?? 18.5204,
+            longitude: widget.trainer.effectiveLng ?? 73.8567,
+            mapsUrl: 'https://maps.google.com/?q=${widget.trainer.effectiveLat ?? 18.5204},${widget.trainer.effectiveLng ?? 73.8567}',
+            partnershipStatus: GymPartnershipStatus.active,
+          ),
+        );
+      }
+    }
+    _partnerGyms = baseGyms;
+    _selectedGym = _partnerGyms.isNotEmpty ? _partnerGyms.first : null;
+
+    _gymNameController = TextEditingController(
+      text: _selectedGym?.name ?? widget.trainer.gymName ?? 'Gold\'s Gym Kalyani Nagar',
+    );
+    _gymAddressController = TextEditingController(
+      text: _selectedGym?.address ?? 'Kalyani Nagar, Pune, Maharashtra 411006',
+    );
+    _gymMapsUrlController = TextEditingController(
+      text: _selectedGym?.mapsUrl ?? 'https://maps.google.com/?q=18.5463,73.9033',
+    );
+    _gymLat = _selectedGym?.latitude ?? 18.5463;
+    _gymLng = _selectedGym?.longitude ?? 73.9033;
   }
 
   @override
   void dispose() {
-    _locationController.dispose();
+    _gymNameController.dispose();
+    _gymAddressController.dispose();
+    _gymMapsUrlController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+
+  /// Accurate distance in km between trainer active location and selected gym using Haversine formula
+  double? get calculatedTravelDistanceKm {
+    final gLat = _gymLat ?? _selectedGym?.latitude;
+    final gLng = _gymLng ?? _selectedGym?.longitude;
+    final tLat = widget.trainer.effectiveLat;
+    final tLng = widget.trainer.effectiveLng;
+    if (gLat == null || gLng == null || tLat == null || tLng == null) return null;
+    return calculateHaversineDistanceKm(tLat, tLng, gLat, gLng);
+  }
+
+  /// Whether selected gym is within trainer's travel radius
+  bool get isWithinTravelRadius {
+    final dist = calculatedTravelDistanceKm;
+    if (dist == null) return true;
+    return dist <= widget.trainer.travelRadiusKm;
+  }
+
+  /// Select a partner gym
+  void _selectPartnerGym(GymModel gym) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedGym = gym;
+      _isCustomGym = false;
+      _gymNameController.text = gym.name;
+      _gymAddressController.text = gym.address;
+      _gymMapsUrlController.text = gym.mapsUrl ?? 'https://maps.google.com/?q=${gym.latitude},${gym.longitude}';
+      _gymLat = gym.latitude;
+      _gymLng = gym.longitude;
+      _errorMessage = null;
+    });
+  }
+
+  /// Switch to custom commercial gym entry
+  void _enableCustomGym() {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedGym = null;
+      _isCustomGym = true;
+      _gymNameController.clear();
+      _gymAddressController.clear();
+      _gymMapsUrlController.clear();
+      _gymLat = widget.trainer.effectiveLat;
+      _gymLng = widget.trainer.effectiveLng;
+      _errorMessage = null;
+    });
   }
 
   /// Min booking date (today)
@@ -119,17 +196,6 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
       final clean = d.trim().toUpperCase();
       return clean.startsWith(shortDay) || shortDay.startsWith(clean);
     });
-  }
-
-  /// Whether client's entered location is in trainer's service area
-  bool get _isLocationValid {
-    final text = _locationController.text.trim();
-    if (text.isEmpty) return false;
-    return FirestoreService.isAddressInTrainerServiceArea(
-      clientAddress: text,
-      trainerServiceArea: widget.trainer.serviceArea ?? '',
-      trainerCity: widget.trainer.cityId,
-    );
   }
 
   /// Opens full monthly interactive calendar picker
@@ -191,14 +257,30 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
       return;
     }
 
-    // 4. Location address check
-    final locationText = _locationController.text.trim();
-    if (locationText.isEmpty) {
-      setState(() => _errorMessage = 'Please enter your training location address.');
+    // 4. Gym name and address check
+    final gymName = _gymNameController.text.trim();
+    final gymAddress = _gymAddressController.text.trim();
+    if (gymName.isEmpty || gymAddress.isEmpty) {
+      setState(() => _errorMessage = 'Please specify both commercial gym name and complete address.');
       return;
     }
 
-    // 5. Date validity check
+    // 5. Commercial Gym verification: reject residential / outdoor addresses
+    if (isProhibitedTrainingLocation(gymName) || isProhibitedTrainingLocation(gymAddress)) {
+      setState(() => _errorMessage =
+          'All TRAIN Z personal training sessions take place exclusively at commercial gyms. Please select or enter a verified commercial gym facility.');
+      return;
+    }
+
+    // 6. Travel Radius check
+    final dist = calculatedTravelDistanceKm;
+    if (dist != null && dist > widget.trainer.travelRadiusKm) {
+      setState(() => _errorMessage =
+          'Selected gym is ${dist.toStringAsFixed(1)} km away, which exceeds Coach ${widget.trainer.displayName}\'s travel radius of ${widget.trainer.travelRadiusKm.toStringAsFixed(0)} km. Please select a gym closer to the coach.');
+      return;
+    }
+
+    // 7. Date validity check
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     if (_selectedDate.isBefore(today)) {
@@ -231,98 +313,55 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
           : 'TRAIN Z Athlete';
       final athletePhone = currentUser?.phoneNumber;
 
-      // Construct formatted location text including mode indicator
-      final fullLocation = _locationMode == TrainingLocationMode.home
-          ? '[Home Training] $locationText'
-          : _locationMode == TrainingLocationMode.gym
-              ? '[Gym Training] $locationText'
-              : locationText;
+      final fullLocation = '$gymName, $gymAddress';
 
-      // 1. Double-booking check & atomic reservation in Firestore
-      final reservedBooking = await _firestoreService.reserveBookingSlot(
-        clientId: widget.clientId,
-        trainerId: widget.trainer.uid,
-        packageId: widget.plan.id,
+      // 1. Create booking request with status PENDING (No charge at this stage)
+      final bookingRequest = await BookingService.instance.createBookingRequest(
+        clientName: athleteName,
+        clientPhone: athletePhone ?? '+919820154321',
         sessionDate: _selectedDate,
         startTime: _selectedStartTime!,
         endTime: _selectedEndTime!,
-        trainingLocation: fullLocation,
+        workoutType: widget.plan.title,
+        meetingLocation: fullLocation,
+        gymId: _selectedGym?.id,
+        gymName: gymName,
+        gymAddress: gymAddress,
+        gymLat: _gymLat ?? _selectedGym?.latitude,
+        gymLng: _gymLng ?? _selectedGym?.longitude,
+        gymMapsUrl: _gymMapsUrlController.text.trim(),
+        trainerTravelDistanceKm: dist,
+        packageId: widget.plan.id,
+        packagePrice: widget.plan.price,
+        sessionsCount: widget.plan.sessionsCount,
+        validityDays: widget.plan.validityDays,
         notes: _notesController.text.trim(),
-        clientName: athleteName,
-        clientPhone: athletePhone,
+        trainerId: widget.trainer.uid,
+        clientId: widget.clientId,
         clientGender: widget.clientGender,
         trainerGender: widget.trainer.gender,
       );
 
-      // Immediately sync with BookingService in-memory stream for 0ms trainer reflection
-      BookingService.instance.addOrUpdateBooking(reservedBooking);
-
       if (!mounted) return;
 
-      // 2. Navigate to Booking Confirmation & 15-Minute Reservation Screen
+      // 2. Navigate to Booking Confirmation Screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (_) => ClientBookingConfirmationScreen(
-            booking: reservedBooking,
+            booking: bookingRequest,
             trainer: widget.trainer,
             plan: widget.plan,
           ),
         ),
       );
-    } on BookingConflictException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isSubmitting = false;
-        _errorMessage = e.message;
-        _selectedStartTime = null; // Reset selection so user picks another
-      });
-      _showCollisionDialog(e.message);
-    } on GenderMismatchException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isSubmitting = false;
-        _errorMessage = e.message;
-      });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'Unable to reserve slot: $e';
+        _errorMessage = 'Unable to send booking request: $e';
       });
     }
-  }
-
-  void _showCollisionDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Iconsax.danger, color: Color(0xFFDC2626), size: 24),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Slot Unavailable',
-                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 17),
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          message,
-          style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: Color(0xFF444444), height: 1.4),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Choose Another Slot',
-                style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500, color: kDark)),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -473,14 +512,19 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
                         )
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              _selectedStartTime != null ? 'Reserve & Proceed' : 'Select a Slot',
-                              style: TextStyle(
-                                fontFamily: 'Outfit',
-                                fontSize: (14.5 * sf).clamp(13.0, 16.5),
-                                fontWeight: FontWeight.w600,
-                                color: _selectedStartTime != null ? kLime : const Color(0xFF9CA3AF),
+                            Flexible(
+                              child: Text(
+                                _selectedStartTime != null ? 'Submit Booking Request' : 'Select a Slot',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: 'Outfit',
+                                  fontSize: (14.5 * sf).clamp(13.0, 16.5),
+                                  fontWeight: FontWeight.w600,
+                                  color: _selectedStartTime != null ? kLime : const Color(0xFF9CA3AF),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -1024,102 +1068,240 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
     );
   }
 
-  // ── 4. Training Location & Service Area Check ──
+  // ── 4. Training Location & Commercial Gym Selection ──
   Widget _buildTrainingLocationSection(double sf) {
-    final isValid = _isLocationValid;
-    final supportsHome = widget.trainer.profile.trainsAtHome;
-    final supportsGym = widget.trainer.profile.trainsAtGym || (!supportsHome && !widget.trainer.profile.trainsAtGym);
+    final dist = calculatedTravelDistanceKm;
+    final maxRadius = widget.trainer.travelRadiusKm;
+    final withinRadius = isWithinTravelRadius;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Training Location',
-          style: TextStyle(
-            fontFamily: 'Outfit',
-            fontSize: (15.0 * sf).clamp(13.5, 17.0),
-            fontWeight: FontWeight.w600,
-            color: kDark,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Commercial Gym Location',
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: (15.0 * sf).clamp(13.5, 17.0),
+                fontWeight: FontWeight.w600,
+                color: kDark,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFDCFCE7),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.verified, size: 12, color: Color(0xFF16A34A)),
+                  SizedBox(width: 4),
+                  Text(
+                    'Gym Exclusive',
+                    style: TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF16A34A),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Text(
-          'Trainer Service Area: ${widget.trainer.displayLocation}',
+          'Choose the commercial gym where you want to train. Coach travels to your gym.',
           style: TextStyle(
             fontFamily: 'Outfit',
             fontSize: (11.0 * sf).clamp(10.0, 12.0),
             color: kGrey,
           ),
         ),
-        const SizedBox(height: 10),
-
-        // Location Mode Selector
-        Row(
-          children: [
-            if (supportsGym)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: _buildLocationModeChip(
-                    mode: TrainingLocationMode.gym,
-                    label: 'Gym Training',
-                    icon: Iconsax.weight,
-                    sf: sf,
-                  ),
-                ),
-              ),
-            if (supportsHome)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: _buildLocationModeChip(
-                    mode: TrainingLocationMode.home,
-                    label: 'Home Training',
-                    icon: Iconsax.home,
-                    sf: sf,
-                  ),
-                ),
-              ),
-          ],
-        ),
-
         const SizedBox(height: 12),
 
-        // Text input for location address
+        // Quick Selector: Verified Commercial Partner Gyms
+        SizedBox(
+          height: 38,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              ..._partnerGyms.map((gym) {
+                final isSelected = !_isCustomGym && _selectedGym?.id == gym.id;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(
+                      gym.name,
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 11.5,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: isSelected ? kLime : kDark,
+                      ),
+                    ),
+                    selected: isSelected,
+                    onSelected: (_) => _selectPartnerGym(gym),
+                    selectedColor: kDark,
+                    backgroundColor: Colors.white,
+                    side: BorderSide(
+                      color: isSelected ? kDark : const Color(0xFFE5E7EB),
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                );
+              }),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(
+                    '+ Other Commercial Gym',
+                    style: TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 11.5,
+                      fontWeight: _isCustomGym ? FontWeight.w600 : FontWeight.w500,
+                      color: _isCustomGym ? kLime : kDark,
+                    ),
+                  ),
+                  selected: _isCustomGym,
+                  onSelected: (_) => _enableCustomGym(),
+                  selectedColor: kDark,
+                  backgroundColor: Colors.white,
+                  side: BorderSide(
+                    color: _isCustomGym ? kDark : const Color(0xFFE5E7EB),
+                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Gym Name Input
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isValid ? const Color(0xFF16A34A) : const Color(0xFFE5E5E5),
-              width: isValid ? 1.5 : 1,
-            ),
+            border: Border.all(color: const Color(0xFFE5E5E5)),
           ),
           child: TextField(
-            controller: _locationController,
+            controller: _gymNameController,
             onChanged: (_) => setState(() {}),
             style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                _locationMode == TrainingLocationMode.home ? Iconsax.home : Iconsax.location,
-                color: kDark,
-                size: 20,
-              ),
-              suffixIcon: isValid
-                  ? const Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 18)
-                  : null,
-              hintText: _locationMode == TrainingLocationMode.home
-                  ? 'Enter house/flat no., building & residential area'
-                  : 'Enter gym or fitness club address',
-              hintStyle: const TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Iconsax.building, color: kDark, size: 20),
+              hintText: 'Commercial gym name (e.g. Gold\'s Gym, Cult.fit)',
+              hintStyle: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
           ),
         ),
         const SizedBox(height: 8),
 
-        // Privacy Badge
+        // Gym Complete Address Input
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFE5E5E5)),
+          ),
+          child: TextField(
+            controller: _gymAddressController,
+            onChanged: (_) => setState(() {}),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Iconsax.location, color: kDark, size: 20),
+              hintText: 'Complete commercial gym address & area',
+              hintStyle: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Google Maps Link / Pin Input
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFE5E5E5)),
+          ),
+          child: TextField(
+            controller: _gymMapsUrlController,
+            onChanged: (_) => setState(() {}),
+            style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Iconsax.map, color: kDark, size: 20),
+              hintText: 'Google Maps pin / link (optional for navigation)',
+              hintStyle: TextStyle(fontFamily: 'Outfit', fontSize: 12, color: kGrey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // ── LIVE TRAVEL DISTANCE & TRAVEL RADIUS INDICATOR ──
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: withinRadius ? const Color(0xFFF0FDF4) : const Color(0xFFFFFBEB),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: withinRadius ? const Color(0xFFBBF7D0) : const Color(0xFFFDE68A),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    withinRadius ? Iconsax.routing_2 : Iconsax.warning_2,
+                    size: 16,
+                    color: withinRadius ? const Color(0xFF15803D) : const Color(0xFFB45309),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      withinRadius
+                          ? 'Within Coach Travel Radius (${dist?.toStringAsFixed(1) ?? '...'} km / max ${maxRadius.toStringAsFixed(0)} km)'
+                          : 'Exceeds Coach Travel Radius (${dist?.toStringAsFixed(1) ?? '...'} km / max ${maxRadius.toStringAsFixed(0)} km)',
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: withinRadius ? const Color(0xFF15803D) : const Color(0xFFB45309),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                withinRadius
+                    ? 'Coach ${widget.trainer.displayName} will travel from ${widget.trainer.effectiveLocationName} to your chosen gym. Travel expenses are included in your package pricing.'
+                    : 'The selected gym is beyond Coach ${widget.trainer.displayName}\'s travel radius of ${maxRadius.toStringAsFixed(0)} km from ${widget.trainer.effectiveLocationName}. Please select a gym closer to the coach or pick another coach.',
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 11,
+                  color: withinRadius ? const Color(0xFF166534) : const Color(0xFF92400E),
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Commercial Gym Policy Callout
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
@@ -1132,9 +1314,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  _locationMode == TrainingLocationMode.home
-                      ? 'Strict Privacy: Your residential address is encrypted and shared only with your confirmed trainer for this session.'
-                      : 'Strict Privacy: Training address is encrypted and accessible only to your verified trainer for confirmed sessions.',
+                  'All TRAIN Z personal training sessions take place exclusively at verified commercial gym facilities. TRAIN Z establishes commercial arrangements and pays participating gyms for session hosting.',
                   style: TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: (10.0 * sf).clamp(9.0, 11.5),
@@ -1150,66 +1330,12 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
     );
   }
 
-  Widget _buildLocationModeChip({
-    required TrainingLocationMode mode,
-    required String label,
-    required IconData icon,
-    required double sf,
-  }) {
-    final isSelected = _locationMode == mode;
-
-    return InkWell(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        setState(() {
-          _locationMode = mode;
-          if (mode == TrainingLocationMode.gym) {
-            _locationController.text = (widget.trainer.gymName?.isNotEmpty == true
-                ? widget.trainer.gymName!
-                : (widget.trainer.serviceArea ?? 'Partner Fitness Center'));
-          } else {
-            _locationController.text = widget.trainer.serviceArea ?? '';
-          }
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? kDark : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? kDark : const Color(0xFFE5E5E5),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 16, color: isSelected ? kLime : kDark),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: (12.0 * sf).clamp(11.0, 13.5),
-                fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.white : kDark,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // ── 5. Booking Summary Breakdown ──
   Widget _buildBookingSummaryCard(double sf) {
-    final locationLabel = _locationController.text.trim().isNotEmpty
-        ? (_locationMode == TrainingLocationMode.home
-            ? 'Home: ${_locationController.text.trim()}'
-            : 'Gym: ${_locationController.text.trim()}')
-        : 'Unspecified';
+    final gymName = _gymNameController.text.trim().isNotEmpty
+        ? _gymNameController.text.trim()
+        : 'Selected Commercial Gym';
+    final dist = calculatedTravelDistanceKm;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1243,7 +1369,9 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
           _buildSummaryLine('Session Duration', '60 Minutes'),
           _buildSummaryLine('Scheduled Date', '${_selectedDate.day} ${_getShortMonth(_selectedDate.month)} ${_selectedDate.year}'),
           _buildSummaryLine('Time Slot', _selectedStartTime != null ? '$_selectedStartTime - $_selectedEndTime' : 'Pending Selection'),
-          _buildSummaryLine('Training Location', locationLabel),
+          _buildSummaryLine('Training Gym', gymName),
+          if (dist != null)
+            _buildSummaryLine('Coach Travel Distance', '${dist.toStringAsFixed(1)} km (Included)'),
           const Divider(height: 18, color: Color(0xFFF0F0F0)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1261,7 +1389,7 @@ class _ClientBookingScheduleScreenState extends State<ClientBookingScheduleScree
               border: Border.all(color: const Color(0xFFFDE68A)),
             ),
             child: const Text(
-              '• 12-Hour Cancellation Rule: full session credit returned if cancelled >= 12h before start.\n• 15-Minute Checkout Hold: reserved slot is temporarily locked during payment.\n• All sessions are 60 minutes with verified personal trainers.',
+              '• Step 2: Submitting sends a booking request to coach. No charge is made yet.\n• 15-Minute Payment Window: Once coach accepts, your 15-minute checkout hold begins.\n• Travel expenses and gym access are covered. 12-Hour Cancellation Rule applies.',
               style: TextStyle(fontFamily: 'Outfit', fontSize: 10, color: Color(0xFF78350F), height: 1.4),
             ),
           ),

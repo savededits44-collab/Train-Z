@@ -392,30 +392,108 @@ class _TrainerBookingsScreenState extends State<TrainerBookingsScreen> with Sing
                 ),
                 const SizedBox(height: 6),
 
-                // Location row (revealed ONLY if confirmed)
+                // Commercial Gym Location & Distance
                 Row(
                   children: [
-                    Icon(
-                      Iconsax.location,
+                    const Icon(
+                      Iconsax.building,
                       size: 13,
-                      color: isConfirmed ? const Color(0xFF2563EB) : _kGrey,
+                      color: Color(0xFF15803D),
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        isConfirmed
-                            ? (booking.meetingLocation ?? 'Client Home / Fitness Facility')
-                            : 'Location address hidden until booking is confirmed',
-                        style: TextStyle(
+                        booking.displayGymName,
+                        style: const TextStyle(
                           fontFamily: 'Outfit',
-                          fontSize: 11,
-                          color: isConfirmed ? const Color(0xFF4B5563) : const Color(0xFF9CA3AF),
-                          fontStyle: isConfirmed ? FontStyle.normal : FontStyle.italic,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: _kDark,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    if (booking.trainerTravelDistanceKm != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0FDF4),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFFBBF7D0)),
+                        ),
+                        child: Text(
+                          '${booking.trainerTravelDistanceKm!.toStringAsFixed(1)} km',
+                          style: const TextStyle(
+                            fontFamily: 'Outfit',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF15803D),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
+                if (booking.displayGymAddress.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      const Icon(Iconsax.location, size: 12, color: _kGrey),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          booking.displayGymAddress,
+                          style: const TextStyle(fontFamily: 'Outfit', fontSize: 10.5, color: _kGrey),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                // Action buttons for pending requests
+                if (booking.status == BookingStatus.pending) ...[
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => _openBookingDetails(booking),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: _kBorder),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: const Text('View Request', style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: _kDark, fontWeight: FontWeight.w500)),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            HapticFeedback.heavyImpact();
+                            await _bookingService.acceptBooking(booking.id);
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: _kDark,
+                                  content: Text('Accepted! 15-minute checkout hold created for ${booking.displayClientName}.', style: const TextStyle(fontFamily: 'Outfit', color: Colors.white)),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _kDark,
+                            foregroundColor: const Color(0xFFD4E7C5),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            elevation: 0,
+                          ),
+                          child: const Text('Accept (15m)', style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, fontWeight: FontWeight.w600)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
 
                 // Cancellation note preview if cancelled
                 if (booking.isCancelled && booking.cancellationReason != null) ...[
@@ -507,6 +585,111 @@ class _BookingDetailModal extends StatefulWidget {
 class _BookingDetailModalState extends State<_BookingDetailModal> {
   final BookingService _bookingService = BookingService.instance;
   bool _isLoading = false;
+
+  Future<void> _handleAcceptRequest() async {
+    setState(() => _isLoading = true);
+    HapticFeedback.heavyImpact();
+    try {
+      await _bookingService.acceptBooking(widget.booking.id);
+      if (mounted) {
+        widget.onSessionCompleted();
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: _kDark,
+            content: Text(
+              'Request accepted! 15-minute checkout hold created for ${widget.booking.displayClientName}.',
+              style: const TextStyle(fontFamily: 'Outfit', color: Colors.white),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.redAccent, content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleDeclineRequest() async {
+    final reasonCtrl = TextEditingController();
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: _kBorder),
+        ),
+        title: const Text('Decline Session Request', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: _kDark)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Decline request from ${widget.booking.displayClientName}? Client will be notified immediately without charge.',
+              style: const TextStyle(fontFamily: 'Outfit', fontSize: 13, color: _kGrey),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reasonCtrl,
+              maxLines: 2,
+              style: const TextStyle(fontFamily: 'Outfit', color: _kDark, fontSize: 12.5),
+              decoration: InputDecoration(
+                hintText: 'Reason (e.g. Schedule full, beyond travel radius)...',
+                hintStyle: const TextStyle(fontFamily: 'Outfit', color: Color(0xFF9CA3AF), fontSize: 12),
+                filled: true,
+                fillColor: const Color(0xFFF9FAFB),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: _kBorder)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Back', style: TextStyle(fontFamily: 'Outfit', color: _kGrey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626), foregroundColor: Colors.white),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Decline Request', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w500)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() => _isLoading = true);
+      HapticFeedback.heavyImpact();
+      try {
+        await _bookingService.rejectBooking(
+          widget.booking.id,
+          reason: reasonCtrl.text.trim().isNotEmpty ? reasonCtrl.text.trim() : null,
+        );
+        if (mounted) {
+          widget.onSessionCancelled();
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: _kDark,
+              content: Text('Session request declined. Client notified.', style: TextStyle(fontFamily: 'Outfit', color: Colors.white)),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(backgroundColor: Colors.redAccent, content: Text('Error: $e')),
+          );
+        }
+      }
+    }
+  }
 
   Future<void> _handleCompleteSession() async {
     final confirm = await showDialog<bool>(
@@ -737,13 +920,12 @@ class _BookingDetailModalState extends State<_BookingDetailModal> {
               _detailRow('Status', b.displayStatus, isHighlight: true),
               _detailRow('Session Date', _formatDate(b.sessionDate)),
               _detailRow('Time & Duration', '${b.startTime} - ${b.endTime} (60 min)'),
-              _detailRow(
-                'Training Location',
-                isConfirmed
-                    ? (b.meetingLocation ?? 'Client Home / Fitness Facility')
-                    : 'Location address hidden until booking is confirmed',
-                isMuted: !isConfirmed,
-              ),
+              _detailRow('Commercial Gym', b.displayGymName),
+              _detailRow('Gym Address', b.displayGymAddress),
+              if (b.trainerTravelDistanceKm != null)
+                _detailRow('Travel Distance', '${b.trainerTravelDistanceKm!.toStringAsFixed(1)} km from your active location'),
+              if (b.googleMapsUrl.isNotEmpty)
+                _detailRow('Google Maps Link', b.googleMapsUrl),
               _detailRow('Package Plan', b.resolvedPackageName),
 
               if (b.fitnessGoal != null && b.fitnessGoal!.isNotEmpty)
@@ -764,7 +946,39 @@ class _BookingDetailModalState extends State<_BookingDetailModal> {
               if (_isLoading)
                 const Center(child: CircularProgressIndicator(color: _kDark))
               else ...[
-                if (isConfirmed) ...[
+                if (b.status == BookingStatus.pending) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _handleDeclineRequest,
+                          icon: const Icon(Iconsax.close_circle, size: 16, color: Color(0xFFDC2626)),
+                          label: const Text('Decline', style: TextStyle(fontFamily: 'Outfit', color: Color(0xFFDC2626), fontSize: 13, fontWeight: FontWeight.w600)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(0xFFFCA5A5)),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton.icon(
+                          onPressed: _handleAcceptRequest,
+                          icon: const Icon(Iconsax.tick_circle, size: 16, color: _kDark),
+                          label: const Text('Accept (15m Hold)', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: _kDark, fontSize: 13)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFD4E7C5),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                ] else if (isConfirmed) ...[
                   Row(
                     children: [
                       Expanded(

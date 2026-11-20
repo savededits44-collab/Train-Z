@@ -98,3 +98,22 @@ class SupportException extends TrainZException {
 class SettingsException extends TrainZException {
   const SettingsException(super.message, {super.code = 'SETTINGS_ERROR', super.details});
 }
+
+/// Location policy violation (e.g. non-commercial gym venue)
+class LocationPolicyException extends TrainZException {
+  const LocationPolicyException(
+    super.message, {
+    super.code = 'INVALID_LOCATION',
+    super.details,
+  });
+}
+
+/// Validates whether a location string violates TRAIN Z's commercial-gym-only policy
+bool isProhibitedTrainingLocation(String? location) {
+  if (location == null || location.trim().isEmpty) return false;
+  final prohibitedPattern = RegExp(
+    r'\b(home|residential|residence|flat|apartment|villa|condo|outdoor|public park|jogging track)\b|house\s*no',
+    caseSensitive: false,
+  );
+  return prohibitedPattern.hasMatch(location.trim());
+}

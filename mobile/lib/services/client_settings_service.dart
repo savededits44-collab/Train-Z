@@ -435,7 +435,7 @@ class ClientSettingsService {
   /// Requests secure account deletion:
   /// 1. Re-authenticates client with current password to prevent accidental / unauthorized deletion.
   /// 2. Records deletion request in Firestore.
-  /// 3. Performs client data anonymization (anonymizes name, phone, residential address).
+  /// 3. Performs client data anonymization (anonymizes name, phone, contact details).
   /// 4. Preserves statutory transaction & invoice audit records per tax/financial compliance.
   /// 5. Revokes authentication and signs out cleanly.
   Future<bool> requestAccountDeletion({

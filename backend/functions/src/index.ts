@@ -19,6 +19,29 @@ async function verifyIsAdmin(uid: string): Promise<boolean> {
   return userSnap.data()?.role === 'ADMIN';
 }
 
+function isProhibitedTrainingLocation(location?: string | null): boolean {
+  if (!location) return false;
+  const prohibitedPattern = /\b(home|residential|residence|flat|apartment|villa|condo|outdoor|public park|jogging track)\b|house\s*no/i;
+  return prohibitedPattern.test(String(location).trim());
+}
+
+/**
+ * Accurate Haversine distance on Earth between two coordinate pairs in kilometers.
+ */
+function calculateHaversineDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const earthRadiusKm = 6371.0;
+  const dLat = (lat2 - lat1) * (Math.PI / 180.0);
+  const dLon = (lon2 - lon1) * (Math.PI / 180.0);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180.0)) *
+      Math.cos(lat2 * (Math.PI / 180.0)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return earthRadiusKm * c;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Atomic Booking Creation with Gender Matching & Session Credit Reservation
 // ─────────────────────────────────────────────────────────────────────────────
@@ -33,6 +56,14 @@ export const createBookingWithCredit = onCall(async (request) => {
 
   if (!trainerId || !sessionDateIso || !startTime || !endTime) {
     throw new HttpsError('invalid-argument', 'Missing required booking parameters.');
+  }
+
+  // Enforce Commercial Gym training model: reject invalid home or outdoor locations
+  if (meetingLocation && isProhibitedTrainingLocation(meetingLocation)) {
+    throw new HttpsError(
+      'invalid-argument',
+      'All TRAIN Z personal training sessions take place exclusively at commercial gyms.'
+    );
   }
 
   const sessionDate = new Date(sessionDateIso);
@@ -138,7 +169,7 @@ export const createBookingWithCredit = onCall(async (request) => {
       endTime,
       status: 'CONFIRMED',
       creditTransactionId: txRef.id,
-      meetingLocation: meetingLocation || 'Client Gym / Selected Venue',
+      meetingLocation: (meetingLocation || 'Commercial Partner Gym').trim(),
       notes: notes || '',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -1258,10 +1289,11 @@ export const submitTrainerProfileForReview = onCall(async (request) => {
     }
   }
 
-  const hasLocation = trainerData.trainsAtHome === true ||
-                      trainerData.trainsAtGym === true ||
+  // Commercial Gym Training Affiliation: All sessions occur at commercial gyms
+  const hasLocation = trainerData.trainsAtGym === true ||
+                      (trainerData.gymName && String(trainerData.gymName).trim().length > 0) ||
                       (Array.isArray(trainerData.otherTrainingLocations) && trainerData.otherTrainingLocations.length > 0);
-  if (!hasLocation) missing.push('Training Service Locations (Home, Gym, or Other)');
+  if (!hasLocation) missing.push('Commercial Gym Training Affiliation');
 
   const areas = trainerData.serviceAreas || [];
   if (!Array.isArray(areas) || areas.length === 0) missing.push('Service Areas (min. 1 area)');
@@ -1279,8 +1311,10 @@ export const submitTrainerProfileForReview = onCall(async (request) => {
     );
   }
 
-  // Update profile to completed and pending review
+  // Update profile to completed and pending review (enforcing commercial gym exclusive standard)
   await trainerRef.update({
+    trainsAtGym: true,
+    trainsAtHome: false,
     isProfileCompleted: true,
     profileCompletionScore: 100,
     verificationStatus: 'PENDING',
@@ -1366,6 +1400,418 @@ async function getAuthoritativePackageInfo(packageId: string, trainerId?: string
   return null;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 5A. Client Creates Booking Request with Commercial Gym Selection & Distance Check
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const createBookingRequest = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated to create a booking request.');
+  }
+
+  const clientId = request.auth.uid;
+  const {
+    trainerId,
+    packageId,
+    sessionDateIso,
+    startTime,
+    endTime,
+    gymName,
+    gymAddress,
+    gymLat,
+    gymLng,
+    gymMapsUrl,
+    gymId,
+    notes,
+    clientName,
+    clientPhone,
+    workoutType,
+  } = request.data || {};
+
+  if (!trainerId || !packageId || !sessionDateIso || !startTime || !endTime) {
+    throw new HttpsError('invalid-argument', 'Missing required booking parameters (trainerId, packageId, sessionDateIso, startTime, endTime).');
+  }
+
+  const sessionDate = new Date(sessionDateIso);
+  const now = new Date();
+  if (sessionDate.getTime() < now.getTime() - 24 * 60 * 60 * 1000) {
+    throw new HttpsError('invalid-argument', 'Session date cannot be in the past.');
+  }
+
+  // Commercial gym policy validation: strictly reject non-commercial gym venues
+  if (gymName && isProhibitedTrainingLocation(gymName)) {
+    throw new HttpsError('invalid-argument', 'All TRAIN Z personal training sessions take place exclusively at commercial gyms.');
+  }
+  if (gymAddress && isProhibitedTrainingLocation(gymAddress)) {
+    throw new HttpsError('invalid-argument', 'All TRAIN Z personal training sessions take place exclusively at commercial gyms.');
+  }
+
+  // Package validation
+  const planInfo = await getAuthoritativePackageInfo(packageId, trainerId);
+  if (!planInfo) {
+    throw new HttpsError('invalid-argument', `Unknown or unapproved training package: ${packageId}.`);
+  }
+
+  // 1. Fetch Client Profile & Gender
+  const clientUserSnap = await db.collection('users').doc(clientId).get();
+  if (!clientUserSnap.exists) {
+    throw new HttpsError('not-found', 'Client account not found.');
+  }
+  const clientData = clientUserSnap.data()!;
+  const clientGender = clientData.gender;
+
+  // 2. Fetch Trainer Profile & Verification
+  const trainerProfileSnap = await db.collection('trainer_profiles').doc(trainerId).get();
+  if (!trainerProfileSnap.exists) {
+    throw new HttpsError('not-found', 'Trainer profile not found.');
+  }
+  const trainerProfileData = trainerProfileSnap.data()!;
+  if (trainerProfileData.verificationStatus !== 'APPROVED' || !trainerProfileData.isActive) {
+    throw new HttpsError('failed-precondition', 'Trainer is not currently approved or active.');
+  }
+
+  // 3. Fetch Trainer User & Gender Matching
+  const trainerUserSnap = await db.collection('users').doc(trainerId).get();
+  if (!trainerUserSnap.exists) {
+    throw new HttpsError('not-found', 'Trainer user record not found.');
+  }
+  const trainerData = trainerUserSnap.data()!;
+  const trainerGender = trainerData.gender;
+
+  if (clientGender !== trainerGender) {
+    throw new HttpsError('permission-denied', `Gender matching violation: ${clientGender} clients can only book ${clientGender} trainers.`);
+  }
+
+  // 4. Travel Radius Calculation
+  const trainerLat = trainerProfileData.activeLat ?? trainerProfileData.primaryGymLat;
+  const trainerLng = trainerProfileData.activeLng ?? trainerProfileData.primaryGymLng;
+  const travelRadiusKm = Number(trainerProfileData.travelRadiusKm || 15.0);
+
+  let calculatedDistKm: number | null = null;
+  if (trainerLat != null && trainerLng != null && gymLat != null && gymLng != null &&
+      Number(trainerLat) !== 0 && Number(trainerLng) !== 0 && Number(gymLat) !== 0 && Number(gymLng) !== 0) {
+    calculatedDistKm = calculateHaversineDistanceKm(Number(trainerLat), Number(trainerLng), Number(gymLat), Number(gymLng));
+    if (calculatedDistKm > travelRadiusKm) {
+      throw new HttpsError(
+        'failed-precondition',
+        `The selected gym is ${Math.round(calculatedDistKm * 10) / 10} km away, which exceeds the trainer's maximum travel radius of ${travelRadiusKm} km.`
+      );
+    }
+  }
+
+  // 5. Create Pending Booking Document
+  const bookingRef = db.collection('bookings').doc();
+  const effectiveGymName = (gymName && String(gymName).trim().length > 0) ? String(gymName).trim() : 'Commercial Partner Gym';
+  const effectiveGymAddress = gymAddress ? String(gymAddress).trim() : '';
+  const meetingLocation = effectiveGymAddress.length > 0
+      ? `${effectiveGymName} (${effectiveGymAddress})`
+      : effectiveGymName;
+
+  const bookingData = {
+    id: bookingRef.id,
+    clientId,
+    trainerId,
+    packageId,
+    planId: packageId,
+    clientGender,
+    trainerGender,
+    sessionDate: admin.firestore.Timestamp.fromDate(sessionDate),
+    startTime,
+    endTime,
+    status: 'PENDING',
+    paymentStatus: 'PENDING',
+    gymId: gymId || null,
+    gymName: effectiveGymName,
+    gymAddress: effectiveGymAddress,
+    gymLat: gymLat != null ? Number(gymLat) : null,
+    gymLng: gymLng != null ? Number(gymLng) : null,
+    gymMapsUrl: gymMapsUrl || null,
+    trainerTravelDistanceKm: calculatedDistKm != null ? Math.round(calculatedDistKm * 10) / 10 : null,
+    gymSettlementStatus: 'pending',
+    gymCompensationAmount: 150.0,
+    meetingLocation,
+    locationReference: meetingLocation,
+    packagePrice: planInfo.price,
+    sessionsCount: planInfo.sessionsCount,
+    validityDays: planInfo.validityDays,
+    clientName: clientName || clientData.displayName || 'Athlete',
+    clientPhone: clientPhone || clientData.phoneNumber || '',
+    trainerName: trainerData.displayName || 'Trainer',
+    workoutType: workoutType || 'Personal Training',
+    notes: notes || '',
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  await bookingRef.set(bookingData);
+
+  // 6. Notify Trainer of New Request
+  const notifRef = db.collection('notifications').doc();
+  const dateStr = sessionDate.toISOString().slice(0, 10);
+  await notifRef.set({
+    id: notifRef.id,
+    userId: trainerId,
+    title: 'New Session Request 🏋️',
+    body: `${bookingData.clientName} requested a 60-min session at ${bookingData.gymName} on ${dateStr} at ${startTime}.`,
+    type: 'NEW_BOOKING_REQUEST',
+    isRead: false,
+    data: {
+      bookingId: bookingRef.id,
+      gymName: bookingData.gymName,
+      sessionDate: dateStr,
+      startTime,
+      clientId,
+    },
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return {
+    success: true,
+    bookingId: bookingRef.id,
+    status: 'PENDING',
+    travelDistanceKm: calculatedDistKm,
+  };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5B. Trainer Accepts Booking Request (Starts 15-Minute Payment Hold)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const trainerAcceptBookingRequest = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Trainer must be authenticated to accept booking.');
+  }
+
+  const trainerId = request.auth.uid;
+  const { bookingId } = request.data || {};
+
+  if (!bookingId) {
+    throw new HttpsError('invalid-argument', 'Booking ID is required.');
+  }
+
+  return await db.runTransaction(async (transaction) => {
+    const bookingRef = db.collection('bookings').doc(bookingId);
+    const bookingSnap = await transaction.get(bookingRef);
+
+    if (!bookingSnap.exists) {
+      throw new HttpsError('not-found', 'Booking request not found.');
+    }
+
+    const booking = bookingSnap.data()!;
+
+    if (booking.trainerId !== trainerId) {
+      throw new HttpsError('permission-denied', 'You are not the assigned trainer for this booking.');
+    }
+
+    if (booking.status !== 'PENDING') {
+      throw new HttpsError('failed-precondition', `Cannot accept booking in ${booking.status} status.`);
+    }
+
+    // Revalidate Trainer Active Location & Travel Radius
+    const trainerProfileRef = db.collection('trainer_profiles').doc(trainerId);
+    const trainerProfileSnap = await transaction.get(trainerProfileRef);
+    if (!trainerProfileSnap.exists) {
+      throw new HttpsError('not-found', 'Trainer profile not found.');
+    }
+    const trainerProfileData = trainerProfileSnap.data()!;
+
+    const trainerLat = trainerProfileData.activeLat ?? trainerProfileData.primaryGymLat;
+    const trainerLng = trainerProfileData.activeLng ?? trainerProfileData.primaryGymLng;
+    const travelRadiusKm = Number(trainerProfileData.travelRadiusKm || 15.0);
+
+    if (trainerLat != null && trainerLng != null && booking.gymLat != null && booking.gymLng != null &&
+        Number(trainerLat) !== 0 && Number(trainerLng) !== 0 && Number(booking.gymLat) !== 0 && Number(booking.gymLng) !== 0) {
+      const dist = calculateHaversineDistanceKm(
+        Number(trainerLat),
+        Number(trainerLng),
+        Number(booking.gymLat),
+        Number(booking.gymLng)
+      );
+      if (dist > travelRadiusKm) {
+        throw new HttpsError(
+          'failed-precondition',
+          `Cannot accept: The client's gym is now outside your active travel radius (${Math.round(dist * 10) / 10} km vs ${travelRadiusKm} km radius).`
+        );
+      }
+    }
+
+    // Double-Booking / Slot Lock Check
+    const dateKey = booking.sessionDate.toDate().toISOString().slice(0, 10);
+    const safeTimeKey = (booking.startTime || '').replace(/[^a-zA-Z0-9]/g, '');
+    const slotLockId = `${trainerId}_${dateKey}_${safeTimeKey}`;
+    const slotLockRef = db.collection('slot_locks').doc(slotLockId);
+    const slotLockSnap = await transaction.get(slotLockRef);
+
+    if (slotLockSnap.exists) {
+      const lockData = slotLockSnap.data()!;
+      if (lockData.status === 'CONFIRMED') {
+        throw new HttpsError('already-exists', 'This time slot is already confirmed and booked.');
+      }
+      if (lockData.status === 'RESERVED') {
+        const lockExpires: admin.firestore.Timestamp = lockData.expiresAt;
+        if (lockExpires && lockExpires.toMillis() > Date.now() && lockData.bookingId !== bookingId) {
+          throw new HttpsError('already-exists', 'This slot is currently held by another reservation.');
+        }
+      }
+    }
+
+    // Atomic 15-Minute Payment Window Hold
+    const expiresAt = new Date(Date.now() + RESERVATION_HOLD_MINUTES * 60 * 1000);
+
+    transaction.set(slotLockRef, {
+      id: slotLockId,
+      bookingId,
+      trainerId,
+      clientId: booking.clientId,
+      date: dateKey,
+      startTime: booking.startTime,
+      endTime: booking.endTime,
+      status: 'RESERVED',
+      expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    transaction.update(bookingRef, {
+      status: 'RESERVED',
+      paymentStatus: 'PENDING',
+      reservedAt: admin.firestore.FieldValue.serverTimestamp(),
+      expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Notify Client that trainer accepted and payment is due
+    const notifRef = db.collection('notifications').doc();
+    transaction.set(notifRef, {
+      id: notifRef.id,
+      userId: booking.clientId,
+      title: 'Session Request Accepted! ⚡',
+      body: `Coach ${booking.trainerName || 'your trainer'} accepted your session at ${booking.gymName || 'your chosen gym'}. Please complete payment within 15 minutes to lock in your session.`,
+      type: 'TRAINER_ACCEPTED',
+      isRead: false,
+      data: {
+        bookingId,
+        gymName: booking.gymName,
+        expiresAt: expiresAt.toISOString(),
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return {
+      success: true,
+      bookingId,
+      status: 'RESERVED',
+      expiresAt: expiresAt.toISOString(),
+      holdMinutes: RESERVATION_HOLD_MINUTES,
+    };
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5C. Trainer Declines Booking Request
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const trainerDeclineBookingRequest = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Trainer must be authenticated.');
+  }
+
+  const trainerId = request.auth.uid;
+  const { bookingId, reason } = request.data || {};
+
+  if (!bookingId) {
+    throw new HttpsError('invalid-argument', 'Booking ID is required.');
+  }
+
+  return await db.runTransaction(async (transaction) => {
+    const bookingRef = db.collection('bookings').doc(bookingId);
+    const bookingSnap = await transaction.get(bookingRef);
+
+    if (!bookingSnap.exists) {
+      throw new HttpsError('not-found', 'Booking not found.');
+    }
+
+    const booking = bookingSnap.data()!;
+
+    if (booking.trainerId !== trainerId) {
+      throw new HttpsError('permission-denied', 'You are not authorized to decline this booking.');
+    }
+
+    if (booking.status === 'CONFIRMED' || booking.status === 'COMPLETED') {
+      throw new HttpsError('failed-precondition', 'Cannot decline a confirmed or completed booking. Use cancellation instead.');
+    }
+
+    transaction.update(bookingRef, {
+      status: 'REJECTED',
+      cancellationReason: reason ? `Declined by coach: ${reason}` : 'Declined by coach',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Release slot lock if present
+    const dateKey = booking.sessionDate.toDate().toISOString().slice(0, 10);
+    const safeTimeKey = (booking.startTime || '').replace(/[^a-zA-Z0-9]/g, '');
+    const slotLockId = `${trainerId}_${dateKey}_${safeTimeKey}`;
+    const slotLockRef = db.collection('slot_locks').doc(slotLockId);
+    const slotLockSnap = await transaction.get(slotLockRef);
+    if (slotLockSnap.exists && slotLockSnap.data()?.bookingId === bookingId) {
+      transaction.delete(slotLockRef);
+    }
+
+    // Notify Client
+    const notifRef = db.collection('notifications').doc();
+    transaction.set(notifRef, {
+      id: notifRef.id,
+      userId: booking.clientId,
+      title: 'Session Request Declined ✕',
+      body: `Coach ${booking.trainerName || 'the trainer'} was unable to accept your session request at ${booking.gymName || 'the gym'}. You have not been charged. Please choose another trainer.`,
+      type: 'BOOKING_REJECTED',
+      isRead: false,
+      data: {
+        bookingId,
+        reason: reason || '',
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return {
+      success: true,
+      bookingId,
+      status: 'REJECTED',
+    };
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5D. Update Trainer Active Location & Travel Radius
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const updateTrainerActiveLocation = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Trainer must be authenticated.');
+  }
+
+  const trainerId = request.auth.uid;
+  const { locationName, locationAddress, latitude, longitude, travelRadiusKm } = request.data || {};
+
+  const updateData: Record<string, any> = {
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  if (locationName !== undefined) updateData.activeLocationName = String(locationName).trim();
+  if (locationAddress !== undefined) updateData.activeLocationAddress = String(locationAddress).trim();
+  if (latitude !== undefined) updateData.activeLat = Number(latitude);
+  if (longitude !== undefined) updateData.activeLng = Number(longitude);
+  if (latitude !== undefined || longitude !== undefined || locationName !== undefined) {
+    updateData.activeLocationUpdatedAt = admin.firestore.FieldValue.serverTimestamp();
+  }
+  if (travelRadiusKm !== undefined) {
+    updateData.travelRadiusKm = Math.max(1, Math.min(100, Number(travelRadiusKm)));
+  }
+
+  await db.collection('trainer_profiles').doc(trainerId).set(updateData, { merge: true });
+
+  return { success: true, trainerId, updated: updateData };
+});
+
 const RESERVATION_HOLD_MINUTES = 15;
 
 export const reserveBookingSlot = onCall(async (request) => {
@@ -1396,6 +1842,14 @@ export const reserveBookingSlot = onCall(async (request) => {
   // Validate not in the past
   if (sessionDate.getTime() < now.getTime() - 24 * 60 * 60 * 1000) {
     throw new HttpsError('invalid-argument', 'Session date cannot be in the past.');
+  }
+
+  // Enforce Commercial Gym training standard
+  if (trainingLocation && isProhibitedTrainingLocation(trainingLocation)) {
+    throw new HttpsError(
+      'invalid-argument',
+      'All TRAIN Z personal training sessions take place exclusively at commercial gyms.'
+    );
   }
 
   // Authoritative package validation
@@ -1505,8 +1959,8 @@ export const reserveBookingSlot = onCall(async (request) => {
       sessionDate: admin.firestore.Timestamp.fromDate(sessionDate),
       startTime,
       endTime,
-      locationReference: (trainingLocation || '').trim(),
-      meetingLocation: (trainingLocation || 'Client Selected Venue').trim(),
+      locationReference: (trainingLocation || 'Commercial Partner Gym').trim(),
+      meetingLocation: (trainingLocation || 'Commercial Partner Gym').trim(),
       packagePrice: planInfo.price,
       sessionsCount: planInfo.sessionsCount,
       validityDays: planInfo.validityDays,
@@ -2387,6 +2841,44 @@ async function finalizePaymentAndGrantCredits(
             },
             { merge: true }
           );
+
+          // Record gym session for partnership settlement tracking
+          if (booking.gymName || booking.gymId) {
+            const gymSessionRef = db.collection('gym_sessions').doc();
+            transaction.set(gymSessionRef, {
+              id: gymSessionRef.id,
+              bookingId: payment.bookingId,
+              gymId: booking.gymId || 'custom_gym',
+              gymName: booking.gymName || booking.meetingLocation || 'Commercial Partner Gym',
+              gymAddress: booking.gymAddress || booking.locationReference || '',
+              clientId: booking.clientId,
+              trainerId: booking.trainerId,
+              sessionDate: booking.sessionDate,
+              startTime: booking.startTime,
+              compensationAmount: booking.gymCompensationAmount || 150.0,
+              settlementStatus: 'pending',
+              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+          }
+
+          // Notify trainer of confirmed payment & session
+          const trainerBookNotifRef = db.collection('notifications').doc();
+          const bRef = String(confirmedBookingId || payment.bookingId || '').slice(0, 8).toUpperCase();
+          const dateStr = booking.sessionDate ? booking.sessionDate.toDate().toISOString().slice(0, 10) : '';
+          transaction.set(trainerBookNotifRef, {
+            id: trainerBookNotifRef.id,
+            userId: booking.trainerId,
+            title: 'Session Payment Confirmed! 💰',
+            body: `${booking.clientName || 'Athlete'} completed payment for session at ${booking.gymName || 'the gym'} on ${dateStr} at ${booking.startTime}. Ref: #${bRef}`,
+            type: 'BOOKING_CONFIRMED',
+            isRead: false,
+            data: {
+              bookingId: confirmedBookingId,
+              bookingReference: bRef,
+              gymName: booking.gymName || 'Commercial Partner Gym',
+            },
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
         } else if (isExpired && booking.status === 'RESERVED') {
           // If expired before payment, release slot lock and mark booking expired
           transaction.update(bookingRef, {

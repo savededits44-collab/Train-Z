@@ -804,7 +804,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Available for 1-on-1 training across commercial gyms, residential clubhouses, and private partner studios in ${trainer.displayLocation}.',
+                    'Available for 1-on-1 personal training exclusively across commercial gyms and partner fitness facilities in ${trainer.displayLocation}.',
                     style: TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: (11.5 * sf).clamp(10.5, 13.0),
@@ -827,7 +827,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Strict Privacy: Client home addresses and trainer personal phone numbers are never shared or made public.',
+                            'Commercial Gym Policy: All training occurs at verified commercial gyms. Personal contact details are protected.',
                             style: TextStyle(
                               fontFamily: 'Outfit',
                               fontSize: (10.0 * sf).clamp(9.0, 11.5),

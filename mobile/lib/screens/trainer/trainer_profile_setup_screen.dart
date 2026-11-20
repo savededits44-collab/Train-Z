@@ -41,6 +41,9 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
   late TextEditingController _professionalExperienceController;
   late TextEditingController _trainingApproachController;
   late TextEditingController _workingHoursController;
+  late TextEditingController _primaryGymNameController;
+  late TextEditingController _primaryGymAddressController;
+  double _travelRadiusKm = 15.0;
 
   // Tag & custom input controllers
   final _newAreaController = TextEditingController();
@@ -65,8 +68,6 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
   final Set<String> _languages = {};
 
   // ── Training Services State ──
-  bool _trainsAtHome = false;
-  bool _trainsAtGym = false;
   final List<String> _otherTrainingLocations = [];
   final List<String> _serviceAreas = [];
   final Set<String> _workingDays = {};
@@ -174,6 +175,9 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
     _workingHoursController = TextEditingController(
       text: service.workingHours ?? '06:00 AM - 09:00 PM',
     );
+    _primaryGymNameController = TextEditingController(text: service.primaryGymName ?? '');
+    _primaryGymAddressController = TextEditingController(text: service.primaryGymAddress ?? '');
+    _travelRadiusKm = service.travelRadiusKm;
   }
 
   @override
@@ -185,6 +189,8 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
     _professionalExperienceController.dispose();
     _trainingApproachController.dispose();
     _workingHoursController.dispose();
+    _primaryGymNameController.dispose();
+    _primaryGymAddressController.dispose();
     _newAreaController.dispose();
     _newOtherLocationController.dispose();
     _newSpecialtyController.dispose();
@@ -223,6 +229,9 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
         _workingHoursController.text = (service.workingHours != null && service.workingHours!.isNotEmpty)
             ? service.workingHours!
             : '06:00 AM - 09:00 PM';
+        _primaryGymNameController.text = service.primaryGymName ?? '';
+        _primaryGymAddressController.text = service.primaryGymAddress ?? '';
+        _travelRadiusKm = service.travelRadiusKm;
 
         _photoUrl = service.photoUrl ?? user?.photoURL;
         _category = service.category;
@@ -249,8 +258,6 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
         _languages.clear();
         _languages.addAll(service.languages.isNotEmpty ? service.languages : ['English']);
 
-        _trainsAtHome = service.trainsAtHome;
-        _trainsAtGym = service.trainsAtGym;
         _otherTrainingLocations.clear();
         _otherTrainingLocations.addAll(service.otherTrainingLocations);
 
@@ -292,8 +299,8 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
       languages: _languages.toList(),
       trainingApproach: _trainingApproachController.text.trim(),
       professionalExperience: _professionalExperienceController.text.trim(),
-      trainsAtHome: _trainsAtHome,
-      trainsAtGym: _trainsAtGym,
+      trainsAtHome: false,
+      trainsAtGym: true,
       otherTrainingLocations: _otherTrainingLocations,
       serviceAreas: _serviceAreas,
       workingDays: _workingDays.toList(),
@@ -532,8 +539,11 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
         languages: _languages.toList(),
         professionalExperience: _professionalExperienceController.text.trim(),
         trainingApproach: _trainingApproachController.text.trim(),
-        trainsAtHome: _trainsAtHome,
-        trainsAtGym: _trainsAtGym,
+        trainsAtHome: false,
+        trainsAtGym: true,
+        primaryGymName: _primaryGymNameController.text.trim().isNotEmpty ? _primaryGymNameController.text.trim() : null,
+        primaryGymAddress: _primaryGymAddressController.text.trim().isNotEmpty ? _primaryGymAddressController.text.trim() : null,
+        travelRadiusKm: _travelRadiusKm,
         otherTrainingLocations: _otherTrainingLocations,
         serviceAreas: _serviceAreas,
         workingDays: _workingDays.toList(),
@@ -709,8 +719,11 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
         languages: _languages.toList(),
         professionalExperience: _professionalExperienceController.text.trim(),
         trainingApproach: _trainingApproachController.text.trim(),
-        trainsAtHome: _trainsAtHome,
-        trainsAtGym: _trainsAtGym,
+        trainsAtHome: false,
+        trainsAtGym: true,
+        primaryGymName: _primaryGymNameController.text.trim().isNotEmpty ? _primaryGymNameController.text.trim() : null,
+        primaryGymAddress: _primaryGymAddressController.text.trim().isNotEmpty ? _primaryGymAddressController.text.trim() : null,
+        travelRadiusKm: _travelRadiusKm,
         otherTrainingLocations: _otherTrainingLocations,
         serviceAreas: _serviceAreas,
         workingDays: _workingDays.toList(),
@@ -1023,45 +1036,137 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Supported Training Locations:',
-                        style: TextStyle(
-                          fontFamily: 'Outfit',
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                          color: kDark,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Training Venue & Gym Affiliation:',
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: kDark,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFDCFCE7),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.verified, size: 12, color: Color(0xFF16A34A)),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Commercial Gym Only',
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF16A34A),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
-                      SwitchListTile(
-                        value: _trainsAtHome,
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        activeThumbColor: kDark,
-                        activeTrackColor: kLime,
-                        title: const Text(
-                          'Home Training (Client\'s Residence)',
-                          style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9FAFB),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFE5E7EB)),
                         ),
-                        onChanged: (val) => setState(() => _trainsAtHome = val),
-                      ),
-                      SwitchListTile(
-                        value: _trainsAtGym,
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        activeThumbColor: kDark,
-                        activeTrackColor: kLime,
-                        title: const Text(
-                          'Gym Training (Partner / Commercial Gyms)',
-                          style: TextStyle(fontFamily: 'Outfit', fontSize: 13, color: kDark),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.info_outline, size: 16, color: Color(0xFF4B5563)),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text(
+                                'All TRAIN Z personal training sessions take place exclusively at commercial gyms and partner fitness facilities.',
+                                style: TextStyle(
+                                  fontFamily: 'Outfit',
+                                  fontSize: 11,
+                                  color: Color(0xFF4B5563),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        onChanged: (val) => setState(() => _trainsAtGym = val),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
 
-                      // Other supported locations
+                      // Primary Commercial Home Gym
                       const Text(
-                        'Other Locations (Society Clubhouses, Parks, etc.):',
+                        'Primary Commercial Home Gym:',
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 12.5, fontWeight: FontWeight.w600, color: kDark),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Your default commercial gym base. Client travel distances are calculated relative to your operating area.',
+                        style: TextStyle(fontFamily: 'Outfit', fontSize: 11, color: kGrey),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _primaryGymNameController,
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5),
+                        decoration: InputDecoration(
+                          hintText: 'Primary Gym Name (e.g. Gold\'s Gym Kalyani Nagar)',
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: kBorder)),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _primaryGymAddressController,
+                        style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5),
+                        decoration: InputDecoration(
+                          hintText: 'Primary Gym Address & Locality',
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: kBorder)),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Max Travel Radius
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Maximum Client Travel Radius:',
+                            style: TextStyle(fontFamily: 'Outfit', fontSize: 12, fontWeight: FontWeight.w600, color: kDark),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(color: kDark, borderRadius: BorderRadius.circular(6)),
+                            child: Text(
+                              '${_travelRadiusKm.toInt()} km',
+                              style: const TextStyle(fontFamily: 'Outfit', fontSize: 11, fontWeight: FontWeight.w700, color: kLime),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Slider(
+                        value: _travelRadiusKm,
+                        min: 5.0,
+                        max: 50.0,
+                        divisions: 9,
+                        activeColor: kDark,
+                        inactiveColor: const Color(0xFFE5E7EB),
+                        onChanged: (val) => setState(() => _travelRadiusKm = val),
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Affiliated Commercial Gym Facilities
+                      const Text(
+                        'Affiliated Commercial Gyms & Partner Facilities:',
                         style: TextStyle(fontFamily: 'Outfit', fontSize: 11.5, color: kGrey),
                       ),
                       const SizedBox(height: 6),
@@ -1072,7 +1177,7 @@ class _TrainerProfileSetupScreenState extends State<TrainerProfileSetupScreen> {
                               controller: _newOtherLocationController,
                               style: const TextStyle(fontFamily: 'Outfit', fontSize: 12.5),
                               decoration: InputDecoration(
-                                hintText: 'e.g. Society Gym, Outdoor Park',
+                                hintText: 'e.g. Gold\'s Gym Kalyani Nagar, Cult.fit',
                                 filled: true,
                                 fillColor: Colors.white,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
