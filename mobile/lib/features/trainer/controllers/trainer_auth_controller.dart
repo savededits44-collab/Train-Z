@@ -301,8 +301,10 @@ class TrainerAuthController extends ChangeNotifier {
 
       _currentTrainerUser = userModel;
 
-      // Email verification check
-      if (!user.emailVerified && !userModel.isEmailVerified) {
+      // Email verification check: require verified email for email/password trainers
+      final isGoogle = user.providerData.any((p) => p.providerId == 'google.com');
+      final isVerified = user.emailVerified || isGoogle;
+      if (!isVerified) {
         _setLoading(false);
         return TrainerAuthNavigationTarget.verifyEmail;
       }
@@ -372,13 +374,23 @@ class TrainerAuthController extends ChangeNotifier {
   /// Reloads user and checks if email is verified
   Future<bool> checkEmailVerification() async {
     _setLoading(true);
+    _clearError();
     try {
       final verified = await _authService.reloadAndCheckEmailVerification();
-      if (verified && _currentTrainerUser != null) {
-        _currentTrainerUser = _currentTrainerUser!.copyWith(isEmailVerified: true);
+      if (verified) {
+        final uid = _authService.currentUser?.uid;
+        if (uid != null) {
+          _currentTrainerUser = await _authService.getUserModel(uid);
+        } else if (_currentTrainerUser != null) {
+          _currentTrainerUser = _currentTrainerUser!.copyWith(isEmailVerified: true);
+        }
       }
       _setLoading(false);
       return verified;
+    } on TrainZException catch (e) {
+      _setLoading(false);
+      _setError(e.message);
+      return false;
     } catch (e) {
       _setLoading(false);
       return false;
@@ -387,9 +399,13 @@ class TrainerAuthController extends ChangeNotifier {
 
   /// Dispatches email verification link
   Future<bool> resendVerificationEmail() async {
+    _clearError();
     try {
       await _authService.sendEmailVerification();
       return true;
+    } on TrainZException catch (e) {
+      _setError(e.message);
+      return false;
     } catch (e) {
       _setError('Failed to resend verification email. Please try again later.');
       return false;

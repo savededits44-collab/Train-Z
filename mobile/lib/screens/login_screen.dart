@@ -133,6 +133,20 @@ class _LoginScreenState extends State<LoginScreen>
       bool isOnboarded = false;
 
       if (user != null) {
+        final isGoogle = user.providerData.any((p) => p.providerId == 'google.com');
+        final isVerified = user.emailVerified || isGoogle;
+
+        if (!isVerified) {
+          if (!mounted) return;
+          setState(() => _loading = false);
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => ClientEmailVerificationScreen(email: user.email ?? ''),
+            ),
+          );
+          return;
+        }
+
         final profile = await AuthService().getUserProfile(user.uid);
         if (profile != null) {
           role = profile['role'] as String?;
@@ -194,6 +208,20 @@ class _LoginScreenState extends State<LoginScreen>
       bool isOnboarded = false;
 
       if (user != null) {
+        final isGoogle = user.providerData.any((p) => p.providerId == 'google.com');
+        final isVerified = user.emailVerified || isGoogle;
+
+        if (!isVerified) {
+          if (!mounted) return;
+          setState(() => _loading = false);
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => ClientEmailVerificationScreen(email: user.email ?? ''),
+            ),
+          );
+          return;
+        }
+
         final profile = await AuthService().getUserProfile(user.uid);
         if (profile != null) {
           role = profile['role'] as String?;

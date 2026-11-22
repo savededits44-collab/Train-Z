@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../features/client/presentation/screens/client_email_verification_screen.dart';
 import '../features/client/presentation/screens/client_home_screen.dart';
 import '../features/client/presentation/screens/client_profile_setup_screen.dart';
+import '../features/trainer/presentation/screens/trainer_email_verification_screen.dart';
 import '../features/trainer/presentation/screens/trainer_pending_approval_screen.dart';
 import '../features/trainer/presentation/screens/trainer_rejected_screen.dart';
 import '../screens/onboarding/role_selection_screen.dart';
@@ -69,15 +71,56 @@ class _SplashScreenState extends State<SplashScreen>
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        final profile = await AuthService().getUserProfile(user.uid);
+        // Reload user to refresh emailVerified state
+        try {
+          await user.reload();
+        } catch (e) {
+          debugPrint('Notice: User reload on splash error: $e');
+        }
+
+        final refreshedUser = FirebaseAuth.instance.currentUser;
+        if (refreshedUser == null) {
+          if (mounted && !_navigated) {
+            setState(() => _isCheckingAuth = false);
+          }
+          return;
+        }
+
+        final isGoogle = refreshedUser.providerData.any((p) => p.providerId == 'google.com');
+        final isVerified = refreshedUser.emailVerified || isGoogle;
+
+        final profile = await AuthService().getUserProfile(refreshedUser.uid);
         final role = profile?['role'] as String?;
         final isOnboarded = profile?['onboarded'] == true || profile?['isOnboarded'] == true;
 
         if (!mounted || _navigated) return;
 
+        // If email is not verified, require verification before proceeding to protected screens
+        if (!isVerified) {
+          _navigated = true;
+          if (role?.toLowerCase() == 'trainer') {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => TrainerEmailVerificationScreen(
+                  email: refreshedUser.email ?? '',
+                ),
+              ),
+            );
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => ClientEmailVerificationScreen(
+                  email: refreshedUser.email ?? '',
+                ),
+              ),
+            );
+          }
+          return;
+        }
+
         if (isOnboarded && role != null) {
           if (role.toLowerCase() == 'trainer') {
-            final prof = await AuthService().getTrainerProfile(user.uid);
+            final prof = await AuthService().getTrainerProfile(refreshedUser.uid);
             if (!mounted || _navigated) return;
             _navigated = true;
 
@@ -92,7 +135,7 @@ class _SplashScreenState extends State<SplashScreen>
             } else {
               TrainerProfileService.instance.populateFromModel(prof);
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => TrainerDashboard(trainerId: user.uid)),
+                MaterialPageRoute(builder: (_) => TrainerDashboard(trainerId: refreshedUser.uid)),
               );
             }
             return;

@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../../../services/auth_service.dart';
 import '../../../../shared/models/trainer_profile_model.dart';
 import '../../../../widgets/app_widgets.dart';
 import '../../controllers/trainer_auth_controller.dart';
@@ -22,24 +24,61 @@ class TrainerEmailVerificationScreen extends StatefulWidget {
 }
 
 class _TrainerEmailVerificationScreenState
-    extends State<TrainerEmailVerificationScreen> {
+    extends State<TrainerEmailVerificationScreen> with WidgetsBindingObserver {
   final _trainerAuthController = TrainerAuthController();
 
   bool _isChecking = false;
   bool _isResending = false;
   String? _statusMessage;
   bool _isSuccessMessage = false;
+  int _resendCooldown = 0;
+  Timer? _timer;
+
+  String get _effectiveEmail {
+    if (widget.email.isNotEmpty) return widget.email;
+    return AuthService.instance.currentUser?.email ?? 'your registered email';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    final remaining = AuthService.instance.resendCooldownRemaining;
+    _startCooldown(seconds: remaining > 0 ? remaining : 60);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _handleCheckVerification(silent: true);
+    }
+  }
+
+  void _startCooldown({int seconds = 60}) {
+    setState(() => _resendCooldown = seconds);
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_resendCooldown > 0) {
+        setState(() => _resendCooldown--);
+      } else {
+        timer.cancel();
+      }
+    });
+  }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
     _trainerAuthController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleCheckVerification() async {
+  Future<void> _handleCheckVerification({bool silent = false}) async {
+    if (_isChecking) return;
     setState(() {
       _isChecking = true;
-      _statusMessage = null;
+      if (!silent) _statusMessage = null;
     });
 
     final verified = await _trainerAuthController.checkEmailVerification();
@@ -70,16 +109,17 @@ class _TrainerEmailVerificationScreenState
           ),
         );
       }
-    } else {
+    } else if (!silent) {
       setState(() {
         _statusMessage =
-            'Email not yet verified. Please tap the verification link in your inbox and try again.';
+            _trainerAuthController.errorMessage ?? 'Email not yet verified. Please tap the verification link in your inbox and try again.';
         _isSuccessMessage = false;
       });
     }
   }
 
   Future<void> _handleResendEmail() async {
+    if (_resendCooldown > 0 || _isResending) return;
     setState(() {
       _isResending = true;
       _statusMessage = null;
@@ -91,7 +131,8 @@ class _TrainerEmailVerificationScreenState
     setState(() {
       _isResending = false;
       if (sent) {
-        _statusMessage = 'A new verification link has been sent to ${widget.email}.';
+        _startCooldown();
+        _statusMessage = 'A new verification link has been sent to $_effectiveEmail.';
         _isSuccessMessage = true;
       } else {
         _statusMessage =
@@ -192,7 +233,7 @@ class _TrainerEmailVerificationScreenState
               const SizedBox(height: 6),
 
               Text(
-                widget.email,
+                _effectiveEmail,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Outfit',
@@ -262,9 +303,12 @@ class _TrainerEmailVerificationScreenState
                 width: double.infinity,
                 height: (54.0 * sf).clamp(48.0, 60.0),
                 child: OutlinedButton(
-                  onPressed: _isResending ? null : _handleResendEmail,
+                  onPressed: (_resendCooldown > 0 || _isResending) ? null : _handleResendEmail,
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: kDark, width: 1.5),
+                    side: BorderSide(
+                      color: _resendCooldown > 0 ? kGrey.withValues(alpha: 0.5) : kDark,
+                      width: 1.5,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -278,13 +322,15 @@ class _TrainerEmailVerificationScreenState
                             color: kDark,
                           ),
                         )
-                      : const Text(
-                          'Resend Verification Email',
+                      : Text(
+                          _resendCooldown > 0
+                              ? 'Resend link in ${_resendCooldown}s'
+                              : 'Resend Verification Email',
                           style: TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: kDark,
+                            color: _resendCooldown > 0 ? kGrey : kDark,
                           ),
                         ),
                 ),

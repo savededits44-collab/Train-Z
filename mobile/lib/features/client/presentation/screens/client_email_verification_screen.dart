@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import '../../../../services/auth_service.dart';
 import '../../../../widgets/app_widgets.dart';
 import '../../controllers/client_auth_controller.dart';
 import 'client_home_screen.dart';
@@ -23,21 +24,35 @@ class ClientEmailVerificationScreen extends StatefulWidget {
 }
 
 class _ClientEmailVerificationScreenState
-    extends State<ClientEmailVerificationScreen> {
+    extends State<ClientEmailVerificationScreen> with WidgetsBindingObserver {
   final ClientAuthController _authController = ClientAuthController();
 
   int _resendCooldown = 0;
   Timer? _timer;
   bool _checking = false;
 
+  String get _effectiveEmail {
+    if (widget.email.isNotEmpty) return widget.email;
+    return AuthService.instance.currentUser?.email ?? 'your registered email';
+  }
+
   @override
   void initState() {
     super.initState();
-    _startCooldown();
+    WidgetsBinding.instance.addObserver(this);
+    final remaining = AuthService.instance.resendCooldownRemaining;
+    _startCooldown(seconds: remaining > 0 ? remaining : 60);
   }
 
-  void _startCooldown() {
-    setState(() => _resendCooldown = 60);
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkVerification(silent: true);
+    }
+  }
+
+  void _startCooldown({int seconds = 60}) {
+    setState(() => _resendCooldown = seconds);
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_resendCooldown > 0) {
@@ -50,26 +65,32 @@ class _ClientEmailVerificationScreenState
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _authController.dispose();
     super.dispose();
   }
 
-  Future<void> _checkVerification() async {
+  Future<void> _checkVerification({bool silent = false}) async {
+    if (_checking) return;
     setState(() => _checking = true);
     final verified = await _authController.checkEmailVerification();
-    setState(() => _checking = false);
-
     if (!mounted) return;
+    setState(() => _checking = false);
 
     if (verified) {
       HapticFeedback.mediumImpact();
-      _showToast('Email verified successfully! Welcome to TrainZ.');
+      _showToast('Email verified successfully! Welcome to TRAIN Z.');
 
-      // Check onboarding state
-      final client = _authController.currentClient;
-      final bool isOnboarded = client?.isOnboarded ?? false;
+      // Check onboarding state from refreshed client model or auth service
+      final user = AuthService.instance.currentUser;
+      bool isOnboarded = false;
+      if (user != null) {
+        final profile = await AuthService.instance.getUserProfile(user.uid);
+        isOnboarded = profile?['onboarded'] == true || profile?['isOnboarded'] == true;
+      }
 
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => isOnboarded
@@ -77,10 +98,11 @@ class _ClientEmailVerificationScreenState
               : const ClientProfileSetupScreen(),
         ),
       );
-    } else {
+    } else if (!silent) {
       HapticFeedback.selectionClick();
+      final err = _authController.errorMessage;
       _showToast(
-        'Email not verified yet. Please check your inbox (including spam folder) or tap Resend.',
+        err ?? 'Email not verified yet. Please check your inbox (including spam folder) or tap Resend.',
       );
     }
   }
@@ -236,7 +258,7 @@ class _ClientEmailVerificationScreenState
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
-                        widget.email,
+                        _effectiveEmail,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: 'Outfit',

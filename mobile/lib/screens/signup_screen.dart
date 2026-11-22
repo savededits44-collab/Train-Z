@@ -115,10 +115,10 @@ class _SignupScreenState extends State<SignupScreen>
       if (!mounted) return;
       setState(() => _loading = false);
 
-      // New email signup goes directly to role selection onboarding
+      // New email signup must verify email before accessing the app
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => const RoleSelectionScreen(),
+          builder: (_) => ClientEmailVerificationScreen(email: email),
         ),
       );
     } on FirebaseAuthException catch (e) {

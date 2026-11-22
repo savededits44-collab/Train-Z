@@ -87,6 +87,45 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
     }
   }
 
+  Future<void> _handleGoogleLogin() async {
+    FocusScope.of(context).unfocus();
+
+    final target = await _authController.loginClientWithGoogle();
+    if (!mounted) return;
+
+    if (target != null) {
+      HapticFeedback.mediumImpact();
+      switch (target) {
+        case ClientAuthNavigationTarget.verifyEmail:
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => ClientEmailVerificationScreen(
+                email: _authController.currentClient?.email ?? '',
+              ),
+            ),
+          );
+          break;
+        case ClientAuthNavigationTarget.profileCompletion:
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => const ClientProfileSetupScreen(),
+            ),
+          );
+          break;
+        case ClientAuthNavigationTarget.clientHome:
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => const ClientHomeScreen(),
+            ),
+          );
+          break;
+      }
+    } else if (_authController.errorMessage != null) {
+      HapticFeedback.heavyImpact();
+      _showToast(_authController.errorMessage!);
+    }
+  }
+
   void _showToast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -278,12 +317,7 @@ class _ClientLoginScreenState extends State<ClientLoginScreen> {
 
               // Google Sign In Button
               _GoogleSignInButton(
-                onTap: () async {
-                  await _authController.loginClient(
-                    email: _emailController.text,
-                    password: _passwordController.text,
-                  );
-                },
+                onTap: _handleGoogleLogin,
               ),
 
               const SizedBox(height: 24),

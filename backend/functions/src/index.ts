@@ -42,14 +42,23 @@ function calculateHaversineDistanceKm(lat1: number, lon1: number, lat2: number, 
   return earthRadiusKm * c;
 }
 
+function requireVerifiedEmail(request: { auth?: { uid: string; token?: any } }): asserts request is { auth: { uid: string; token?: any } } {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+  const isGoogle = request.auth.token?.firebase?.sign_in_provider === 'google.com';
+  const isVerified = request.auth.token?.email_verified === true || isGoogle;
+  if (!isVerified) {
+    throw new HttpsError('permission-denied', 'Email address must be verified to perform this action.');
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Atomic Booking Creation with Gender Matching & Session Credit Reservation
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const createBookingWithCredit = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'User must be authenticated to create a booking.');
-  }
+  requireVerifiedEmail(request);
 
   const clientId = request.auth.uid;
   const { trainerId, sessionDateIso, startTime, endTime, planId, meetingLocation, notes } = request.data || {};

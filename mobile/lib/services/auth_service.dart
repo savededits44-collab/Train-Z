@@ -57,7 +57,10 @@ class AuthService {
   /// Checks if current authenticated user has verified their email address
   bool get isEmailVerified {
     try {
-      return _auth.currentUser?.emailVerified ?? false;
+      final user = _auth.currentUser;
+      if (user == null) return false;
+      final isGoogle = user.providerData.any((p) => p.providerId == 'google.com');
+      return user.emailVerified || isGoogle;
     } catch (_) {
       return false;
     }
@@ -219,11 +222,13 @@ class AuthService {
 
     final user = credential.user;
     if (user != null) {
+      final isGoogle = user.providerData.any((p) => p.providerId == 'google.com');
+      final isVerified = user.emailVerified || isGoogle;
       // Record last login timestamp without overwriting existing backend verification
       final loginUpdates = <String, dynamic>{
         'lastLoginAt': FieldValue.serverTimestamp(),
       };
-      if (user.emailVerified) {
+      if (isVerified) {
         loginUpdates['isEmailVerified'] = true;
       }
       await _firestore
@@ -289,35 +294,91 @@ class AuthService {
     return userCredential;
   }
 
-  /// Sends email verification link to current authenticated user
-  Future<void> sendEmailVerification() async {
+  DateTime? _lastVerificationEmailSentAt;
+  static const int resendCooldownSeconds = 60;
+
+  int get resendCooldownRemaining {
+    if (_lastVerificationEmailSentAt == null) return 0;
+    final diff = DateTime.now().difference(_lastVerificationEmailSentAt!).inSeconds;
+    return diff < resendCooldownSeconds ? resendCooldownSeconds - diff : 0;
+  }
+
+  /// Sends email verification link to current authenticated user with cooldown protection
+  Future<void> sendEmailVerification({bool enforceCooldown = true}) async {
     final user = _auth.currentUser;
     if (user == null) {
       throw const AuthException('No authenticated user session found.');
     }
-    await user.sendEmailVerification();
+
+    if (enforceCooldown && resendCooldownRemaining > 0) {
+      throw AuthException(
+        'Please wait ${resendCooldownRemaining}s before requesting another verification email.',
+      );
+    }
+
+    try {
+      await user.sendEmailVerification();
+      _lastVerificationEmailSentAt = DateTime.now();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'too-many-requests') {
+        throw const AuthException(
+          'Too many verification requests sent. Please wait a few minutes before trying again.',
+        );
+      } else if (e.code == 'user-token-expired') {
+        throw const AuthException(
+          'Your session has expired. Please sign in again to receive a verification email.',
+        );
+      } else if (e.code == 'network-request-failed') {
+        throw const AuthException(
+          'Network connection unavailable. Please check your internet connection.',
+        );
+      }
+      throw AuthException(e.message ?? 'Failed to send verification email. Please try again.');
+    } catch (e) {
+      if (e is AuthException) rethrow;
+      throw AuthException('Failed to dispatch verification email: $e');
+    }
   }
 
-  /// Reloads user to check if email was verified
+  /// Reloads user from Firebase Authentication and checks if email is verified.
+  /// Strictly verifies against Firebase Auth and updates Firestore upon confirmation.
   Future<bool> reloadAndCheckEmailVerification() async {
     final user = _auth.currentUser;
     if (user == null) return false;
-    await user.reload();
-    final updated = _auth.currentUser;
-    bool verified = updated?.emailVerified ?? false;
 
-    if (!verified) {
-      try {
-        final doc = await _firestore.collection(FirestoreCollections.users).doc(user.uid).get();
-        verified = doc.data()?['isEmailVerified'] == true;
-      } catch (_) {}
+    try {
+      await user.reload();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-disabled') {
+        throw const AuthException('This account has been disabled. Please contact support.');
+      } else if (e.code == 'user-not-found') {
+        throw const AuthException('User account no longer exists. Please sign up again.');
+      } else if (e.code == 'network-request-failed') {
+        throw const AuthException('Network connection error. Please check your internet connection.');
+      }
+      return false;
+    } catch (_) {
+      return false;
     }
 
+    final updated = _auth.currentUser;
+    if (updated == null) return false;
+
+    final isGoogle = updated.providerData.any((p) => p.providerId == 'google.com');
+    final verified = updated.emailVerified || isGoogle;
+
     if (verified) {
-      await _firestore
-          .collection(FirestoreCollections.users)
-          .doc(user.uid)
-          .update({'isEmailVerified': true});
+      try {
+        await _firestore
+            .collection(FirestoreCollections.users)
+            .doc(user.uid)
+            .set({
+          'isEmailVerified': true,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('Notice: Error syncing verified email to Firestore: $e');
+      }
     }
 
     return verified;

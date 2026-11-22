@@ -174,8 +174,11 @@ class ClientAuthController extends ChangeNotifier {
       _currentClient = userModel;
       _setLoading(false);
 
-      // Routing evaluation
-      if (!user.emailVerified && !userModel.isEmailVerified) {
+      // Routing evaluation: require email verification for email/password users
+      final isGoogle = user.providerData.any((p) => p.providerId == 'google.com');
+      final isVerified = user.emailVerified || isGoogle;
+
+      if (!isVerified) {
         return ClientAuthNavigationTarget.verifyEmail;
       }
 
@@ -195,6 +198,52 @@ class ClientAuthController extends ChangeNotifier {
     }
   }
 
+  /// Sign in / Continue with Google for Clients (OAuth)
+  Future<ClientAuthNavigationTarget?> loginClientWithGoogle() async {
+    _clearError();
+    _setLoading(true);
+    try {
+      final credential = await _authService.signInWithGoogle(requestedRole: UserRole.client);
+      if (credential == null) {
+        _setLoading(false);
+        return null; // User cancelled
+      }
+
+      final user = credential.user;
+      if (user == null) {
+        _setLoading(false);
+        _setError('No session returned. Please try again.');
+        return null;
+      }
+
+      final userModel = await _authService.getUserModel(user.uid);
+      if (userModel == null) {
+        _setLoading(false);
+        _setError('User profile could not be loaded.');
+        return null;
+      }
+
+      if (userModel.status == UserStatus.suspended) {
+        await _authService.signOut();
+        _setLoading(false);
+        _setError('Your account is currently suspended. Please contact support@trainz.app.');
+        return null;
+      }
+
+      _currentClient = userModel;
+      _setLoading(false);
+
+      if (!userModel.isOnboarded) {
+        return ClientAuthNavigationTarget.profileCompletion;
+      }
+      return ClientAuthNavigationTarget.clientHome;
+    } catch (e) {
+      _setLoading(false);
+      _setError('Google sign-in failed. Please try again.');
+      return null;
+    }
+  }
+
   // ───────────────────────────────────────────────────────────────────────────
   // Email Verification
   // ───────────────────────────────────────────────────────────────────────────
@@ -202,13 +251,23 @@ class ClientAuthController extends ChangeNotifier {
   /// Reloads user and checks if email is verified
   Future<bool> checkEmailVerification() async {
     _setLoading(true);
+    _clearError();
     try {
       final verified = await _authService.reloadAndCheckEmailVerification();
-      if (verified && _currentClient != null) {
-        _currentClient = _currentClient!.copyWith(isEmailVerified: true);
+      if (verified) {
+        final uid = _authService.currentUser?.uid;
+        if (uid != null) {
+          _currentClient = await _authService.getUserModel(uid);
+        } else if (_currentClient != null) {
+          _currentClient = _currentClient!.copyWith(isEmailVerified: true);
+        }
       }
       _setLoading(false);
       return verified;
+    } on TrainZException catch (e) {
+      _setLoading(false);
+      _setError(e.message);
+      return false;
     } catch (e) {
       _setLoading(false);
       return false;
@@ -217,9 +276,13 @@ class ClientAuthController extends ChangeNotifier {
 
   /// Dispatches email verification link
   Future<bool> resendVerificationEmail() async {
+    _clearError();
     try {
       await _authService.sendEmailVerification();
       return true;
+    } on TrainZException catch (e) {
+      _setError(e.message);
+      return false;
     } catch (e) {
       _setError('Could not send verification email. Please try again in a few moments.');
       return false;

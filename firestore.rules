@@ -44,6 +44,13 @@ service cloud.firestore {
              getUserDoc(userId).data.status != 'SUSPENDED';
     }
 
+    function isEmailVerified() {
+      return isAuthenticated() && (
+        (request.auth.token != null && request.auth.token.email_verified == true) ||
+        (request.auth.token != null && request.auth.token.firebase != null && request.auth.token.firebase.sign_in_provider == 'google.com')
+      );
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // 1. users Collection
     // ─────────────────────────────────────────────────────────────────────────
@@ -210,8 +217,8 @@ service cloud.firestore {
         isAdmin()
       );
 
-      // Section 5: Gender Matching Enforcement & Section 6: Approved Trainer
-      allow create: if isAuthenticated() &&
+      // Section 5: Gender Matching Enforcement & Section 6: Approved Trainer (Requires Verified Email)
+      allow create: if isEmailVerified() &&
         request.resource.data.clientId == request.auth.uid &&
         request.resource.data.clientGender == request.resource.data.trainerGender &&
         exists(/databases/$(database)/documents/trainer_profiles/$(request.resource.data.trainerId)) &&
@@ -259,7 +266,7 @@ service cloud.firestore {
         isAdmin()
       );
       // Clients may create INITIATED orders; SUCCESS and credit-granting must be performed by admin or Cloud Functions
-      allow create: if isAuthenticated() &&
+      allow create: if isEmailVerified() &&
         request.resource.data.clientId == request.auth.uid &&
         request.resource.data.status == 'INITIATED';
       allow update: if isAdmin();
